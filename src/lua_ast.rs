@@ -427,11 +427,13 @@ impl EffectSkeleton {
     /// `SetValue`, no activated-effect handlers), return the spec.
     ///
     /// `SetValue` accepts a literal integer, or (T34) an inline closure
-    /// whose body is a single-step overlay/counter product — see
-    /// `passive_value_expr`. Closure values only qualify for the
-    /// `EFFECT_TYPE_SINGLE` self shape: in EQUIP/FIELD chains the
-    /// closure's card param is each *affected* card, which DSL `self`
-    /// would misread.
+    /// whose body is a single-step overlay/counter or group-count
+    /// product — see `passive_value_expr`. Closure bodies that read the
+    /// closure's card param only qualify for the `EFFECT_TYPE_SINGLE`
+    /// self shape: in EQUIP/FIELD chains that param is each *affected*
+    /// card, which DSL `self` would misread. Card-param-free count
+    /// bodies (scoped via `e:GetHandlerPlayer()` or a player-symmetric
+    /// literal) qualify in every chain shape.
     ///
     /// Returns None for `EFFECT_TYPE_FIELD` chains whose `SetTargetRange`
     /// is missing — without that arg we cannot know whether the modifier
@@ -452,12 +454,11 @@ impl EffectSkeleton {
             self.args_of("SetTargetRange"),
         )?;
         let raw_value = self.first_arg_of("SetValue")?;
+        let self_scoped = scope_target.scope.is_none() && scope_target.target.is_none();
         let (negative, value) = if let Ok(n) = raw_value.parse::<i64>() {
             (n < 0, n.unsigned_abs().to_string())
-        } else if scope_target.scope.is_none() && scope_target.target.is_none() {
-            passive_value_expr(raw_value)?
         } else {
-            return None;
+            passive_value_expr(raw_value, self_scoped)?
         };
         Some(PassiveModifierSpec {
             stat: stat.to_string(),
@@ -653,6 +654,8 @@ fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
     Some(match c {
         "SET_AMAZONESS"    => "Amazoness",
         "SET_ANCIENT_GEAR" => "Ancient Gear",
+        "SET_ASSAULT_MODE" => "/Assault Mode",
+        "SET_AZAMINA"      => "Azamina",
         "SET_DD"           => "D/D",
         "SET_GEM_KNIGHT"   => "Gem-Knight",
         "SET_DDD"          => "D/D/D",
@@ -662,10 +665,12 @@ fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
         "SET_GOUKI"        => "Gouki",
         "SET_GRAVEKEEPERS" => "Gravekeeper's",
         "SET_HEROIC"       => "Heroic",
+        "SET_HORUS"        => "Horus",
         "SET_INVOKED"      => "Invoked",
         "SET_LYRILUSC"     => "Lyrilusc",
         "SET_MAGISTUS"     => "Magistus",
         "SET_MEGALITH"     => "Megalith",
+        "SET_MEKLORD"      => "Meklord",
         "SET_MELODIOUS"    => "Melodious",
         "SET_METALFOES"    => "Metalfoes",
         "SET_MEMENTO"      => "Memento",
@@ -816,41 +821,185 @@ impl PassiveModifierSpec {
 
 /// T34 — lower a non-literal `SetValue` arg to a DSL passive value
 /// expr. Accepts exactly the inline-closure shape
-/// `function(<e>,<c>) return <body> end` where `<body>` is a
-/// single-step product on the closure's card param:
+/// `function(<e>[,<c>]) return <body> end` where `<body>` is a
+/// single-step product on either the closure's card param or a
+/// group-count global:
 ///
 ///   c:GetOverlayCount()              → self.overlay_count
 ///   c:GetOverlayCount()*N            → self.overlay_count * N
 ///   N*c:GetOverlayCount()            → self.overlay_count * N
 ///   c:GetCounter(COUNTER_X | 0xN)*N  → self.counter("<name>") * N
+///   Duel.GetMatchingGroupCount(…)*N  → count((all, …)) * N
+///   Duel.GetFieldGroupCount(…)*N     → count((all, card, …)) * N
 ///
 /// Counter codes resolve through the Phase 13 embedded map
-/// (`counter_arg_to_name`); unknown codes skip. Everything else —
-/// named function refs, one-param closures (whose bodies read
-/// `e:GetHandler()`), `e:GetHandler()` receivers, `Duel.*` globals,
-/// multi-step math, non-`*` operators, negative factors — returns None
-/// so the caller skips instead of mis-emitting. Always positive
-/// (`negative` = false): no corpus closure of this shape subtracts.
-fn passive_value_expr(raw: &str) -> Option<(bool, String)> {
+/// (`counter_arg_to_name`); count calls through
+/// `passive_count_call_to_expr` (the passive-aware sibling of the
+/// Phase 10 `count_call_to_count_expr`, whose `tp`-only scope gate the
+/// handler-less passive closures can never satisfy). Overlay/counter
+/// bodies read the card param, so they require `self_scoped` (SINGLE
+/// self chains — in EQUIP/FIELD chains the param is each *affected*
+/// card, not the passive's own card). Everything else — named function
+/// refs, `e:GetHandler()` receivers, multi-step math, non-`*`
+/// operators — returns None so the caller skips instead of
+/// mis-emitting. A negative factor (`…*-100`) flips the modifier sign.
+fn passive_value_expr(raw: &str, self_scoped: bool) -> Option<(bool, String)> {
     let rest = raw.trim().strip_prefix("function")?.trim_start();
     let (params, body) = rest.strip_prefix('(')?.split_once(')')?;
-    // The affected-card param is the closure's second arg; one-param
-    // closures have no card handle and skip.
-    let card_param = params.split(',').nth(1).map(str::trim).filter(|p| !p.is_empty())?;
+    let mut params = params.split(',').map(str::trim);
+    let named = |p: &&str| !p.is_empty() && *p != "_";
+    let e_param = params.next().filter(named);
+    let card_param = params.next().filter(named);
     let body = body.trim_start().strip_prefix("return")?;
     if !body.starts_with(char::is_whitespace) { return None; }
     let body = body.trim().strip_suffix("end")?.trim_end();
     let (call_txt, factor) = match split_top_level_binop(body) {
-        None => (body, 1u64),
+        None => (body, 1i64),
         Some((l, '*', r)) => {
-            if let Ok(n) = r.parse::<u64>() { (l, n) }
-            else if let Ok(n) = l.parse::<u64>() { (r, n) }
+            if let Ok(n) = r.parse::<i64>() { (l, n) }
+            else if let Ok(n) = l.parse::<i64>() { (r, n) }
             else { return None; }
         }
         Some(_) => return None,
     };
-    let stat_ref = overlay_counter_call_to_ref(call_txt, card_param)?;
-    Some((false, if factor == 1 { stat_ref } else { format!("{stat_ref} * {factor}") }))
+    let stat_ref = if call_txt.starts_with("Duel.GetMatchingGroupCount(")
+        || call_txt.starts_with("Duel.GetFieldGroupCount(")
+    {
+        passive_count_call_to_expr(call_txt, e_param, card_param, self_scoped)?
+    } else if self_scoped {
+        overlay_counter_call_to_ref(call_txt, card_param?)?
+    } else {
+        return None;
+    };
+    let mag = factor.unsigned_abs();
+    Some((
+        factor < 0,
+        if mag == 1 { stat_ref } else { format!("{stat_ref} * {mag}") },
+    ))
+}
+
+/// Lower a `Duel.GetMatchingGroupCount` / `Duel.GetFieldGroupCount`
+/// call inside a passive `SetValue` closure to a DSL `count(…)` expr.
+///
+/// Passive closures have no `tp` in scope, so unlike the Phase 10
+/// resolve-side path the scope player is one of:
+///
+///   `<e>:GetHandlerPlayer()`  → the passive's controller ("you") —
+///                               valid in every chain shape
+///   `<c>:GetControler()`      → the affected card's controller; only
+///                               `self_scoped` chains guarantee that
+///                               card is the passive's own ("you")
+///   literal `0`               → absolute player; only translatable
+///                               when both location masks are equal, so
+///                               the count is player-symmetric
+///                               ("either controls")
+///
+/// The exception arg maps `nil` → none and the passive's own card
+/// (`<c>` when self-scoped / `<e>:GetHandler()`) → `except self`; any
+/// other exception skips. Filters route through
+/// `passive_count_filter`. Skip-not-mis-emit throughout: the count IS
+/// the modifier's value, so any unmapped piece drops the whole spec.
+fn passive_count_call_to_expr(
+    call: &str,
+    e_param: Option<&str>,
+    card_param: Option<&str>,
+    self_scoped: bool,
+) -> Option<String> {
+    let (is_field, inner) =
+        if let Some(rest) = call.strip_prefix("Duel.GetMatchingGroupCount(") {
+            (false, rest)
+        } else if let Some(rest) = call.strip_prefix("Duel.GetFieldGroupCount(") {
+            (true, rest)
+        } else {
+            return None;
+        };
+    let inner = inner.strip_suffix(')')?;
+    let args = split_top_level_commas(inner)?;
+    let (kind, where_clause, scope_p, my, opp, exception) = if is_field {
+        // GetFieldGroupCount(player, my_locs, opp_locs) — no filter.
+        if args.len() != 3 { return None; }
+        ("card".to_string(), None, args[0].as_str(), args[1].as_str(), args[2].as_str(), "nil")
+    } else {
+        // GetMatchingGroupCount(filter, player, my_locs, opp_locs, exception, filter_args…)
+        if args.len() < 5 { return None; }
+        let (kind, wc) = passive_count_filter(args[0].as_str(), &args[5..])?;
+        (kind, wc, args[1].as_str(), args[2].as_str(), args[3].as_str(), args[4].as_str())
+    };
+    let scope_ok = e_param.is_some_and(|e| scope_p == format!("{e}:GetHandlerPlayer()"))
+        || (self_scoped
+            && card_param.is_some_and(|c| scope_p == format!("{c}:GetControler()")))
+        || (scope_p == "0" && my == opp && my != "0");
+    if !scope_ok { return None; }
+    let controller = controller_from_scope(scope_p, my, opp)?;
+    let zone = zone_from_locations(my, opp)?;
+    let except_self = match exception {
+        "nil" => false,
+        _ if self_scoped
+            && (Some(exception) == card_param
+                || e_param.is_some_and(|e| exception == format!("{e}:GetHandler()"))) =>
+        {
+            true
+        }
+        _ => return None,
+    };
+    let mut parts = vec!["all".to_string(), kind, controller, zone];
+    if except_self { parts.push("except self".to_string()); }
+    if let Some(w) = where_clause { parts.push(format!("where {w}")); }
+    Some(format!("count(({}))", parts.join(", ")))
+}
+
+/// Map a group-count filter predicate (plus any trailing filter args
+/// from the count call) to a DSL `(kind, where-predicate)` pair for
+/// the passive count path. Richer than the Phase 10 `map_group_filter`
+/// arg-less table: parameterized predicates (`Card.IsType` + one
+/// TYPE_*, `Card.IsSetCard`/`IsRace`/`IsAttribute` + one constant) and
+/// `aux.FaceupFilter(<inner>[,<args>])` compositions map here.
+/// Unmapped predicates — `Card.IsCode` (needs a name lookup),
+/// `Card.IsSpellTrap` (the parser has no nested `(a or b)` predicate),
+/// custom closures, `s.*` refs — return None.
+fn passive_count_filter(
+    filter: &str,
+    extra: &[String],
+) -> Option<(String, Option<String>)> {
+    if let Some(inner) = filter
+        .strip_prefix("aux.FaceupFilter(")
+        .and_then(|r| r.strip_suffix(')'))
+    {
+        if !extra.is_empty() { return None; }
+        let inner_args = split_top_level_commas(inner)?;
+        let (kind, wc) = passive_count_filter(inner_args[0].as_str(), &inner_args[1..])?;
+        let wc = match wc {
+            Some(w) => format!("{w} and is_face_up"),
+            None => "is_face_up".to_string(),
+        };
+        return Some((kind, Some(wc)));
+    }
+    let kind_only = |k: &str| Some((k.to_string(), None));
+    match filter {
+        _ if !extra.is_empty() => {
+            if extra.len() != 1 { return None; }
+            let arg = extra[0].as_str();
+            match filter {
+                "Card.IsType" => match arg {
+                    "TYPE_NORMAL" => kind_only("normal monster"),
+                    "TYPE_TUNER"  => kind_only("tuner monster"),
+                    _ => None,
+                },
+                "Card.IsSetCard" | "Card.IsRace" | "Card.IsAttribute" => {
+                    Some(("card".to_string(), Some(filter_predicate_to_where(filter, arg)?)))
+                }
+                _ => None,
+            }
+        }
+        "nil" | "aux.TRUE"     => kind_only("card"),
+        "Card.IsMonster"       => kind_only("monster"),
+        "Card.IsSpell"         => kind_only("spell"),
+        "Card.IsTrap"          => kind_only("trap"),
+        "Card.IsRitualMonster" => kind_only("ritual monster"),
+        "Card.IsFaceup"   => Some(("card".to_string(), Some("is_face_up".to_string()))),
+        "Card.IsFacedown" => Some(("card".to_string(), Some("is_face_down".to_string()))),
+        _ => None,
+    }
 }
 
 /// `<card_param>:GetOverlayCount()` → `self.overlay_count`;
@@ -7633,6 +7782,238 @@ end
 "#;
         assert!(spec_of(src).is_none(),
             "closure SetValue on a FIELD chain must skip");
+    }
+
+    /// T34 follow-up helper: FIELD passive chain with the given
+    /// `SetTargetRange` args around `value`.
+    fn field_count_chain(target_range: &str, value: &str) -> String {
+        format!(r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetRange(LOCATION_MZONE)
+    e1:SetTargetRange({target_range})
+    e1:SetValue({value})
+    c:RegisterEffect(e1)
+end
+"#)
+    }
+
+    #[test]
+    fn t34fu_count_faceup_setcard_self_chain() {
+        // c11335209 shape: "gains 1200 ATK for each face-up Horus
+        // monster you control"; scope player is c:GetControler().
+        let spec = spec_of(&overlay_chain(
+            "function(e,c) return Duel.GetMatchingGroupCount(aux.FaceupFilter(Card.IsSetCard,SET_HORUS),c:GetControler(),LOCATION_MZONE,0,nil)*1200 end",
+        )).expect("spec");
+        assert_eq!(spec.value,
+            "count((all, card, you control, from monster_zone, where archetype == \"Horus\" and is_face_up)) * 1200");
+        assert!(!spec.negative);
+    }
+
+    #[test]
+    fn t34fu_count_gfgc_hand_clone_pair() {
+        // c98777036 (Tragoedia): ATK chain + Clone'd DEF chain, both
+        // counting the controller's hand.
+        let src = r#"
+function s.initial_effect(c)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_SINGLE)
+    e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+    e2:SetCode(EFFECT_UPDATE_ATTACK)
+    e2:SetRange(LOCATION_MZONE)
+    e2:SetValue(function(_,c) return Duel.GetFieldGroupCount(c:GetControler(),LOCATION_HAND,0)*600 end)
+    c:RegisterEffect(e2)
+    local e3=e2:Clone()
+    e3:SetCode(EFFECT_UPDATE_DEFENSE)
+    c:RegisterEffect(e3)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let atk = report.effects[0].passive_modifier_spec().expect("atk spec");
+        let def = report.effects[1].passive_modifier_spec().expect("def spec");
+        assert_eq!(atk.stat, "atk");
+        assert_eq!(def.stat, "def");
+        assert_eq!(atk.value, "count((all, card, you control, from hand)) * 600");
+        assert_eq!(def.value, atk.value);
+    }
+
+    #[test]
+    fn t34fu_count_field_chain_handler_player() {
+        // c63233638 (Megalith Phaleg): FIELD chain, card-param-free
+        // closure scoped via e:GetHandlerPlayer(), leading factor.
+        let spec = spec_of(&field_count_chain(
+            "LOCATION_MZONE,0",
+            "function(e,c) return 300*Duel.GetMatchingGroupCount(Card.IsRitualMonster,e:GetHandlerPlayer(),LOCATION_GRAVE,0,nil) end",
+        )).expect("spec");
+        assert_eq!(spec.value, "count((all, ritual monster, you control, from gy)) * 300");
+        assert_eq!(spec.scope, Some("field"));
+        assert_eq!(spec.target, Some("(all, monster, you control)"));
+    }
+
+    #[test]
+    fn t34fu_count_negative_factor_flips_sign() {
+        // c90673288 shape: opponent's monsters lose 100 ATK for each
+        // spell in the handler's GY.
+        let spec = spec_of(&field_count_chain(
+            "0,LOCATION_MZONE",
+            "function(e) return Duel.GetMatchingGroupCount(Card.IsSpell,e:GetHandlerPlayer(),LOCATION_GRAVE,0,nil)*-100 end",
+        )).expect("spec");
+        assert!(spec.negative);
+        assert_eq!(spec.value, "count((all, spell, you control, from gy)) * 100");
+        let dsl = spec.to_dsl_block("Static Drain", "    ");
+        assert!(dsl.contains("modifier: atk - count((all, spell, you control, from gy)) * 100"),
+            "got:\n{}", dsl);
+    }
+
+    #[test]
+    fn t34fu_count_symmetric_literal_scope() {
+        // c15665977 shape: literal player 0 with equal location masks —
+        // player-symmetric, so "either controls" is faithful.
+        let spec = spec_of(&overlay_chain(
+            "function(e,c) return 300*Duel.GetMatchingGroupCount(Card.IsType,0,LOCATION_GRAVE,LOCATION_GRAVE,nil,TYPE_TUNER) end",
+        )).expect("spec");
+        assert_eq!(spec.value, "count((all, tuner monster, either controls, from gy)) * 300");
+    }
+
+    #[test]
+    fn t34fu_count_exception_maps_to_except_self() {
+        // c80071619: exception is e:GetHandler() on a self chain.
+        let spec = spec_of(&overlay_chain(
+            "function(e,c) return 500*Duel.GetMatchingGroupCount(nil,c:GetControler(),LOCATION_MZONE,0,e:GetHandler()) end",
+        )).expect("spec");
+        assert_eq!(spec.value, "count((all, card, you control, from monster_zone, except self)) * 500");
+        // c2137678: exception is the closure's card param; symmetric
+        // literal scope + FaceupFilter archetype composition.
+        let spec = spec_of(&overlay_chain(
+            "function(e,c) return 100*Duel.GetMatchingGroupCount(aux.FaceupFilter(Card.IsSetCard,SET_MEKLORD),0,LOCATION_MZONE,LOCATION_MZONE,c) end",
+        )).expect("spec");
+        assert_eq!(spec.value,
+            "count((all, card, either controls, from monster_zone, except self, where archetype == \"Meklord\" and is_face_up)) * 100");
+    }
+
+    #[test]
+    fn t34fu_count_equip_chain_card_param_free() {
+        // c24839398 shape: EQUIP chain, one-param closure — no card
+        // param read, so the non-self scope is safe.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_EQUIP)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(function(e) return Duel.GetMatchingGroupCount(Card.IsTrap,e:GetHandlerPlayer(),LOCATION_GRAVE,0,nil)*400 end)
+    c:RegisterEffect(e1)
+end
+"#;
+        let spec = spec_of(src).expect("spec");
+        assert_eq!(spec.value, "count((all, trap, you control, from gy)) * 400");
+        assert_eq!(spec.target, Some("equipped_card"));
+    }
+
+    #[test]
+    fn t34fu_count_zero_param_closure() {
+        // c2333466 shape: `function()` — fine, the symmetric literal
+        // scope needs neither param.
+        let spec = spec_of(&overlay_chain(
+            "function() return Duel.GetFieldGroupCount(0,LOCATION_REMOVED,LOCATION_REMOVED)*300 end",
+        )).expect("spec");
+        assert_eq!(spec.value, "count((all, card, either controls, from banished)) * 300");
+    }
+
+    #[test]
+    fn t34fu_count_istype_extra_arg_kinds() {
+        // c13893596 (Exodius): Card.IsType routes its trailing count-call
+        // arg into the kind ("normal monster").
+        let spec = spec_of(&overlay_chain(
+            "function(e,c) return Duel.GetMatchingGroupCount(Card.IsType,c:GetControler(),LOCATION_GRAVE,0,nil,TYPE_NORMAL)*1000 end",
+        )).expect("spec");
+        assert_eq!(spec.value, "count((all, normal monster, you control, from gy)) * 1000");
+    }
+
+    #[test]
+    fn t34fu_count_facedown_extra_deck() {
+        // c16893370 shape: `function(_,c)` underscore e-param.
+        let spec = spec_of(&overlay_chain(
+            "function(_,c) return Duel.GetMatchingGroupCount(Card.IsFacedown,c:GetControler(),LOCATION_EXTRA,0,nil)*100 end",
+        )).expect("spec");
+        assert_eq!(spec.value,
+            "count((all, card, you control, from extra_deck, where is_face_down)) * 100");
+    }
+
+    #[test]
+    fn t34fu_count_asymmetric_opponent_grave() {
+        // c45935145 shape: my_locs=0, opp_locs=GRAVE relative to the
+        // handler player → opponent's GY.
+        let spec = spec_of(&field_count_chain(
+            "LOCATION_MZONE,0",
+            "function(e) return Duel.GetFieldGroupCount(e:GetHandlerPlayer(),0,LOCATION_GRAVE)*100 end",
+        )).expect("spec");
+        assert_eq!(spec.value, "count((all, card, opponent controls, from gy)) * 100");
+    }
+
+    #[test]
+    fn t34fu_skip_card_param_scope_on_non_self_chain() {
+        // In FIELD/EQUIP chains the closure's card param is each
+        // affected card — its controller is not necessarily "you".
+        assert!(spec_of(&field_count_chain(
+            "LOCATION_MZONE,0",
+            "function(e,c) return Duel.GetMatchingGroupCount(Card.IsSpell,c:GetControler(),LOCATION_GRAVE,0,nil)*100 end",
+        )).is_none(), "card-param scope on a FIELD chain must skip");
+    }
+
+    #[test]
+    fn t34fu_skip_asymmetric_literal_scope() {
+        // Literal player with unequal masks is an absolute-player
+        // count the relative DSL cannot express.
+        assert!(spec_of(&overlay_chain(
+            "function(e,c) return Duel.GetFieldGroupCount(0,LOCATION_GRAVE,0)*100 end",
+        )).is_none(), "asymmetric literal-player scope must skip");
+    }
+
+    #[test]
+    fn t34fu_skip_unmapped_filters() {
+        // c32588805: Card.IsSpellTrap would need a nested `(a or b)`
+        // predicate the parser does not implement.
+        assert!(spec_of(&overlay_chain(
+            "function(e,c) return Duel.GetMatchingGroupCount(aux.FaceupFilter(Card.IsSpellTrap),e:GetHandlerPlayer(),LOCATION_ONFIELD,0,nil)*300 end",
+        )).is_none());
+        // c43490025: custom closure filter.
+        assert!(spec_of(&overlay_chain(
+            "function(e,c) return Duel.GetMatchingGroupCount(function(c) return c:IsSetCard(SET_NUMBER) and c:IsType(TYPE_XYZ) end,0,LOCATION_GRAVE,LOCATION_GRAVE,nil)*500 end",
+        )).is_none());
+        // Unmapped Card.IsType arg.
+        assert!(spec_of(&overlay_chain(
+            "function(e,c) return Duel.GetMatchingGroupCount(Card.IsType,c:GetControler(),LOCATION_GRAVE,0,nil,TYPE_FUSION)*100 end",
+        )).is_none());
+    }
+
+    #[test]
+    fn t34fu_skip_multi_step_count_body() {
+        // c89851827 / c51669847 shapes: capped or composite math.
+        assert!(spec_of(&overlay_chain(
+            "function(e) return math.min(Duel.GetFieldGroupCount(e:GetHandlerPlayer(),LOCATION_REMOVED,0)*100,1000) end",
+        )).is_none());
+        assert!(spec_of(&overlay_chain(
+            "function(e,c) return Duel.GetFieldGroupCount(0,LOCATION_REMOVED,LOCATION_REMOVED)*100+200 end",
+        )).is_none());
+    }
+
+    #[test]
+    fn t34fu_skip_foreign_exception() {
+        // Exception that is neither nil nor the passive's own card.
+        assert!(spec_of(&overlay_chain(
+            "function(e,c) return Duel.GetMatchingGroupCount(nil,c:GetControler(),LOCATION_MZONE,0,g)*100 end",
+        )).is_none(), "unknown exception binding must skip");
+    }
+
+    #[test]
+    fn t34fu_skip_or_mask_locations() {
+        // Multi-zone OR masks have no single DSL `from` token.
+        assert!(spec_of(&overlay_chain(
+            "function(e,c) return Duel.GetMatchingGroupCount(Card.IsSpell,c:GetControler(),LOCATION_MZONE|LOCATION_GRAVE,0,nil)*100 end",
+        )).is_none());
     }
 
     #[test]
