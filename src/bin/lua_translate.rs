@@ -111,6 +111,9 @@ fn main() {
             println!("  conditions injected:     {}", report.conditions_injected);
             println!("  costs injected:          {}", report.costs_injected);
             println!("  targets injected:        {}", report.targets_injected);
+            println!("  durations retrofitted:   {}", report.durations_retrofitted);
+            println!("  retrofit conflicts:      {}", report.retrofit_conflicts);
+            println!("  retrofit removal cands:  {}", report.retrofit_removals);
         }
         _ => {
             eprintln!("unknown mode: {}", mode);
@@ -167,7 +170,45 @@ struct ApplyReport {
     conditions_injected: usize,
     costs_injected: usize,
     targets_injected: usize,
+    durations_retrofitted: usize,
+    retrofit_conflicts: usize,
+    retrofit_removals: usize,
     no_lua: usize,
+}
+
+/// The pre-fix substring mapping `reset_to_duration_kw` shipped with —
+/// kept ONLY so Pass R can locate the durations earlier applies emitted.
+/// Not a translation path; do not add cases.
+fn legacy_reset_duration_kw(reset: Option<&str>) -> Option<&'static str> {
+    let s = reset?;
+    if s.contains("PHASE_END") || s.contains("RESETS_STANDARD") {
+        return Some("end_of_turn");
+    }
+    if s.contains("PHASE_DAMAGE") {
+        return Some("end_of_damage_step");
+    }
+    None
+}
+
+/// Rewrite every line in `block` whose trailing token is the duration
+/// keyword `from` to end in `to` instead. Returns the rewritten block
+/// and the number of lines changed. `install_watcher` lines never end
+/// in a bare duration (they close with `} }`), so the trailing match
+/// leaves them alone by construction.
+fn rewrite_trailing_duration(block: &str, from: &str, to: &str) -> (String, usize) {
+    let mut n = 0usize;
+    let mut out: Vec<String> = Vec::new();
+    for line in block.split('\n') {
+        let t = line.trim_end();
+        let suffix = format!(" {}", from);
+        if t.ends_with(&suffix) {
+            n += 1;
+            out.push(format!("{}{}", &t[..t.len() - from.len()], to));
+        } else {
+            out.push(line.to_string());
+        }
+    }
+    (out.join("\n"), n)
 }
 
 fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
@@ -530,13 +571,69 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             }
         }
 
-        if filled > 0 || blocks_added > 0 || passives_added > 0 || conditions_added > 0 || costs_added > 0 || targets_added > 0 {
+        // Pass R — duration retrofit for the exact-token reset mapping.
+        // Earlier applies emitted durations through a substring mapping
+        // that sent every RESETS_STANDARD reset to `end_of_turn`; the
+        // exact-token `reset_to_duration_kw` distinguishes while_face_up /
+        // next_standby_phase / end_of_damage_step lifetimes. Rewrite the
+        // duration keyword on lines those earlier applies produced.
+        //
+        // Safety filter — rewrites happen per effect block and only when
+        // unambiguous: every chain in the block's handler whose LEGACY
+        // keyword is K must map to the same new keyword K' under the new
+        // mapping, and no chain may still legitimately produce K. Blocks
+        // where chains disagree are skipped and counted; chains whose
+        // line the new mapping would not emit at all (two-turn lifetimes,
+        // battle-phase resets, …) need line REMOVAL, which is left to a
+        // manual audit — rewriting their keyword would still be wrong.
+        let mut retrofitted = 0usize;
+        for (eff_i, eff) in walk.effects.iter().enumerate() {
+            let Some(handler) = eff.operation_handler.as_deref() else { continue };
+            let Some(block_idx) = assign.by_effect[eff_i] else { continue };
+            let Some(body) = walk.functions.get(handler.trim()) else { continue };
+            let mut moves: std::collections::BTreeMap<&str, std::collections::BTreeSet<Option<&str>>> =
+                std::collections::BTreeMap::new();
+            for ch in &body.register_chains {
+                let Some(legacy) = legacy_reset_duration_kw(ch.reset.as_deref()) else { continue };
+                let new = lua_ast::reset_to_duration_kw(
+                    ch.reset.as_deref(), ch.reset_count.as_deref());
+                moves.entry(legacy).or_default().insert(new);
+            }
+            for (legacy, targets) in moves {
+                if targets.len() != 1 {
+                    r.retrofit_conflicts += 1;
+                    eprintln!("retrofit conflict ({}): {} maps to {:?}",
+                        path.display(), legacy, targets);
+                    continue;
+                }
+                let target = targets.into_iter().next().unwrap();
+                let Some(new_kw) = target else {
+                    r.retrofit_removals += 1;
+                    eprintln!("retrofit removal candidate ({}): legacy {} now unmapped",
+                        path.display(), legacy);
+                    continue;
+                };
+                if new_kw == legacy { continue; }
+                let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else {
+                    continue;
+                };
+                let (rewritten, n) =
+                    rewrite_trailing_duration(&new_txt[block_lo..block_hi], legacy, new_kw);
+                if n > 0 {
+                    new_txt = format!("{}{}{}", &new_txt[..block_lo], rewritten, &new_txt[block_hi..]);
+                    retrofitted += n;
+                }
+            }
+        }
+
+        if filled > 0 || blocks_added > 0 || passives_added > 0 || conditions_added > 0 || costs_added > 0 || targets_added > 0 || retrofitted > 0 {
             r.effects_filled += filled;
             r.blocks_injected += blocks_added;
             r.passives_injected += passives_added;
             r.conditions_injected += conditions_added;
             r.costs_injected += costs_added;
             r.targets_injected += targets_added;
+            r.durations_retrofitted += retrofitted;
             if let Err(e) = fs::write(&path, new_txt) {
                 eprintln!("write {} failed: {}", path.display(), e);
             }
