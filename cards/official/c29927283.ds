@@ -31,6 +31,8 @@ card "Returned Dino Daneen" {
         once_per_turn: soft
         timing: if
         trigger: custom "chain_end"
-        resolve { }
+        resolve {
+            modify_atk (all, card, you control, from monster_zone, where is_face_up and race == Dinosaur) + 400 until while_face_up
+        }
     }
 }
