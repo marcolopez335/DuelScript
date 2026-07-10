@@ -96,6 +96,13 @@ pub struct FunctionBody {
     /// Multi-statement bodies (local bindings, side effects, elseif
     /// arms) stay None — same conservatism as `return_expr`.
     pub guarded_return: Option<GuardedReturn>,
+    /// Declared parameter names, in source order (T38 S1). Named-filter
+    /// resolution (`Duel.GetMatchingGroup(s.filter, …)`) requires every
+    /// predicate atom in the filter's `return_expr` to be a method call
+    /// on the FIRST parameter — an atom touching any other binding (the
+    /// effect `e`, an outer local, a second param) is not a per-card
+    /// predicate and poisons the mapping.
+    pub params: Vec<String>,
 }
 
 /// A guarded-value function body (Phase 19): `if cond then return
@@ -261,6 +268,14 @@ pub struct SelectorSpec {
     /// selector path folds ONLY resolve-time selections, preserving the
     /// Phase 13b skip for SelectTarget-provenance receivers.
     pub from_resolve_select: bool,
+    /// Raw lua filter arg of the producing `Duel.GetMatchingGroup` call
+    /// (T38 S1). When `filter_mapped` is false and this names a script-
+    /// local function (`s.filter`), emit time re-resolves it against the
+    /// walked function table — the filter body isn't available at walk
+    /// time (spec extraction runs per handler, before/independent of the
+    /// filter fn's own walk). None on select-provenance specs: the
+    /// refinement is scoped to group-applied modifier receivers.
+    pub raw_filter: Option<String>,
 }
 
 impl SelectorSpec {
@@ -646,6 +661,313 @@ fn closure_filter_to_where(raw: &str) -> Option<String> {
     }
 }
 
+/// True when `s` is one balanced `( … )` group covering the whole string.
+fn fully_parenthesized(s: &str) -> bool {
+    let b = s.as_bytes();
+    if b.first() != Some(&b'(') || b.last() != Some(&b')') { return false; }
+    let mut depth = 0i32;
+    for (i, &c) in b.iter().enumerate() {
+        match c {
+            b'(' => depth += 1,
+            b')' => {
+                depth -= 1;
+                if depth == 0 { return i == b.len() - 1; }
+            }
+            _ => {}
+        }
+    }
+    false
+}
+
+/// Map one `Card.Is*` predicate (bare name, raw arg text) to a DSL
+/// where-clause fragment (T38 S1). Extends the Phase 12 trio
+/// (SetCard/Race/Attribute) with the numeric-bound, exact-stat, and
+/// type-bit predicates the stat-chip filter corpus uses. Every unknown
+/// name or non-literal arg returns None — poisoning the whole filter
+/// (skip-not-mis-emit).
+fn card_pred_to_where(name: &str, args: &str) -> Option<String> {
+    // Numeric-bound family: IsLevelAbove(n) is level >= n (inclusive on
+    // the lua side), IsLevelBelow(n) is level <= n.
+    let bound = |field: &str, op: &str| -> Option<String> {
+        let n: u32 = args.trim().parse().ok()?;
+        Some(format!("{field} {op} {n}"))
+    };
+    // Exact-value family: lua `IsLevel(a, b, …)` is true for ANY listed
+    // value — or-join, one atom per literal.
+    let exact = |field: &str| -> Option<String> {
+        let mut parts = Vec::new();
+        for a in args.split(',') {
+            let n: u32 = a.trim().parse().ok()?;
+            parts.push(format!("{field} == {n}"));
+        }
+        if parts.is_empty() { None } else { Some(parts.join(" or ")) }
+    };
+    match name {
+        "IsSetCard"   => filter_predicate_to_where("Card.IsSetCard", args),
+        "IsRace"      => filter_predicate_to_where("Card.IsRace", args),
+        "IsAttribute" => filter_predicate_to_where("Card.IsAttribute", args),
+        "IsFaceup"    if args.is_empty() => Some("is_face_up".to_string()),
+        "IsFacedown"  if args.is_empty() => Some("is_face_down".to_string()),
+        "IsMonster"   if args.is_empty() => Some("is_monster".to_string()),
+        "IsSpell"     if args.is_empty() => Some("is_spell".to_string()),
+        "IsTrap"      if args.is_empty() => Some("is_trap".to_string()),
+        // Ritual/Fusion/Synchro/Xyz/Link "monster" helpers are the type
+        // bit AND the monster supertype — two flat atoms.
+        "IsRitualMonster"  if args.is_empty() => Some("is_monster and is_ritual".to_string()),
+        "IsFusionMonster"  if args.is_empty() => Some("is_monster and is_fusion".to_string()),
+        "IsSynchroMonster" if args.is_empty() => Some("is_monster and is_synchro".to_string()),
+        "IsXyzMonster"     if args.is_empty() => Some("is_monster and is_xyz".to_string()),
+        "IsLinkMonster"    if args.is_empty() => Some("is_monster and is_link".to_string()),
+        "IsLevelAbove"   => bound("level", ">="),
+        "IsLevelBelow"   => bound("level", "<="),
+        "IsRankAbove"    => bound("rank", ">="),
+        "IsRankBelow"    => bound("rank", "<="),
+        "IsLinkAbove"    => bound("link", ">="),
+        "IsLinkBelow"    => bound("link", "<="),
+        "IsAttackAbove"  => bound("atk", ">="),
+        "IsAttackBelow"  => bound("atk", "<="),
+        "IsDefenseAbove" => bound("def", ">="),
+        "IsDefenseBelow" => bound("def", "<="),
+        "IsLevel" => exact("level"),
+        "IsRank"  => exact("rank"),
+        "IsLink"  => exact("link"),
+        // Type-bit test: lua `IsType(a|b)` is true when ANY bit matches.
+        "IsType" => {
+            let mut parts = Vec::new();
+            for c in args.split('|') {
+                parts.push(type_const_to_pred(c.trim())?.to_string());
+            }
+            if parts.is_empty() { None } else { Some(parts.join(" or ")) }
+        }
+        _ => None,
+    }
+}
+
+/// TYPE_* constant → DSL `is_*` predicate atom (grammar `pred_atom`).
+fn type_const_to_pred(c: &str) -> Option<&'static str> {
+    Some(match c {
+        "TYPE_MONSTER"  => "is_monster",
+        "TYPE_SPELL"    => "is_spell",
+        "TYPE_TRAP"     => "is_trap",
+        "TYPE_NORMAL"   => "is_normal",
+        "TYPE_EFFECT"   => "is_effect",
+        "TYPE_FUSION"   => "is_fusion",
+        "TYPE_RITUAL"   => "is_ritual",
+        "TYPE_SYNCHRO"  => "is_synchro",
+        "TYPE_XYZ"      => "is_xyz",
+        "TYPE_PENDULUM" => "is_pendulum",
+        "TYPE_LINK"     => "is_link",
+        "TYPE_TUNER"    => "is_tuner",
+        "TYPE_FLIP"     => "is_flip",
+        "TYPE_TOKEN"    => "is_token",
+        _ => return None,
+    })
+}
+
+/// `Card.Is*`-style predicate with the `Card.` prefix (the
+/// `aux.FaceupFilter(Card.IsX, ARG)` composition path).
+fn lua_pred_method_to_where(method: &str, arg: &str) -> Option<String> {
+    let name = method.strip_prefix("Card.")?;
+    card_pred_to_where(name, arg)
+}
+
+/// Split a lua boolean expression at its top-level `and`/`or` keywords
+/// (paren-depth aware, whitespace-delimited). Returns the operand slices
+/// and the connective. MIXED `and`+`or` at one level returns None — the
+/// DSL predicate chain is flat and precedence-free, so a faithful
+/// rendering needs the lua side's explicit parens (which recurse through
+/// the paren branch instead).
+fn split_top_level_bool<'a>(expr: &'a str) -> Option<(Vec<&'a str>, &'static str)> {
+    let b = expr.as_bytes();
+    let mut depth = 0i32;
+    let mut cuts: Vec<(usize, usize, &'static str)> = Vec::new(); // (start, end, op)
+    let mut i = 0usize;
+    while i < b.len() {
+        match b[i] {
+            b'(' | b'{' => depth += 1,
+            b')' | b'}' => depth -= 1,
+            b' ' if depth == 0 => {
+                let rest = &expr[i..];
+                if let Some(r) = rest.strip_prefix(" and ") {
+                    let _ = r;
+                    cuts.push((i, i + 5, "and"));
+                    i += 4;
+                } else if rest.starts_with(" or ") {
+                    cuts.push((i, i + 4, "or"));
+                    i += 3;
+                }
+            }
+            _ => {}
+        }
+        i += 1;
+    }
+    if cuts.is_empty() { return None; }
+    let op = cuts[0].2;
+    if cuts.iter().any(|c| c.2 != op) { return None; }
+    let mut parts = Vec::new();
+    let mut start = 0usize;
+    for &(lo, hi, _) in &cuts {
+        parts.push(expr[start..lo].trim());
+        start = hi;
+    }
+    parts.push(expr[start..].trim());
+    if parts.iter().any(|p| p.is_empty()) { return None; }
+    Some((parts, op))
+}
+
+/// Map a whole lua filter-predicate expression over `param` to a DSL
+/// where-clause (T38 S1). Handles `and`-chains, `or`-chains, redundant
+/// parens, `not`, `<param>:Is*(…)` predicate atoms, and
+/// `<param>:Get<Stat>() <cmp> <int>` stat compares. Any atom outside
+/// that set (a second binding, an outer local, an unknown method, a
+/// non-literal operand) poisons the WHOLE expression — group-applied
+/// modifiers must match the lua set exactly, never a superset.
+///
+/// The rendered clause is always a FLAT homogeneous chain: the v2
+/// parser's parenthesized-predicate branch is currently broken (a
+/// `(A and B)` where-group parses as `not A`; or-groups error), so any
+/// mixed `and`/`or` structure that would need grouping returns None
+/// (task_bb225d5f tracks the parser fix; those cards are S1b backlog).
+fn lua_filter_expr_to_where(expr: &str, param: &str) -> Option<String> {
+    let e = expr.trim();
+    if e.is_empty() { return None; }
+    // Parens only group; strip a full-cover pair and recurse. The
+    // flat-chain homogeneity checks below decide expressibility.
+    if fully_parenthesized(e) {
+        return lua_filter_expr_to_where(&e[1..e.len() - 1], param);
+    }
+    if let Some((parts, op)) = split_top_level_bool(e) {
+        let other = if op == "and" { " or " } else { " and " };
+        let mut mapped = Vec::new();
+        for p in parts {
+            let m = lua_filter_expr_to_where(p, param)?;
+            // Same-connective children flatten into the chain; a child
+            // carrying the OTHER connective would need parens → None.
+            if m.contains(other) { return None; }
+            mapped.push(m);
+        }
+        return Some(mapped.join(&format!(" {} ", op)));
+    }
+    if let Some(rest) = e.strip_prefix("not ") {
+        let m = lua_filter_expr_to_where(rest.trim(), param)?;
+        // `not` binds one atom in the DSL; a compound operand would
+        // need the broken paren branch → None.
+        if m.contains(" and ") || m.contains(" or ") { return None; }
+        return Some(format!("not {}", m));
+    }
+    lua_filter_atom_to_where(e, param)
+}
+
+/// One predicate atom: `<param>:IsX(args)` or `<param>:Get<Stat>() <cmp> <int>`.
+fn lua_filter_atom_to_where(atom: &str, param: &str) -> Option<String> {
+    let a = atom.trim();
+    // Stat compare — find a top-level comparison operator. Two-char ops
+    // first so `>=` doesn't split at `>`.
+    for (lua_op, dsl_op) in
+        [("~=", "!="), ("==", "=="), (">=", ">="), ("<=", "<="), (">", ">"), ("<", "<")]
+    {
+        let Some(pos) = find_top_level(a, lua_op) else { continue };
+        let lhs = a[..pos].trim();
+        let rhs = a[pos + lua_op.len()..].trim();
+        let stat = lhs
+            .strip_prefix(param)
+            .and_then(|r| r.strip_prefix(':'))
+            .and_then(getter_to_stat_field)?;
+        let n: i64 = rhs.parse().ok()?;
+        if n < 0 { return None; } // grammar expr atoms are unsigned
+        return Some(format!("{stat} {dsl_op} {n}"));
+    }
+    let rest = a.strip_prefix(param)?.strip_prefix(':')?;
+    let (name, argrest) = rest.split_once('(')?;
+    let args = argrest.strip_suffix(')')?.trim();
+    // A chained call (`GetBattledGroup():IsContains(x)`) leaves junk in
+    // `args` (unbalanced text) — the per-name arg parses reject it.
+    card_pred_to_where(name.trim(), args)
+}
+
+/// `Get<Stat>()` method text → DSL stat_field token.
+fn getter_to_stat_field(m: &str) -> Option<&'static str> {
+    Some(match m.trim() {
+        "GetAttack()"      => "atk",
+        "GetDefense()"     => "def",
+        "GetBaseAttack()"  => "base_atk",
+        "GetBaseDefense()" => "base_def",
+        "GetLevel()"       => "level",
+        "GetRank()"        => "rank",
+        "GetLink()"        => "link",
+        _ => return None,
+    })
+}
+
+/// Byte offset of the first top-level (paren-depth-0) occurrence of
+/// `needle` in `s`, or None.
+fn find_top_level(s: &str, needle: &str) -> Option<usize> {
+    let b = s.as_bytes();
+    let n = needle.as_bytes();
+    let mut depth = 0i32;
+    for i in 0..b.len() {
+        match b[i] {
+            b'(' | b'{' => depth += 1,
+            b')' | b'}' => depth -= 1,
+            _ => {}
+        }
+        if depth == 0 && b[i..].starts_with(n) {
+            return Some(i);
+        }
+    }
+    None
+}
+
+/// Resolve a named script-local filter (`s.filter`) against the walked
+/// function table (T38 S1). The filter must be a PURE single-return
+/// predicate — `return_expr` is only captured for single-statement
+/// bodies, which is exactly the purity gate — and every atom must test
+/// the filter's first parameter against literals.
+fn named_filter_to_where(
+    raw: &str,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<String> {
+    let raw = raw.trim();
+    if !raw.starts_with("s.") || !raw[2..].chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+        return None;
+    }
+    let fb = functions.get(raw)?;
+    let expr = fb.return_expr.as_deref()?;
+    let param = fb.params.first()?;
+    if param.is_empty() { return None; }
+    lua_filter_expr_to_where(expr, param)
+}
+
+/// T38 S1 — emit-time refinement of group bindings whose lua filter was
+/// a named script-local function. Walk time can't see the filter fn's
+/// body (specs freeze per handler), so the upgrade happens here: an
+/// unmapped spec whose `raw_filter` resolves through
+/// [`named_filter_to_where`] gains the where-clause and flips
+/// `filter_mapped`, letting the Phase 10 group-modifier gate pass with
+/// the EXACT member set. Returns None when nothing upgrades (callers
+/// keep the borrowed original — no clone cost on the common path).
+fn refine_group_bindings(
+    body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<FunctionBody> {
+    let mut upgrades: Vec<(String, String)> = Vec::new();
+    for (name, spec) in &body.group_bindings {
+        if spec.filter_mapped { continue; }
+        let Some(raw) = spec.raw_filter.as_deref() else { continue };
+        let Some(wc) = named_filter_to_where(raw, functions) else { continue };
+        upgrades.push((name.clone(), wc));
+    }
+    if upgrades.is_empty() { return None; }
+    let mut out = body.clone();
+    for (name, wc) in upgrades {
+        if let Some(spec) = out.group_bindings.get_mut(&name) {
+            spec.where_clause = Some(wc);
+            spec.filter_mapped = true;
+        }
+    }
+    Some(out)
+}
+
 /// SET_* archetype constant → DSL archetype string. Curated for the
 /// constants that appear as fusion/ritual summon filters in the corpus;
 /// names match the TCG archetype strings the compiler's ArchetypeIs
@@ -656,6 +978,18 @@ fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
         "SET_ANCIENT_GEAR" => "Ancient Gear",
         "SET_ASSAULT_MODE" => "/Assault Mode",
         "SET_AZAMINA"      => "Azamina",
+        // T38 S1 — archetypes referenced by stat-chip group filters.
+        "SET_CHRONOMALY"   => "Chronomaly",
+        "SET_CIPHER"       => "Cipher",
+        "SET_DESTINY_HERO" => "Destiny HERO",
+        "SET_DOGMATIKA"    => "Dogmatika",
+        "SET_FLAMVELL"     => "Flamvell",
+        "SET_FUR_HIRE"     => "Fur Hire",
+        "SET_GUSTO"        => "Gusto",
+        "SET_KARAKURI"     => "Karakuri",
+        "SET_LAVAL"        => "Laval",
+        "SET_MORGANITE"    => "Morganite",
+        "SET_PERFORMAPAL"  => "Performapal",
         "SET_DD"           => "D/D",
         "SET_GEM_KNIGHT"   => "Gem-Knight",
         "SET_DDD"          => "D/D/D",
@@ -1077,6 +1411,11 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             // would need two SelectOption calls, which both reject.
             let select_option = inline_options
                 .or_else(|| extract_select_option(body_block));
+            let params: Vec<String> = body
+                .parameters()
+                .iter()
+                .map(|p| p.to_string().trim().to_string())
+                .collect();
             if !calls.is_empty() || !group_bindings.is_empty()
                 || !register_chains.is_empty() || !value_bindings.is_empty()
                 || return_expr.is_some() || !counter_ops.is_empty()
@@ -1097,6 +1436,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                     helper_calls,
                     equip_helper,
                     select_sources,
+                    params,
                 });
             }
         }
@@ -2863,6 +3203,7 @@ fn spec_from_matching(args: &[String], _has_opp_locs: bool, has_minmax: bool) ->
         where_clause: None,
         filter_mapped: map_group_filter(args.get(1).map(String::as_str).unwrap_or("")).is_some(),
         from_resolve_select: false,
+        raw_filter: None,
     })
 }
 
@@ -2870,14 +3211,38 @@ fn spec_from_matching(args: &[String], _has_opp_locs: bool, has_minmax: bool) ->
 /// Returns None for predicates with no DSL equivalent — callers decide
 /// whether to over-approximate (action selectors) or skip (group-applied
 /// modifiers, count exprs).
-fn map_group_filter(filter: &str) -> Option<(&'static str, Option<&'static str>)> {
+///
+/// T38 S1 extends the literal table with the `aux.FaceupFilter(Card.IsX,
+/// ARG)` composition — face-up ∧ predicate — routed through the same
+/// predicate-atom mapper the named-filter path uses. Unknown predicates
+/// or arguments poison the whole composition (skip-not-mis-emit).
+fn map_group_filter(filter: &str) -> Option<(&'static str, Option<String>)> {
+    let filter = filter.trim();
     Some(match filter {
         "nil" | "aux.TRUE" => ("card", None),
-        "Card.IsFaceup"    => ("card", Some("is_face_up")),
+        "Card.IsFaceup"    => ("card", Some("is_face_up".to_string())),
+        "Card.IsFacedown"  => ("card", Some("is_face_down".to_string())),
         "Card.IsMonster"   => ("monster", None),
         "Card.IsSpell"     => ("spell", None),
         "Card.IsTrap"      => ("trap", None),
-        _ => return None,
+        _ => {
+            let inner = filter
+                .strip_prefix("aux.FaceupFilter(")
+                .and_then(|r| r.strip_suffix(')'))?;
+            let pred = match inner.split_once(',') {
+                Some((method, arg)) => {
+                    lua_pred_method_to_where(method.trim(), arg.trim())?
+                }
+                // Zero-arg form: aux.FaceupFilter(Card.IsMonster) etc.
+                None => lua_pred_method_to_where(inner.trim(), "")?,
+            };
+            // An or-carrying predicate under the face-up conjunction
+            // would need a paren group — the v2 parser's nested-
+            // predicate branch is broken (see lua_filter_expr_to_where),
+            // so skip instead.
+            if pred.contains(" or ") { return None; }
+            return Some(("card", Some(format!("is_face_up and {}", pred))));
+        }
     })
 }
 
@@ -2893,15 +3258,17 @@ fn spec_from_get_matching(args: &[String]) -> Option<SelectorSpec> {
     // everything else keeps the lenient `card` kind established by earlier
     // phases but is flagged unmapped so group-applied paths can skip.
     let mapped = map_group_filter(args[0].as_str());
+    let filter_mapped = mapped.is_some();
     let (kind, where_clause) = mapped.unwrap_or(("card", None));
     Some(SelectorSpec {
         quantity: "all".to_string(),
         kind: kind.to_string(),
         controller: Some(controller),
         zone,
-        where_clause: where_clause.map(str::to_string),
-        filter_mapped: mapped.is_some(),
+        where_clause,
+        filter_mapped,
         from_resolve_select: false,
+        raw_filter: Some(args[0].clone()),
     })
 }
 
@@ -4292,6 +4659,12 @@ pub fn translate_body_with_functions(
     body: &FunctionBody,
     functions: &BTreeMap<String, FunctionBody>,
 ) -> Vec<DslLine> {
+    // T38 S1 — upgrade group bindings whose named script-local filter
+    // (`s.filter`) resolves to an exact where-clause. Walk time froze
+    // the spec before the filter fn's body was visible; the refinement
+    // needs the function table, so it lives here.
+    let refined = refine_group_bindings(body, functions);
+    let body = refined.as_ref().unwrap_or(body);
     let mut out = Vec::new();
     for c in &body.calls {
         if let Some(line) = translate_call(c, body) {
@@ -4335,6 +4708,29 @@ pub fn translate_body_with_functions(
         }
     }
     out
+}
+
+/// True when translating `body` would DROP a `RegisterEffect` chain —
+/// i.e. some chain in the handler produces no DSL line (T38 S1). The
+/// apply passes gate resolve fills on this: every chain a handler
+/// registers is semantic content, so a fill that emits the translatable
+/// sibling while silently omitting another (a delayed EVENT_* trigger, a
+/// grant with an unmapped reset, a field-wide registration) under-states
+/// the card. Skip-not-mis-emit at the whole-fill granularity.
+///
+/// Choice-arm chains gate too: they never emit from a plain body walk
+/// (only the Phase 16 choose path renders them), so a body carrying them
+/// fails here — a plain fill would state one arm's context while
+/// dropping the dispatch.
+pub fn body_drops_chains(
+    body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> bool {
+    let refined = refine_group_bindings(body, functions);
+    let body = refined.as_ref().unwrap_or(body);
+    body.register_chains.iter().any(|chain| {
+        translate_register_chain(chain, body, functions).is_empty()
+    })
 }
 
 /// Phase 16 — a fully-translated SelectOption choose block: one
@@ -5569,7 +5965,7 @@ fn field_filter_to_kind_where(
 ) -> Option<(String, Option<String>)> {
     let filter = filter.trim();
     if let Some((kind, w)) = map_group_filter(filter) {
-        return Some((kind.to_string(), w.map(str::to_string)));
+        return Some((kind.to_string(), w));
     }
     if let Some(inner) = filter
         .strip_prefix("aux.TargetBoolFunction(")
@@ -6084,9 +6480,10 @@ fn count_call_to_count_expr(arg: &str) -> Option<String> {
         kind: kind.to_string(),
         controller: Some(controller),
         zone: Some(zone),
-        where_clause: where_clause.map(str::to_string),
+        where_clause,
         filter_mapped: true,
         from_resolve_select: false,
+        raw_filter: None,
     };
     Some(format!("count({})", spec.to_dsl()))
 }
@@ -6135,6 +6532,10 @@ fn method_call_to_stat(arg: &str) -> Option<String> {
         "GetBaseDefense()" => "base_def",
         "GetLevel()"  => "level",
         "GetRank()"   => "rank",
+        // T38 S1 — the grammar's overlay_count_ref accepts ONLY the
+        // `self.` receiver (T34 shape); a `target.overlay_count` would
+        // fail the corpus check, so `tc:GetOverlayCount()` skips.
+        "GetOverlayCount()" if recv == "self" => "overlay_count",
         _ => return None,
     };
     Some(format!("{}.{}", recv, stat))
@@ -13051,5 +13452,294 @@ end
             p11_actions(src, "s.activate"),
             vec!["equip self to (1, card, you control, from monster_zone)"],
         );
+    }
+
+    // ── T38 S1 — passive stat chips ─────────────────────────────
+
+    #[test]
+    fn s1_faceup_filter_attribute_group_loop() {
+        // c13314457 Deepsea Macrotrema shape: aux.FaceupFilter composition
+        // refines the group selector, group-applied modifier emits with
+        // the exact where-clause.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsAttribute,ATTRIBUTE_WATER),tp,LOCATION_MZONE,0,nil)
+    for tc in aux.Next(g) do
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(500)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.operation"),
+            vec!["modify_atk (all, card, you control, from monster_zone, where is_face_up and attribute == WATER) + 500 until end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s1_named_filter_archetype_conjunction() {
+        // c51554871 shape: named `s.filter` resolved through the walked
+        // function table — IsFaceup ∧ IsSetCard conjunction, event-only
+        // reset lowers to while_face_up.
+        let src = r#"
+function s.filter(c)
+    return c:IsFaceup() and c:IsSetCard(SET_LAVAL)
+end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil)
+    local c=e:GetHandler()
+    for tc in aux.Next(g) do
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(400)
+        e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.operation"),
+            vec![r#"modify_atk (all, card, you control, from monster_zone, where is_face_up and archetype == "Laval") + 400 until while_face_up"#],
+        );
+    }
+
+    #[test]
+    fn s1_named_filter_stat_compare_set_final_zero() {
+        // c67113830 shape: stat-compare atom (`GetAttack()>0`) in the
+        // named filter; SET_ATTACK_FINAL with value 0 emits (the `+ 0`
+        // no-op guard is a modify_-path rule, set semantics keep 0).
+        let src = r#"
+function s.filter(c)
+    return c:IsFaceup() and c:GetAttack()>0
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.filter,tp,0,LOCATION_MZONE,nil)
+    for tc in aux.Next(g) do
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+        e1:SetValue(0)
+        e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["set_atk (all, card, opponent controls, from monster_zone, where is_face_up and atk > 0) 0 until while_face_up"],
+        );
+    }
+
+    #[test]
+    fn s1_facedown_count_value_clone_pair() {
+        // c57296396 shape: value is a local count of face-down banished
+        // cards times a negative factor; DEF twin via Clone(). Both lines
+        // must carry the count expr and the end-of-turn duration.
+        let src = r#"
+function s.atkdefop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local ct=Duel.GetMatchingGroupCount(Card.IsFacedown,tp,LOCATION_REMOVED,0,nil)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(ct*-100)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_UPDATE_DEFENSE)
+    tc:RegisterEffect(e2)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.atkdefop"),
+            vec![
+                "modify_atk target - count((all, card, you control, from banished, where is_face_down)) * 100 until end_of_turn",
+                "modify_def target - count((all, card, you control, from banished, where is_face_down)) * 100 until end_of_turn",
+            ],
+        );
+    }
+
+    #[test]
+    fn s1_overlay_count_value_self_only() {
+        // c8491961 shape: value reads the HANDLER's overlay count —
+        // `self.overlay_count` (grammar allows only the self receiver).
+        let src = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local oc=c:GetOverlayCount()
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(300*oc)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    tc:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.atkop"),
+            vec!["modify_atk target + 300 * self.overlay_count until while_face_up"],
+        );
+        // TARGET-side overlay count has no grammar form — must skip.
+        let src2 = src.replace("c:GetOverlayCount()", "tc:GetOverlayCount()");
+        assert!(p11_actions(&src2, "s.atkop").is_empty());
+    }
+
+    #[test]
+    fn s1_or_group_under_conjunction_skips() {
+        // c9999961 shape: `RACE_BEAST|RACE_WINGEDBEAST` expands to an
+        // or-join under the face-up conjunction — needs a parenthesized
+        // predicate the v2 parser can't parse yet (task_bb225d5f), so the
+        // whole filter must poison.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsRace,RACE_BEAST|RACE_WINGEDBEAST),tp,LOCATION_MZONE,0,nil)
+    for tc in aux.Next(g) do
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(200)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert!(p11_actions(src, "s.operation").is_empty());
+    }
+
+    #[test]
+    fn s1_named_filter_unmapped_atom_poisons() {
+        // An atom with no DSL equivalent (IsAbleToGrave) must poison the
+        // WHOLE filter — a partial where-clause would buff a superset.
+        let src = r#"
+function s.filter(c)
+    return c:IsFaceup() and c:IsAbleToGrave()
+end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil)
+    for tc in aux.Next(g) do
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(300)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert!(p11_actions(src, "s.operation").is_empty());
+    }
+
+    #[test]
+    fn s1_named_filter_foreign_binding_poisons() {
+        // Atoms must test the filter's own parameter — an atom on the
+        // effect binding (`e`) or an outer local is not a per-card
+        // predicate.
+        let src = r#"
+function s.filter(c,e)
+    return c:IsFaceup() and not c:IsImmuneToEffect(e)
+end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil,e)
+    for tc in aux.Next(g) do
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(300)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert!(p11_actions(src, "s.operation").is_empty());
+    }
+
+    #[test]
+    fn s1_body_drops_chains_gate() {
+        // c6022371 shape: the handler registers a translatable stat chip
+        // AND a chain outside translator coverage (EFFECT_CANNOT_TRIGGER).
+        // Filling only the chip would under-state the card — the apply
+        // passes consult body_drops_chains and skip the whole fill.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(500)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_SINGLE)
+    e2:SetCode(EFFECT_CANNOT_TRIGGER)
+    e2:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        assert!(body_drops_chains(body, &report.functions));
+
+        // Clean sibling-free version must pass the gate.
+        let src2 = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(500)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed2 = full_moon::parse(src2).expect("parse");
+        let report2 = walk(&parsed2);
+        let body2 = report2.functions.get("s.operation").expect("body");
+        assert!(!body_drops_chains(body2, &report2.functions));
+    }
+
+    #[test]
+    fn s1_filter_expr_mapper_shapes() {
+        // Direct-mapper coverage for atoms the corpus shapes exercise.
+        let w = |e: &str| lua_filter_expr_to_where(e, "c");
+        assert_eq!(
+            w("c:IsFaceup() and c:IsLevelAbove(8) and c:IsRace(RACE_DRAGON)").as_deref(),
+            Some("is_face_up and level >= 8 and race == Dragon"),
+        );
+        assert_eq!(
+            w("c:IsFaceup() and c:IsRitualMonster()").as_deref(),
+            Some("is_face_up and is_monster and is_ritual"),
+        );
+        assert_eq!(
+            w("c:IsFaceup() and c:GetLevel()==4").as_deref(),
+            Some("is_face_up and level == 4"),
+        );
+        // Redundant full-cover parens strip cleanly.
+        assert_eq!(w("(c:IsFaceup())").as_deref(), Some("is_face_up"));
+        // Flat or-chain is expressible…
+        assert_eq!(
+            w("c:IsLevel(3) or c:IsRank(3)").as_deref(),
+            Some("level == 3 or rank == 3"),
+        );
+        // …but mixed and/or (even lua-parenthesized) is not, until the
+        // parser's nested-predicate branch is fixed.
+        assert_eq!(w("c:IsFaceup() and (c:IsLevel(3) or c:IsRank(3))"), None);
+        // `not` binds one atom; not-of-compound would need parens.
+        assert_eq!(w("not c:IsLevel(4)").as_deref(), Some("not level == 4"));
+        assert_eq!(w("not (c:IsFaceup() and c:IsLevel(4))"), None);
+        // Multi-value IsLevel is an or-join — fine alone, poison in a chain.
+        assert_eq!(w("c:IsLevel(3,4)").as_deref(), Some("level == 3 or level == 4"));
+        assert_eq!(w("c:IsFaceup() and c:IsLevel(3,4)"), None);
+        // Non-literal compare operand → None.
+        assert_eq!(w("c:GetAttack()~=atk"), None);
     }
 }
