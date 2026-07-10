@@ -29,5 +29,9 @@ card "Knight Armed Dragon, the Armored Knight Dragon" {
         once_per_turn: soft
         timing: if
         trigger: custom "chain_end"
+        target (1, card, you control, from monster_zone, where is_face_up and race == Dragon)
+        resolve {
+            modify_atk target + 1000 until while_face_up
+        }
     }
 }
