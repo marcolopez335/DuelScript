@@ -34,4 +34,18 @@ card "Azamina Mu Rcielago" {
             add_to_hand (all, card, either controls)
         }
     }
+
+
+    passive "Passive 5" {
+        scope: field
+        target: (all, monster, opponent controls)
+        modifier: atk - count((all, card, you control, from monster_zone, where archetype == "Azamina" and is_face_up)) * 500
+    }
+
+
+    passive "Passive 6" {
+        scope: field
+        target: (all, monster, opponent controls)
+        modifier: def - count((all, card, you control, from monster_zone, where archetype == "Azamina" and is_face_up)) * 500
+    }
 }
