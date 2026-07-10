@@ -62,6 +62,14 @@ pub struct FunctionBody {
     /// elseif/else arm — emitting one arm of a runtime either/or would
     /// mis-emit, so the whole body's counter ops are poisoned instead.
     pub counter_ops: Vec<CounterOp>,
+    /// True when the body HAD counter ops but the family was poisoned
+    /// (T38 S6 review fix): an elseif/else arm, or a counter method in
+    /// EXPRESSION position (`if c:AddCounter(0x36,1) then …`) that the
+    /// statement walk can't collect. `body_drops_chains` rejects fills
+    /// on flagged bodies — before the flag, an emptied family looked
+    /// identical to "no counters" and sibling lines filled while the
+    /// placement silently dropped.
+    pub counter_ops_poisoned: bool,
     /// Straight-line `local op=Duel.SelectOption(tp, aux.Stringid(id,a), …)`
     /// + `e:SetLabel(op)` pair found at the top level of a TARGET handler
     /// (Phase 16). None when absent, conditional (dynamic option list), or
@@ -103,6 +111,19 @@ pub struct FunctionBody {
     /// effect `e`, an outer local, a second param) is not a per-card
     /// predicate and poisons the mapping.
     pub params: Vec<String>,
+    /// Mutating Card-method statements (T38 S6): `<recv>:UpdateAttack(…)`
+    /// / `UpdateDefense` / `UpdateLevel` / `NegateEffects` /
+    /// `RemoveOverlayCard`. The Ignis utility wrappers register the
+    /// equivalent inner effect themselves, so these are immediate
+    /// actions with a duration — same reframe as the S1 stat chips.
+    /// Emptied when any op sat in an elseif/else arm (either/or idiom,
+    /// mirroring the counter-op poison) — see `method_ops_poisoned`.
+    pub method_ops: Vec<CardMethodOp>,
+    /// True when the body HAD method ops but an elseif/else arm poisoned
+    /// the family (T38 S6). Unlike the counter path, the drop is
+    /// recorded so `body_drops_chains` can reject fills that would
+    /// silently omit one arm of the runtime choice.
+    pub method_ops_poisoned: bool,
 }
 
 /// A guarded-value function body (Phase 19): `if cond then return
@@ -170,6 +191,33 @@ pub struct CounterOp {
     /// emission tolerates this (the IsRelateToEffect gate idiom), cost
     /// extraction does not (a conditional payment is not a fixed cost).
     pub in_branch: bool,
+}
+
+/// One mutating Card-method statement extracted from a function body
+/// (T38 S6): `<receiver>:UpdateAttack(...)` / `UpdateDefense` /
+/// `UpdateLevel` / `NegateEffects` / `RemoveOverlayCard`.
+///
+/// Args are kept as raw text; emit time (`translate_method_op`) decodes
+/// amounts through `parse_lua_value`, resets through the exact-token
+/// `reset_to_duration_kw` mapping (with the utility.lua defaults for
+/// bare calls), and receivers through `resolve_body_selector` — the
+/// same provenance gates the counter-op and chain paths use.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct CardMethodOp {
+    /// Method name — one of the S6 allowlist above.
+    pub method: String,
+    /// Receiver text — `c`, `tc`, `e:GetHandler()`, loop vars, …
+    pub receiver: String,
+    /// Raw argument strings, in call order.
+    pub args: Vec<String>,
+    /// True when the op sat inside any loop. Only aux.Next-style loops
+    /// with a mapped source group are translatable; the rest skip.
+    pub multi_target: bool,
+    /// Source-group binding when inside `for <var> in aux.Next(g)`.
+    pub loop_source_group: Option<String>,
+    /// The loop variable when inside an aux.Next-style loop. The emit
+    /// path requires `receiver == loop_var` (Phase 13 parity).
+    pub loop_var: Option<String>,
 }
 
 /// One `Effect.CreateEffect → SetX → <recv>:RegisterEffect(eN)` chain
@@ -1007,6 +1055,8 @@ fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
         "SET_DDD"          => "D/D/D",
         "SET_FIENDSMITH"   => "Fiendsmith",
         "SET_FRIGHTFUR"    => "Frightfur",
+        // T38 S6 — referenced by SelectTarget filters of card-method ops.
+        "SET_GLADIATOR_BEAST" => "Gladiator Beast",
         "SET_GOLD_PRIDE"   => "Gold Pride",
         "SET_GOUKI"        => "Gouki",
         "SET_GRAVEKEEPERS" => "Gravekeeper's",
@@ -1414,7 +1464,8 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             let value_bindings = extract_value_bindings(body_block);
             let return_expr = extract_return_expr(body_block);
             let guarded_return = extract_guarded_return(body_block);
-            let counter_ops = extract_counter_ops(body_block);
+            let (counter_ops, counter_ops_poisoned) = extract_counter_ops(body_block);
+            let (method_ops, method_ops_poisoned) = extract_method_ops(body_block);
             let (inline_options, choice_arms) = extract_choice_arms(body_block);
             let helper_calls = extract_helper_calls(body_block);
             let equip_helper = extract_equip_helper(body);
@@ -1433,7 +1484,8 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                 || return_expr.is_some() || !counter_ops.is_empty()
                 || select_option.is_some() || !choice_arms.is_empty()
                 || !helper_calls.is_empty() || equip_helper.is_some()
-                || guarded_return.is_some()
+                || guarded_return.is_some() || !method_ops.is_empty()
+                || method_ops_poisoned || counter_ops_poisoned
             {
                 report.functions.insert(name, FunctionBody {
                     calls,
@@ -1443,12 +1495,15 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                     return_expr,
                     guarded_return,
                     counter_ops,
+                    counter_ops_poisoned,
                     select_option,
                     choice_arms,
                     helper_calls,
                     equip_helper,
                     select_sources,
                     params,
+                    method_ops,
+                    method_ops_poisoned,
                 });
             }
         }
@@ -2967,6 +3022,66 @@ pub fn extract_target_decl(
     spec_from_matching(args, true, true)
 }
 
+/// [`extract_target_decl`] with the T38 S6 filter widening: custom
+/// `Duel.SelectTarget` filters that map EXACTLY — literal-table filters,
+/// `aux.FaceupFilter(…)` compositions, or named script-local predicates
+/// resolved through the S1 flatten-or-fail machinery — produce a target
+/// declaration carrying the mapped where-clause.
+///
+/// Target declarations are legality surfaces, not pick-from-superset
+/// action selectors: a decl matching a SUPERSET of the lua filter would
+/// let the effect target cards the script rejects. So unmappable
+/// filters and unexpressible exception args still return None, and Pass
+/// E keeps using the stricter Phase 8 form — this widening is consumed
+/// only by the S6 bare-target fill gate, where the decl is co-emitted
+/// with a resolve that references it.
+pub fn extract_target_decl_refined(
+    target_handler: &str,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<SelectorSpec> {
+    if let Some(spec) = extract_target_decl(target_handler, functions) {
+        return Some(spec);
+    }
+    let body = functions.get(target_handler.trim())?;
+    let call = body.calls.iter().find(|c| c.method == "Duel.SelectTarget")?;
+    let args = &call.args;
+    if args.len() < 7 { return None; }
+    // An exception arg the selector can't render (anything but nil /
+    // the handler card) would target excluded cards — skip outright.
+    if matches!(
+        classify_exception(args.get(7).map(String::as_str)),
+        ExceptionArg::Unexpressible
+    ) {
+        return None;
+    }
+    // Legality-surface gates on the widened path (T38 S6 review fix):
+    //   - min must equal max — `quantity_from` renders 1..2 as "1+",
+    //     silently dropping the upper bound;
+    //   - exactly one location side may be set — `zone_from_locations`
+    //     keeps only the my-side zone when both are non-zero, so an
+    //     asymmetric (LOCATION_ONFIELD, LOCATION_MZONE) pair would
+    //     render `from field` and widen the opponent side.
+    // (Phase 8's nil-filter path above keeps its existing behavior —
+    // this only constrains the custom-filter widening.)
+    if args.get(5).map(|s| s.trim()) != args.get(6).map(|s| s.trim()) {
+        return None;
+    }
+    let (my_locs, opp_locs) = (args[3].trim(), args[4].trim());
+    if my_locs != "0" && opp_locs != "0" && my_locs != opp_locs {
+        return None;
+    }
+    let mut spec = spec_from_matching(args, true, true)?;
+    let filter = args[1].trim();
+    let (kind, where_clause) = match map_group_filter(filter) {
+        Some(mapped) => mapped,
+        None => ("card", Some(named_filter_to_where(filter, functions)?)),
+    };
+    spec.kind = kind.to_string();
+    spec.where_clause = where_clause;
+    spec.filter_mapped = true;
+    Some(spec)
+}
+
 // ── Phase 6: condition expression extraction ─────────────────────────────
 
 /// Translate a `s.condition` handler body into a DSL `condition: <expr>`
@@ -3576,12 +3691,28 @@ struct CounterLoopCtx<'a> {
 /// Calls in if-CONDITION position (`if c:AddCounter(...) then`) are not
 /// statement-level and are deliberately invisible here — the gated-on-
 /// return-value idiom has follow-up actions we can't model.
-fn extract_counter_ops(block: &Block) -> Vec<CounterOp> {
+/// Extract counter ops from a function block (Phase 13). Returns
+/// `(ops, poisoned)` since the T38 S6 review: the family is emptied AND
+/// flagged when any op sat in an elseif/else arm (either/or idiom) or
+/// when a counter method appears in EXPRESSION position (`if
+/// c:AddCounter(0x36,1) then …`, conjunction operands, assignment
+/// RHSes, returns, nested call args) — those mutations are invisible to
+/// the statement walk, and before the flag existed `body_drops_chains`
+/// saw an empty family and let sibling lines fill while the placement
+/// silently dropped.
+fn extract_counter_ops(block: &Block) -> (Vec<CounterOp>, bool) {
     let mut out = Vec::new();
-    let mut alt_tainted = false;
-    collect_counter_ops(block, None, false, false, &mut out, &mut alt_tainted);
-    if alt_tainted { return Vec::new(); }
-    out
+    let mut poisoned = false;
+    collect_counter_ops(block, None, false, false, &mut out, &mut poisoned);
+    if poisoned { return (Vec::new(), true); }
+    (out, false)
+}
+
+/// Detection-only textual scan for a counter mutation inside an
+/// expression tree (T38 S6 review fix, mirroring [`expr_has_method_op`]).
+fn expr_has_counter_op(expr: &Expression) -> bool {
+    let text = expr.to_string();
+    text.contains(":AddCounter(") || text.contains(":RemoveCounter(")
 }
 
 fn collect_counter_ops(
@@ -3590,34 +3721,55 @@ fn collect_counter_ops(
     in_branch: bool,
     in_alt_arm: bool,
     out: &mut Vec<CounterOp>,
-    alt_tainted: &mut bool,
+    poisoned: &mut bool,
 ) {
+    if let Some(LastStmt::Return(ret)) = block.last_stmt() {
+        for e in ret.returns() {
+            if expr_has_counter_op(e) { *poisoned = true; }
+        }
+    }
     for stmt in block.stmts() {
         match stmt {
             Stmt::FunctionCall(fc) => {
                 if let Some(op) = counter_op_from_fc(fc, loop_ctx, in_branch) {
-                    if in_alt_arm { *alt_tainted = true; }
+                    if in_alt_arm { *poisoned = true; }
                     out.push(op);
+                } else {
+                    // A counter op nested inside another call's argument
+                    // list (or behind a chained suffix) still mutates —
+                    // poison rather than under-state.
+                    let text = fc.to_string();
+                    if text.contains(":AddCounter(") || text.contains(":RemoveCounter(") {
+                        *poisoned = true;
+                    }
                 }
             }
             Stmt::If(if_stmt) => {
-                collect_counter_ops(if_stmt.block(), loop_ctx, true, in_alt_arm, out, alt_tainted);
+                if expr_has_counter_op(if_stmt.condition()) { *poisoned = true; }
+                collect_counter_ops(if_stmt.block(), loop_ctx, true, in_alt_arm, out, poisoned);
                 for ei in if_stmt.else_if().into_iter().flatten() {
-                    collect_counter_ops(ei.block(), loop_ctx, true, true, out, alt_tainted);
+                    if expr_has_counter_op(ei.condition()) { *poisoned = true; }
+                    collect_counter_ops(ei.block(), loop_ctx, true, true, out, poisoned);
                 }
                 if let Some(else_block) = if_stmt.else_block() {
-                    collect_counter_ops(else_block, loop_ctx, true, true, out, alt_tainted);
+                    collect_counter_ops(else_block, loop_ctx, true, true, out, poisoned);
                 }
             }
             // while/repeat/numeric-for loops have no translatable member
             // group — mark ops inside them multi-target with an empty
             // group so the emit path skips them.
-            Stmt::While(w) => collect_counter_ops(
-                w.block(), Some(CounterLoopCtx { group: "", var: "" }), true, in_alt_arm, out, alt_tainted),
-            Stmt::Repeat(r) => collect_counter_ops(
-                r.block(), Some(CounterLoopCtx { group: "", var: "" }), in_branch, in_alt_arm, out, alt_tainted),
+            Stmt::While(w) => {
+                if expr_has_counter_op(w.condition()) { *poisoned = true; }
+                collect_counter_ops(
+                    w.block(), Some(CounterLoopCtx { group: "", var: "" }), true, in_alt_arm, out, poisoned);
+            }
+            Stmt::Repeat(r) => {
+                if expr_has_counter_op(r.until()) { *poisoned = true; }
+                collect_counter_ops(
+                    r.block(), Some(CounterLoopCtx { group: "", var: "" }), in_branch, in_alt_arm, out, poisoned);
+            }
             Stmt::NumericFor(nf) => collect_counter_ops(
-                nf.block(), Some(CounterLoopCtx { group: "", var: "" }), in_branch, in_alt_arm, out, alt_tainted),
+                nf.block(), Some(CounterLoopCtx { group: "", var: "" }), in_branch, in_alt_arm, out, poisoned),
             Stmt::GenericFor(gf) => {
                 let group = aux_next_source_group(gf)
                     .or_else(|| iter_method_source_group(gf))
@@ -3626,9 +3778,19 @@ fn collect_counter_ops(
                     .map(|n| n.token().to_string())
                     .unwrap_or_default();
                 let ctx = CounterLoopCtx { group: &group, var: &var };
-                collect_counter_ops(gf.block(), Some(ctx), in_branch, in_alt_arm, out, alt_tainted);
+                collect_counter_ops(gf.block(), Some(ctx), in_branch, in_alt_arm, out, poisoned);
             }
-            Stmt::Do(d) => collect_counter_ops(d.block(), loop_ctx, in_branch, in_alt_arm, out, alt_tainted),
+            Stmt::Do(d) => collect_counter_ops(d.block(), loop_ctx, in_branch, in_alt_arm, out, poisoned),
+            Stmt::LocalAssignment(la) => {
+                for e in la.expressions() {
+                    if expr_has_counter_op(e) { *poisoned = true; }
+                }
+            }
+            Stmt::Assignment(a) => {
+                for e in a.expressions() {
+                    if expr_has_counter_op(e) { *poisoned = true; }
+                }
+            }
             _ => {}
         }
     }
@@ -3700,6 +3862,182 @@ fn counter_op_from_fc(
         loop_source_group: loop_ctx.map(|c| c.group.to_string()),
         loop_var: loop_ctx.map(|c| c.var.to_string()),
         in_branch,
+    })
+}
+
+/// Card-method mutations the T38 S6 translator recognises. AddCounter /
+/// RemoveCounter are NOT here — they have their own Phase 13 walker.
+const CARD_METHOD_OPS: &[&str] = &[
+    "UpdateAttack", "UpdateDefense", "UpdateLevel",
+    "NegateEffects", "RemoveOverlayCard",
+];
+
+/// Extract mutating Card-method statements from a function block
+/// (T38 S6). Returns `(ops, poisoned)`. The family is emptied AND
+/// flagged when:
+///   - any op sat inside an elseif/else arm — emitting one arm of a
+///     runtime either/or would mis-emit (counter-op poison parity; the
+///     flag additionally lets `body_drops_chains` reject fills that
+///     would silently drop the dispatch);
+///   - any method-op name appears in EXPRESSION position — an
+///     if-condition (`c:UpdateAttack(-600)==-600`, the "lose exactly N
+///     and if it does" idiom on Blue Flame Swordsman), an assignment
+///     RHS, a loop condition, a return, or an argument. The mutation
+///     still fires at runtime but is invisible to the statement walk,
+///     so an unflagged body would fill an under-stated resolve.
+fn extract_method_ops(block: &Block) -> (Vec<CardMethodOp>, bool) {
+    let mut out = Vec::new();
+    let mut poisoned = false;
+    collect_method_ops(block, None, false, &mut out, &mut poisoned);
+    if poisoned {
+        return (Vec::new(), true);
+    }
+    (out, false)
+}
+
+/// Detection-only textual scan for a card-method mutation inside an
+/// expression tree (T38 S6). A hit poisons the whole family — the
+/// conditional / value-consuming shapes have no faithful line emission.
+fn expr_has_method_op(expr: &Expression) -> bool {
+    let text = expr.to_string();
+    CARD_METHOD_OPS.iter().any(|m| text.contains(&format!(":{}(", m)))
+}
+
+fn collect_method_ops(
+    block: &Block,
+    loop_ctx: Option<CounterLoopCtx<'_>>,
+    in_alt_arm: bool,
+    out: &mut Vec<CardMethodOp>,
+    poisoned: &mut bool,
+) {
+    // Per-block Return scan (T38 S6 review fix): lua allows `return`
+    // only as a block's last statement, so `if guard then return
+    // c:UpdateAttack(...) end` puts the mutation on a NESTED block's
+    // last_stmt — a top-level-only scan missed it.
+    if let Some(LastStmt::Return(ret)) = block.last_stmt() {
+        for e in ret.returns() {
+            if expr_has_method_op(e) { *poisoned = true; }
+        }
+    }
+    for stmt in block.stmts() {
+        match stmt {
+            Stmt::FunctionCall(fc) => {
+                if let Some(op) = method_op_from_fc(fc, loop_ctx) {
+                    if in_alt_arm { *poisoned = true; }
+                    out.push(op);
+                } else {
+                    // A method op nested inside another call's argument
+                    // list (or behind a chained suffix) still mutates —
+                    // poison rather than under-state.
+                    let text = fc.to_string();
+                    if CARD_METHOD_OPS.iter().any(|m| text.contains(&format!(":{}(", m))) {
+                        *poisoned = true;
+                    }
+                }
+            }
+            Stmt::If(if_stmt) => {
+                if expr_has_method_op(if_stmt.condition()) { *poisoned = true; }
+                collect_method_ops(if_stmt.block(), loop_ctx, in_alt_arm, out, poisoned);
+                for ei in if_stmt.else_if().into_iter().flatten() {
+                    if expr_has_method_op(ei.condition()) { *poisoned = true; }
+                    collect_method_ops(ei.block(), loop_ctx, true, out, poisoned);
+                }
+                if let Some(else_block) = if_stmt.else_block() {
+                    collect_method_ops(else_block, loop_ctx, true, out, poisoned);
+                }
+            }
+            // while/repeat/numeric-for loops have no translatable member
+            // group — mark ops inside them multi-target with an empty
+            // group so the emit path skips them (Phase 13 parity).
+            Stmt::While(w) => {
+                if expr_has_method_op(w.condition()) { *poisoned = true; }
+                collect_method_ops(
+                    w.block(), Some(CounterLoopCtx { group: "", var: "" }), in_alt_arm, out, poisoned);
+            }
+            Stmt::Repeat(r) => {
+                if expr_has_method_op(r.until()) { *poisoned = true; }
+                collect_method_ops(
+                    r.block(), Some(CounterLoopCtx { group: "", var: "" }), in_alt_arm, out, poisoned);
+            }
+            Stmt::NumericFor(nf) => collect_method_ops(
+                nf.block(), Some(CounterLoopCtx { group: "", var: "" }), in_alt_arm, out, poisoned),
+            Stmt::GenericFor(gf) => {
+                let group = aux_next_source_group(gf)
+                    .or_else(|| iter_method_source_group(gf))
+                    .unwrap_or_default();
+                let var = gf.names().iter().next()
+                    .map(|n| n.token().to_string())
+                    .unwrap_or_default();
+                let ctx = CounterLoopCtx { group: &group, var: &var };
+                collect_method_ops(gf.block(), Some(ctx), in_alt_arm, out, poisoned);
+            }
+            Stmt::Do(d) => collect_method_ops(d.block(), loop_ctx, in_alt_arm, out, poisoned),
+            Stmt::LocalAssignment(la) => {
+                for e in la.expressions() {
+                    if expr_has_method_op(e) { *poisoned = true; }
+                }
+            }
+            Stmt::Assignment(a) => {
+                for e in a.expressions() {
+                    if expr_has_method_op(e) { *poisoned = true; }
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+/// Build a `CardMethodOp` from a statement-level function call whose
+/// LAST suffix is one of the S6 allowlist methods. Receiver rendering
+/// mirrors `counter_op_from_fc` (`e:GetHandler()` keeps its suffixes).
+fn method_op_from_fc(
+    fc: &FunctionCall,
+    loop_ctx: Option<CounterLoopCtx<'_>>,
+) -> Option<CardMethodOp> {
+    let suffixes: Vec<&Suffix> = fc.suffixes().collect();
+    let last = suffixes.last()?;
+    let (method, args) = match last {
+        Suffix::Call(Call::MethodCall(mc)) => {
+            let name = mc.name().token().to_string();
+            if !CARD_METHOD_OPS.contains(&name.as_str()) { return None; }
+            (name, call_args_to_strings(mc.args()))
+        }
+        _ => return None,
+    };
+    let mut receiver = match fc.prefix() {
+        ast::Prefix::Name(n) => n.token().to_string(),
+        _ => fc.prefix().to_string().trim().to_string(),
+    };
+    for s in &suffixes[..suffixes.len() - 1] {
+        match s {
+            Suffix::Index(Index::Dot { name, .. }) => {
+                receiver.push('.');
+                receiver.push_str(&name.token().to_string());
+            }
+            Suffix::Call(Call::MethodCall(mc)) => {
+                receiver.push(':');
+                receiver.push_str(&mc.name().token().to_string());
+                let a = call_args_to_strings(mc.args());
+                receiver.push('(');
+                receiver.push_str(&a.join(","));
+                receiver.push(')');
+            }
+            Suffix::Call(Call::AnonymousCall(args)) => {
+                let a = call_args_to_strings(args);
+                receiver.push('(');
+                receiver.push_str(&a.join(","));
+                receiver.push(')');
+            }
+            _ => {}
+        }
+    }
+    Some(CardMethodOp {
+        method,
+        receiver,
+        args,
+        multi_target: loop_ctx.is_some(),
+        loop_source_group: loop_ctx.map(|c| c.group.to_string()),
+        loop_var: loop_ctx.map(|c| c.var.to_string()),
     })
 }
 
@@ -4400,12 +4738,14 @@ fn build_arm_body(
     group_bindings.extend(arm_groups);
     let mut value_bindings = outer_values.clone();
     value_bindings.extend(extract_value_bindings(block));
+    let (counter_ops, counter_ops_poisoned) = extract_counter_ops(block);
     FunctionBody {
         calls: extract_duel_calls(block),
         group_bindings,
         register_chains: extract_register_chains(block),
         value_bindings,
-        counter_ops: extract_counter_ops(block),
+        counter_ops,
+        counter_ops_poisoned,
         select_sources: arm_sources,
         ..FunctionBody::default()
     }
@@ -4748,12 +5088,51 @@ pub fn translate_body_with_functions(
             out.push(line);
         }
     }
+    // Card-method mutations (T38 S6) — only PURE method-op handlers
+    // emit: any Duel.*-derived line, helper call, or counter op
+    // alongside is the mixed-action class (a Duel mutator with a
+    // method rider needs sequencing this path doesn't model), so the
+    // whole family stays silent and the apply-time completeness gate
+    // (`body_drops_chains`) rejects the fill. Method-op lines apply the
+    // same stat-write interference guard as the chain loop below: two
+    // ops whose lua values were computed from PRE-mutation stats must
+    // not read each other's writes.
+    if out.is_empty()
+        && body.counter_ops.is_empty()
+        && !body.counter_ops_poisoned
+        && body.helper_calls.is_empty()
+    {
+        let mut mo_writes: Vec<(String, String)> = Vec::new();
+        for op in &body.method_ops {
+            if let Some(line) = translate_method_op(op, body) {
+                if let DslLine::Action(text) = &line {
+                    if mo_writes.iter().any(|(sel, stat)| {
+                        text.contains(&format!("{}.{}", sel, stat))
+                    }) {
+                        continue;
+                    }
+                    if let Some(write) = stat_write_of(text) {
+                        mo_writes.push(write);
+                    }
+                }
+                out.push(line);
+            }
+        }
+    }
     // Stat-write interference guard (Phase 10): lua computes values like
     // `local lv = c:GetLevel()+tc:GetLevel()` ONCE before registering both
     // chains, but the emitted DSL lines evaluate sequentially — a later
     // line whose expr reads a stat an earlier line already wrote would see
     // the post-write value. Drop such lines instead of mis-emitting.
-    let mut stat_writes: Vec<(String, String)> = Vec::new();
+    // Seeded from the already-emitted lines (method-op stat writes are
+    // visible to the chain loop, T38 S6).
+    let mut stat_writes: Vec<(String, String)> = out
+        .iter()
+        .filter_map(|l| match l {
+            DslLine::Action(t) => stat_write_of(t),
+            DslLine::Todo(_) => None,
+        })
+        .collect();
     for chain in &body.register_chains {
         for line in translate_register_chain(chain, body, functions) {
             if let DslLine::Action(text) = &line {
@@ -4800,7 +5179,54 @@ pub fn body_drops_chains(
 ) -> bool {
     let refined = refine_group_bindings(body, functions);
     let body = refined.as_ref().unwrap_or(body);
+    // Method-op completeness (T38 S6). An elseif/else-poisoned family,
+    // an impure body (the emit path suppresses ALL method ops when any
+    // Duel.*-derived line, helper call, or counter op coexists), and
+    // any single op with no lowering are all dropped content. Emitted
+    // lines seed the interference replay below — the chain loop sees
+    // their stat writes exactly as `translate_body_with_functions` does.
+    if body.method_ops_poisoned {
+        return true;
+    }
+    // Counter-family poison (T38 S6 review fix): an emptied-and-flagged
+    // family means a placement the statement walk couldn't collect
+    // (expression position) or an either/or dispatch — dropped content.
+    if body.counter_ops_poisoned {
+        return true;
+    }
     let mut stat_writes: Vec<(String, String)> = Vec::new();
+    if !body.method_ops.is_empty() {
+        let impure = body.calls.iter().any(|c| translate_call(c, body).is_some())
+            || !body.counter_ops.is_empty()
+            || !body.helper_calls.is_empty();
+        if impure {
+            return true;
+        }
+        for op in &body.method_ops {
+            match translate_method_op(op, body) {
+                Some(DslLine::Action(text)) => {
+                    if stat_writes.iter().any(|(sel, stat)| {
+                        text.contains(&format!("{}.{}", sel, stat))
+                    }) {
+                        return true; // emit loop would drop this line
+                    }
+                    if let Some(write) = stat_write_of(&text) {
+                        stat_writes.push(write);
+                    }
+                }
+                _ => return true,
+            }
+        }
+    }
+    // Counter-op completeness (T38 S6 gate hardening): a counter op
+    // with no DSL lowering (unknown counter, computed count, foreign
+    // receiver) previously dropped SILENTLY while sibling lines filled
+    // — that under-states the handler the same way a dropped chain does.
+    for op in &body.counter_ops {
+        if translate_counter_op(op, body).is_none() {
+            return true;
+        }
+    }
     for chain in &body.register_chains {
         let lines = translate_register_chain(chain, body, functions);
         if lines.is_empty() {
@@ -4867,6 +5293,11 @@ fn translate_choice_arm(
             Some(DslLine::Todo(_)) => return None,
             None => {}
         }
+    }
+    // A poisoned counter family in an arm hides a placement the walk
+    // couldn't collect — the whole choose must fail (T38 S6 review fix).
+    if arm.counter_ops_poisoned {
+        return None;
     }
     for op in &arm.counter_ops {
         match translate_counter_op(op, arm) {
@@ -5324,6 +5755,114 @@ fn translate_counter_op(op: &CounterOp, body: &FunctionBody) -> Option<DslLine> 
         format!("place_counter \"{}\" {} on {}", name, count, selector)
     } else {
         format!("remove_counter \"{}\" {} from {}", name, count, selector)
+    };
+    Some(DslLine::Action(line))
+}
+
+/// Card-method mutation → DSL action line (T38 S6).
+///
+/// The Ignis utility wrappers register the equivalent inner effect
+/// themselves, so a bare method call has WELL-DEFINED reset semantics
+/// (utility.lua:515-563, :784):
+///   - `UpdateAttack/Defense/Level(amt)` defaults to
+///     `RESET_EVENT + RESETS_STANDARD[_DISABLE]` (event-only) →
+///     `while_face_up`; an explicit reset arg REPLACES the default.
+///   - `NegateEffects(src)` defaults to `RESET_EVENT|RESETS_STANDARD`
+///     and ORs that set into any explicit reset arg.
+/// Explicit resets go through the exact-token `reset_to_duration_kw`
+/// mapping; an undecodable reset skips the op — emitting without a
+/// duration would silently mean "permanently".
+///
+/// Skip gates (None):
+///   - loop ops whose receiver is not the loop variable, or whose
+///     source group doesn't lower (`resolve_body_selector` gates:
+///     unmapped filters, while/repeat/numeric-for, foreign receivers);
+///   - non-decodable amounts (`e:GetLabel()`, event args) and the `+ 0`
+///     no-op; group-applied ops whose value reads `target.` stats;
+///   - reset counts above 1, reset-owner args other than the handler
+///     card, extra args beyond the wrapper's signature;
+///   - `NegateEffects` with a non-self source, a non-literal
+///     negates-cards arg (label-conditional forms), or a count ≠ 1;
+///   - `RemoveOverlayCard` with player ≠ `tp`, min ≠ max, count 0, or
+///     reason ≠ REASON_EFFECT (cost-reason detaches are cost lines).
+fn translate_method_op(op: &CardMethodOp, body: &FunctionBody) -> Option<DslLine> {
+    if op.multi_target && op.loop_var.as_deref() != Some(op.receiver.as_str()) {
+        // A method on `c` inside a group loop mutates the card itself
+        // once per member — not a per-member application (Phase 13
+        // parity).
+        return None;
+    }
+    let selector = resolve_body_selector(
+        &op.receiver,
+        op.multi_target,
+        op.loop_source_group.as_deref(),
+        body,
+    )?;
+    let line = match op.method.as_str() {
+        "UpdateAttack" | "UpdateDefense" | "UpdateLevel" => {
+            let action = match op.method.as_str() {
+                "UpdateAttack"  => "modify_atk",
+                "UpdateDefense" => "modify_def",
+                _               => "modify_level",
+            };
+            // (amt[, reset[, rc[, reset_count]]]); UpdateLevel takes no count.
+            let max_args = if op.method == "UpdateLevel" { 3 } else { 4 };
+            if op.args.is_empty() || op.args.len() > max_args { return None; }
+            let parsed = parse_lua_value(op.args.first()?, &body.value_bindings)?;
+            if parsed.expr == "0" { return None; }
+            // Group-applied ops can't carry per-member values: `target.`
+            // refs resolve to the selected target, not each loop member
+            // (Phase 10 guard parity).
+            if op.multi_target && parsed.expr.contains("target.") { return None; }
+            // The reset-owner arg only picks which RESETS_STANDARD
+            // flavour the default carries (both lower to while_face_up),
+            // but a non-handler owner is an unaudited shape: skip.
+            match op.args.get(2).map(|s| s.trim()) {
+                None | Some("nil") | Some("c") | Some("e:GetHandler()") => {}
+                Some(_) => return None,
+            }
+            let count = op.args.get(3).map(|s| s.trim());
+            if count.is_some_and(|c| c != "1") { return None; }
+            let dur = match op.args.get(1).map(|s| s.trim()).filter(|s| *s != "nil") {
+                None => "while_face_up", // utility.lua default reset
+                Some(reset) => reset_to_duration_kw(Some(reset), count)?,
+            };
+            let sign = if parsed.negative { '-' } else { '+' };
+            format!("{} {} {} {} until {}", action, selector, sign, parsed.expr, dur)
+        }
+        "NegateEffects" => {
+            // (source[, reset, negates_cards, ct])
+            if op.args.is_empty() || op.args.len() > 4 { return None; }
+            match op.args[0].trim() {
+                "c" | "e:GetHandler()" => {}
+                _ => return None,
+            }
+            match op.args.get(2).map(|s| s.trim()) {
+                None | Some("nil") | Some("true") | Some("false") => {}
+                Some(_) => return None,
+            }
+            if op.args.get(3).is_some_and(|c| c.trim() != "1") { return None; }
+            let dur = match op.args.get(1).map(|s| s.trim()).filter(|s| *s != "nil") {
+                None => "while_face_up", // default RESET_EVENT|RESETS_STANDARD
+                // Card.NegateEffects ORs the standard event set into any
+                // explicit reset before registering.
+                Some(reset) => reset_to_duration_kw(
+                    Some(&format!("{}|RESETS_STANDARD", reset)),
+                    None,
+                )?,
+            };
+            format!("negate_effects {} {}", selector, dur)
+        }
+        "RemoveOverlayCard" => {
+            // (player, min, max, reason) — detach-as-effect.
+            if op.args.len() != 4 { return None; }
+            if op.args[0].trim() != "tp" { return None; }
+            if op.args[3].trim() != "REASON_EFFECT" { return None; }
+            let n: u32 = op.args[1].trim().parse().ok()?;
+            if n == 0 || op.args[2].trim() != op.args[1].trim() { return None; }
+            format!("detach {} from {}", n, selector)
+        }
+        _ => return None,
     };
     Some(DslLine::Action(line))
 }
@@ -13963,5 +14502,463 @@ end
         assert_eq!(actions.len(), 1, "interference guard should drop chain 2's line");
         // …so the gate must flag the body as dropping content.
         assert!(body_drops_chains(body, &report.functions));
+    }
+
+    // ── T38 S6 — card-method ops ────────────────────────────────
+
+    fn s6_gate(src: &str, handler: &str) -> bool {
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get(handler).expect("handler body");
+        body_drops_chains(body, &report.functions)
+    }
+
+    #[test]
+    fn s6_update_attack_bare_self() {
+        // c13836592 Behemoth e5 shape: bare c:UpdateAttack(700) under the
+        // IsFaceup+IsRelateToEffect guard — utility.lua default reset is
+        // RESET_EVENT+RESETS_STANDARD_DISABLE → while_face_up.
+        let src = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if c:IsFaceup() and c:IsRelateToEffect(e) then
+        c:UpdateAttack(700)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.atkop"),
+            vec!["modify_atk self + 700 until while_face_up"],
+        );
+        assert!(!s6_gate(src, "s.atkop"));
+    }
+
+    #[test]
+    fn s6_update_attack_target_explicit_reset_and_owner() {
+        // c59644128 shape: chosen target, explicit end-of-turn reset,
+        // handler-owned reset (rc = e:GetHandler()).
+        let src = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+        tc:UpdateAttack(500,RESETS_STANDARD_PHASE_END,e:GetHandler())
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.atkop"),
+            vec!["modify_atk target + 500 until end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s6_update_attack_negative_event_reset() {
+        // c96891787 shape: negative delta, RESETS_STANDARD_DISABLE_PHASE_END
+        // macro, rc = c.
+        let src = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) then
+        tc:UpdateAttack(-600,RESETS_STANDARD_DISABLE_PHASE_END,c)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.atkop"),
+            vec!["modify_atk target - 600 until end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s6_update_level_pair_and_stat_skips() {
+        // ATK+DEF pair on the same receiver — both lines emit (S1's
+        // clone-pair precedent). A label-valued amount, a foreign reset
+        // owner, a reset count of 2, and a masked reset each skip.
+        let pair = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    tc:UpdateAttack(-1000,nil,c)
+    tc:UpdateDefense(-1000,nil,c)
+end
+"#;
+        assert_eq!(
+            p11_actions(pair, "s.op"),
+            vec![
+                "modify_atk target - 1000 until while_face_up",
+                "modify_def target - 1000 until while_face_up",
+            ],
+        );
+        for (src, why) in [
+            (r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    tc:UpdateAttack(-e:GetLabel(),nil,e:GetHandler())
+end
+"#, "label-valued amount"),
+            (r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    tc:UpdateAttack(500,nil,re:GetHandler())
+end
+"#, "foreign reset owner"),
+            (r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    tc:UpdateAttack(500,RESET_PHASE|PHASE_END,e:GetHandler(),2)
+end
+"#, "reset count 2"),
+            (r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    tc:UpdateLevel(1,RESET_EVENT|(RESETS_STANDARD&~RESET_TOFIELD),e:GetHandler())
+end
+"#, "masked reset"),
+        ] {
+            assert!(p11_actions(src, "s.op").is_empty(), "{} must skip", why);
+            assert!(s6_gate(src, "s.op"), "{} must gate the fill", why);
+        }
+    }
+
+    #[test]
+    fn s6_negate_effects_target_end_of_turn() {
+        // c17217034 Engage Zero disop shape: explicit RESET_PHASE|PHASE_END
+        // (Card.NegateEffects ORs the standard events in — still one
+        // phase reset → end_of_turn).
+        let src = r#"
+function s.disop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+        tc:NegateEffects(e:GetHandler(),RESET_PHASE|PHASE_END)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.disop"),
+            vec!["negate_effects target end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s6_negate_effects_group_loop_permanent() {
+        // c16699558 Indigo-Eyes negop shape: group loop, nil reset
+        // (default RESET_EVENT|RESETS_STANDARD → while_face_up), literal
+        // negates-cards flag. The mapped face-up filter keeps the
+        // group-modifier gate satisfied.
+        let src = r#"
+function s.negop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local g=Duel.GetMatchingGroup(Card.IsFaceup,tp,0,LOCATION_ONFIELD,nil)
+    for tc in aux.Next(g) do
+        tc:NegateEffects(c,nil,true)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.negop"),
+            vec!["negate_effects (all, card, opponent controls, from field, where is_face_up) while_face_up"],
+        );
+        // Unmapped group filter → the loop receiver has no selector.
+        let unmapped = r#"
+function s.negop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local g=Duel.GetMatchingGroup(Card.IsNegatable,tp,0,LOCATION_ONFIELD,nil)
+    for tc in aux.Next(g) do
+        tc:NegateEffects(c,nil,true)
+    end
+end
+"#;
+        assert!(p11_actions(unmapped, "s.negop").is_empty());
+        assert!(s6_gate(unmapped, "s.negop"));
+    }
+
+    #[test]
+    fn s6_negate_effects_skips() {
+        // Non-self source, label-conditional negates-cards arg.
+        for (src, why) in [
+            (r#"
+function s.disop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    tc:NegateEffects(rc,RESET_PHASE|PHASE_END)
+end
+"#, "foreign source card"),
+            (r#"
+function s.disop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    tc:NegateEffects(e:GetHandler(),RESET_PHASE|PHASE_END,e:GetLabel()==1)
+end
+"#, "label-conditional negates-cards"),
+        ] {
+            assert!(p11_actions(src, "s.disop").is_empty(), "{} must skip", why);
+            assert!(s6_gate(src, "s.disop"), "{} must gate the fill", why);
+        }
+    }
+
+    #[test]
+    fn s6_remove_overlay_detach() {
+        // c14970113 Zoodiac Hammerkong rmop shape: guardless detach-as-
+        // effect. min≠max and REASON_COST variants skip.
+        let src = r#"
+function s.rmop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    c:RemoveOverlayCard(tp,1,1,REASON_EFFECT)
+end
+"#;
+        assert_eq!(p11_actions(src, "s.rmop"), vec!["detach 1 from self"]);
+        let ranged = r#"
+function s.rmop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    c:RemoveOverlayCard(tp,1,2,REASON_EFFECT)
+end
+"#;
+        assert!(p11_actions(ranged, "s.rmop").is_empty());
+        let cost = r#"
+function s.rmop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    c:RemoveOverlayCard(tp,1,1,REASON_COST)
+end
+"#;
+        assert!(p11_actions(cost, "s.rmop").is_empty());
+    }
+
+    #[test]
+    fn s6_mixed_handler_suppresses_and_gates() {
+        // c13836592 Behemoth thop shape: Duel.SendtoHand + UpdateAttack
+        // rider — the mixed-action class. The method op must NOT emit
+        // beside the Duel line, and the gate must reject the fill.
+        let src = r#"
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    Duel.SendtoHand(c,nil,REASON_EFFECT)
+    c:UpdateAttack(-700)
+end
+"#;
+        assert_eq!(p11_actions(src, "s.thop"), vec!["add_to_hand self"]);
+        assert!(s6_gate(src, "s.thop"));
+    }
+
+    #[test]
+    fn s6_either_or_arms_poison() {
+        // Method ops in if/else arms are one runtime choice — the family
+        // empties AND the poison flag rejects the fill (unlike the
+        // counter path, which only empties).
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if Duel.GetTurnPlayer()==tp then
+        c:UpdateAttack(500)
+    else
+        c:UpdateAttack(-500)
+    end
+end
+"#;
+        assert!(p11_actions(src, "s.op").is_empty());
+        assert!(s6_gate(src, "s.op"));
+    }
+
+    #[test]
+    fn s6_expression_position_mutation_poisons() {
+        // c50903514 Blue Flame Swordsman shape: `c:UpdateAttack(-600)==-600`
+        // inside the if-CONDITION ("lose exactly 600, and if it does…").
+        // The mutation is invisible to the statement walk — emitting only
+        // the then-block's rider would under-state the handler. The whole
+        // family poisons and the gate rejects the fill.
+        let src = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) and c:UpdateAttack(-600)==-600 then
+        tc:UpdateAttack(600)
+    end
+end
+"#;
+        assert!(p11_actions(src, "s.atkop").is_empty());
+        assert!(s6_gate(src, "s.atkop"));
+        // Assignment-position mutation poisons the same way.
+        let assigned = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local delta=c:UpdateAttack(500)
+end
+"#;
+        assert!(p11_actions(assigned, "s.atkop").is_empty());
+        assert!(s6_gate(assigned, "s.atkop"));
+    }
+
+    #[test]
+    fn s6_counter_op_expression_position_poisons() {
+        // Review probe (a): `if c:AddCounter(0x36,1) then …` — the
+        // placement fires as a boolean expression, invisible to the
+        // statement walk. The family must poison and gate the fill even
+        // though a sibling Duel line translates.
+        let cond = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if c:AddCounter(0x36,1) then
+        Duel.Draw(tp,1,REASON_EFFECT)
+    end
+end
+"#;
+        assert_eq!(p11_actions(cond, "s.op"), vec!["draw 1"]);
+        assert!(s6_gate(cond, "s.op"));
+        // Conjunction-operand variant.
+        let conj = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) and tc:AddCounter(COUNTER_SPELL,1) and true then
+        Duel.Draw(tp,1,REASON_EFFECT)
+    end
+end
+"#;
+        assert!(s6_gate(conj, "s.op"));
+    }
+
+    #[test]
+    fn s6_counter_op_alt_arm_poison_flag_gates() {
+        // Review probe (b): elseif/else-arm counter ops used to EMPTY
+        // the family with no flag — body_drops_chains saw "no counters"
+        // and let the sibling line fill while the placement dropped.
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    Duel.Draw(tp,1,REASON_EFFECT)
+    if Duel.GetTurnPlayer()==tp then
+        c:AddCounter(COUNTER_SPELL,1)
+    else
+        c:AddCounter(COUNTER_SPELL,2)
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.op").expect("body");
+        assert!(body.counter_ops.is_empty(), "family still empties");
+        assert!(body.counter_ops_poisoned, "…but the drop is now flagged");
+        assert!(body_drops_chains(body, &report.functions));
+    }
+
+    #[test]
+    fn s6_refined_target_decl_legality_gates() {
+        // Review fix: the widened (custom-filter) path must not render
+        // 1..2 as `1+` (drops the upper bound) nor collapse asymmetric
+        // location pairs to the my-side zone. Symmetric pairs and
+        // min==max keep working.
+        let minmax = r#"
+function s.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    Duel.SelectTarget(tp,aux.FaceupFilter(Card.IsRace,RACE_WARRIOR),tp,LOCATION_MZONE,0,1,2,nil)
+end
+"#;
+        let parsed = full_moon::parse(minmax).expect("parse");
+        let report = walk(&parsed);
+        assert!(extract_target_decl_refined("s.tg", &report.functions).is_none());
+
+        let asym = r#"
+function s.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    Duel.SelectTarget(tp,aux.FaceupFilter(Card.IsRace,RACE_WARRIOR),tp,LOCATION_ONFIELD,LOCATION_MZONE,1,1,nil)
+end
+"#;
+        let parsed = full_moon::parse(asym).expect("parse");
+        let report = walk(&parsed);
+        assert!(extract_target_decl_refined("s.tg", &report.functions).is_none());
+
+        let sym = r#"
+function s.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    Duel.SelectTarget(tp,aux.FaceupFilter(Card.IsRace,RACE_WARRIOR),tp,LOCATION_MZONE,LOCATION_MZONE,1,1,nil)
+end
+"#;
+        let parsed = full_moon::parse(sym).expect("parse");
+        let report = walk(&parsed);
+        let spec = extract_target_decl_refined("s.tg", &report.functions).expect("symmetric maps");
+        assert_eq!(
+            spec.to_dsl(),
+            "(1, card, either controls, from monster_zone, where is_face_up and race == Warrior)",
+        );
+    }
+
+    #[test]
+    fn s6_nested_return_method_op_poisons() {
+        // Review fix: `if guard then return c:UpdateAttack(...) end` puts
+        // the mutation on a NESTED block's last-statement Return — the
+        // top-level-only scan missed it.
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if c:IsFaceup() then
+        return c:UpdateAttack(500)
+    end
+end
+"#;
+        assert!(p11_actions(src, "s.op").is_empty());
+        assert!(s6_gate(src, "s.op"));
+    }
+
+    #[test]
+    fn s6_untranslatable_counter_op_gates_fill() {
+        // Gate hardening: a counter op outside the curated name table
+        // used to drop silently while sibling lines filled.
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    Duel.Draw(tp,1,REASON_EFFECT)
+    c:AddCounter(0x34,1)
+end
+"#;
+        assert_eq!(p11_actions(src, "s.op"), vec!["draw 1"]);
+        assert!(s6_gate(src, "s.op"));
+    }
+
+    #[test]
+    fn s6_method_op_stat_write_interference() {
+        // Two ops whose lua values were computed from PRE-mutation stats:
+        // the second line would read the first's write. The emit loop
+        // drops it; the gate rejects the fill.
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    c:UpdateAttack(500)
+    c:UpdateDefense(c:GetAttack(),nil,c)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.op"),
+            vec!["modify_atk self + 500 until while_face_up"],
+        );
+        assert!(s6_gate(src, "s.op"));
+    }
+
+    #[test]
+    fn s6_emit_forms_parse_roundtrip() {
+        // Every S6 emit form must already parse — no grammar was added.
+        // detach-from-self is the one form no earlier phase emitted.
+        let source = r#"
+card "S6 Emit Forms" {
+    id: 1
+    type: Effect Monster
+    attribute: DARK
+    race: Machine
+    level: 4
+    atk: 1000
+    def: 1000
+
+    effect "Forms" {
+        speed: 1
+        mandatory
+        target (1, monster, opponent controls)
+        resolve {
+            modify_atk self + 700 until while_face_up
+            modify_def target - 1000 until while_face_up
+            modify_level target + 1 until end_of_turn
+            negate_effects target end_of_turn
+            negate_effects (all, card, opponent controls, from field, where is_face_up) while_face_up
+            detach 1 from self
+        }
+    }
+}
+"#;
+        let file = crate::v2::parser::parse_v2(source).expect("S6 emit forms must parse");
+        let formatted = crate::v2::fmt::format_file(&file);
+        let reparsed = crate::v2::parser::parse_v2(&formatted)
+            .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
+        assert_eq!(crate::v2::fmt::format_file(&reparsed), formatted);
     }
 }
