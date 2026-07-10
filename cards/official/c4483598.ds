@@ -28,5 +28,9 @@ card "Full Active Duplex" {
         once_per_turn: soft
         timing: if
         trigger: custom "chain_end"
+        target (1, card, you control, from monster_zone, where is_face_up and race == Cyberse)
+        resolve {
+            modify_atk target + 1000 until while_face_up
+        }
     }
 }
