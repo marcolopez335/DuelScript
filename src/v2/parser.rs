@@ -1025,8 +1025,7 @@ fn parse_pred_atom(pair: Pair<Rule>) -> Result<PredicateAtom, V2ParseError> {
         let pred = parse_predicate(inner.into_iter().next().unwrap())?;
         return match pred {
             Predicate::Single(a) => Ok(a),
-            Predicate::And(atoms) => Ok(PredicateAtom::Not(Box::new(atoms.into_iter().next().unwrap()))),
-            _ => Err(V2ParseError::UnknownRule("nested predicate".into())),
+            compound => Ok(PredicateAtom::Nested(Box::new(compound))),
         };
     }
 
@@ -3305,5 +3304,95 @@ card "Test Link" {
         let card = &file.cards[0];
         let s = card.summon.as_ref().expect("summon block");
         assert!(s.link_materials.is_some(), "link_materials must populate");
+    }
+
+    /// Extract the where_clause from a one-effect card whose first resolve
+    /// action is `destroy (…)`.
+    fn where_clause_of(source: &str) -> Predicate {
+        let file = parse_v2(source).expect("parse");
+        match &file.cards[0].effects[0].resolve[0] {
+            Action::Destroy(Selector::Counted { where_clause, .. }) => {
+                where_clause.clone().expect("where_clause present")
+            }
+            other => panic!("expected destroy with counted selector, got {:?}", other),
+        }
+    }
+
+    fn pred_card(where_src: &str) -> String {
+        format!(r#"
+card "Paren Pred Test" {{
+    id: 1
+    type: Normal Spell
+
+    effect "Filtered Destroy" {{
+        speed: 1
+        resolve {{
+            destroy (all, monster, opponent controls, where {})
+        }}
+    }}
+}}
+"#, where_src)
+    }
+
+    #[test]
+    fn test_parenthesized_and_where_predicate() {
+        let pred = where_clause_of(&pred_card("(atk >= 1000 and level == 4)"));
+        match pred {
+            Predicate::Single(PredicateAtom::Nested(inner)) => match *inner {
+                Predicate::And(ref atoms) => assert_eq!(atoms.len(), 2),
+                other => panic!("expected And inside parens, got {:?}", other),
+            },
+            other => panic!("expected Single(Nested(And)), got {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_parenthesized_or_where_predicate() {
+        let pred = where_clause_of(&pred_card("(race == Beast or race == Winged Beast)"));
+        match pred {
+            Predicate::Single(PredicateAtom::Nested(inner)) => match *inner {
+                Predicate::Or(ref atoms) => {
+                    assert!(matches!(atoms[0], PredicateAtom::RaceIs(Race::Beast)));
+                    assert!(matches!(atoms[1], PredicateAtom::RaceIs(Race::WingedBeast)));
+                }
+                other => panic!("expected Or inside parens, got {:?}", other),
+            },
+            other => panic!("expected Single(Nested(Or)), got {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_not_parenthesized_or_where_predicate() {
+        let pred = where_clause_of(&pred_card("not (race == Beast or race == Winged Beast)"));
+        match pred {
+            Predicate::Single(PredicateAtom::Not(inner)) => match *inner {
+                PredicateAtom::Nested(ref sub) => {
+                    assert!(matches!(**sub, Predicate::Or(ref atoms) if atoms.len() == 2));
+                }
+                other => panic!("expected Nested under Not, got {:?}", other),
+            },
+            other => panic!("expected Single(Not(Nested(Or))), got {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_mixed_atom_and_parenthesized_or_where_predicate() {
+        // T38 S1 shape: `is_face_up and (race == Beast or race == Winged Beast)`
+        let pred = where_clause_of(&pred_card(
+            "is_face_up and (race == Beast or race == Winged Beast)",
+        ));
+        match pred {
+            Predicate::And(atoms) => {
+                assert_eq!(atoms.len(), 2);
+                assert!(matches!(atoms[0], PredicateAtom::IsFaceUp));
+                match &atoms[1] {
+                    PredicateAtom::Nested(sub) => {
+                        assert!(matches!(**sub, Predicate::Or(ref a) if a.len() == 2));
+                    }
+                    other => panic!("expected Nested(Or) as second atom, got {:?}", other),
+                }
+            }
+            other => panic!("expected And([IsFaceUp, Nested(Or)]), got {:?}", other),
+        }
     }
 }

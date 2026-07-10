@@ -470,6 +470,8 @@ pub enum Predicate {
 #[derive(Debug, Clone)]
 pub enum PredicateAtom {
     Not(Box<PredicateAtom>),
+    /// Parenthesized sub-predicate: `( A or B )` inside a larger clause.
+    Nested(Box<Predicate>),
     StatCompare(StatField, CompareOp, Expr),
     AttributeIs(Attribute),
     RaceIs(Race),
