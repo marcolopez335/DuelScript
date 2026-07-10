@@ -215,6 +215,128 @@ fn set_damage_rule(&mut self, player: u8, rule: DamageRule, duration: Duration) 
 
 ---
 
+### T38 — empty-resolve backfill: secondary-handler riders + proc recognition (multi-slice)
+
+**Goal.** Eliminate the last error class in the corpus: 1,618 stems whose `.ds` has an effect block with an empty/missing `resolve` and no `choose` block. Split: 1,065 "secondary handler" stems (the lua op registers an inner `Effect.CreateEffect` instead of acting directly) + 553 "initial-only" stems (the action lives in a library proc closure or an unmapped primitive). The Phase 9 "~95% delayed second handler" framing is **wrong in emphasis**: 889/1,065 secondary stems (83%) hit ONLY `:no_op` buckets — the inner effect is a pure passive value chip (SetCode/SetValue/SetReset, no SetOperation), i.e. an *immediate* action with a *duration*, already expressible with `modify_*`/`set_*`/`negate_effects`/`grant`/`restrict` + the existing `duration` vocabulary. Only 176 stems have a true delayed second handler needing new grammar.
+
+**Yield estimate.** ~450–520 cards across 8 slices (~330 of them with zero new grammar). Prereqs: the reset→duration exact-map fix (`reset_to_duration_kw`, src/lua_ast.rs:6144 — open) and the `set_atk`/`set_def` duration plumb-through (~~open~~ ✓ shipped, PR #134; ygobeetle adapter mirror still pending).
+
+---
+
+#### 1. Ranked slices (≥30-card floor; sub-30 shapes folded or dropped)
+
+| # | Slice | Sub-shape | Safe yield | Grammar |
+|---|-------|-----------|-----------|---------|
+| **S1** | **Passive stat chips** (translator-only) | `:no_op` inner `EFFECT_TYPE_SINGLE` with `SetCode` in {UPDATE_ATTACK, UPDATE_DEFENSE, UPDATE_LEVEL, CHANGE_LEVEL, SET_ATTACK_FINAL, SET_DEFENSE_FINAL}, receiver ∈ {self, GetFirstTarget, single GetMatchingGroup loop}, value ∈ {int literal, `count(selector)*K`, `ceil(x.base_atk/2)`, `x.atk*2`}, reset in the exact-map table. Buckets: UPDATE_ATTACK 287 (225 pure), SET_ATTACK_FINAL 92, UPDATE_DEFENSE 54, UPDATE_LEVEL 54, CHANGE_LEVEL 40, ATK+DEF clone pairs 37. | **~160–200** | **NONE** — `modify_stat_action` / `set_stat_action` + durations `end_of_turn` / `while_face_up` / `while_on_field` / `next_standby_phase` all exist (pest:534-535, 745). Needs `ceil()` expr fn as a minor addition. **Prereqs:** reset exact-map fix (open) + set-stat duration plumb-through (✓ PR #134). |
+| **S2** | **Qualified player floodgates** | `:no_op` inner `EFFECT_TYPE_FIELD` + player `SetTargetRange` + `RESET_PHASE\|PHASE_END`, `Duel.RegisterEffect(e1,tp)`. CANNOT_SPECIAL_SUMMON 92 (79 with a `splimit` qualifier), CANNOT_ACTIVATE 41, tr=yes reset bucket 236 chains. Unfiltered subset is T36-expressible today; the qualifier extension unlocks the rest. | **~70–90** | Small extension: `restrict_action` gains `("from" ~ zone)? ~ ("except" ~ "(" ~ exempt_expr ~ ")")?` where `exempt_atom = race/attribute/archetype/named/card_type/from-zone`, or/and composition. |
+| **S3** | **Snapshot negation pairs** | `:no_op` DISABLE + DISABLE_EFFECT clone on same receiver, same reset (43/61 cards paired), receiver ∈ {GetFirstTarget, GetTargetCards, group loop}, reset ∈ {end_of_turn, while_face_up}. | **~30** | **NONE** — `negate_effects <selector> <duration>` exists (pest); one DSL action lowers to the two-code pair. Field-wide "lingering" variant (18 regs) is a skip class this round. |
+| **S4** | **Ritual proc recognition** | `Ritual.AddProcEqual/Greater[Code]` single-call cards; filter reduces to code-list/archetype/race; lv nil or int; no extrafil/extraop/stage2/matfilter/CreateProc. 68-card bucket minus skips. | **~35–40** | Tiny: `summon_level` expr atom ("the summoned monster's own level") in the `where total_level` clause. `ritual_summon_action` exists (pest:519). NOTE: dormant branch `origin/worktree-ritual-addproc-assigned` (2026-06-10) already has assigned-form Ritual.AddProc* skeleton recognition + a RegisterSummonEff pass — inspect/rebase before starting S4/S5 fresh. |
+| **S5** | **Fusion proc recognition** | `Fusion.CreateSummonEff` (32) / `SummonEffTG+OP` pair (36); whitelist extraop ∈ {nil, BanishMaterial, ShuffleMaterial}, gc ∈ {nil, ForcedHandler}, unconditional extrafil, no fcheck/chkf/stage2. | **~30** | Small extension on `fusion_summon_action`: `("plus" ~ selector)* ~ ("including" ~ "self")? ~ ("sending_materials_to" ~ ("gy"\|"banished"\|"deck"))?`. |
+| **S6** | **Card-method ops** | initial-only `card_method_action` (92): single mutating Card method after standard guard — UpdateAttack/Defense/Level → `modify_*`; NegateEffects → `negate_effects`; AddCounter/RemoveCounter → `counter_action`; RemoveOverlayCard → `detach`. Args literal or `count(selector)`. | **~50–60** | **NONE** — all five target actions exist. |
+| **S7** | **Simple untranslated primitives** | initial-only `simple_untranslated` subset whose primitive already has a DSL action: ChangePosition 38 (incl. 4-arg toggle → bare `change_position`), SynchroSummon 10, SSet 7, XyzSummon 3, Summon 3, misc. | **~45–55** | **NONE** for this subset. (chain_attack 14, retarget ~21, skip_phase 8, redirect_attack 7, activate_field_spell 6, summon_or_set 4 are each <30 → deferred; retarget/skip_phase are already queued as their own grammar stories.) |
+| **S8** | **Delayed-trigger wrapper** | the true `:with_op` class (176 stems): inner FIELD+CONTINUOUS effect on an EVENT_* code with its own SetOperation + reset. Led by EVENT_PHASE+PHASE_END 53, then CHAIN_SOLVING 12, BATTLE_DESTROYING 10, PHASE_STANDBY 10, DAMAGE_STEP_END 9, CHAIN_SOLVED 9, CHAINING 8. MVP: PHASE_END bodies whose inner op is 1-2 already-translatable actions + the `cnt=yes` "once, later this turn" bucket (20). | **~40–55** | **NEW** — the `delayed on <event>` wrapper (below). |
+
+**Folded/dropped (<30 or out of scope):** equip riders (EQUIP_LIMIT 48, EQUIP-type UPDATE_ATTACK) → T33 equip/attach surface; union_proc 26, delegated_op 20, other_complex 48 (branching), CHANGE_CODE 26 / CHANGE_ATTRIBUTE 14 (need `change_name`/`change_attribute` recognition — fold into a later S1b if counts hold), label-valued `e:GetLabel()` cards (~70 across buckets) → deferred behind a future cost-tag plumbing story, INDESTRUCTABLE_BATTLE 26 → fold into S2b grant-aura follow-up.
+
+---
+
+#### 2. Grammar proposal — delayed-trigger wrapper (S8)
+
+Extend the existing `delayed_action` (pest:647, currently phase-only) rather than adding a new keyword:
+
+```pest
+delayed_action = { "delayed" ~ (
+      "on" ~ trigger_expr ~ ("until" ~ duration)?   // NEW: event-armed, recurring until reset
+    | "until" ~ phase_name                          // existing phase-deferred form, unchanged
+  ) ~ "{" ~ action+ ~ "}" }
+```
+
+Semantics: registers `EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS` on the event, SetOperation = body, SetReset from the duration clause (default `end_of_turn`); fires on EVERY event occurrence until reset (NOT one-shot). A one-shot variant rides an optional `once` modifier later (the SetCountLimit bucket, cnt=yes n=20).
+
+```ds
+// (a) "destroy it during the End Phase" — EVENT_PHASE|PHASE_END, cnt=yes bucket
+resolve {
+    special_summon (1, monster, from gy)
+    delayed on end_phase until end_of_turn {
+        destroy those
+    }
+}
+
+// (b) c11755663 Dinowrestler Martial Anga — EVENT_DAMAGE_STEP_END, recurring
+resolve {
+    delayed on damage_step_end until end_of_turn {
+        skip_phase battle for turn_player    // blocked on the skip_phase story
+    }
+}
+
+// (c) "if this destroys a monster by battle, inflict 1000" — EVENT_BATTLE_DESTROYING
+resolve {
+    delayed on destroys_by_battle until end_of_turn {
+        damage opponent 1000
+    }
+}
+```
+
+`trigger_expr` is reused from the effect-header trigger grammar; the validator restricts the body to actions with no target-decl dependence (the wrapper body binds no chain target).
+
+---
+
+#### 3. Runtime seam (ygobeetle mirror obligations)
+
+```rust
+// ✓ shipped (PR #134): set_atk/set_def/change_level carry Duration.
+// ygobeetle adapter mirror of the widened signatures still outstanding.
+fn set_atk(&mut self, card_id: u32, value: i32, duration: Duration);
+fn set_def(&mut self, card_id: u32, value: i32, duration: Duration);
+
+// S2: qualifier rides the existing T36 method as an Option, not a new method.
+fn restrict_player_filtered(&mut self, player: u8, restriction: PlayerRestriction,
+    qualifier: RestrictionQualifier, duration: Duration) {}
+// RestrictionQualifier { from_zone: Option<Zone>, except: Option<ExemptExpr> } —
+// runtime-surface mirror enum family, same pattern as PlayerRestriction/DamageRule,
+// doc-comment table mapping to splimit predicate shapes. Evaluated per would-be-summoned
+// card at BOTH seams (action-gen mask + exec pre-check), per the PR #50 rollout pattern.
+
+// S8: event-armed recurring listener.
+fn register_delayed_trigger(&mut self, event: TriggerEvent, ops: DelayedOps,
+    duration: Duration) {}
+```
+
+Cross-cutting contracts (documented on the trait, per decisions-2.md house style):
+- **Stacking, never idempotent:** each `modify_*` resolution registers an independent chip (Silent Swordsman +500/turn accumulates).
+- **One-shot value snapshot:** exprs (`count(...)`, `x.overlay_count*K`) evaluate once at resolution; never re-evaluated on continuous refresh.
+- **Exact reset decoding:** `WhileOnField` = RESETS_STANDARD event set on the *receiver*; `WhileFaceUp` = +RESET_DISABLE; `EndOfTurn` = phase-end AND the standard event set (a bare phase timer that survives zone moves diverges from ocgcore). Reuses ygobeetle's `lua_reset_to_query_flags` seam (PR #51).
+- **Set-final layering:** SET_ATTACK_FINAL is a distinct pipeline slot after base/update layers, timestamp-ordered.
+- **Stale-target fizzle:** targeted applications silently no-op when the target is gone/face-down at resolution.
+- **`negate_effects`** registers the DISABLE + DISABLE_EFFECT(RESET_TURN_SET) pair — one action, two engine facets (lands on the known ygobeetle EFFECT_DISABLE gap).
+- **`ritual_summon`/`fusion_summon`** stubs exist (runtime.rs:1264); real obligations: material legality with EFFECT_RITUAL_LEVEL / EFFECT_EXTRA_FUSION_MATERIAL overrides, disposal-before-summon with BreakEffect seam, SUMMON_TYPE typing + CompleteProcedure, two-stage player selection surfaced through the choose mechanism.
+
+---
+
+#### 4. Skip classes (hard, apply-pass rejects)
+
+1. **Block-to-handler binding failures:** dimension tags are card-level unions; the empty block's OWN SetOperation handler must contain the bucket shape (c21249921, c11493868, c10204849, c21522601, c27143874 all proved wrong-block fills otherwise).
+2. **Impure handlers:** any Duel mutator, modal Select/Announce, RegisterFlagEffect payload, tiered ct-branching, or interactive flow alongside the registration.
+3. **Label plumbing:** `SetValue(e:GetLabel())` / SetLabelObject cross-effect protocols (~70 cards) — deferred behind cost-tag plumbing, not dropped.
+4. **Non-mapped resets:** RESET_OPPO_TURN combos, reset counts `,2`, PHASE_DAMAGE_CAL/PHASE_BATTLE/PHASE_STANDBY variants, masked exprs (`&~RESET_TOFIELD`) — exact-map misses skip, never approximate.
+5. **Function-valued SetValue** (dynamic recompute — snapshot semantics would be *wrong*, not lossy) and any inner SetCondition/SetTarget/SetCountLimit outside S8's whitelist.
+6. **Receivers without selectors:** battle-derived (GetAttacker/GetBattleTarget), equip targets, label objects, eg-derived — until battle-context selectors exist.
+7. **Equip-rider shapes** (EQUIP-type inner effects, EquipByEffectAndLimitRegister, aux.AddEREquipLimit) → T33.
+8. **Oath cost-site registrations** (19 Floowandereeze-pattern) — until a `cost { oath { ... } }` placement lands.
+9. **Proc knobs:** ritual CreateProc/extrafil/extraop/stage2/matfilter; fusion chkf/fcheck/conditional-extrafil/custom-extraop/custom-gc.
+10. **Wrong-header blocks:** never fill a resolve onto a block whose trigger/cost header already mismatches the lua (route to a header-fix pass); never overwrite non-empty resolves; every pass byte-idempotent on re-run.
+
+---
+
+#### Acceptance
+- Prereq PRs: reset exact-map fix (lua_ast.rs:6144) with corpus correction for the confirmed-wrong emissions (c61151074, c11493868); ~~`set_atk`/`set_def` duration plumb-through~~ ✓ PR #134 (adapter mirror outstanding).
+- Each slice = its own PR pair (translator, then corpus apply) per the translator-phase pattern; `duelscript check` error count strictly decreases per apply, zero warnings, oracle byte-identical on untouched blocks, structural idempotency (second run no-op).
+- S2/S5/S8 grammar PRs ship the full seam (pest + AST + parser + validator + compiler + fmt + trait + MockRuntime, tests per layer) before their apply passes, T36/T37 style.
+
+**Agent.** `lua-translator` for S1/S3/S4-recognition/S6/S7; `grammar-extender` for S2/S5-extensions/S8; `engine-dev` for the adapter mirrors (set-stat duration, restrict qualifier, delayed trigger, ritual/fusion procedures).
+
+---
+
 ## Per-archetype templates
 
 Long-tail. Each archetype = one PR. Defer until grammar-free phases are exhausted.
