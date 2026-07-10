@@ -273,9 +273,18 @@ pub struct SelectorSpec {
     /// local function (`s.filter`), emit time re-resolves it against the
     /// walked function table — the filter body isn't available at walk
     /// time (spec extraction runs per handler, before/independent of the
-    /// filter fn's own walk). None on select-provenance specs: the
-    /// refinement is scoped to group-applied modifier receivers.
+    /// filter fn's own walk). None on select-provenance specs (the
+    /// refinement is scoped to group-applied modifier receivers) and on
+    /// specs whose exception arg was unexpressible — a refinement
+    /// upgrade there would resurrect the dropped exclusion.
     pub raw_filter: Option<String>,
+    /// True when the producing call's exception arg was the handler card
+    /// (`c` / `e:GetHandler()`) — the canonical "other cards you
+    /// control" shape (T38 S1 review fix). Renders as the grammar's
+    /// `except self` position filter, mirroring the T34 passive count
+    /// path. A non-nil, non-self exception is unexpressible and clears
+    /// `filter_mapped` + `raw_filter` instead.
+    pub except_self: bool,
 }
 
 impl SelectorSpec {
@@ -283,6 +292,9 @@ impl SelectorSpec {
         let mut parts: Vec<String> = vec![self.quantity.clone(), self.kind.clone()];
         if let Some(c) = &self.controller { parts.push(c.clone()); }
         if let Some(z) = &self.zone { parts.push(z.clone()); }
+        // Grammar order: position_filter sits between zone_filter and
+        // where_clause in the selector rule.
+        if self.except_self { parts.push("except self".to_string()); }
         if let Some(w) = &self.where_clause { parts.push(format!("where {}", w)); }
         format!("({})", parts.join(", "))
     }
@@ -3181,29 +3193,66 @@ fn selector_spec_from_call(fc: &FunctionCall) -> Option<SelectorSpec> {
     }
 }
 
+/// Classify a lua exception arg (T38 S1 review fix). `nil` (or an
+/// absent trailing arg) is no exclusion; the handler card (`c` /
+/// `e:GetHandler()` — the same self sentinels `resolve_body_selector`
+/// accepts) is the canonical "other cards" shape and renders as
+/// `except self`; anything else (a chosen card, a group, another local)
+/// has no DSL form.
+enum ExceptionArg {
+    None,
+    ExceptSelf,
+    Unexpressible,
+}
+
+fn classify_exception(arg: Option<&str>) -> ExceptionArg {
+    match arg.map(str::trim) {
+        None | Some("nil") => ExceptionArg::None,
+        Some("c") | Some("e:GetHandler()") => ExceptionArg::ExceptSelf,
+        Some(_) => ExceptionArg::Unexpressible,
+    }
+}
+
 fn spec_from_matching(args: &[String], _has_opp_locs: bool, has_minmax: bool) -> Option<SelectorSpec> {
     // args: 0=select_p, 1=filter, 2=scope_p, 3=my_locs, 4=opp_locs, 5=min, 6=max, 7=exception
     if args.len() < 7 { return None; }
     let scope_p = args.get(2)?.as_str();
     let my_locs = args.get(3)?.as_str();
     let opp_locs = args.get(4)?.as_str();
-    let (min_s, max_s) = if has_minmax {
-        (args.get(5)?.as_str(), args.get(6)?.as_str())
+    let (min_s, max_s, exception_idx) = if has_minmax {
+        (args.get(5)?.as_str(), args.get(6)?.as_str(), 7)
     } else {
-        ("1", "1")
+        ("1", "1", 5)
     };
     let qty = quantity_from(min_s, max_s)?;
     let controller = controller_from_scope(scope_p, my_locs, opp_locs)?;
     let zone = zone_from_locations(my_locs, opp_locs);
+    // This spec renders NO where-clause, so a filter that maps WITH a
+    // predicate must not claim `filter_mapped` — the Phase 10 group-
+    // modifier gate would then apply the modifier to the unfiltered
+    // superset (T38 S1 review fix: latent since Card.IsFaceup, made
+    // reachable by the aux.FaceupFilter widening). Only predicate-free
+    // mappings (nil / aux.TRUE / kind-only filters) count as mapped.
+    let filter_free = matches!(
+        map_group_filter(args.get(1).map(String::as_str).unwrap_or("")),
+        Some((_, None))
+    );
+    let (except_self, exception_ok) =
+        match classify_exception(args.get(exception_idx).map(String::as_str)) {
+            ExceptionArg::None => (false, true),
+            ExceptionArg::ExceptSelf => (true, true),
+            ExceptionArg::Unexpressible => (false, false),
+        };
     Some(SelectorSpec {
         quantity: qty,
         kind: "card".to_string(),
         controller: Some(controller),
         zone,
         where_clause: None,
-        filter_mapped: map_group_filter(args.get(1).map(String::as_str).unwrap_or("")).is_some(),
+        filter_mapped: filter_free && exception_ok,
         from_resolve_select: false,
         raw_filter: None,
+        except_self,
     })
 }
 
@@ -3260,15 +3309,28 @@ fn spec_from_get_matching(args: &[String]) -> Option<SelectorSpec> {
     let mapped = map_group_filter(args[0].as_str());
     let filter_mapped = mapped.is_some();
     let (kind, where_clause) = mapped.unwrap_or(("card", None));
+    // Exception arg (T38 S1 review fix): `nil` → no exclusion; the
+    // handler card → `except self` (the canonical "OTHER monsters you
+    // control gain X" shape); anything else is unexpressible — drop
+    // `filter_mapped` so group modifiers skip, AND `raw_filter` so the
+    // named-filter refinement can't flip the spec back to mapped and
+    // resurrect the dropped exclusion.
+    let (except_self, exception_ok) =
+        match classify_exception(args.get(4).map(String::as_str)) {
+            ExceptionArg::None => (false, true),
+            ExceptionArg::ExceptSelf => (true, true),
+            ExceptionArg::Unexpressible => (false, false),
+        };
     Some(SelectorSpec {
         quantity: "all".to_string(),
         kind: kind.to_string(),
         controller: Some(controller),
         zone,
         where_clause,
-        filter_mapped,
+        filter_mapped: filter_mapped && exception_ok,
         from_resolve_select: false,
-        raw_filter: Some(args[0].clone()),
+        raw_filter: if exception_ok { Some(args[0].clone()) } else { None },
+        except_self,
     })
 }
 
@@ -4710,13 +4772,23 @@ pub fn translate_body_with_functions(
     out
 }
 
-/// True when translating `body` would DROP a `RegisterEffect` chain —
-/// i.e. some chain in the handler produces no DSL line (T38 S1). The
-/// apply passes gate resolve fills on this: every chain a handler
-/// registers is semantic content, so a fill that emits the translatable
-/// sibling while silently omitting another (a delayed EVENT_* trigger, a
-/// grant with an unmapped reset, a field-wide registration) under-states
-/// the card. Skip-not-mis-emit at the whole-fill granularity.
+/// True when translating `body` would DROP a `RegisterEffect` chain or
+/// one of its lines — i.e. some chain in the handler produces no DSL
+/// line, OR a line it produces would be discarded at emit time by the
+/// Phase 10 stat-write interference guard (T38 S1). The apply passes
+/// gate resolve fills on this: every chain a handler registers is
+/// semantic content, so a fill that emits the translatable sibling
+/// while silently omitting another (a delayed EVENT_* trigger, a grant
+/// with an unmapped reset, a field-wide registration, an interference-
+/// dropped stat line) under-states the card. Skip-not-mis-emit at the
+/// whole-fill granularity.
+///
+/// The interference replay below MUST mirror the guard in
+/// [`translate_body_with_functions`]'s chain loop — a gate that only
+/// checked `translate_register_chain(..).is_empty()` per chain would
+/// declare a body complete whose second chain's line the emit loop then
+/// drops (review fix: chain 1 writes `self.atk`, chain 2's value reads
+/// `c:GetAttack()`).
 ///
 /// Choice-arm chains gate too: they never emit from a plain body walk
 /// (only the Phase 16 choose path renders them), so a body carrying them
@@ -4728,9 +4800,26 @@ pub fn body_drops_chains(
 ) -> bool {
     let refined = refine_group_bindings(body, functions);
     let body = refined.as_ref().unwrap_or(body);
-    body.register_chains.iter().any(|chain| {
-        translate_register_chain(chain, body, functions).is_empty()
-    })
+    let mut stat_writes: Vec<(String, String)> = Vec::new();
+    for chain in &body.register_chains {
+        let lines = translate_register_chain(chain, body, functions);
+        if lines.is_empty() {
+            return true;
+        }
+        for line in lines {
+            if let DslLine::Action(text) = &line {
+                if stat_writes.iter().any(|(sel, stat)| {
+                    text.contains(&format!("{}.{}", sel, stat))
+                }) {
+                    return true; // emit loop would drop this line
+                }
+                if let Some(write) = stat_write_of(text) {
+                    stat_writes.push(write);
+                }
+            }
+        }
+    }
+    false
 }
 
 /// Phase 16 — a fully-translated SelectOption choose block: one
@@ -6439,14 +6528,18 @@ fn split_top_level_binop(arg: &str) -> Option<(&str, char, &str)> {
 
 /// Lower a `Duel.GetMatchingGroupCount(filter, p, my, opp, exc, …)` or
 /// `Duel.GetFieldGroupCount(p, my, opp)` call text to DSL
-/// `count((all, <kind>, <controller>, from <zone>[, where …]))`.
+/// `count((all, <kind>, <controller>, from <zone>[, except self][, where …]))`.
 ///
 /// Skip-not-mis-emit gates (Phase 10): the count's numeric value IS the
 /// semantics, so unlike the action-selector path the filter must map to
-/// a selector the DSL can express — custom `s.filter` predicates, card-
-/// code filters, and `aux.FaceupFilter(…)` compositions all return None.
-/// The scope player must be `tp` (or `1-tp`, which flips the controller),
-/// and the locations must collapse to a single DSL zone.
+/// a selector the DSL can express. `map_group_filter` covers the stock
+/// names plus (since T38 S1) or-free `aux.FaceupFilter(…)` compositions;
+/// custom `s.filter` predicates and card-code filters still return None
+/// (no function table reaches this seam — S1b backlog). The scope player
+/// must be `tp` (or `1-tp`, which flips the controller), the locations
+/// must collapse to a single DSL zone, and the exception arg must be
+/// `nil` or the handler card (`except self`) — any other exclusion
+/// would silently inflate the count.
 fn count_call_to_count_expr(arg: &str) -> Option<String> {
     let (is_field, inner) =
         if let Some(rest) = arg.strip_prefix("Duel.GetMatchingGroupCount(") {
@@ -6458,15 +6551,22 @@ fn count_call_to_count_expr(arg: &str) -> Option<String> {
         };
     let inner = inner.strip_suffix(')')?;
     let args = split_top_level_commas(inner)?;
-    let (kind, where_clause, scope_p, my, opp) = if is_field {
+    let (kind, where_clause, scope_p, my, opp, exception) = if is_field {
         // GetFieldGroupCount(player, my_locs, opp_locs) — no filter.
         if args.len() != 3 { return None; }
-        ("card", None, args[0].as_str(), args[1].as_str(), args[2].as_str())
+        ("card", None, args[0].as_str(), args[1].as_str(), args[2].as_str(), None)
     } else {
         // GetMatchingGroupCount(filter, player, my_locs, opp_locs, exception, …)
         if args.len() < 5 { return None; }
         let (kind, wc) = map_group_filter(args[0].as_str())?;
-        (kind, wc, args[1].as_str(), args[2].as_str(), args[3].as_str())
+        (kind, wc, args[1].as_str(), args[2].as_str(), args[3].as_str(), args.get(4).map(String::as_str))
+    };
+    let except_self = match classify_exception(exception) {
+        ExceptionArg::None => false,
+        ExceptionArg::ExceptSelf => true,
+        // The count IS the semantics — an inexpressible exclusion
+        // means a wrong number, not a superset. Skip.
+        ExceptionArg::Unexpressible => return None,
     };
     // Locations are relative to the scope player; `1-tp` flips ownership.
     let controller = match scope_p {
@@ -6484,6 +6584,7 @@ fn count_call_to_count_expr(arg: &str) -> Option<String> {
         filter_mapped: true,
         from_resolve_select: false,
         raw_filter: None,
+        except_self,
     };
     Some(format!("count({})", spec.to_dsl()))
 }
@@ -13739,7 +13840,128 @@ end
         // Multi-value IsLevel is an or-join — fine alone, poison in a chain.
         assert_eq!(w("c:IsLevel(3,4)").as_deref(), Some("level == 3 or level == 4"));
         assert_eq!(w("c:IsFaceup() and c:IsLevel(3,4)"), None);
-        // Non-literal compare operand → None.
+        // Non-literal compare operand → None; literal `~=` maps to `!=`.
         assert_eq!(w("c:GetAttack()~=atk"), None);
+        assert_eq!(w("c:GetLevel()~=4").as_deref(), Some("level != 4"));
+    }
+
+    #[test]
+    fn s1_select_provenance_filtered_group_skips() {
+        // Review fix (MAJOR 1): a select-provenance loop whose lua filter
+        // maps WITH a where-clause must NOT pass the Phase 10 group-
+        // modifier gate — spec_from_matching renders no where, so
+        // claiming filter_mapped would buff a superset selection.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local g=Duel.SelectMatchingCard(tp,aux.FaceupFilter(Card.IsAttribute,ATTRIBUTE_WATER),tp,LOCATION_MZONE,0,1,1,nil)
+    for tc in aux.Next(g) do
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(500)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert!(p11_actions(src, "s.operation").is_empty());
+        // Same for the declared-target pick variant.
+        let src2 = src.replace("Duel.SelectMatchingCard", "Duel.SelectTarget");
+        assert!(p11_actions(&src2, "s.operation").is_empty());
+        // Predicate-free filters (nil) keep the historical behavior.
+        let src3 = src.replace("aux.FaceupFilter(Card.IsAttribute,ATTRIBUTE_WATER)", "nil");
+        assert_eq!(
+            p11_actions(&src3, "s.operation"),
+            vec!["modify_atk (1, card, you control, from monster_zone) + 500 until end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s1_get_matching_exception_arg() {
+        // Review fix (MAJOR 2): the canonical "OTHER monsters you
+        // control gain X" shape — exception = handler card — renders the
+        // grammar's `except self` position filter.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsAttribute,ATTRIBUTE_WATER),tp,LOCATION_MZONE,0,c)
+    for tc in aux.Next(g) do
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(500)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.operation"),
+            vec!["modify_atk (all, card, you control, from monster_zone, except self, where is_face_up and attribute == WATER) + 500 until end_of_turn"],
+        );
+        // A non-self exception (another local card) is unexpressible —
+        // the group modifier must skip, and the named-filter refinement
+        // must not resurrect the spec (raw_filter cleared).
+        let src2 = src.replace(",0,c)", ",0,tc)");
+        assert!(p11_actions(&src2, "s.operation").is_empty());
+        // Count values with a self exception carry the exclusion; any
+        // other exception poisons the value (the count IS the semantics).
+        let src3 = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    local ct=Duel.GetMatchingGroupCount(Card.IsFaceup,tp,LOCATION_MZONE,0,c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(ct*100)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p11_actions(src3, "s.atkop"),
+            vec!["modify_atk target + count((all, card, you control, from monster_zone, except self, where is_face_up)) * 100 until end_of_turn"],
+        );
+        let src4 = src3.replace(",0,c)", ",0,bc)");
+        assert!(p11_actions(&src4, "s.atkop").is_empty());
+    }
+
+    #[test]
+    fn s1_body_drops_chains_catches_interference_drop() {
+        // Review fix (MAJOR 3): chain 1 writes self.atk; chain 2's value
+        // reads c:GetAttack() → the emit loop's Phase 10 interference
+        // guard drops chain 2's line. The completeness gate must replay
+        // that guard, not just per-chain emptiness.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(500)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_SINGLE)
+    e2:SetCode(EFFECT_UPDATE_ATTACK)
+    e2:SetValue(c:GetAttack())
+    e2:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        // Sanity: the emit loop really does drop the second line…
+        let actions: Vec<String> = translate_body_with_functions(body, &report.functions)
+            .into_iter()
+            .filter_map(|l| match l { DslLine::Action(s) => Some(s), _ => None })
+            .collect();
+        assert_eq!(actions.len(), 1, "interference guard should drop chain 2's line");
+        // …so the gate must flag the body as dropping content.
+        assert!(body_drops_chains(body, &report.functions));
     }
 }
