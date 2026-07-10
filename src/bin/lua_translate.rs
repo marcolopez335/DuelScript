@@ -382,11 +382,48 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else {
                 continue;
             };
+            // T38 S6 review — cost-header parity: filling a resolve
+            // makes the block's header LIVE, so a block-side cost must
+            // re-derive exactly from the lua cost handler (skip class
+            // 10 — c9798352's `banish self` header contradicts the
+            // lua's banish-a-Trap-from-Deck cost).
+            if !cost_header_matches(&new_txt[block_lo..block_hi], eff, &walk.functions) {
+                r.effects_incomplete += 1;
+                continue;
+            }
+            // T38 S6 — bare-target gate: a fill referencing `target`
+            // only lands together with a target declaration; otherwise
+            // the validator's bare-target check trades the empty-resolve
+            // error for a new one. Blocks without one get the decl
+            // CO-EMITTED from the SetTarget selector (refined extraction
+            // — exactly-mapped filters only); when that fails, the whole
+            // fill skips.
+            let mut co_target: Option<String> = None;
+            if lines_reference_target(&lines)
+                && !block_has_target_decl(&new_txt[block_lo..block_hi])
+            {
+                match target_decl_selector(eff, &walk.functions) {
+                    Some(sel) => co_target = Some(sel),
+                    None => {
+                        r.effects_incomplete += 1;
+                        continue;
+                    }
+                }
+            }
             if let Some((lo, hi)) = first_empty_resolve_within(&new_txt, block_lo, block_hi) {
                 let body = render_resolve_body(&lines);
-                let injection = format!("resolve {{\n{}        }}", body);
+                let injection = match &co_target {
+                    Some(sel) => format!(
+                        "target {}\n        resolve {{\n{}        }}",
+                        sel, body,
+                    ),
+                    None => format!("resolve {{\n{}        }}", body),
+                };
                 new_txt = format!("{}{}{}", &new_txt[..lo], injection, &new_txt[hi..]);
                 filled += 1;
+                if co_target.is_some() {
+                    r.targets_injected += 1;
+                }
             }
         }
 
@@ -435,6 +472,18 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             // Skip if the block already has a resolve or choose — Pass A
             // handles those, and we don't want to double-inject.
             if block.contains("resolve") || block.contains("choose") { continue; }
+            // T38 S6 review — cost-header parity, same rationale as
+            // Pass A.
+            if !cost_header_matches(block, eff, &walk.functions) { continue; }
+            // T38 S6 — bare-target gate + decl co-emission, same
+            // rationale as Pass A.
+            let mut co_target: Option<String> = None;
+            if lines_reference_target(&lines) && !block_has_target_decl(block) {
+                match target_decl_selector(eff, &walk.functions) {
+                    Some(sel) => co_target = Some(sel),
+                    None => continue,
+                }
+            }
 
             let body_text = render_resolve_body(&lines);
             // Inject right before the block's closing `}`, after any
@@ -446,9 +495,18 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             while inject_pos > block_lo && bytes[inject_pos - 1].is_ascii_whitespace() {
                 inject_pos -= 1;
             }
-            let injection = format!("\n        resolve {{\n{}        }}", body_text);
+            let injection = match &co_target {
+                Some(sel) => format!(
+                    "\n        target {}\n        resolve {{\n{}        }}",
+                    sel, body_text,
+                ),
+                None => format!("\n        resolve {{\n{}        }}", body_text),
+            };
             new_txt = format!("{}{}{}", &new_txt[..inject_pos], injection, &new_txt[inject_pos..]);
             filled += 1;
+            if co_target.is_some() {
+                r.targets_injected += 1;
+            }
         }
 
         // Pass A3 — synthesize the whole activation block for bare card
@@ -879,6 +937,103 @@ fn render_choose_block(spec: &lua_ast::ChooseSpec, card_id: u32) -> Option<Strin
     }
     out.push_str("        }");
     Some(out)
+}
+
+/// Cost-header parity gate for resolve fills (T38 S6 review; spec skip
+/// class 10). Filling a resolve makes the block's whole header LIVE, so
+/// a block-side `cost { … }` must be re-derivable from the lua chain's
+/// cost handler and match it exactly:
+///   - block has a cost but the chain has no cost handler → mismatch;
+///   - block has a cost the extractor can't re-derive → unverifiable
+///     header (c9798352's `banish self` vs the lua's
+///     banish-a-Trap-from-Deck cost — the shipped text predates the
+///     current extractor and contradicts the script);
+///   - both present → whitespace-normalized content must be identical.
+/// A block WITHOUT a cost passes even when the lua has one — the
+/// incomplete-header class is corpus-wide pre-existing (conservative
+/// cost extraction) and gating it would diverge from every earlier
+/// phase's fills.
+fn cost_header_matches(
+    block: &str,
+    eff: &lua_ast::EffectSkeleton,
+    functions: &std::collections::BTreeMap<String, lua_ast::FunctionBody>,
+) -> bool {
+    let Some(block_cost) = block_cost_text(block) else { return true };
+    let Some(handler) = eff.cost_handler.as_deref() else { return false };
+    let handler = handler.trim();
+    // Inline `Cost.DetachFromSelf(n)` factory (utility.lua:1630 —
+    // detach exactly n materials from the handler as cost). Single
+    // literal arg only; min/max or function-valued forms stay
+    // unverifiable. Parity-check use only — Pass D's injection surface
+    // is unchanged.
+    if let Some(rest) = handler.strip_prefix("Cost.DetachFromSelf(") {
+        if let Some(n) = rest.strip_suffix(')') {
+            let n = n.trim();
+            if !n.is_empty() && n.chars().all(|c| c.is_ascii_digit()) {
+                return normalize_ws(&block_cost)
+                    == format!("cost {{ detach {} from self }}", n);
+            }
+        }
+        return false;
+    }
+    let Some(spec) = lua_ast::extract_cost_block(handler, functions) else {
+        return false;
+    };
+    normalize_ws(&spec.to_dsl_block("")) == normalize_ws(&block_cost)
+}
+
+/// The `cost { … }` substring of an effect block, brace-matched.
+fn block_cost_text(block: &str) -> Option<String> {
+    let start = block.find("cost {")?;
+    let mut depth = 0i32;
+    for (i, c) in block[start..].char_indices() {
+        match c {
+            '{' => depth += 1,
+            '}' => {
+                depth -= 1;
+                if depth == 0 {
+                    return Some(block[start..start + i + 1].to_string());
+                }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+fn normalize_ws(s: &str) -> String {
+    s.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// True when any emitted action line references the effect's declared
+/// target — the bare `target` selector token or a `target.<stat>` read
+/// (T38 S6). Such lines only validate inside a block that carries a
+/// target declaration or a choose block.
+fn lines_reference_target(lines: &[lua_ast::DslLine]) -> bool {
+    lines.iter().any(|l| match l {
+        lua_ast::DslLine::Action(t) => t
+            .split(|ch: char| ch.is_whitespace() || matches!(ch, '(' | ')' | ','))
+            .any(|tok| tok == "target" || tok.starts_with("target.")),
+        lua_ast::DslLine::Todo(_) => false,
+    })
+}
+
+/// True when the block text already declares a target (same marker as
+/// Pass E's idempotency check) or resolves targets through a choose.
+fn block_has_target_decl(block: &str) -> bool {
+    block.contains("\n        target ") || block.contains("choose {")
+}
+
+/// The target-declaration selector to co-emit with a bare-target fill
+/// (T38 S6): the effect's SetTarget handler through the REFINED
+/// extraction — Phase 8's nil/aux.TRUE shapes plus exactly-mapped
+/// custom filters. None ⇒ the fill must skip.
+fn target_decl_selector(
+    eff: &lua_ast::EffectSkeleton,
+    functions: &std::collections::BTreeMap<String, lua_ast::FunctionBody>,
+) -> Option<String> {
+    let th = eff.target_handler.as_deref()?;
+    Some(lua_ast::extract_target_decl_refined(th.trim(), functions)?.to_dsl())
 }
 
 fn render_resolve_body(lines: &[lua_ast::DslLine]) -> String {
