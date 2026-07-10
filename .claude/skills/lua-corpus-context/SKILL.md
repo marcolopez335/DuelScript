@@ -76,17 +76,35 @@ Phase 4 / 5 handle only literals. Function-ref and expression handling is Phase 
 
 ## SetReset
 
-Reset args determine the effect's lifetime. The relevant idioms for translation:
+Reset args determine the effect's lifetime. The macro definitions live in
+`/Users/marco/git/CardScripts/constant.lua` (lines ~295-301) — read them, don't
+guess. The key fact: **`RESETS_STANDARD` contains NO phase reset.**
 
-- `RESET_PHASE | PHASE_END` → ends at end of current turn.
-- `RESETS_STANDARD` → bundle macro, expands to `RESET_PHASE | PHASE_END | …`. End-of-turn.
-- `RESETS_STANDARD_PHASE_END` → same family, end-of-turn.
-- `RESETS_STANDARD_DISABLE` → end-of-turn for disable-style effects.
-- `RESET_EVENT | RESETS_STANDARD` → end-of-turn (event-and-phase reset).
-- `RESET_PHASE | PHASE_DAMAGE_CAL` → ends after damage calculation. **Not** end-of-turn.
-- `RESET_EVENT | RESETS_REDIRECT` → redirect-effect-only reset. **Not** end-of-turn.
+```lua
+RESETS_STANDARD           = RESET_TOFIELD|RESET_LEAVE|RESET_TODECK|RESET_TOHAND
+                           |RESET_TEMP_REMOVE|RESET_REMOVE|RESET_TOGRAVE|RESET_TURN_SET
+RESETS_STANDARD_DISABLE   = RESETS_STANDARD|RESET_DISABLE
+RESETS_STANDARD_PHASE_END = RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_END
+```
 
-`reset_is_end_of_turn()` in `lua_ast.rs` matches `PHASE_END` OR `RESETS_STANDARD` substrings — covers the canonical end-of-turn idioms while leaving battle-step / chain-only resets alone.
+Translation mapping (see `reset_to_duration_kw()` in `lua_ast.rs` — exact
+token-set matching, NOT substrings):
+
+- `RESET_PHASE | PHASE_END` (incl. the `RESETS_STANDARD_PHASE_END` /
+  `RESETS_STANDARD_DISABLE_PHASE_END` macros) → `end_of_turn`.
+- `RESET_EVENT | RESETS_STANDARD` (bare, no phase pair) → lasts while the card
+  stays on the field (resets on leave-field, relocation, or being turned
+  face-down). → `while_on_field`. **Not** end-of-turn.
+- `RESET_EVENT | RESETS_STANDARD_DISABLE` → same, plus reset-on-negation
+  (RESET_DISABLE — inexpressible in DSL durations). → `while_on_field`.
+- `RESET_PHASE | PHASE_DAMAGE[_CAL]` (± standard events) → ends after the
+  damage step / damage calculation. → `end_of_damage_step`. **Not** end-of-turn.
+- standard events + `RESET_PHASE | PHASE_STANDBY [| RESET_SELF_TURN]` →
+  "until your next Standby Phase" card text. → `next_standby_phase`.
+- `RESET_SELF_TURN` / `RESET_OPPO_TURN` qualified phase ends → end of a
+  SPECIFIC player's turn — no DSL keyword; skip.
+- `RESET_EVENT | RESETS_REDIRECT`, `RESET_CHAIN`, `&~` bit arithmetic,
+  `RESETS_STANDARD_EXC_GRAVE`, `RESETS_CANNOT_ACT`, `PHASE_BATTLE` combos → skip.
 
 ## SetType bitmask (relevant constants)
 

@@ -4878,11 +4878,11 @@ fn translate_modifier_chain(
 /// selector would resolve to nothing or to a stale card.
 ///
 /// Duration: `RESET_EVENT|RESETS_STANDARD` on an equip chain fires when
-/// the equip relation breaks, NOT at turn end (Tyrant Wing's +400/+400
-/// persists across turns while the trap stays equipped), so the default
-/// `reset_to_duration_kw` mapping would mis-emit `end_of_turn` here.
-/// Equip chains map to `while_equipped`; an explicit PHASE_END reset
-/// still means end-of-turn and wins.
+/// the equip relation breaks (Tyrant Wing's +400/+400 persists across
+/// turns while the trap stays equipped), so the generic
+/// `reset_to_duration_kw` mapping (`while_on_field`) would miss the
+/// equip-break reset. Equip chains map to `while_equipped`; an explicit
+/// PHASE_END reset still means end-of-turn and wins.
 ///
 /// Skip gates (None):
 ///   - handler has no canonical `Duel.Equip(tp, c, tc)` producer call;
@@ -5127,6 +5127,13 @@ fn translate_player_restrict_chain(
         return None; // filtered restriction ("…except X" summon limits)
     }
     let dur = reset_to_duration_kw(chain.reset.as_deref())?;
+    // Player-scoped floodgates only support phase-bounded lifetimes:
+    // while_on_field / next_standby_phase would anchor the restriction to
+    // source-card presence the restrict compile path doesn't model (a
+    // while_on_field player restriction compiles to a permanent one).
+    if !matches!(dur, "end_of_turn" | "end_of_damage_step") {
+        return None;
+    }
     let reset = chain.reset.as_deref().unwrap_or("");
     if reset.contains("RESET_SELF_TURN") || reset.contains("RESET_OPPO_TURN") {
         return None; // turn-qualified phase reset ≠ end of CURRENT turn
@@ -5308,6 +5315,11 @@ fn translate_damage_rule_chain(
         return None; // affected-card filter — not a plain player rule
     }
     let dur = reset_to_duration_kw(chain.reset.as_deref())?;
+    // Same phase-bounded-lifetimes-only gate as
+    // `translate_player_restrict_chain` — see the comment there.
+    if !matches!(dur, "end_of_turn" | "end_of_damage_step") {
+        return None;
+    }
     let reset = chain.reset.as_deref().unwrap_or("");
     if reset.contains("RESET_SELF_TURN") || reset.contains("RESET_OPPO_TURN") {
         return None; // turn-qualified phase reset ≠ end of CURRENT turn
@@ -6127,26 +6139,122 @@ fn method_call_to_stat(arg: &str) -> Option<String> {
     Some(format!("{}.{}", recv, stat))
 }
 
-/// Map a `SetReset` argument to a DSL `duration` keyword:
-///   - `PHASE_END` or `RESETS_STANDARD` → `end_of_turn`
-///   - `PHASE_DAMAGE` / `PHASE_DAMAGE_CAL` → `end_of_damage_step`
+/// Reset-token bitmask constants for [`reset_to_duration_kw`]. The eight
+/// STANDARD event bits mirror CardScripts `constant.lua`:
 ///
-/// Returns None for reset shapes the grammar can't express (chain-only,
-/// battle-step-only, etc.) — callers either skip the chain entirely or
-/// emit the action without a duration clause.
+/// ```text
+/// RESETS_STANDARD = RESET_TOFIELD|RESET_LEAVE|RESET_TODECK|RESET_TOHAND
+///                  |RESET_TEMP_REMOVE|RESET_REMOVE|RESET_TOGRAVE|RESET_TURN_SET
+/// ```
 ///
-/// Order matters: the PHASE_END check runs first because `RESETS_STANDARD`
-/// is the dominant shape; PHASE_DAMAGE is checked only when neither
-/// end-of-turn variant matches so the more common case keeps its mapping
-/// (RESETS_STANDARD can co-occur with RESET_PHASE|PHASE_DAMAGE in
-/// chains like INDESTRUCTABLE_BATTLE during damage step).
+/// i.e. the card leaving/relocating from the field OR being turned
+/// face-down — NOT a phase reset. A bare `RESET_EVENT|RESETS_STANDARD`
+/// effect lasts while the card stays on the field, not until end of turn.
+mod reset_bits {
+    pub const LEAVE: u32     = 1 << 0; // RESET_LEAVE — the while_on_field anchor
+    pub const STANDARD: u32  = 0xff;   // the eight RESETS_STANDARD event bits
+    pub const DISABLE: u32   = 1 << 8;
+    pub const PHASE: u32     = 1 << 9;
+    pub const P_END: u32     = 1 << 10;
+    pub const P_DMG: u32     = (1 << 11) | (1 << 12); // PHASE_DAMAGE / _CAL
+    pub const P_STB: u32     = 1 << 13;
+    pub const SELF_TURN: u32 = 1 << 14;
+}
+
+/// Map one reset token to its bit. `RESET_EVENT` contributes no bit — it
+/// is the "event resets are enabled" flag, not a lifetime event itself.
+/// Unknown tokens (RESET_CHAIN, RESET_OPPO_TURN, RESETS_REDIRECT,
+/// RESETS_STANDARD_EXC_GRAVE, PHASE_BATTLE, lowercase locals, …) → None.
+fn reset_token_mask(tok: &str) -> Option<u32> {
+    use reset_bits::*;
+    Some(match tok {
+        "RESET_EVENT"       => 0,
+        "RESET_LEAVE"       => LEAVE,
+        "RESET_TOFIELD"     => 1 << 1,
+        "RESET_TODECK"      => 1 << 2,
+        "RESET_TOHAND"      => 1 << 3,
+        "RESET_TEMP_REMOVE" => 1 << 4,
+        "RESET_REMOVE"      => 1 << 5,
+        "RESET_TOGRAVE"     => 1 << 6,
+        "RESET_TURN_SET"    => 1 << 7,
+        "RESET_DISABLE"     => DISABLE,
+        "RESET_PHASE"       => PHASE,
+        "PHASE_END"         => P_END,
+        "PHASE_DAMAGE" | "PHASE_DAMAGE_CAL" => P_DMG,
+        "PHASE_STANDBY"     => P_STB,
+        "RESET_SELF_TURN"   => SELF_TURN,
+        // Macro bundles (constant.lua) — expanded to their token sets.
+        "RESETS_STANDARD"                   => STANDARD,
+        "RESETS_STANDARD_DISABLE"           => STANDARD | DISABLE,
+        "RESETS_STANDARD_PHASE_END"         => STANDARD | PHASE | P_END,
+        "RESETS_STANDARD_DISABLE_PHASE_END" => STANDARD | DISABLE | PHASE | P_END,
+        _ => return None,
+    })
+}
+
+/// Map a `SetReset` argument to a DSL `duration` keyword by exact
+/// token-set matching: split the union on `|`/`+`, expand the
+/// `RESETS_STANDARD*` macros, and compare the resulting set against the
+/// audited lifetime shapes. Substring matching is NOT sound here — bare
+/// `RESET_EVENT|RESETS_STANDARD` means "while the card stays on the
+/// field", and only the `RESETS_STANDARD_PHASE_END` macro family actually
+/// ends at turn end.
+///
+///   standard events + RESET_PHASE|PHASE_END (±DISABLE) → `end_of_turn`
+///   RESET_PHASE|PHASE_DAMAGE[_CAL] (±standard ±DISABLE) → `end_of_damage_step`
+///     (damage-step chains like INDESTRUCTABLE_BATTLE carry the standard
+///     events alongside the damage-phase pair; the phase bound is the
+///     tighter, correct duration — the old substring order sent these to
+///     end_of_turn)
+///   standard? + RESET_PHASE|PHASE_STANDBY [±RESET_SELF_TURN]
+///     → `next_standby_phase` ("until your next Standby Phase" card text)
+///   bare standard events (must include RESET_LEAVE, ±DISABLE)
+///     → `while_on_field` (the tightest engine-supported keyword; drops
+///     the RESET_TURN_SET flip-face-down and RESET_DISABLE until-negated
+///     refinements, which no DSL duration expresses — ygobeetle degrades
+///     while_face_up to a turn-end fallback, which would reintroduce the
+///     very bug this fixes)
+///
+/// Returns None for everything else — RESET_SELF_TURN/RESET_OPPO_TURN
+/// qualified phase ends (end of a SPECIFIC player's turn ≠ end of current
+/// turn), `&`/`~` bit arithmetic, chain-only resets, unknown tokens.
+/// Callers either skip the chain entirely or emit without a duration
+/// clause — skip-not-mis-emit.
 fn reset_to_duration_kw(reset: Option<&str>) -> Option<&'static str> {
+    use reset_bits::*;
     let s = reset?;
-    if s.contains("PHASE_END") || s.contains("RESETS_STANDARD") {
+    // Bit arithmetic beyond plain unions (`RESETS_STANDARD&~RESET_TOFIELD`,
+    // `...-RESET_TOFIELD`) encodes lifetimes outside the audited table.
+    if s.chars().any(|c| matches!(c, '&' | '~' | '(' | ')' | '-')) {
+        return None;
+    }
+    let mut mask = 0u32;
+    for tok in s.split(['|', '+']) {
+        mask |= reset_token_mask(tok.trim())?;
+    }
+    if mask == 0 {
+        return None; // empty / RESET_EVENT-only — no lifetime information
+    }
+    if mask & P_DMG != 0
+        && mask & PHASE != 0
+        && mask & !(STANDARD | DISABLE | PHASE | P_DMG) == 0
+    {
+        return Some("end_of_damage_step");
+    }
+    if mask & P_END != 0
+        && mask & PHASE != 0
+        && mask & !(STANDARD | DISABLE | PHASE | P_END) == 0
+    {
         return Some("end_of_turn");
     }
-    if s.contains("PHASE_DAMAGE") {
-        return Some("end_of_damage_step");
+    if mask & P_STB != 0
+        && mask & PHASE != 0
+        && mask & !(STANDARD | PHASE | P_STB | SELF_TURN) == 0
+    {
+        return Some("next_standby_phase");
+    }
+    if mask & LEAVE != 0 && mask & !(STANDARD | DISABLE) == 0 {
+        return Some("while_on_field");
     }
     None
 }
@@ -6664,6 +6772,97 @@ fn duel_remove_counter_parts(args: &[String]) -> Option<(&'static str, &'static 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // ── reset_to_duration_kw — exact token-set mapping ────────────────
+
+    #[test]
+    fn reset_kw_phase_end_family_is_end_of_turn() {
+        for s in [
+            "RESET_PHASE|PHASE_END",
+            "RESETS_STANDARD_PHASE_END",
+            "RESETS_STANDARD_DISABLE_PHASE_END",
+            // combined mask: standard events AND the phase-end pair keeps
+            // mapping to end_of_turn (INDESTRUCTABLE_BATTLE-comment shape)
+            "RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_END",
+            "RESET_EVENT+RESETS_STANDARD+RESET_PHASE+PHASE_END",
+        ] {
+            assert_eq!(reset_to_duration_kw(Some(s)), Some("end_of_turn"), "{s}");
+        }
+    }
+
+    #[test]
+    fn reset_kw_bare_standard_is_while_on_field() {
+        // The known-bad c61151074 input: bare RESET_EVENT|RESETS_STANDARD
+        // lasts while the card stays on the field — the old substring
+        // matcher mis-emitted end_of_turn for it.
+        for s in [
+            "RESET_EVENT|RESETS_STANDARD",
+            "RESET_EVENT+RESETS_STANDARD",
+            "RESETS_STANDARD",
+            // explicit spelling of a leave-anchored standard subset
+            "RESET_EVENT|RESET_LEAVE|RESET_TOGRAVE",
+            // DISABLE adds an until-negated refinement no DSL duration
+            // expresses; the standard-events component keeps the bound
+            "RESET_EVENT|RESETS_STANDARD_DISABLE",
+        ] {
+            assert_eq!(reset_to_duration_kw(Some(s)), Some("while_on_field"), "{s}");
+        }
+    }
+
+    #[test]
+    fn reset_kw_damage_phase_is_end_of_damage_step() {
+        for s in [
+            "RESET_PHASE|PHASE_DAMAGE",
+            "RESET_PHASE|PHASE_DAMAGE_CAL",
+            // standard events + damage pair: the phase bound is the tight
+            // duration; the old matcher hit RESETS_STANDARD first and sent
+            // these to end_of_turn
+            "RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_DAMAGE",
+        ] {
+            assert_eq!(reset_to_duration_kw(Some(s)), Some("end_of_damage_step"), "{s}");
+        }
+    }
+
+    #[test]
+    fn reset_kw_self_standby_is_next_standby_phase() {
+        // The known-bad c11493868 (Fortissimo) input: "gains 800 ATK until
+        // your next Standby Phase" — the old matcher saw the
+        // RESETS_STANDARD substring and mis-emitted end_of_turn.
+        for s in [
+            "RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_STANDBY|RESET_SELF_TURN",
+            "RESET_PHASE|PHASE_STANDBY|RESET_SELF_TURN",
+            "RESET_PHASE|PHASE_STANDBY",
+        ] {
+            assert_eq!(reset_to_duration_kw(Some(s)), Some("next_standby_phase"), "{s}");
+        }
+    }
+
+    #[test]
+    fn reset_kw_unrecognized_shapes_are_none() {
+        for s in [
+            // turn-qualified phase ends: end of a SPECIFIC player's turn
+            "RESET_PHASE|PHASE_END|RESET_SELF_TURN",
+            "RESETS_STANDARD_PHASE_END|RESET_OPPO_TURN",
+            // bit arithmetic beyond plain unions
+            "RESET_EVENT|(RESETS_STANDARD&~RESET_TOFIELD)",
+            "RESET_EVENT|RESETS_STANDARD&~RESET_TURN_SET",
+            "RESET_EVENT+RESETS_STANDARD-RESET_TOFIELD",
+            // unknown tokens / macros outside the audited table
+            "RESET_EVENT|RESETS_REDIRECT",
+            "RESET_EVENT|RESETS_STANDARD_EXC_GRAVE",
+            "RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_BATTLE",
+            "RESET_CHAIN",
+            // standard subset without the RESET_LEAVE anchor
+            "RESET_EVENT|RESET_TURN_SET",
+            // no lifetime information at all
+            "RESET_EVENT",
+            // lowercase local variable — not a token union
+            "reset",
+        ] {
+            assert_eq!(reset_to_duration_kw(Some(s)), None, "{s}");
+        }
+        assert_eq!(reset_to_duration_kw(None), None);
+    }
 
     #[test]
     fn translate_duel_damage() {
@@ -7399,7 +7598,7 @@ end
         }).collect();
         assert_eq!(
             actions,
-            vec!["set_level self self.level + target.level until end_of_turn"],
+            vec!["set_level self self.level + target.level until while_on_field"],
             "second (interfering) set_level must be dropped",
         );
     }
@@ -8036,7 +8235,7 @@ end
         let action = lines.iter().find_map(|l| match l {
             DslLine::Action(s) => Some(s.as_str()), _ => None
         });
-        assert_eq!(action, Some("modify_atk target + target.atk until end_of_turn"));
+        assert_eq!(action, Some("modify_atk target + target.atk until while_on_field"));
     }
 
     #[test]
@@ -8059,7 +8258,7 @@ end
         let action = lines.iter().find_map(|l| match l {
             DslLine::Action(s) => Some(s.as_str()), _ => None
         });
-        assert_eq!(action, Some("modify_atk target + target.atk / 2 until end_of_turn"));
+        assert_eq!(action, Some("modify_atk target + target.atk / 2 until while_on_field"));
     }
 
     #[test]
@@ -8085,7 +8284,7 @@ end
         let action = lines.iter().find_map(|l| match l {
             DslLine::Action(s) => Some(s.as_str()), _ => None
         });
-        assert_eq!(action, Some("modify_atk target + target.level * 100 until end_of_turn"));
+        assert_eq!(action, Some("modify_atk target + target.level * 100 until while_on_field"));
     }
 
     #[test]
@@ -8135,8 +8334,10 @@ end
     #[test]
     fn t10_register_chain_indestructable_battle_target_grant() {
         // Declared-target battle protection: tc:RegisterEffect with
-        // EFFECT_INDESTRUCTABLE_BATTLE + RESETS_STANDARD reset →
-        // grant target cannot_be_destroyed by battle until end_of_turn.
+        // EFFECT_INDESTRUCTABLE_BATTLE + standard events + the damage-step
+        // phase pair → grant … until end_of_damage_step (the phase bound is
+        // the tight, correct duration; the old substring matcher hit
+        // RESETS_STANDARD first and mis-emitted end_of_turn).
         // (Originally used the Shield Warrior `e:GetLabelObject()`
         // binding; that provenance is statically unknowable and now
         // skips under the Phase 13b gate — see p13b tests.)
@@ -8160,7 +8361,7 @@ end
         });
         assert_eq!(
             action,
-            Some("grant target cannot_be_destroyed by battle until end_of_turn"),
+            Some("grant target cannot_be_destroyed by battle until end_of_damage_step"),
         );
     }
 
@@ -12541,8 +12742,8 @@ end
         let ob = report.functions.get("s.adop").expect("op body");
         let spec = extract_choose_spec(None, ob, &report.functions).expect("choose spec");
         assert_eq!(p16_options(&spec), vec![
-            (2, vec!["modify_atk self + 1000 until end_of_turn".to_string()]),
-            (3, vec!["modify_def self + 1000 until end_of_turn".to_string()]),
+            (2, vec!["modify_atk self + 1000 until while_on_field".to_string()]),
+            (3, vec!["modify_def self + 1000 until while_on_field".to_string()]),
         ]);
     }
 
