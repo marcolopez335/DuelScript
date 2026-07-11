@@ -282,6 +282,14 @@ pub struct RegisterEffectChain {
     /// negation emit skips forced registrations rather than state an
     /// immunity-piercing negation as a plain `negate_effects`.
     pub forced: bool,
+    /// Raw `SetProperty(...)` args joined with `,` (T38 S3 review).
+    /// EFFECT_FLAG_* qualifiers change an effect's semantics —
+    /// IGNORE_IMMUNE pierces immunity, OWNER_RELATE links the lifetime
+    /// to the source, CANNOT_DISABLE shields the chip itself — none of
+    /// which the DSL actions carry. The paired-negation emit skips any
+    /// property-carrying member; other chain families do not yet
+    /// consult this field.
+    pub property: Option<String>,
     /// True when the registration site sat inside an arm of an
     /// if/elseif/else that HAS alternative arms (Phase 15) — the
     /// either/or idiom (`SelectEffect` label dispatch, …). Emitting one
@@ -3631,6 +3639,10 @@ fn collect_register_chains(
                                 let joined = (!args.is_empty()).then(|| args.join(","));
                                 set_or_conflict(&mut chain.target_range, joined, seeds, "target_range")
                             }
+                            "SetProperty" => {
+                                let joined = (!args.is_empty()).then(|| args.join(","));
+                                set_or_conflict(&mut chain.property, joined, seeds, "property")
+                            }
                             "SetTarget"    => set_or_conflict(&mut chain.set_target, arg, seeds, "set_target"),
                             "SetType"      => { chain.effect_type = arg; false }
                             "SetOperation" => set_or_conflict(&mut chain.operation, arg, seeds, "operation"),
@@ -3739,6 +3751,7 @@ fn seeded_slot_names(chain: &RegisterEffectChain) -> BTreeSet<&'static str> {
     if chain.condition.is_some() { names.insert("condition"); }
     if chain.target_range.is_some() { names.insert("target_range"); }
     if chain.set_target.is_some()   { names.insert("set_target"); }
+    if chain.property.is_some()     { names.insert("property"); }
     names
 }
 
@@ -6211,23 +6224,36 @@ fn covered_disable_companion(body: &FunctionBody) -> Option<usize> {
 ///     unconditional;
 ///   - forced registrations (`tc:RegisterEffect(e1,true)`) — immunity-
 ///     piercing, rides the mid-summon idiom;
+///   - `SetProperty` on either member (S3 review) — EFFECT_FLAG_*
+///     qualifiers change the negation's semantics (IGNORE_IMMUNE
+///     pierces immunity, OWNER_RELATE ties the lifetime to the source,
+///     CANNOT_DISABLE shields the chip itself) and none have a DSL
+///     surface; ANY property skips, matching the audit cascade;
 ///   - `Duel.SpecialSummonStep/Complete` in the handler — mid-summon
 ///     "summon with effects negated" belongs to a special_summon
 ///     modifier, not a resolve-time negate (10 cards in the bucket);
-///   - modal `Duel.Select*`/`Announce*` calls — SelectYesNo maps to
-///     None (cosmetic), so an optional negation would otherwise emit
-///     unconditionally;
+///   - modal `Duel.Select*`/`Announce*`/`TossCoin`/`TossDice` calls —
+///     SelectYesNo maps to None (cosmetic) and coin/dice results gate
+///     either/or outcomes, so an optional or randomized negation would
+///     otherwise emit unconditionally;
 ///   - an `EFFECT_DISABLE_TRAPMONSTER` sibling chain — the trap-monster
 ///     rider (S6 review nuance) has no DSL surface;
 ///   - duel-registered or choice-arm members, branch-conflicting sets;
 ///   - resets outside the audited `end_of_turn` / `while_face_up`
 ///     exact-map (PHASE_DAMAGE / OVERLAY masks / EXC_GRAVE / counts
-///     stay skips even where the shared mapping knows the keyword).
+///     stay skips even where the shared mapping knows the keyword);
+///   - a dispatched chain that is not the family PRIMARY (S3 review) —
+///     an atypically-typed EFFECT_DISABLE chain (effect_type absent or
+///     outside SINGLE) reaching this arm must not borrow the real
+///     pair's companion and emit a spurious line.
 fn translate_disable_chain(
     chain: &RegisterEffectChain,
     body: &FunctionBody,
 ) -> Option<DslLine> {
-    let (_, q) = disable_family_indices(&body.register_chains)?;
+    let (p, q) = disable_family_indices(&body.register_chains)?;
+    if !std::ptr::eq(&body.register_chains[p], chain) {
+        return None;
+    }
     let companion = &body.register_chains[q];
     if companion.register_target != chain.register_target
         || companion.multi_target != chain.multi_target
@@ -6244,6 +6270,7 @@ fn translate_disable_chain(
             || member.operation.is_some()
             || member.set_target.is_some()
             || member.target_range.is_some()
+            || member.property.is_some()
         {
             return None;
         }
@@ -6268,6 +6295,7 @@ fn translate_disable_chain(
             "Duel.SpecialSummonStep" | "Duel.SpecialSummonComplete"
                 | "Duel.SelectYesNo" | "Duel.SelectEffectYesNo"
                 | "Duel.SelectOption"
+                | "Duel.TossCoin" | "Duel.TossDice"
         ) || c.method.starts_with("Duel.Announce")
     }) {
         return None;
@@ -10536,6 +10564,103 @@ end
         let report = walk(&parsed);
         let body = report.functions.get("s.operation").expect("body");
         assert!(translate_body(body).is_empty());
+        assert!(body_drops_chains(body, &report.functions));
+    }
+
+    #[test]
+    fn s3_atypical_disable_chain_is_not_primary() {
+        // S3 review (minor 1): an EFFECT_DISABLE chain whose effect_type
+        // is absent (or outside SINGLE) never joins the family, but its
+        // code still routes it into the disable arm — without the
+        // primary-identity check it would borrow the real pair's
+        // companion and emit a SPURIOUS second line (receiver and reset
+        // coincide here by construction). It must drop instead, and the
+        // dropped chain must fail the fill gate.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e0=Effect.CreateEffect(e:GetHandler())
+    e0:SetCode(EFFECT_DISABLE)
+    e0:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e0)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_DISABLE)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_DISABLE_EFFECT)
+    tc:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        let neg_lines = translate_body(body).iter().filter(|l| {
+            matches!(l, DslLine::Action(s) if s.starts_with("negate_effects"))
+        }).count();
+        assert_eq!(neg_lines, 1, "the untyped DISABLE chain must not emit a duplicate");
+        assert!(
+            body_drops_chains(body, &report.functions),
+            "the dropped atypical chain must reject the fill",
+        );
+    }
+
+    #[test]
+    fn s3_pair_property_skips() {
+        // S3 review (minor 2): EFFECT_FLAG_* qualifiers on a pair member
+        // change the negation's semantics — IGNORE_IMMUNE pierces
+        // immunity, OWNER_RELATE ties the lifetime to the source card,
+        // CANNOT_DISABLE shields the chip itself (c75402014, c86331741
+        // s.ngop). None have a DSL surface; any SetProperty skips.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+    e1:SetCode(EFFECT_DISABLE)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_DISABLE_EFFECT)
+    tc:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        assert!(translate_body(body).is_empty());
+        assert!(body_drops_chains(body, &report.functions));
+    }
+
+    #[test]
+    fn s3_pair_coin_toss_skips() {
+        // S3 review (nit): a coin/dice result in the handler gates an
+        // either/or outcome (c15130912 negate-or-halve) — the pair must
+        // not emit as an unconditional negation. The TossCoin call is
+        // captured from local-assignment RHS position.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local coin=Duel.TossCoin(tp,1)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_DISABLE)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    tc:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_DISABLE_EFFECT)
+    tc:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        let has_neg = translate_body(body).iter().any(|l| {
+            matches!(l, DslLine::Action(s) if s.starts_with("negate_effects"))
+        });
+        assert!(!has_neg, "coin-gated negation must not emit unconditionally");
         assert!(body_drops_chains(body, &report.functions));
     }
 
