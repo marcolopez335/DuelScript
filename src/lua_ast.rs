@@ -275,6 +275,13 @@ pub struct RegisterEffectChain {
     /// lifetime is tied to the card's presence, which the resolve-time
     /// grant form can't express.
     pub duel_registered: bool,
+    /// True when the card-registration carried extra args —
+    /// `tc:RegisterEffect(e1,true)`, the FORCED flag that bypasses the
+    /// target's immunity checks (T38 S3). In the corpus this rides the
+    /// mid-summon "summon with effects negated" idiom; the paired-
+    /// negation emit skips forced registrations rather than state an
+    /// immunity-piercing negation as a plain `negate_effects`.
+    pub forced: bool,
     /// True when the registration site sat inside an arm of an
     /// if/elseif/else that HAS alternative arms (Phase 15) — the
     /// either/or idiom (`SelectEffect` label dispatch, …). Emitting one
@@ -1095,6 +1102,8 @@ fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
         "SET_RAIDRAPTOR"   => "Raidraptor",
         "SET_SHADDOLL"     => "Shaddoll",
         "SET_VAYLANTZ"     => "Vaylantz",
+        // T38 S3 — referenced by snapshot-negation group filters.
+        "SET_UA"           => "U.A.",
         _ => return None,
     })
 }
@@ -3641,6 +3650,7 @@ fn collect_register_chains(
                             emitted.multi_target = loop_source.is_some();
                             emitted.loop_source_group = loop_source.map(str::to_string);
                             emitted.in_choice_arm = choice_arm;
+                            emitted.forced = args.len() > 1;
                             out.push(emitted);
                         }
                     }
@@ -5233,7 +5243,15 @@ pub fn translate_body_with_functions(
             DslLine::Todo(_) => None,
         })
         .collect();
-    for chain in &body.register_chains {
+    // T38 S3 — a paired EFFECT_DISABLE_EFFECT chain is folded into its
+    // DISABLE sibling's `negate_effects` line (the DSL action lowers to
+    // both engine codes); skip it here so the pair emits exactly once.
+    // `body_drops_chains` and the choose-arm loop apply the same skip.
+    let covered_companion = covered_disable_companion(body);
+    for (chain_i, chain) in body.register_chains.iter().enumerate() {
+        if covered_companion == Some(chain_i) {
+            continue;
+        }
         for line in translate_register_chain(chain, body, functions) {
             if let DslLine::Action(text) = &line {
                 if stat_writes.iter().any(|(sel, stat)| {
@@ -5273,6 +5291,11 @@ pub fn translate_body_with_functions(
 /// (only the Phase 16 choose path renders them), so a body carrying them
 /// fails here — a plain fill would state one arm's context while
 /// dropping the dispatch.
+///
+/// One deliberate exemption (T38 S3): a paired `EFFECT_DISABLE_EFFECT`
+/// companion whose `EFFECT_DISABLE` sibling emits is SKIPPED here, not
+/// counted as a drop — the single `negate_effects` line lowers to both
+/// engine codes, so the companion's semantics are stated, not omitted.
 pub fn body_drops_chains(
     body: &FunctionBody,
     functions: &BTreeMap<String, FunctionBody>,
@@ -5330,7 +5353,14 @@ pub fn body_drops_chains(
             return true;
         }
     }
-    for chain in &body.register_chains {
+    // T38 S3 — mirror the emit loop's paired-negation fold: a covered
+    // EFFECT_DISABLE_EFFECT companion is emitted content (its semantics
+    // ride the DISABLE sibling's `negate_effects` line), not a drop.
+    let covered_companion = covered_disable_companion(body);
+    for (chain_i, chain) in body.register_chains.iter().enumerate() {
+        if covered_companion == Some(chain_i) {
+            continue;
+        }
         let lines = translate_register_chain(chain, body, functions);
         if lines.is_empty() {
             return true;
@@ -5409,7 +5439,13 @@ fn translate_choice_arm(
         }
     }
     let mut stat_writes: Vec<(String, String)> = Vec::new();
-    for chain in &arm.register_chains {
+    // T38 S3 — same paired-negation fold as the plain body walk: the
+    // covered EFFECT_DISABLE_EFFECT companion rides its sibling's line.
+    let covered_companion = covered_disable_companion(arm);
+    for (chain_i, chain) in arm.register_chains.iter().enumerate() {
+        if covered_companion == Some(chain_i) {
+            continue;
+        }
         let lines = translate_register_chain(chain, arm, functions);
         if lines.is_empty() { return None; }
         for line in lines {
@@ -6102,19 +6138,144 @@ fn translate_grant_chain(
     )))
 }
 
-/// EFFECT_DISABLE chain → `negate_effects <selector> <duration>`.
+/// T38 S3 — the snapshot-negation family of a handler body: the indices
+/// of its single-type `EFFECT_DISABLE` and `EFFECT_DISABLE_EFFECT`
+/// chains. FIELD/EQUIP-type disables route to their own translators
+/// (lingering floodgates and equip riders — different lifetimes) and
+/// never join this family. Returns Some only for the canonical
+/// exactly-one-of-each shape; lone members (either direction) are an
+/// MVP skip class — a bare DISABLE leaves already-applied effects
+/// standing, a bare DISABLE_EFFECT only cancels them, and the DSL
+/// `negate_effects` action lowers to BOTH engine codes.
+fn disable_family_indices(chains: &[RegisterEffectChain]) -> Option<(usize, usize)> {
+    let single_type = |c: &RegisterEffectChain| {
+        c.effect_type.as_deref().is_some_and(|t| {
+            t.contains("EFFECT_TYPE_SINGLE")
+                && !t.contains("EFFECT_TYPE_FIELD")
+                && !t.contains("EFFECT_TYPE_EQUIP")
+        })
+    };
+    let mut dis: Option<usize> = None;
+    let mut dise: Option<usize> = None;
+    for (i, c) in chains.iter().enumerate() {
+        let slot = match c.code.as_deref() {
+            Some("EFFECT_DISABLE") if single_type(c) => &mut dis,
+            Some("EFFECT_DISABLE_EFFECT") if single_type(c) => &mut dise,
+            _ => continue,
+        };
+        if slot.replace(i).is_some() {
+            return None; // two of a kind — unaudited multi-pair handler
+        }
+    }
+    Some((dis?, dise?))
+}
+
+/// T38 S3 — index of the `EFFECT_DISABLE_EFFECT` chain whose semantics
+/// the paired `EFFECT_DISABLE`'s single `negate_effects` line already
+/// carries. The DSL action lowers to the DISABLE + DISABLE_EFFECT
+/// engine pair (runtime contract, docs/STORIES.md T38), so the
+/// companion is EMITTED content, not dropped content — the chain loops
+/// and the completeness gate skip exactly this index. Some only when
+/// the primary actually emits; an unpaired or gate-skipped family keeps
+/// every member visible to `body_drops_chains`.
+fn covered_disable_companion(body: &FunctionBody) -> Option<usize> {
+    let (p, q) = disable_family_indices(&body.register_chains)?;
+    translate_disable_chain(&body.register_chains[p], body)?;
+    Some(q)
+}
+
+/// Paired EFFECT_DISABLE chain → `negate_effects <selector> <duration>`
+/// (T38 S3).
 ///
-/// In the lua corpus EFFECT_DISABLE is the primary negate-effects code;
-/// the paired EFFECT_DISABLE_EFFECT chain that usually follows expresses
-/// the same intent on already-active effects. We translate only EFFECT_DISABLE
-/// here so paired cards emit a single DSL line; EFFECT_DISABLE_EFFECT is
-/// intentionally not mapped (would duplicate the action). A mapped reset
-/// is mandatory: a chain without a duration would emit a permanent negate.
+/// The canonical corpus idiom registers e1 `SetCode(EFFECT_DISABLE)`
+/// plus e2 (usually `e1:Clone()`) `SetCode(EFFECT_DISABLE_EFFECT)` on
+/// the SAME receiver with the SAME reset — one snapshot negation. The
+/// single DSL line lowers to both engine codes, so emission REQUIRES
+/// the pair: a lone DISABLE (attack/position mechanics of negation
+/// without cancelling already-applied effects) or a lone DISABLE_EFFECT
+/// over-/under-states the card and skips instead.
+///
+/// Skip gates (None) — every one is a confirmed corpus sub-shape from
+/// the S3 audit (61-card bucket):
+///   - unpaired or multi-pair families (`disable_family_indices`);
+///   - pair members with different receivers, loop contexts, resets, or
+///     reset counts. Reset equality is EXACT-TEXT: the clone idiom
+///     copies the reset string verbatim and the audit found zero
+///     mismatched-reset pairs — the canonical `RESET_TURN_SET` delta
+///     rides the companion's `SetValue`, never its reset;
+///   - `SetValue` on the primary, or a companion value other than the
+///     canonical `RESET_TURN_SET` (how already-applied effects reset);
+///   - `SetCondition` / `SetOperation` / `SetTarget` / `SetTargetRange`
+///     on either member — 4 shipped-era cards prove condition-gated
+///     negations ("while this card points to it") otherwise emit as
+///     unconditional;
+///   - forced registrations (`tc:RegisterEffect(e1,true)`) — immunity-
+///     piercing, rides the mid-summon idiom;
+///   - `Duel.SpecialSummonStep/Complete` in the handler — mid-summon
+///     "summon with effects negated" belongs to a special_summon
+///     modifier, not a resolve-time negate (10 cards in the bucket);
+///   - modal `Duel.Select*`/`Announce*` calls — SelectYesNo maps to
+///     None (cosmetic), so an optional negation would otherwise emit
+///     unconditionally;
+///   - an `EFFECT_DISABLE_TRAPMONSTER` sibling chain — the trap-monster
+///     rider (S6 review nuance) has no DSL surface;
+///   - duel-registered or choice-arm members, branch-conflicting sets;
+///   - resets outside the audited `end_of_turn` / `while_face_up`
+///     exact-map (PHASE_DAMAGE / OVERLAY masks / EXC_GRAVE / counts
+///     stay skips even where the shared mapping knows the keyword).
 fn translate_disable_chain(
     chain: &RegisterEffectChain,
     body: &FunctionBody,
 ) -> Option<DslLine> {
+    let (_, q) = disable_family_indices(&body.register_chains)?;
+    let companion = &body.register_chains[q];
+    if companion.register_target != chain.register_target
+        || companion.multi_target != chain.multi_target
+        || companion.loop_source_group != chain.loop_source_group
+    {
+        return None;
+    }
+    for member in [chain, companion] {
+        if member.duel_registered
+            || member.in_choice_arm
+            || member.conflicting_sets
+            || member.forced
+            || member.condition.is_some()
+            || member.operation.is_some()
+            || member.set_target.is_some()
+            || member.target_range.is_some()
+        {
+            return None;
+        }
+    }
+    if chain.value.is_some() {
+        return None;
+    }
+    if companion.value.as_deref().is_some_and(|v| v.trim() != "RESET_TURN_SET") {
+        return None;
+    }
+    if chain.reset != companion.reset || chain.reset_count != companion.reset_count {
+        return None;
+    }
+    if body.register_chains.iter().any(|c| {
+        c.code.as_deref() == Some("EFFECT_DISABLE_TRAPMONSTER")
+    }) {
+        return None;
+    }
+    if body.calls.iter().any(|c| {
+        matches!(
+            c.method.as_str(),
+            "Duel.SpecialSummonStep" | "Duel.SpecialSummonComplete"
+                | "Duel.SelectYesNo" | "Duel.SelectEffectYesNo"
+                | "Duel.SelectOption"
+        ) || c.method.starts_with("Duel.Announce")
+    }) {
+        return None;
+    }
     let dur = reset_to_duration_kw(chain.reset.as_deref(), chain.reset_count.as_deref())?;
+    if dur != "end_of_turn" && dur != "while_face_up" {
+        return None;
+    }
     let selector = resolve_chain_selector(chain, body)?;
     Some(DslLine::Action(format!(
         "negate_effects {} {}",
@@ -10053,7 +10214,10 @@ end
 
     #[test]
     fn t10_register_chain_disable_target_negate_effects() {
-        // EFFECT_DISABLE on target with end-of-turn reset → negate_effects.
+        // Canonical S3 pair — EFFECT_DISABLE + Clone()'d
+        // EFFECT_DISABLE_EFFECT(SetValue RESET_TURN_SET) on the declared
+        // target with an end-of-turn reset → ONE negate_effects line
+        // (the DSL action lowers to both engine codes).
         let src = r#"
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstTarget()
@@ -10062,23 +10226,31 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
     e1:SetCode(EFFECT_DISABLE)
     e1:SetReset(RESETS_STANDARD_PHASE_END)
     tc:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_DISABLE_EFFECT)
+    e2:SetValue(RESET_TURN_SET)
+    tc:RegisterEffect(e2)
 end
 "#;
         let parsed = full_moon::parse(src).expect("parse");
-        let body = walk(&parsed).functions.remove("s.operation").expect("body");
-        let lines = translate_body(&body);
-        let action = lines.iter().find_map(|l| match l {
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        let lines = translate_body(body);
+        let actions: Vec<&str> = lines.iter().filter_map(|l| match l {
             DslLine::Action(s) => Some(s.as_str()),
             _ => None,
-        });
-        assert_eq!(action, Some("negate_effects target end_of_turn"));
+        }).collect();
+        assert_eq!(actions, vec!["negate_effects target end_of_turn"]);
+        // The folded companion is emitted content — the completeness
+        // gate must treat the pair as fully translated.
+        assert!(!body_drops_chains(body, &report.functions));
     }
 
     #[test]
     fn t10_register_chain_disable_effect_skipped() {
-        // EFFECT_DISABLE_EFFECT is the paired companion; we translate only
-        // EFFECT_DISABLE to avoid duplicate negate_effects lines on the
-        // common DISABLE+DISABLE_EFFECT pair.
+        // A lone EFFECT_DISABLE_EFFECT only cancels already-applied
+        // effects — half of what `negate_effects` states (T38 S3 pair
+        // requirement). No emit, and the dropped chain fails the gate.
         let src = r#"
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstTarget()
@@ -10090,15 +10262,17 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
 end
 "#;
         let parsed = full_moon::parse(src).expect("parse");
-        let body = walk(&parsed).functions.remove("s.operation").expect("body");
-        let lines = translate_body(&body);
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        let lines = translate_body(body);
         let has_neg = lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("negate_effects")));
         assert!(!has_neg, "EFFECT_DISABLE_EFFECT alone must not emit a negate_effects line");
+        assert!(body_drops_chains(body, &report.functions));
     }
 
     #[test]
     fn t10_register_chain_disable_skips_without_reset() {
-        // No SetReset → permanent negate ambiguity → skip.
+        // Paired, but no SetReset → permanent negate ambiguity → skip.
         let src = r#"
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstTarget()
@@ -10106,6 +10280,9 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
     e1:SetType(EFFECT_TYPE_SINGLE)
     e1:SetCode(EFFECT_DISABLE)
     tc:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_DISABLE_EFFECT)
+    tc:RegisterEffect(e2)
 end
 "#;
         let parsed = full_moon::parse(src).expect("parse");
@@ -10113,6 +10290,253 @@ end
         let lines = translate_body(&body);
         let has_neg = lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("negate_effects")));
         assert!(!has_neg, "EFFECT_DISABLE without reset must not emit");
+    }
+
+    #[test]
+    fn s3_lone_disable_skips() {
+        // T38 S3 — a LONE EFFECT_DISABLE (no DISABLE_EFFECT companion)
+        // negates go-forward effects but leaves already-applied ones
+        // standing; `negate_effects` (which lowers to the pair) would
+        // over-state it. Skip, and the dropped chain fails the gate.
+        // 4 shipped-era cards (c28677304, c29208536, c68441986,
+        // c69228245) carried exactly this shape — with SetCondition on
+        // top — and their corpus lines are retrofitted out with S3.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_DISABLE)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        let lines = translate_body(body);
+        assert!(lines.is_empty(), "lone EFFECT_DISABLE must not emit: {:?}", lines);
+        assert!(body_drops_chains(body, &report.functions));
+    }
+
+    #[test]
+    fn s3_pair_group_loop_selector() {
+        // c47021196 (U.A. Player Manager) shape: fresh (non-clone) pair
+        // registered per member of a GetMatchingGroup loop whose named
+        // filter refines to an exact where-clause (S1 machinery, incl.
+        // the negated-atom form).
+        let src = r#"
+function s.disop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.disfilter,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+    local c=e:GetHandler()
+    for tc in aux.Next(g) do
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_DISABLE)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+        local e2=Effect.CreateEffect(c)
+        e2:SetType(EFFECT_TYPE_SINGLE)
+        e2:SetCode(EFFECT_DISABLE_EFFECT)
+        e2:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e2)
+    end
+end
+function s.disfilter(c)
+    return c:IsFaceup() and not c:IsSetCard(SET_UA)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.disop").expect("body");
+        let lines = translate_body_with_functions(body, &report.functions);
+        let actions: Vec<&str> = lines.iter().filter_map(|l| match l {
+            DslLine::Action(s) => Some(s.as_str()),
+            _ => None,
+        }).collect();
+        assert_eq!(actions, vec![
+            "negate_effects (all, card, either controls, from monster_zone, \
+             where is_face_up and not archetype == \"U.A.\") end_of_turn",
+        ]);
+        assert!(!body_drops_chains(body, &report.functions));
+    }
+
+    #[test]
+    fn s3_pair_condition_on_member_skips() {
+        // SetCondition on either pair member gates WHEN the negation
+        // holds (counter-gated, while-targeting, …) — no DSL surface,
+        // so the whole pair skips (skip class from the S3 audit).
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_DISABLE)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    e1:SetCondition(s.rcon)
+    tc:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_DISABLE_EFFECT)
+    tc:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        assert!(translate_body(body).is_empty());
+        assert!(body_drops_chains(body, &report.functions));
+    }
+
+    #[test]
+    fn s3_pair_mid_summon_skips() {
+        // DISABLE pair between SpecialSummonStep and
+        // SpecialSummonComplete is the "summon with effects negated"
+        // idiom — a special_summon modifier, not a resolve-time negate.
+        // The forced-registration flag (`RegisterEffect(e1,true)`) is
+        // independently a skip.
+        let src = r#"
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetTargetCards(e)
+    for tc in aux.Next(g) do
+        Duel.SpecialSummonStep(tc,0,tp,tp,false,false,POS_FACEUP)
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_DISABLE)
+        e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+        tc:RegisterEffect(e1,true)
+        local e2=Effect.CreateEffect(e:GetHandler())
+        e2:SetType(EFFECT_TYPE_SINGLE)
+        e2:SetCode(EFFECT_DISABLE_EFFECT)
+        e2:SetReset(RESET_EVENT|RESETS_STANDARD)
+        tc:RegisterEffect(e2,true)
+    end
+    Duel.SpecialSummonComplete()
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.spop").expect("body");
+        let has_neg = translate_body(body).iter().any(|l| {
+            matches!(l, DslLine::Action(s) if s.starts_with("negate_effects"))
+        });
+        assert!(!has_neg, "mid-summon negation must not emit negate_effects");
+        assert!(body_drops_chains(body, &report.functions));
+    }
+
+    #[test]
+    fn s3_pair_trap_monster_rider_skips() {
+        // The utility-strip nuance from the S6 review, in chain form:
+        // an EFFECT_DISABLE_TRAPMONSTER sibling (registered when the
+        // target is a Trap Monster) has no DSL surface — the whole
+        // handler skips rather than negate without the rider.
+        let src = r#"
+function s.disop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local c=e:GetHandler()
+    if tc and tc:IsRelateToEffect(e) then
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_DISABLE)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+        local e2=e1:Clone()
+        e2:SetCode(EFFECT_DISABLE_EFFECT)
+        tc:RegisterEffect(e2)
+        if tc:IsType(TYPE_TRAPMONSTER) then
+            local e3=e1:Clone()
+            e3:SetCode(EFFECT_DISABLE_TRAPMONSTER)
+            tc:RegisterEffect(e3)
+        end
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.disop").expect("body");
+        let has_neg = translate_body(body).iter().any(|l| {
+            matches!(l, DslLine::Action(s) if s.starts_with("negate_effects"))
+        });
+        assert!(!has_neg, "trap-monster rider must gate the pair");
+        assert!(body_drops_chains(body, &report.functions));
+    }
+
+    #[test]
+    fn s3_pair_reset_mismatch_skips() {
+        // Pair members with different resets are not one snapshot — the
+        // audit found zero such pairs (the clone idiom copies the reset
+        // verbatim; RESET_TURN_SET deltas ride SetValue, never SetReset),
+        // so a mismatch is an unaudited shape. Skip.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_DISABLE)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_DISABLE_EFFECT)
+    e2:SetReset(RESET_EVENT|RESETS_STANDARD)
+    tc:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        assert!(translate_body(body).is_empty());
+        assert!(body_drops_chains(body, &report.functions));
+    }
+
+    #[test]
+    fn s3_pair_noncanonical_companion_value_skips() {
+        // The companion's SetValue names WHICH reset event the already-
+        // applied effects simulate; only the canonical RESET_TURN_SET
+        // (or none) is audited. Anything else skips.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_DISABLE)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_DISABLE_EFFECT)
+    e2:SetValue(RESET_LEAVE)
+    tc:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        assert!(translate_body(body).is_empty());
+        assert!(body_drops_chains(body, &report.functions));
+    }
+
+    #[test]
+    fn s3_pair_exotic_reset_skips() {
+        // Durations outside the audited end_of_turn / while_face_up
+        // exact-map skip even when the shared reset mapping knows the
+        // keyword (PHASE_DAMAGE → end_of_damage_step is a mapped but
+        // un-audited negate lifetime).
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_DISABLE)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_DAMAGE)
+    tc:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_DISABLE_EFFECT)
+    tc:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        assert!(translate_body(body).is_empty());
+        assert!(body_drops_chains(body, &report.functions));
     }
 
     #[test]
