@@ -5520,7 +5520,13 @@ fn translate_register_chain(
     // the EQUIPPED monster (Tyrant Wing: +400/400 to the monster, not
     // the trap) — they take the dedicated `equipped_card`-receiver path
     // (Phase 15) instead of the register-target selector lowering below.
+    // Same S4 slot gate as the single-type families: Brutal Potion's
+    // equip ATK rider is SetCondition-gated on a flag effect and shipped
+    // as an unconditional `modify_atk equipped_card` line.
     if chain.effect_type.as_deref().is_some_and(|t| t.contains("EFFECT_TYPE_EQUIP")) {
+        if chain_has_unmodeled_slots(chain) {
+            return Vec::new();
+        }
         return translate_equip_chain(chain, body).into_iter().collect();
     }
     let Some(code) = chain.code.as_deref() else { return Vec::new() };
@@ -5548,6 +5554,21 @@ fn translate_register_chain(
         }
         return Vec::new();
     }
+    // Event-code chains route to install_watcher BEFORE the S4 slot gate:
+    // that path CONSUMES SetOperation (the watcher's check body) and
+    // applies its own SetCondition / choice-arm gates. EFFECT_* and
+    // EVENT_* code namespaces are disjoint, so hoisting this arm above
+    // the families below changes no dispatch outcome.
+    if let Some(trigger) = trigger_for_event_code(code) {
+        return translate_install_watcher_chain(trigger, chain, functions)
+            .into_iter()
+            .collect();
+    }
+    // T38 S4 — every remaining family lowers the chain to an
+    // unconditional receiver-aimed line and models none of these slots.
+    if chain_has_unmodeled_slots(chain) {
+        return Vec::new();
+    }
     if code == "EFFECT_IMMUNE_EFFECT" {
         return translate_immune_chain(chain, body, functions);
     }
@@ -5565,12 +5586,55 @@ fn translate_register_chain(
         translate_change_code_chain(chain, body)
     } else if let Some(ability) = grant_ability_for(code) {
         translate_grant_chain(ability, chain, body)
-    } else if let Some(trigger) = trigger_for_event_code(code) {
-        translate_install_watcher_chain(trigger, chain, functions)
     } else {
         None
     };
     single.into_iter().collect()
+}
+
+/// T38 S4 — Set* slots the single-type resolve families (stat modifier,
+/// set-stat, grant, extra-attack, change-property/code, immune, equip
+/// rider) do not model. A chain carrying any of them emitted as a plain
+/// unconditional line before S4 — proven live on c69228245 (S3: two
+/// `grant cannot_attack` clone-family lines whose SetCondition was
+/// dropped) and the S4 audit's 24-line bucket (counter-gated Predaplant
+/// level-locks, card-target-linked "while linked" grants, flag-gated
+/// equip riders). Skip-not-mis-emit; mirrors the S3 paired-DISABLE
+/// member gate.
+///
+///   - `SetCondition` — the effect only applies while the closure holds;
+///     an unconditional line over-states it.
+///   - `SetOperation` — meaningful only on event-type chains (routed to
+///     install_watcher before this gate); on a value-carrying single
+///     chain it signals a shape outside the audited families.
+///   - `SetTarget` / `SetTargetRange` — filter/scope slots these
+///     receiver-aimed lowerings never read (FIELD chains, which consume
+///     them, route earlier).
+///   - forced registrations (`tc:RegisterEffect(e1,true)`) — immunity-
+///     piercing, not expressible in the plain line.
+///   - `duel_registered` — a Duel-committed chain's lifetime/scope is
+///     not the receiver card's.
+///   - `in_choice_arm` — one arm of a runtime either/or; flat-emitting
+///     it states the arm unconditionally (Power Supplier shipped BOTH
+///     arms of its if/else as two stacked `modify_atk` lines). The
+///     Phase 16 choose path re-extracts arm chains into per-arm bodies
+///     (where this flag is false), so gating here cannot starve it.
+///
+/// `SetProperty` is deliberately NOT gated here, unlike S3's pair gate:
+/// the S4 audit found ~300 shipped single-type lines whose chains carry
+/// only EFFECT_FLAG_CANNOT_DISABLE / EFFECT_FLAG_CLIENT_HINT (UI hint) /
+/// EFFECT_FLAG_SINGLE_RANGE — benign at DSL altitude; a blanket property
+/// gate would delete them for no semantic gain. Semantically loaded
+/// flags (IGNORE_IMMUNE: 2 lines, OWNER_RELATE: 3) stay a documented
+/// follow-up.
+fn chain_has_unmodeled_slots(chain: &RegisterEffectChain) -> bool {
+    chain.condition.is_some()
+        || chain.operation.is_some()
+        || chain.set_target.is_some()
+        || chain.target_range.is_some()
+        || chain.forced
+        || chain.duel_registered
+        || chain.in_choice_arm
 }
 
 /// Map a SET_*_FINAL effect code to the DSL `set_atk` / `set_def` action.
@@ -10662,6 +10726,263 @@ end
         });
         assert!(!has_neg, "coin-gated negation must not emit unconditionally");
         assert!(body_drops_chains(body, &report.functions));
+    }
+
+    /// T38 S4 — shared harness: parse, walk, translate `s.operation`,
+    /// return the action lines plus the completeness-gate verdict.
+    fn s4_actions(src: &str) -> (Vec<String>, bool) {
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        let actions = translate_body_with_functions(body, &report.functions)
+            .into_iter()
+            .filter_map(|l| match l {
+                DslLine::Action(s) => Some(s),
+                _ => None,
+            })
+            .collect();
+        (actions, body_drops_chains(body, &report.functions))
+    }
+
+    #[test]
+    fn s4_modifier_chain_condition_skips() {
+        // c26308721 (Predaplant Pterapenthes) class: the stat chain is
+        // SetCondition-gated (level lock only while the counter stays);
+        // pre-S4 the line shipped unconditionally.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(500)
+    e1:SetCondition(s.atkcon)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let (actions, drops) = s4_actions(src);
+        assert!(actions.is_empty(), "condition-gated modifier must skip: {:?}", actions);
+        assert!(drops);
+        // Control: the identical chain without SetCondition emits.
+        let (actions, drops) = s4_actions(&src.replace("    e1:SetCondition(s.atkcon)\n", ""));
+        assert_eq!(actions, vec!["modify_atk target + 500 until while_face_up"]);
+        assert!(!drops);
+    }
+
+    #[test]
+    fn s4_set_stat_chain_condition_skips() {
+        // c52792430-class CHANGE_LEVEL: "becomes Level 1 while it has a
+        // Predator Counter" — the while-counter gate has no DSL slot.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CHANGE_LEVEL)
+    e1:SetValue(1)
+    e1:SetCondition(s.lvcon)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let (actions, drops) = s4_actions(src);
+        assert!(actions.is_empty(), "condition-gated set-stat must skip: {:?}", actions);
+        assert!(drops);
+        let (actions, _) = s4_actions(&src.replace("    e1:SetCondition(s.lvcon)\n", ""));
+        assert_eq!(actions, vec!["set_level target 1 until while_face_up"]);
+    }
+
+    #[test]
+    fn s4_grant_chain_condition_skips() {
+        // c32907538-class: `grant target cannot_attack` gated on the
+        // card-target link (s.rcon: IsHasCardTarget) — "while this card
+        // targets it", not unconditional.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CANNOT_ATTACK)
+    e1:SetCondition(s.rcon)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let (actions, drops) = s4_actions(src);
+        assert!(actions.is_empty(), "condition-gated grant must skip: {:?}", actions);
+        assert!(drops);
+        let (actions, _) = s4_actions(&src.replace("    e1:SetCondition(s.rcon)\n", ""));
+        assert_eq!(actions, vec!["grant target cannot_attack until while_face_up"]);
+    }
+
+    #[test]
+    fn s4_extra_attack_chain_condition_skips() {
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_EXTRA_ATTACK)
+    e1:SetValue(1)
+    e1:SetCondition(s.dacon)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let (actions, drops) = s4_actions(src);
+        assert!(actions.is_empty(), "condition-gated extra-attack must skip: {:?}", actions);
+        assert!(drops);
+        let (actions, _) = s4_actions(&src.replace("    e1:SetCondition(s.dacon)\n", ""));
+        assert_eq!(actions, vec!["grant target double_attack until end_of_turn"]);
+    }
+
+    #[test]
+    fn s4_change_property_chain_condition_skips() {
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CHANGE_RACE)
+    e1:SetValue(RACE_ZOMBIE)
+    e1:SetCondition(s.rccon)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    tc:RegisterEffect(e1)
+end
+"#;
+        let (actions, drops) = s4_actions(src);
+        assert!(actions.is_empty(), "condition-gated change-race must skip: {:?}", actions);
+        assert!(drops);
+        let (actions, _) = s4_actions(&src.replace("    e1:SetCondition(s.rccon)\n", ""));
+        assert_eq!(actions, vec!["change_race target to Zombie"]);
+    }
+
+    #[test]
+    fn s4_immune_chain_condition_skips() {
+        // Immune chains resolve their SetValue filter through the
+        // function table; the S4 gate must fire before that machinery.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_IMMUNE_EFFECT)
+    e1:SetValue(s.efilter)
+    e1:SetCondition(s.imcon)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    tc:RegisterEffect(e1)
+end
+function s.efilter(e,te)
+    return te:IsSpellTrapEffect()
+end
+"#;
+        let (actions, drops) = s4_actions(src);
+        assert!(actions.is_empty(), "condition-gated immune must skip: {:?}", actions);
+        assert!(drops);
+        let (actions, _) = s4_actions(&src.replace("    e1:SetCondition(s.imcon)\n", ""));
+        assert_eq!(actions, vec![
+            "grant target unaffected_by spells until while_face_up",
+            "grant target unaffected_by traps until while_face_up",
+        ]);
+    }
+
+    #[test]
+    fn s4_equip_chain_condition_skips() {
+        // c30155789 (Brutal Potion): the EQUIP-type ATK rider is gated
+        // on a flag effect (s.atkcon) — shipped pre-S4 as an
+        // unconditional `modify_atk equipped_card + 1000` line.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    Duel.Equip(tp,c,tc)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_EQUIP)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(1000)
+    e1:SetCondition(s.atkcon)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    c:RegisterEffect(e1)
+end
+"#;
+        let (actions, drops) = s4_actions(src);
+        assert_eq!(actions, vec!["equip self to target"],
+            "conditional equip rider must skip, equip itself stays");
+        assert!(drops, "the gated rider chain is dropped content");
+        let (actions, drops) = s4_actions(&src.replace("    e1:SetCondition(s.atkcon)\n", ""));
+        assert_eq!(actions, vec![
+            "equip self to target",
+            "modify_atk equipped_card + 1000 until while_equipped",
+        ]);
+        assert!(!drops);
+    }
+
+    #[test]
+    fn s4_unmodeled_slot_variants_skip() {
+        // SetTarget / SetTargetRange / forced registration on a
+        // single-type chain — filter/scope/pierce semantics the plain
+        // line lowering never reads. Each variant must skip.
+        let base = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CANNOT_ATTACK)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+    tc:RegisterEffect(e1)
+end
+"#;
+        for (marker, inject) in [
+            ("SetTarget", "    e1:SetTarget(s.tglimit)\n"),
+            ("SetTargetRange", "    e1:SetTargetRange(1,1)\n"),
+            ("forced", ""),
+        ] {
+            let src = if marker == "forced" {
+                base.replace("tc:RegisterEffect(e1)", "tc:RegisterEffect(e1,true)")
+            } else {
+                base.replace("    tc:RegisterEffect(e1)\n",
+                             &format!("{}    tc:RegisterEffect(e1)\n", inject))
+            };
+            let (actions, drops) = s4_actions(&src);
+            assert!(actions.is_empty(), "{} chain must skip: {:?}", marker, actions);
+            assert!(drops, "{} chain must fail the completeness gate", marker);
+        }
+    }
+
+    #[test]
+    fn s4_choice_arm_chain_does_not_flat_emit() {
+        // c55063681 (Power Supplier): if/else arms each register an
+        // UPDATE_ATTACK chain (one condition-gated, one not). Pre-S4 the
+        // plain body walk flat-emitted BOTH arms as stacked lines. Both
+        // must now skip (the Phase 16 choose path is the only renderer
+        // for either/or arms — it re-extracts arm bodies where the
+        // choice-arm flag is false, so it is not starved by this gate).
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local c=e:GetHandler()
+    if tc~=c then
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(400)
+        e1:SetCondition(s.atkcon)
+        e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+        tc:RegisterEffect(e1)
+    else
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(400)
+        e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        let (actions, drops) = s4_actions(src);
+        assert!(actions.is_empty(), "either/or arms must not flat-emit: {:?}", actions);
+        assert!(drops);
     }
 
     #[test]
