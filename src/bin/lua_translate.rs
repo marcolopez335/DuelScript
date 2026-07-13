@@ -275,6 +275,15 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
                 r.effects_no_handler += 1;
                 continue; // pure-passive — no effect block in .ds
             }
+            // T38 S4 — replacement-code chains (EFFECT_*_REPLACE): the
+            // op body belongs to the corpus-generated `replacement`
+            // block; filling an effect-block resolve with it duplicates
+            // the semantics in the wrong surface (c39996157's shipped
+            // `banish self`). Consume the index, decline the fill.
+            if eff.is_replacement_chain() {
+                r.effects_incomplete += 1;
+                continue;
+            }
             let Some(block_idx) = assign.by_effect[eff_i] else {
                 // Hazard-gated and not rescued: a clone / bare-activate
                 // chain owns a .ds block before this one and the block
@@ -438,6 +447,8 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             if !eff.is_summon_helper() && eff.operation_handler.is_none() {
                 continue; // pure-passive — no effect block in .ds
             }
+            // T38 S4 — replacement-code chains: see Pass A.
+            if eff.is_replacement_chain() { continue; }
             let Some(block_idx) = assign.by_effect[eff_i] else {
                 continue; // see Pass A — no unambiguous block for this effect
             };
@@ -573,6 +584,8 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
                 // Purely passive — no corresponding effect block in .ds.
                 continue;
             }
+            // T38 S4 — replacement-code chains: see Pass A.
+            if eff.is_replacement_chain() { continue; }
             let Some(effect_block_idx) = assign.by_effect[eff_i] else {
                 continue; // see Pass A — no unambiguous block for this effect
             };
@@ -607,6 +620,8 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             if eff.operation_handler.is_none() && !eff.is_summon_helper() {
                 continue; // purely passive — no effect block in .ds
             }
+            // T38 S4 — replacement-code chains: see Pass A.
+            if eff.is_replacement_chain() { continue; }
             let Some(effect_block_idx) = assign.by_effect[eff_i] else {
                 continue; // see Pass A — no unambiguous block for this effect
             };
@@ -637,6 +652,8 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             if eff.operation_handler.is_none() && !eff.is_summon_helper() {
                 continue; // purely passive — no effect block in .ds
             }
+            // T38 S4 — replacement-code chains: see Pass A.
+            if eff.is_replacement_chain() { continue; }
             let Some(effect_block_idx) = assign.by_effect[eff_i] else {
                 continue; // see Pass A — no unambiguous block for this effect
             };

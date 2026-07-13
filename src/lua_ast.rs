@@ -394,10 +394,11 @@ pub struct EffectSkeleton {
     /// instead of walking a handler body.
     pub fusion_summon_spec: bool,
     /// True when this skeleton stands in for a `Ritual.AddProcEqual` /
-    /// `AddProcGreater` / `CreateProc` / `AddWholeLevelTribute` call. The
+    /// `AddProcGreater` / `AddProc*Code` / `CreateProc` call. The
     /// ritual helpers attach an activation effect that runs the full
-    /// ritual procedure internally; translator emits a fixed
-    /// `ritual_summon (1, ritual monster)` line.
+    /// ritual procedure internally; translator emits a
+    /// `ritual_summon (1, ritual monster[, where …])[ where total_level …]`
+    /// line. (`AddWholeLevelTribute` is a passive grant — no skeleton.)
     pub ritual_summon_spec: bool,
     /// Parameterized fusion/ritual helper captured from
     /// `eN:SetOperation(Fusion.SummonEffOP(...))` or
@@ -590,6 +591,21 @@ impl EffectSkeleton {
         // emits its line only when the matcher forces a block for it.
         let op = self.summon_helper_op.as_ref()?;
         if op.unresolved { return None; }
+        // T38 S4 — frame-decoration gate for the FACTORY forms (the
+        // helper call returned the whole effect): Set* calls on the
+        // returned binding beyond the cosmetic trio re-shape the proc —
+        // c79306385 wraps the proc's SetTarget in a chain-limit
+        // closure, Ritual.CreateProc cards re-type to IGNITION with
+        // range/cost frames — and the line would silently drop that
+        // surface. Variant-B carriers (SummonEffTG/OP on a hand-built
+        // Effect.CreateEffect chain) keep their own frame: the .ds
+        // block header models it, so they are exempt.
+        if self.fusion_summon_spec || self.ritual_summon_spec {
+            let allowed = ["SetCountLimit", "SetDescription", "SetCategory"];
+            if self.set_calls.iter().any(|(m, _)| !allowed.contains(&m.as_str())) {
+                return None;
+            }
+        }
         match op.kind {
             SummonHelperKind::FusionSummonEffOp => fusion_helper_line(&op.params),
             SummonHelperKind::RitualOperation => ritual_helper_line(&op.params),
@@ -604,6 +620,18 @@ impl EffectSkeleton {
         self.summon_helper_op.is_some()
             || self.fusion_summon_spec
             || self.ritual_summon_spec
+    }
+
+    /// True when this chain's `SetCode` is a replacement-effect code
+    /// (`EFFECT_DESTROY_REPLACE` and friends). Replacement semantics
+    /// live in the `replacement` block the corpus generator emitted;
+    /// translating the chain's op body into an `effect` block resolve
+    /// duplicates and misplaces it (T38 S4 — c39996157's shipped
+    /// `banish self` wrong-block fill). The chain still consumes a
+    /// block index for alignment; only the fill is declined.
+    pub fn is_replacement_chain(&self) -> bool {
+        self.first_arg_of("SetCode")
+            .is_some_and(|c| c.contains("_REPLACE"))
     }
 }
 
@@ -636,25 +664,67 @@ fn fusion_helper_line(params: &[(String, String)]) -> Option<String> {
 
 /// Emit `ritual_summon ...` from decoded `Ritual.Operation` params.
 ///
-/// EMIT: `filter` mapping to a where-clause; `lvtype` of
-/// RITPROC_GREATER / RITPROC_EQUAL (both already shipped as the fixed
-/// line for Ritual.AddProcGreater / AddProcEqual — the level procedure
-/// is the helper's standard behavior, not a DSL-visible constraint).
-/// Any other param (lv override, forcedselection, customoperation,
-/// requirementfunc, …) skips.
+/// EMIT (T38 S4):
+/// - `filter` → selector where-clause; `codes` (the AddProc*Code
+///   passcode list) → `name == "…"` or-joined atoms via the
+///   BabelCdb-backed name table.
+/// - explicit integer `lv` + `lvtype` → `where total_level >= N`
+///   (RITPROC_GREATER) / `== N` (RITPROC_EQUAL).
+/// - absent `lv` + RITPROC_GREATER → bare line: the library defaults to
+///   "total levels ≥ the summoned monster's own level", the standard
+///   ritual rule and the shipped Phase-12 precedent for the bare form.
+/// - absent `lv` + RITPROC_EQUAL → skip: "total levels EXACTLY the
+///   summoned monster's level" needs a `summon_level` expr atom the
+///   grammar doesn't have; a bare line would widen material legality
+///   (allow overshoot). Grammar additions are a separate story.
+///
+/// Any other param (extrafil, extraop, matfilter, stage2, location,
+/// forcedselection, customoperation, requirementfunc, …) skips.
 fn ritual_helper_line(params: &[(String, String)]) -> Option<String> {
     let mut where_clause: Option<String> = None;
+    let mut lvtype: Option<&str> = None;
+    let mut lv: Option<u32> = None;
     for (k, v) in params {
         match k.as_str() {
             "filter" => where_clause = Some(summon_filter_to_where(v)?),
-            "lvtype" if v == "RITPROC_GREATER" || v == "RITPROC_EQUAL" => {}
+            "codes" => where_clause = Some(codes_to_where(v)?),
+            "lvtype" if v == "RITPROC_GREATER" || v == "RITPROC_EQUAL" => {
+                lvtype = Some(v);
+            }
+            "lv" => lv = Some(v.parse().ok()?),
             _ => return None,
         }
     }
+    let level_clause = match (lv, lvtype) {
+        (Some(n), Some("RITPROC_GREATER")) => format!(" where total_level >= {n}"),
+        (Some(n), Some("RITPROC_EQUAL")) => format!(" where total_level == {n}"),
+        // Explicit lv with no decoded sum mode is unattributable.
+        (Some(_), _) => return None,
+        // Own-level EQUAL: inexpressible without a summon_level atom.
+        (None, Some("RITPROC_EQUAL")) => return None,
+        // Own-level GREATER (and legacy lvtype-free decodes): the
+        // library default the bare line already stands for.
+        (None, _) => String::new(),
+    };
     Some(match &where_clause {
-        Some(w) => format!("ritual_summon (1, ritual monster, where {w})"),
-        None => "ritual_summon (1, ritual monster)".to_string(),
+        Some(w) => format!("ritual_summon (1, ritual monster, where {w}){level_clause}"),
+        None => format!("ritual_summon (1, ritual monster){level_clause}"),
     })
+}
+
+/// Map an AddProc*Code passcode list (`"12345,67890"`) to or-joined
+/// `name == "…"` where-clause atoms. Skips when any passcode is missing
+/// from the registered card-name table or the name embeds a double
+/// quote (unrepresentable in a DSL string literal).
+fn codes_to_where(raw: &str) -> Option<String> {
+    let mut parts = Vec::new();
+    for c in raw.split(',') {
+        let id: u32 = c.trim().parse().ok()?;
+        let name = lookup_card_name(id)?;
+        if name.contains('"') { return None; }
+        parts.push(format!("name == \"{name}\""));
+    }
+    if parts.is_empty() { None } else { Some(parts.join(" or ")) }
 }
 
 /// Map a fusion `matfilter` param to a DSL `using` material selector.
@@ -1068,6 +1138,9 @@ fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
         "SET_ANCIENT_GEAR" => "Ancient Gear",
         "SET_ASSAULT_MODE" => "/Assault Mode",
         "SET_AZAMINA"      => "Azamina",
+        // T38 S4 — archetypes referenced by ritual-proc summon filters.
+        "SET_BLACK_LUSTER_SOLDIER" => "Black Luster Soldier",
+        "SET_CYBER_ANGEL"  => "Cyber Angel",
         // T38 S1 — archetypes referenced by stat-chip group filters.
         "SET_CHRONOMALY"   => "Chronomaly",
         "SET_CIPHER"       => "Cipher",
@@ -1744,31 +1817,17 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
                     });
                 }
                 // Top-level `Ritual.AddProcEqual(...)` / `AddProcGreater(...)`
-                // / `AddProcEqualCode(...)` / `AddProcGreaterCode(...)` /
-                // `AddWholeLevelTribute(...)` shapes don't bind to a local.
-                // The helper registers its own effect, so synthesize an
-                // anonymous ritual-spec skeleton.
+                // / `AddProcEqualCode(...)` / `AddProcGreaterCode(...)`
+                // shapes don't bind to a local. The helper registers its
+                // own effect, so synthesize an anonymous ritual-spec
+                // skeleton. (`AddWholeLevelTribute` is a passive grant —
+                // no skeleton; see call_is_ritual_proc_helper.)
                 if call_is_ritual_proc_helper(fc) {
                     // AddProcEqual/Greater params decode like CreateProc
-                    // minus the implied lvtype. The *Code variants filter
-                    // by card-code lists and AddWholeLevelTribute changes
-                    // the tribute procedure — neither has a DSL
-                    // equivalent, so their ops stay unresolved and the
-                    // resolve remains an empty stub.
-                    let op = match call_head_string(fc).as_str() {
-                        "Ritual.AddProcEqual" | "Ritual.AddProcGreater" => {
-                            plain_helper_op_from_call(
-                                fc,
-                                SummonHelperKind::RitualOperation,
-                                RITUAL_ADD_PROC_LEVEL_PARAMS,
-                            )
-                        }
-                        _ => SummonHelperOp {
-                            kind: SummonHelperKind::RitualOperation,
-                            params: Vec::new(),
-                            unresolved: true,
-                        },
-                    };
+                    // minus the implied lvtype (re-injected); the *Code
+                    // variants decode their positional passcode lists
+                    // (T38 S4).
+                    let op = ritual_helper_op_from_call(fc);
                     let anon = format!("__ritual_inline_{}", by_binding.len());
                     ordinals.insert(anon.clone(), source_ord);
                     source_ord += 1;
@@ -1911,8 +1970,16 @@ fn expr_is_effect_createeffect(expr: &Expression) -> bool {
 
 /// True if the function call is one of the top-level Ritual.* helpers
 /// that register a ritual-summon activation effect: `AddProcEqual`,
-/// `AddProcGreater`, `AddProcEqualCode`, `AddProcGreaterCode`, or
-/// `AddWholeLevelTribute`. Used to mark anonymous skeletons during walk.
+/// `AddProcGreater`, `AddProcEqualCode`, or `AddProcGreaterCode`. Used
+/// to mark anonymous skeletons during walk.
+///
+/// `AddWholeLevelTribute` is deliberately absent (T38 S4): it registers
+/// a PASSIVE `EFFECT_RITUAL_LEVEL` grant ("can be used as the entire
+/// tribute"), not an activation effect, and the corpus generator put
+/// the grant sentence's block LAST regardless of lua statement order —
+/// so a consumer skeleton for it shifts every later effect one block
+/// late (Gishki Shadow, Shurit, Lo the Prayers). Its future DSL surface
+/// is a passive/grant slice, not an effect fill.
 fn call_is_ritual_proc_helper(fc: &FunctionCall) -> bool {
     let head = call_head_string(fc);
     matches!(
@@ -1920,18 +1987,17 @@ fn call_is_ritual_proc_helper(fc: &FunctionCall) -> bool {
         "Ritual.AddProcEqual"
         | "Ritual.AddProcGreater"
         | "Ritual.AddProcEqualCode"
-        | "Ritual.AddProcGreaterCode"
-        | "Ritual.AddWholeLevelTribute",
+        | "Ritual.AddProcGreaterCode",
     )
 }
 
 /// Decode the assigned-form ritual summon helpers: `local
 /// e1=Ritual.CreateProc(...)` / `AddProcEqual(...)` /
-/// `AddProcGreater(...)`. The *Code variants and AddWholeLevelTribute
-/// decode as unresolved ops (card-code filters / tribute-procedure
-/// changes have no DSL equivalent), so their skeletons keep block
-/// alignment while the resolve stays an empty stub. Mirrors the
-/// top-level statement handling in the walker.
+/// `AddProcGreater(...)`. Mirrors the top-level statement handling in
+/// the walker (both delegate to [`ritual_helper_op_from_call`]).
+/// `AddWholeLevelTribute` returns None — no skeleton at all; see
+/// [`call_is_ritual_proc_helper`] (the grant is a passive, and a
+/// consumer skeleton for it shifts later blocks — c51618973's E2/E3).
 fn ritual_helper_op_from_expr(expr: &Expression) -> Option<SummonHelperOp> {
     let Expression::FunctionCall(fc) = expr else { return None };
     match call_head_string(fc).as_str() {
@@ -1940,19 +2006,77 @@ fn ritual_helper_op_from_expr(expr: &Expression) -> Option<SummonHelperOp> {
             SummonHelperKind::RitualOperation,
             RITUAL_CREATE_PROC_PARAMS,
         )),
-        "Ritual.AddProcEqual" | "Ritual.AddProcGreater" => Some(plain_helper_op_from_call(
-            fc,
-            SummonHelperKind::RitualOperation,
-            RITUAL_ADD_PROC_LEVEL_PARAMS,
-        )),
-        "Ritual.AddProcEqualCode"
-        | "Ritual.AddProcGreaterCode"
-        | "Ritual.AddWholeLevelTribute" => Some(SummonHelperOp {
-            kind: SummonHelperKind::RitualOperation,
-            params: Vec::new(),
-            unresolved: true,
-        }),
+        "Ritual.AddProcEqual"
+        | "Ritual.AddProcGreater"
+        | "Ritual.AddProcEqualCode"
+        | "Ritual.AddProcGreaterCode" => Some(ritual_helper_op_from_call(fc)),
         _ => None,
+    }
+}
+
+/// Decode a `Ritual.AddProc*` helper call (statement or assigned form)
+/// into a [`SummonHelperOp`] (T38 S4).
+///
+/// - `AddProcEqual` / `AddProcGreater` decode like CreateProc minus the
+///   implied `lvtype`, which is re-injected here so the emit policy can
+///   pick `==` vs `>=` for explicit-lv cards.
+/// - `AddProcEqualCode` / `AddProcGreaterCode` take positional
+///   `(c, lv, desc, code...)` args (proc_ritual.lua); the passcode list
+///   decodes into a `codes` param — integer literals only, anything
+///   else is unresolved (skip-not-mis-emit, alignment kept).
+fn ritual_helper_op_from_call(fc: &FunctionCall) -> SummonHelperOp {
+    let unresolved = SummonHelperOp {
+        kind: SummonHelperKind::RitualOperation,
+        params: Vec::new(),
+        unresolved: true,
+    };
+    let head = call_head_string(fc);
+    let lvtype = if head.contains("Greater") { "RITPROC_GREATER" } else { "RITPROC_EQUAL" };
+    match head.as_str() {
+        "Ritual.AddProcEqual" | "Ritual.AddProcGreater" => {
+            let mut op = plain_helper_op_from_call(
+                fc,
+                SummonHelperKind::RitualOperation,
+                RITUAL_ADD_PROC_LEVEL_PARAMS,
+            );
+            if !op.unresolved {
+                op.params.push(("lvtype".to_string(), lvtype.to_string()));
+            }
+            op
+        }
+        "Ritual.AddProcEqualCode" | "Ritual.AddProcGreaterCode" => {
+            // Positional-only signature; no FunctionWithNamedArgs form.
+            let Some(Suffix::Call(Call::AnonymousCall(
+                ast::FunctionArgs::Parentheses { arguments, .. },
+            ))) = fc.suffixes().last() else { return unresolved };
+            let raws: Vec<String> = arguments
+                .iter()
+                .map(|e| e.to_string().trim().to_string())
+                .collect();
+            // (c, lv, desc, code...) — at least one passcode required.
+            if raws.len() < 4 { return unresolved; }
+            let mut params = vec![("lvtype".to_string(), lvtype.to_string())];
+            match raws[1].as_str() {
+                "nil" => {}
+                n if n.parse::<u32>().is_ok() => {
+                    params.push(("lv".to_string(), n.to_string()));
+                }
+                _ => return unresolved, // function-valued / expression lv
+            }
+            // raws[2] is the cosmetic desc — ignored like `desc` in
+            // plain_helper_op_from_call.
+            let codes = &raws[3..];
+            if !codes.iter().all(|c| c.parse::<u32>().is_ok()) {
+                return unresolved; // non-literal passcode
+            }
+            params.push(("codes".to_string(), codes.join(",")));
+            SummonHelperOp {
+                kind: SummonHelperKind::RitualOperation,
+                params,
+                unresolved: false,
+            }
+        }
+        _ => unresolved, // AddWholeLevelTribute and anything unexpected
     }
 }
 
@@ -2259,8 +2383,17 @@ fn positional_table_params(tc: &ast::TableConstructor, names: &[&str]) -> Option
 /// Render a function-call's prefix as a dotted name string,
 /// e.g. `Effect.CreateEffect`, `Duel.SendtoGrave`, `c:RegisterEffect`.
 fn call_head_string(fc: &FunctionCall) -> String {
-    let prefix = fc.prefix();
-    let mut head = prefix.to_string().trim().to_string();
+    // Token-based extraction for the name prefix: `Display` for a
+    // `TokenReference` includes leading trivia, so a statement-form call
+    // preceded by a `--comment` line rendered its head as
+    // `--Activate\n\tRitual.AddProcGreater` and matched NOTHING — the
+    // walker missed the chain entirely and every later positional block
+    // mapped one slot too early (T38 S4: c39996157's shipped `banish
+    // self` wrong-block fill). `.token()` yields the bare identifier.
+    let mut head = match fc.prefix() {
+        ast::Prefix::Name(n) => n.token().to_string(),
+        p => p.to_string().trim().to_string(),
+    };
     // Walk suffixes that aren't the final Call — they form the dotted
     // / colon name (e.g. `e1:SetCategory(...)`).
     for s in fc.suffixes() {
@@ -12716,27 +12849,36 @@ end
 
     #[test]
     fn plain_helper_ritual_addproc_attribute_filter() {
+        // GREATER + own level = the library default the bare line stands
+        // for; the EQUAL twin (Sprite's Blessing c37626500 shape) skips
+        // until a summon_level atom exists (T38 S4).
         let src = r#"
 function s.initial_effect(c)
-    Ritual.AddProcEqual(c,aux.FilterBoolFunction(Card.IsAttribute,ATTRIBUTE_LIGHT))
+    Ritual.AddProcGreater(c,aux.FilterBoolFunction(Card.IsAttribute,ATTRIBUTE_LIGHT))
 end
 "#;
         assert_eq!(
             p12_line(src, 0).as_deref(),
             Some("ritual_summon (1, ritual monster, where attribute == LIGHT)"),
         );
+        let equal = src.replace("AddProcGreater", "AddProcEqual");
+        assert_eq!(p12_line(&equal, 0), None);
     }
 
     #[test]
-    fn plain_helper_ritual_addproc_explicit_level_skips() {
+    fn plain_helper_ritual_addproc_explicit_level_emits_clause() {
         // An explicit lv overrides the summoned monster's own level in
-        // the tribute check — not expressible, must skip.
+        // the tribute check — expressible since T38 S4 via the
+        // `where total_level` clause (pest ritual_summon_action).
         let src = r#"
 function s.initial_effect(c)
     Ritual.AddProcGreater(c,aux.FilterBoolFunction(Card.IsAttribute,ATTRIBUTE_LIGHT),8)
 end
 "#;
-        assert_eq!(p12_line(src, 0), None);
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some("ritual_summon (1, ritual monster, where attribute == LIGHT) where total_level >= 8"),
+        );
     }
 
     #[test]
@@ -12771,8 +12913,12 @@ end
     fn plain_helper_ritual_addproc_assigned_table_filter_emits() {
         // c14735698 shape (minus extrafil): the assigned brace-table form
         // previously produced NO skeleton, shifting every later block one
-        // slot too early in apply.
-        let src = r#"
+        // slot too early in apply. T38 S4: the EQUAL variant with no
+        // explicit lv means "total levels EXACTLY the summoned monster's
+        // own level" — inexpressible without a summon_level atom, so the
+        // line skips (a bare line would allow overshoot); the GREATER
+        // variant is the library default the bare line stands for.
+        let equal = r#"
 function s.initial_effect(c)
     local e1=Ritual.AddProcEqual{handler=c,filter=aux.FilterBoolFunction(Card.IsSetCard,SET_SHADDOLL)}
     e1:SetCountLimit(1,id)
@@ -12782,15 +12928,111 @@ function s.initial_effect(c)
     c:RegisterEffect(e2)
 end
 "#;
-        let parsed = full_moon::parse(src).expect("parse");
+        let parsed = full_moon::parse(equal).expect("parse");
         let report = walk(&parsed);
         assert_eq!(report.effects.len(), 2);
         assert!(report.effects[0].ritual_summon_spec);
         assert_eq!(report.effects[1].binding, "e2");
+        assert_eq!(report.effects[0].summon_helper_line(), None);
+
+        let greater = equal.replace("AddProcEqual", "AddProcGreater");
+        let parsed = full_moon::parse(&greater).expect("parse");
+        let report = walk(&parsed);
+        assert_eq!(report.effects.len(), 2);
         assert_eq!(
             report.effects[0].summon_helper_line().as_deref(),
             Some(r#"ritual_summon (1, ritual monster, where archetype == "Shaddoll")"#),
         );
+    }
+
+    #[test]
+    fn ritual_addproc_explicit_lv_emits_total_level_clause() {
+        // c14094090 Super Soldier Ritual: AddProcEqual with fixed lv 8 —
+        // the implied lvtype picks `==`; the GREATER twin picks `>=`.
+        let equal = r#"
+function s.initial_effect(c)
+    Ritual.AddProcEqual(c,aux.FilterBoolFunction(Card.IsSetCard,SET_BLACK_LUSTER_SOLDIER),8)
+end
+"#;
+        let parsed = full_moon::parse(equal).expect("parse");
+        let report = walk(&parsed);
+        assert_eq!(report.effects.len(), 1);
+        assert_eq!(
+            report.effects[0].summon_helper_line().as_deref(),
+            Some(r#"ritual_summon (1, ritual monster, where archetype == "Black Luster Soldier") where total_level == 8"#),
+        );
+
+        let greater = equal.replace("AddProcEqual", "AddProcGreater");
+        let parsed = full_moon::parse(&greater).expect("parse");
+        let report = walk(&parsed);
+        assert_eq!(
+            report.effects[0].summon_helper_line().as_deref(),
+            Some(r#"ritual_summon (1, ritual monster, where archetype == "Black Luster Soldier") where total_level >= 8"#),
+        );
+    }
+
+    #[test]
+    fn ritual_addproc_code_form_decodes_names_and_level() {
+        // c18803791 Dark Dragon Ritual: AddProcGreaterCode(c,4,nil,CODE)
+        // — summon-by-passcode with fixed lv. Name resolution rides the
+        // registered card-name table; unknown passcodes skip the line
+        // but keep the skeleton (alignment).
+        register_card_names([(71408082u32, "Paladin of Dark Dragon".to_string())]);
+        let src = r#"
+function s.initial_effect(c)
+    Ritual.AddProcGreaterCode(c,4,nil,71408082)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        assert_eq!(report.effects.len(), 1);
+        assert!(report.effects[0].ritual_summon_spec);
+        assert_eq!(
+            report.effects[0].summon_helper_line().as_deref(),
+            Some(r#"ritual_summon (1, ritual monster, where name == "Paladin of Dark Dragon") where total_level >= 4"#),
+        );
+
+        // Unknown passcode — no name table entry: line skips, skeleton stays.
+        let unknown = r#"
+function s.initial_effect(c)
+    Ritual.AddProcEqualCode(c,nil,nil,999999999)
+end
+"#;
+        let parsed = full_moon::parse(unknown).expect("parse");
+        let report = walk(&parsed);
+        assert_eq!(report.effects.len(), 1);
+        assert_eq!(report.effects[0].summon_helper_line(), None);
+    }
+
+    #[test]
+    fn ritual_addproc_statement_form_comment_preceded_recognized() {
+        // c39996157 Machine Angel Ritual: the statement-form proc call
+        // sits behind an `--Activate` comment. Leading trivia polluted
+        // the call head, hid the skeleton, and the destroy-replace
+        // chain's op body landed in the proc's block (`banish self`).
+        let src = r#"
+function s.initial_effect(c)
+	--Activate
+	Ritual.AddProcGreater(c,aux.FilterBoolFunction(Card.IsSetCard,SET_CYBER_ANGEL))
+	--destroy replace
+	local e2=Effect.CreateEffect(c)
+	e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+	e2:SetCode(EFFECT_DESTROY_REPLACE)
+	e2:SetOperation(s.repop)
+	c:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        assert_eq!(report.effects.len(), 2);
+        assert!(report.effects[0].ritual_summon_spec);
+        assert_eq!(report.effects[0].source_ordinal, 0);
+        assert_eq!(
+            report.effects[0].summon_helper_line().as_deref(),
+            Some(r#"ritual_summon (1, ritual monster, where archetype == "Cyber Angel")"#),
+        );
+        // The replacement-code chain never fills an effect block.
+        assert!(report.effects[1].is_replacement_chain());
     }
 
     #[test]
@@ -12820,12 +13062,19 @@ end
     }
 
     #[test]
-    fn plain_helper_ritual_whole_level_tribute_assigned_unresolved() {
-        // Assigned AddWholeLevelTribute changes the tribute procedure —
-        // unresolved op: skeleton keeps alignment, resolve stays empty.
+    fn plain_helper_ritual_whole_level_tribute_no_skeleton() {
+        // AddWholeLevelTribute registers a PASSIVE EFFECT_RITUAL_LEVEL
+        // grant, not an activation effect — no skeleton in EITHER form
+        // (T38 S4). The corpus generator put the grant sentence's block
+        // LAST regardless of lua statement order, so a consumer skeleton
+        // shifted every later effect one block late (c51618973 assigned,
+        // c29888389 statement).
         let src = r#"
 function s.initial_effect(c)
     local e1=Ritual.AddWholeLevelTribute(c,s.tributable)
+    e1:SetRange(LOCATION_MZONE)
+    --ritual level (statement form, comment-preceded)
+    Ritual.AddWholeLevelTribute(c,aux.FilterBoolFunction(Card.IsAttribute,ATTRIBUTE_WATER))
     local e2=Effect.CreateEffect(c)
     e2:SetType(EFFECT_TYPE_IGNITION)
     e2:SetOperation(s.thop)
@@ -12834,11 +13083,8 @@ end
 "#;
         let parsed = full_moon::parse(src).expect("parse");
         let report = walk(&parsed);
-        assert_eq!(report.effects.len(), 2);
-        assert!(report.effects[0].ritual_summon_spec);
-        assert!(report.effects[0].summon_helper_op.as_ref().unwrap().unresolved);
-        assert_eq!(report.effects[0].summon_helper_line(), None);
-        assert_eq!(report.effects[1].binding, "e2");
+        assert_eq!(report.effects.len(), 1);
+        assert_eq!(report.effects[0].binding, "e2");
     }
 
     #[test]
