@@ -512,6 +512,22 @@ pub fn compute_assignments(walk: &LuaReport, ds_txt: &str) -> Assignments {
     let consumers: Vec<usize> = (0..n).filter(|&i| is_consumer(&walk.effects[i])).collect();
     let mut a = Assignments { by_effect: vec![None; n], ..Default::default() };
 
+    // Order-consistency guard (T38 S4): the passes count consumers in
+    // `walk.effects` (BTreeMap binding-name) order, but .ds blocks were
+    // generated in lua SOURCE order. When the two disagree — out-of-order
+    // binding names (`e0` declared after `e1`, `ge1` between `e1`/`e2`),
+    // or an anonymous statement-form helper that isn't the first chain
+    // (Gishki Shadow's trailing `Ritual.AddWholeLevelTribute` synthesized
+    // `__ritual_inline_1`, which sorts FIRST and shifted the search
+    // effect one block late) — every positional rank is suspect. Refuse
+    // to assign anything rather than fill wrong blocks.
+    let mut by_ord = consumers.clone();
+    by_ord.sort_by_key(|&i| walk.effects[i].source_ordinal);
+    if by_ord != consumers {
+        a.ambiguous = consumers.len();
+        return a;
+    }
+
     // Fast path: no hazard anywhere — positional, identical to history.
     if !walk.effects.iter().any(|e| e.block_alignment_hazard) {
         for (rank, &i) in consumers.iter().enumerate() {
@@ -534,16 +550,8 @@ pub fn compute_assignments(walk: &LuaReport, ds_txt: &str) -> Assignments {
         }
     };
 
-    // Consistency (a): the passes count consumers in `walk.effects`
-    // (BTreeMap) order, the matcher aligns in source order. If the two
-    // disagree (10+ chains, anonymous helper bindings), rescuing on top
-    // of a mismatched base is unsafe — keep the historical behavior.
-    let mut by_ord = consumers.clone();
-    by_ord.sort_by_key(|&i| walk.effects[i].source_ordinal);
-    if by_ord != consumers {
-        fallback(&mut a);
-        return a;
-    }
+    // Consistency (a) — consumers in BTreeMap order match source order —
+    // is guaranteed by the order-consistency guard at the top.
 
     // Build the entity list in source order: every skeleton plus every
     // phantom clone ordinal.
