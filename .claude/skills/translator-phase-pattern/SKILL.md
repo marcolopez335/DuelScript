@@ -114,6 +114,7 @@ Harness blocks direct `git push origin main` — this PR loop is the workaround.
 ## Hazards
 
 - **Don't reformat the corpus mid-phase.** `duelscript fmt cards/official/` reformats ~2,700 files. Scope your PR to only the cards your phase touches.
+- **The policy-flip retrofit rule (review finding in 3 consecutive slices: #143, #144, #145).** The moment your phase declares a shipped line-shape WRONG — via a new skip gate, a corrected decoder, or an emit-policy change — you own retrofitting EVERY shipped instance of that shape in the same PR, not just the cards your audit started from. Sweep the whole corpus for the shape (`git grep` the emitted form, or re-derive with the new decoder and diff), hand-verify each hit against its lua, and stub or rewrite. A gate without its retrofit leaves acknowledged-wrong lines that `apply` can never heal (it never rewrites non-empty resolves). Precedents: 2f22b3a32 (224-card reset re-key), f818db1cd (112-file change_position), #143 (11 negate_effects), #145 (lv-nil EQUAL bare lines).
 - **Don't ship retrofits silently.** If your phase fixes a regression in earlier-shipped corpus content (Phase 4b retrofitted Phase 4's missing `until end_of_turn`), call it out in the PR description and bound the change to cards whose lua reset matches the new detection.
 - **Don't auto-remove existing data.** If an empty `resolve { }` is "redundant" because your new passive captures it, write a separate audit-then-apply pass with safety filters (no other content in the effect, single-effect-card, etc.). See Phase 5b for the template.
 
