@@ -601,7 +601,10 @@ impl EffectSkeleton {
         // Effect.CreateEffect chain) keep their own frame: the .ds
         // block header models it, so they are exempt.
         if self.fusion_summon_spec || self.ritual_summon_spec {
-            let allowed = ["SetCountLimit", "SetDescription", "SetCategory"];
+            // SetHintTiming is a client UI hint (when to pop the activation
+            // dialog) with no game-rule surface — c6417578's only frame
+            // decoration, and its shipped line is exact without it.
+            let allowed = ["SetCountLimit", "SetDescription", "SetCategory", "SetHintTiming"];
             if self.set_calls.iter().any(|(m, _)| !allowed.contains(&m.as_str())) {
                 return None;
             }
@@ -13059,6 +13062,42 @@ end
         assert!(report.effects[0].ritual_summon_spec);
         assert_eq!(report.effects[0].summon_helper_line(), None);
         assert_eq!(report.effects[1].binding, "e2");
+    }
+
+    #[test]
+    fn factory_helper_hint_timing_is_cosmetic_condition_is_not() {
+        // c6417578 (Shaddoll Fusion): SetHintTiming is a client UI hint —
+        // the only frame decoration beyond the cosmetic trio, and the
+        // line is exact without it. c99599062 (Earthbound Fusion) adds a
+        // SetCondition the line would silently drop — still declines.
+        let hint_only = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff(c,aux.FilterBoolFunction(Card.IsSetCard,SET_SHADDOLL))
+    e1:SetHintTiming(0,TIMING_END_PHASE)
+    e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(hint_only).expect("parse");
+        let report = walk(&parsed);
+        assert_eq!(report.effects.len(), 1);
+        assert_eq!(
+            report.effects[0].summon_helper_line().as_deref(),
+            Some(r#"fusion_summon (1, fusion monster, where archetype == "Shaddoll")"#),
+        );
+
+        let with_condition = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff(c,aux.FilterBoolFunction(Card.IsAttribute,ATTRIBUTE_DARK))
+    e1:SetHintTiming(0,TIMING_MAIN_END)
+    e1:SetCondition(function() return Duel.IsMainPhase() end)
+    c:RegisterEffect(e1)
+end
+"#;
+        let parsed = full_moon::parse(with_condition).expect("parse");
+        let report = walk(&parsed);
+        assert_eq!(report.effects.len(), 1);
+        assert_eq!(report.effects[0].summon_helper_line(), None);
     }
 
     #[test]
