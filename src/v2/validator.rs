@@ -26,6 +26,7 @@ pub fn validate_card(card: &Card, errors: &mut Vec<ValidationError>) {
     check_summon_block(&ctx, errors);
     check_effect_blocks(&ctx, errors);
     check_target_references(&ctx, errors);
+    check_fusion_extra_pools(&ctx, errors);
     check_spell_speeds(&ctx, errors);
     check_passive_blocks(&ctx, errors);
     check_restriction_blocks(&ctx, errors);
@@ -454,6 +455,83 @@ fn check_target_references(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
     }
 }
 
+// ── Fusion extra-pool shape (T38 S5) ────────────────────────
+//
+// The `plus <selector>` clause describes an EXTRA material pool — a class
+// of cards (filter + location) merged into the default hand/field pool
+// before material selection (lua `extrafil`). Shorthand/binding selectors
+// (`self`, `target`, `searched`, a named binding, …) name a single
+// already-resolved card; they cannot describe a pool, and the compiler
+// has no filter/location to hand to the runtime seam. Structured
+// (parenthesized) selectors are required. A count-limited pool
+// (`(1, …)` / `(2+, …)`) is legal but the quantity is not carried
+// through the runtime seam (count-limited pools are the lua `fcheck`
+// class, out of S5 scope) — warn so the mis-fit is visible.
+fn check_fusion_extra_pools(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
+    let mut check = |actions: &[Action], effect_name: &str| {
+        walk_actions(actions, &mut |a| {
+            if let Action::FusionSummon { extra_materials: Some(pool), .. } = a {
+                match pool {
+                    Selector::Counted { quantity, .. } => {
+                        if !matches!(quantity, Quantity::All) {
+                            errors.push(warn(ctx.name(), &format!(
+                                "Effect '{}': fusion_summon `plus` pool quantity is not carried \
+                                 through the runtime seam — use `all`", effect_name
+                            )));
+                        }
+                    }
+                    _ => errors.push(err(ctx.name(), &format!(
+                        "Effect '{}': fusion_summon `plus` pool must be a structured \
+                         (parenthesized) selector — shorthand selectors name a single \
+                         resolved card and cannot describe a material pool", effect_name
+                    ))),
+                }
+            }
+        });
+    };
+    for effect in &ctx.card.effects {
+        check(&effect.resolve, &effect.name);
+        if let Some(choose) = &effect.choose {
+            for opt in &choose.options {
+                check(&opt.resolve, &effect.name);
+            }
+        }
+    }
+}
+
+/// Depth-first walk over an action list, recursing into every nested
+/// action container (`if`, `coin_flip`, `dice_roll`, `delayed`,
+/// `and_if_you_do`, `then`, `also`, `for_each`, `install_watcher`,
+/// inline `choose`).
+fn walk_actions(actions: &[Action], visit: &mut impl FnMut(&Action)) {
+    for action in actions {
+        visit(action);
+        match action {
+            Action::CoinFlip { heads, tails } => {
+                walk_actions(heads, visit);
+                walk_actions(tails, visit);
+            }
+            Action::If { then, otherwise, .. } => {
+                walk_actions(then, visit);
+                walk_actions(otherwise, visit);
+            }
+            Action::DiceRoll(body)
+            | Action::Delayed { body, .. }
+            | Action::AndIfYouDo(body)
+            | Action::Then(body)
+            | Action::Also(body)
+            | Action::ForEach { body, .. } => walk_actions(body, visit),
+            Action::InstallWatcher { check, .. } => walk_actions(check, visit),
+            Action::Choose(block) => {
+                for opt in &block.options {
+                    walk_actions(&opt.resolve, visit);
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
 #[derive(Default)]
 struct TargetScan {
     uses_target: bool,
@@ -516,11 +594,19 @@ fn scan_actions(actions: &[Action], scan: &mut TargetScan) {
             | Action::Grant(s, _, _)
             | Action::SwapStats(s) => scan_selector(s, scan),
             Action::RitualSummon { target, materials, .. }
-            | Action::FusionSummon { target, materials }
             | Action::SynchroSummon { target, materials }
             | Action::XyzSummon { target, materials } => {
                 scan_selector(target, scan);
                 if let Some(m) = materials {
+                    scan_selector(m, scan);
+                }
+            }
+            Action::FusionSummon { target, materials, extra_materials, .. } => {
+                scan_selector(target, scan);
+                if let Some(m) = materials {
+                    scan_selector(m, scan);
+                }
+                if let Some(m) = extra_materials {
                     scan_selector(m, scan);
                 }
             }
@@ -775,6 +861,78 @@ card "Overlay Counter Valid Test" {
         let report = validate_v2(&file);
         assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
         assert_eq!(report.warning_count(), 0, "warnings: {:?}", report.errors);
+    }
+
+    #[test]
+    fn test_fusion_plus_pool_valid() {
+        // T38 S5: structured all-quantity plus pool + the other proc
+        // clauses validate clean.
+        let source = r#"
+card "Fusion Plus Valid Test" {
+    id: 1
+    type: Normal Spell
+
+    effect "Fuse" {
+        speed: 1
+        resolve {
+            fusion_summon (1, fusion monster) plus (all, monster, you control, in gy) including self sending_materials_to deck
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
+        assert_eq!(report.warning_count(), 0, "warnings: {:?}", report.errors);
+    }
+
+    #[test]
+    fn test_fusion_plus_pool_rejects_shorthand_selector() {
+        // T38 S5: a shorthand selector names a single resolved card —
+        // it cannot describe a material pool (no filter/location for the
+        // runtime seam).
+        let source = r#"
+card "Fusion Plus Shorthand Test" {
+    id: 1
+    type: Normal Spell
+
+    effect "Fuse" {
+        speed: 1
+        resolve {
+            fusion_summon (1, fusion monster) plus searched
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        assert_eq!(report.error_count(), 1, "errors: {:?}", report.errors);
+        assert!(report.errors[0].message.contains("structured"),
+            "unexpected message: {}", report.errors[0].message);
+    }
+
+    #[test]
+    fn test_fusion_plus_pool_warns_on_counted_quantity() {
+        // T38 S5: count-limited pools are the lua fcheck class — legal
+        // grammar, but the quantity is not carried through the runtime
+        // seam, so the validator surfaces the mis-fit as a warning.
+        let source = r#"
+card "Fusion Plus Quantity Test" {
+    id: 1
+    type: Normal Spell
+
+    effect "Fuse" {
+        speed: 1
+        resolve {
+            fusion_summon (1, fusion monster) plus (1, monster, you control, in gy)
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
+        assert_eq!(report.warning_count(), 1, "warnings: {:?}", report.errors);
     }
 
     #[test]

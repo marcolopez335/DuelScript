@@ -481,10 +481,22 @@ fn format_action(a: &Action, out: &mut String, indent: usize) {
             }
             writeln!(out, "{}", s).unwrap();
         }
-        Action::FusionSummon { target, materials } => {
+        Action::FusionSummon { target, materials, extra_materials, include_self, material_destination } => {
             let mut s = format!("{}fusion_summon {}", pad, format_selector(target));
             if let Some(m) = materials {
                 s.push_str(&format!(" using {}", format_selector(m)));
+            }
+            if let Some(m) = extra_materials {
+                s.push_str(&format!(" plus {}", format_selector(m)));
+            }
+            if *include_self {
+                s.push_str(" including self");
+            }
+            if let Some(dest) = material_destination {
+                s.push_str(&format!(" sending_materials_to {}", match dest {
+                    MaterialDestination::Banished => "banished",
+                    MaterialDestination::Deck     => "deck",
+                }));
             }
             writeln!(out, "{}", s).unwrap();
         }
@@ -1732,6 +1744,45 @@ card "Restrict Roundtrip Test" {
         let reparsed = parse_v2(&formatted)
             .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
         assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 11);
+        assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
+    }
+
+    #[test]
+    fn test_fusion_summon_s5_clauses_roundtrip() {
+        // T38 S5: each fusion proc clause alone, all combined, and both
+        // destinations survive the parse -> format -> reparse fixed point.
+        let source = r#"
+card "Fusion Clause Roundtrip Test" {
+    id: 1
+    type: Normal Spell
+
+    effect "Fuse" {
+        speed: 1
+        resolve {
+            fusion_summon (1, fusion monster)
+            fusion_summon (1, fusion monster) using (2+, monster, you control)
+            fusion_summon (1, fusion monster) plus (all, monster, you control, in gy)
+            fusion_summon (1, fusion monster) including self
+            fusion_summon (1, fusion monster) sending_materials_to banished
+            fusion_summon (1, fusion monster) sending_materials_to deck
+            fusion_summon (1, "Shaddoll" monster) using (2+, monster, you control) plus (all, monster, you control, in gy) including self sending_materials_to deck
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let formatted = format_file(&file);
+        assert!(formatted.contains("fusion_summon (1, fusion monster) plus (all, monster, you control, in gy)\n"),
+            "plus clause mis-rendered in:\n{}", formatted);
+        assert!(formatted.contains("fusion_summon (1, fusion monster) including self\n"),
+            "including self mis-rendered in:\n{}", formatted);
+        assert!(formatted.contains("fusion_summon (1, fusion monster) sending_materials_to banished\n"),
+            "banished destination mis-rendered in:\n{}", formatted);
+        assert!(formatted.contains(" plus (all, monster, you control, in gy) including self sending_materials_to deck\n"),
+            "combined clauses mis-rendered in:\n{}", formatted);
+        let reparsed = parse_v2(&formatted)
+            .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
+        assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 7);
         assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
     }
 

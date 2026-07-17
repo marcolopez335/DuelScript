@@ -1579,11 +1579,38 @@ fn parse_action(pair: Pair<Rule>) -> Result<Action, V2ParseError> {
         Rule::fusion_summon_action => {
             let mut it = inner.into_inner();
             let target = parse_selector(it.next().ok_or(V2ParseError::MissingField("fusion_summon target"))?)?;
-            let materials = it.next()
-                .filter(|p| p.as_rule() == Rule::selector)
-                .map(|p| parse_selector(p))
-                .transpose()?;
-            Ok(Action::FusionSummon { target, materials })
+            // The `using` materials selector is the only clause that surfaces
+            // as a bare Rule::selector pair; the T38 S5 clauses each wrap in
+            // a named sub-rule so the pair stream stays unambiguous.
+            let mut materials = None;
+            let mut extra_materials = None;
+            let mut include_self = false;
+            let mut material_destination = None;
+            for p in it {
+                match p.as_rule() {
+                    Rule::selector => materials = Some(parse_selector(p)?),
+                    Rule::fusion_plus_clause => {
+                        let sel = p.into_inner().next()
+                            .ok_or(V2ParseError::MissingField("fusion_summon plus selector"))?;
+                        extra_materials = Some(parse_selector(sel)?);
+                    }
+                    Rule::fusion_forced_self => include_self = true,
+                    Rule::fusion_disposal => {
+                        let dest = p.into_inner().next()
+                            .ok_or(V2ParseError::MissingField("fusion_summon material destination"))?;
+                        material_destination = Some(match dest.as_str().trim() {
+                            "banished" => MaterialDestination::Banished,
+                            "deck"     => MaterialDestination::Deck,
+                            other => return Err(V2ParseError::InvalidValue(
+                                format!("unknown material destination: {}", other))),
+                        });
+                    }
+                    _ => {}
+                }
+            }
+            Ok(Action::FusionSummon {
+                target, materials, extra_materials, include_self, material_destination,
+            })
         }
         Rule::synchro_summon_action => {
             let mut it = inner.into_inner();
@@ -2968,6 +2995,103 @@ card "Bad Damage Rule" {
         mandatory
         resolve {
             damage_rule you triple_effect_damage this_turn
+        }
+    }
+}
+"#;
+        assert!(parse_v2(source).is_err());
+    }
+
+    #[test]
+    fn test_fusion_summon_s5_clauses_parse() {
+        // T38 S5: each proc clause alone, all combined, and the base
+        // forms unchanged. Clause order is fixed by the grammar:
+        // using < plus < including self < sending_materials_to.
+        let source = r#"
+card "Fusion Clause Test" {
+    id: 1
+    type: Normal Spell
+
+    effect "Fuse" {
+        speed: 1
+        resolve {
+            fusion_summon (1, fusion monster)
+            fusion_summon (1, fusion monster) using (2+, monster, you control)
+            fusion_summon (1, fusion monster) plus (all, monster, you control, in gy)
+            fusion_summon (1, fusion monster) including self
+            fusion_summon (1, fusion monster) sending_materials_to banished
+            fusion_summon (1, fusion monster) sending_materials_to deck
+            fusion_summon (1, "Shaddoll" monster) using (2+, monster, you control) plus (all, monster, you control, in gy) including self sending_materials_to deck
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let resolve = &file.cards[0].effects[0].resolve;
+        assert_eq!(resolve.len(), 7);
+        assert!(matches!(&resolve[0], Action::FusionSummon {
+            materials: None, extra_materials: None, include_self: false,
+            material_destination: None, ..
+        }));
+        assert!(matches!(&resolve[1], Action::FusionSummon {
+            materials: Some(_), extra_materials: None, include_self: false,
+            material_destination: None, ..
+        }));
+        match &resolve[2] {
+            Action::FusionSummon { extra_materials: Some(Selector::Counted { quantity, zone, .. }), materials: None, include_self: false, material_destination: None, .. } => {
+                assert!(matches!(quantity, Quantity::All));
+                assert!(matches!(zone, Some(ZoneFilter::In(zones)) if zones == &[Zone::Gy]));
+            }
+            other => panic!("expected plus-clause fusion_summon, got {:?}", other),
+        }
+        assert!(matches!(&resolve[3], Action::FusionSummon {
+            extra_materials: None, include_self: true, material_destination: None, ..
+        }));
+        assert!(matches!(&resolve[4], Action::FusionSummon {
+            include_self: false, material_destination: Some(MaterialDestination::Banished), ..
+        }));
+        assert!(matches!(&resolve[5], Action::FusionSummon {
+            material_destination: Some(MaterialDestination::Deck), ..
+        }));
+        assert!(matches!(&resolve[6], Action::FusionSummon {
+            materials: Some(_), extra_materials: Some(_), include_self: true,
+            material_destination: Some(MaterialDestination::Deck), ..
+        }));
+    }
+
+    #[test]
+    fn test_fusion_summon_rejects_bad_destination() {
+        // The destination vocabulary is a closed keyword set — anything
+        // outside {banished, deck} must fail the parse.
+        let source = r#"
+card "Bad Destination" {
+    id: 1
+    type: Normal Spell
+
+    effect "Fuse" {
+        speed: 1
+        resolve {
+            fusion_summon (1, fusion monster) sending_materials_to hand
+        }
+    }
+}
+"#;
+        assert!(parse_v2(source).is_err());
+    }
+
+    #[test]
+    fn test_fusion_summon_rejects_plus_without_selector() {
+        // A dangling `plus` (no selector) must fail the parse rather
+        // than being swallowed as a bare fusion_summon.
+        let source = r#"
+card "Bad Plus" {
+    id: 1
+    type: Normal Spell
+
+    effect "Fuse" {
+        speed: 1
+        resolve {
+            fusion_summon (1, fusion monster) plus
         }
     }
 }

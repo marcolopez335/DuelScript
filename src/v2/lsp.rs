@@ -193,7 +193,7 @@ fn hover_help(word: &str) -> Option<String> {
         "negate" => Some("**negate** or **negate and destroy** — Negate activation and optionally destroy.".into()),
         "damage" => Some("**damage player amount** — Inflict damage.\n\nExample: `damage opponent 1000`".into()),
         "ritual_summon" => Some("**ritual_summon (selector) using (materials) where total_level >= N**".into()),
-        "fusion_summon" => Some("**fusion_summon (selector) using (materials)**".into()),
+        "fusion_summon" => Some("**fusion_summon (selector) using (materials) plus (extra pool) including self sending_materials_to banished|deck**".into()),
         _ => None,
     }
 }
