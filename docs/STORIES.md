@@ -207,7 +207,7 @@ fn set_damage_rule(&mut self, player: u8, rule: DamageRule, duration: Duration) 
 | **S2** | **Qualified player floodgates** | `:no_op` inner `EFFECT_TYPE_FIELD` + player `SetTargetRange` + `RESET_PHASE\|PHASE_END`, `Duel.RegisterEffect(e1,tp)`. CANNOT_SPECIAL_SUMMON 92 (79 with a `splimit` qualifier), CANNOT_ACTIVATE 41, tr=yes reset bucket 236 chains. Unfiltered subset is T36-expressible today; the qualifier extension unlocks the rest. | **~70–90** | Small extension: `restrict_action` gains `("from" ~ zone)? ~ ("except" ~ "(" ~ exempt_expr ~ ")")?` where `exempt_atom = race/attribute/archetype/named/card_type/from-zone`, or/and composition. |
 | **S3** | **Snapshot negation pairs** | `:no_op` DISABLE + DISABLE_EFFECT clone on same receiver, same reset (43/61 cards paired), receiver ∈ {GetFirstTarget, GetTargetCards, group loop}, reset ∈ {end_of_turn, while_face_up}. | **~30** | **NONE** — `negate_effects <selector> <duration>` exists (pest); one DSL action lowers to the two-code pair. Field-wide "lingering" variant (18 regs) is a skip class this round. |
 | **S4** | **Ritual proc recognition** | `Ritual.AddProcEqual/Greater[Code]` single-call cards; filter reduces to code-list/archetype/race; lv nil or int; no extrafil/extraop/stage2/matfilter/CreateProc. 68-card bucket minus skips. | **~35–40** | Tiny: `summon_level` expr atom ("the summoned monster's own level") in the `where total_level` clause. `ritual_summon_action` exists (pest:519). NOTE: dormant branch `origin/worktree-ritual-addproc-assigned` (2026-06-10) already has assigned-form Ritual.AddProc* skeleton recognition + a RegisterSummonEff pass — inspect/rebase before starting S4/S5 fresh. |
-| **S5** | **Fusion proc recognition** | `Fusion.CreateSummonEff` (32) / `SummonEffTG+OP` pair (36); whitelist extraop ∈ {nil, BanishMaterial, ShuffleMaterial}, gc ∈ {nil, ForcedHandler}, unconditional extrafil, no fcheck/chkf/stage2. | **~30** | Small extension on `fusion_summon_action`: `("plus" ~ selector)* ~ ("including" ~ "self")? ~ ("sending_materials_to" ~ ("gy"\|"banished"\|"deck"))?`. |
+| **S5** | **Fusion proc recognition** | `Fusion.CreateSummonEff` (32) / `SummonEffTG+OP` pair (36); whitelist extraop ∈ {nil, BanishMaterial, ShuffleMaterial}, gc ∈ {nil, ForcedHandler}, unconditional extrafil, no fcheck/chkf/stage2. | **~30** | **✓ grammar half shipped (specced + shipped in same PR, T36/T37 style)**: `fusion_summon_action` gains `fusion_plus_clause? ~ fusion_forced_self? ~ fusion_disposal?` = `("plus" ~ selector)? ~ ("including" ~ "self")? ~ ("sending_materials_to" ~ ("banished"\|"deck"))?` — full seam (pest + AST + parser + validator + compiler + fmt + trait widen + MockRuntime, tests per layer; corpus check + fusion-file fmt byte-identical). `plus` narrowed to `?` (one extrafil per proc; multi-zone pools ride the selector's zone list) and `gy` dropped from the destination set (absent clause = default GY disposal — one canonical spelling). Validator: `plus` pool must be a structured selector (error); non-`all` pool quantity warns (fcheck class, not carried through the seam). **ygobeetle adapter mirror of the widened `fusion_summon` signature outstanding** (engine-dev). Translator recognition/apply = PR 2. |
 | **S6** | **Card-method ops** | initial-only `card_method_action` (92): single mutating Card method after standard guard — UpdateAttack/Defense/Level → `modify_*`; NegateEffects → `negate_effects`; AddCounter/RemoveCounter → `counter_action`; RemoveOverlayCard → `detach`. Args literal or `count(selector)`. | **~50–60** | **NONE** — all five target actions exist. |
 | **S7** | **Simple untranslated primitives** | initial-only `simple_untranslated` subset whose primitive already has a DSL action: ChangePosition 38 (incl. 4-arg toggle → bare `change_position`), SynchroSummon 10, SSet 7, XyzSummon 3, Summon 3, misc. | **~45–55** | **NONE** for this subset. (chain_attack 14, retarget ~21, skip_phase 8, redirect_attack 7, activate_field_spell 6, summon_or_set 4 are each <30 → deferred; retarget/skip_phase are already queued as their own grammar stories.) |
 | **S8** | **Delayed-trigger wrapper** | the true `:with_op` class (176 stems): inner FIELD+CONTINUOUS effect on an EVENT_* code with its own SetOperation + reset. Led by EVENT_PHASE+PHASE_END 53, then CHAIN_SOLVING 12, BATTLE_DESTROYING 10, PHASE_STANDBY 10, DAMAGE_STEP_END 9, CHAIN_SOLVED 9, CHAINING 8. MVP: PHASE_END bodies whose inner op is 1-2 already-translatable actions + the `cnt=yes` "once, later this turn" bucket (20). | **~40–55** | **NEW** — the `delayed on <event>` wrapper (below). |
@@ -273,6 +273,21 @@ fn restrict_player_filtered(&mut self, player: u8, restriction: PlayerRestrictio
 // doc-comment table mapping to splimit predicate shapes. Evaluated per would-be-summoned
 // card at BOTH seams (action-gen mask + exec pre-check), per the PR #50 rollout pattern.
 
+// ✓ shipped (T38 S5 grammar PR): fusion proc knobs on the fusion surface.
+// ygobeetle adapter mirror of the widened signature still outstanding.
+fn fusion_summon(&mut self, card_id: u32, player: u8, material_ids: &[u32],
+    extra_pool: Option<&ExtraMaterialPool>, must_include_self: bool,
+    material_destination: Option<MaterialDestination>) -> bool;
+// ExtraMaterialPool { filter: CardFilter, my_location: u32, opponent_location: u32 }
+// — the lua extrafil filter+location pair; masks RELATIVE to `player`, the
+// Duel.GetMatchingGroup(f,tp,my,opp) / SetTargetRange convention. `where`
+// predicates on the plus selector are not yet mirrored (register_redirect
+// filter_flags precedent — summary now, extension later without breaking the
+// seam). MaterialDestination { Banished, Deck } — extraop ∈
+// {Fusion.BanishMaterial, Fusion.ShuffleMaterial}; None = default GY disposal;
+// engines gate material legality on the destination (IsAbleToRemove/IsAbleToDeck)
+// and dispose BEFORE the summon completes (BreakEffect seam).
+
 // S8: event-armed recurring listener.
 fn register_delayed_trigger(&mut self, event: TriggerEvent, ops: DelayedOps,
     duration: Duration) {}
@@ -307,7 +322,7 @@ Cross-cutting contracts (documented on the trait, per decisions-2.md house style
 #### Acceptance
 - Prereq PRs: reset exact-map fix (lua_ast.rs:6144) with corpus correction for the confirmed-wrong emissions (c61151074, c11493868); ~~`set_atk`/`set_def` duration plumb-through~~ ✓ PR #134 (adapter mirror outstanding).
 - Each slice = its own PR pair (translator, then corpus apply) per the translator-phase pattern; `duelscript check` error count strictly decreases per apply, zero warnings, oracle byte-identical on untouched blocks, structural idempotency (second run no-op).
-- S2/S5/S8 grammar PRs ship the full seam (pest + AST + parser + validator + compiler + fmt + trait + MockRuntime, tests per layer) before their apply passes, T36/T37 style.
+- S2/S5/S8 grammar PRs ship the full seam (pest + AST + parser + validator + compiler + fmt + trait + MockRuntime, tests per layer) before their apply passes, T36/T37 style. (S5 ✓.)
 
 **Agent.** `lua-translator` for S1/S3/S4-recognition/S6/S7; `grammar-extender` for S2/S5-extensions/S8; `engine-dev` for the adapter mirrors (set-stat duration, restrict qualifier, delayed trigger, ritual/fusion procedures).
 

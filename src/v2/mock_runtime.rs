@@ -19,7 +19,7 @@
 // ============================================================
 
 use std::collections::HashMap;
-use super::runtime::{CardFilter, DamageRule, DamageType, Duration, PlayerRestriction, Stat, TokenSpec, DuelScriptRuntime};
+use super::runtime::{CardFilter, DamageRule, DamageType, Duration, ExtraMaterialPool, MaterialDestination, PlayerRestriction, Stat, TokenSpec, DuelScriptRuntime};
 
 // ── Recorded call types ──────────────────────────────────────
 
@@ -743,8 +743,13 @@ impl DuelScriptRuntime for MockRuntime {
         self.state.players[player as usize].field_monsters.push(card_id);
         true
     }
-    fn fusion_summon(&mut self, card_id: u32, player: u8, material_ids: &[u32]) -> bool {
-        self.record("fusion_summon", format!("card={} player={} materials={:?}", card_id, player, material_ids));
+    fn fusion_summon(&mut self, card_id: u32, player: u8, material_ids: &[u32],
+                     extra_pool: Option<&ExtraMaterialPool>,
+                     must_include_self: bool,
+                     material_destination: Option<MaterialDestination>) -> bool {
+        self.record("fusion_summon", format!(
+            "card={} player={} materials={:?} extra_pool={:?} include_self={} destination={:?}",
+            card_id, player, material_ids, extra_pool, must_include_self, material_destination));
         self.state.players[player as usize].field_monsters.push(card_id);
         true
     }

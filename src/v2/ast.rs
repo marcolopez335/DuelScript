@@ -540,7 +540,21 @@ pub enum Action {
         level_op: Option<CompareOp>,
         level_expr: Option<Expr>,
     },
-    FusionSummon { target: Selector, materials: Option<Selector> },
+    /// T38 S5 — fusion proc clauses beyond the base `using` materials:
+    /// `extra_materials` is the `plus <selector>` extra material pool
+    /// (lua `extrafil`: a filter+location group merged into the default
+    /// hand/field pool); `include_self` is `including self` (lua
+    /// `gc = Fusion.ForcedHandler`: this card MUST be a material);
+    /// `material_destination` is `sending_materials_to <dest>` (lua
+    /// `extraop = Fusion.BanishMaterial / Fusion.ShuffleMaterial`);
+    /// `None` = default disposal (materials to GY).
+    FusionSummon {
+        target: Selector,
+        materials: Option<Selector>,
+        extra_materials: Option<Selector>,
+        include_self: bool,
+        material_destination: Option<MaterialDestination>,
+    },
     SynchroSummon { target: Selector, materials: Option<Selector> },
     XyzSummon { target: Selector, materials: Option<Selector> },
     NormalSummon(Selector),
@@ -596,6 +610,14 @@ pub enum Action {
     SwapControl(Selector, Selector),
     SwapStats(Selector),
 }
+
+/// T38 S5 — non-default fusion-material disposal destination
+/// (`sending_materials_to` clause). The default (absent clause) sends
+/// materials to the GY; the closed keyword set covers exactly the two
+/// library disposals: `banished` = `Fusion.BanishMaterial`,
+/// `deck` = `Fusion.ShuffleMaterial`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MaterialDestination { Banished, Deck }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ReturnDest { Hand, Deck(Option<DeckPosition>), ExtraDeck, Owner }

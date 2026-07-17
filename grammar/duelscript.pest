@@ -517,7 +517,17 @@ search_action         = { "search" ~ selector ~ ("from" ~ zone)? }
 add_to_hand_action    = { "add_to_hand" ~ selector ~ ("from" ~ zone)? }
 special_summon_action = { "special_summon" ~ selector ~ ("from" ~ zone)? ~ ("in" ~ battle_position)? }
 ritual_summon_action  = { "ritual_summon" ~ selector ~ ("using" ~ selector)? ~ ("where" ~ "total_level" ~ compare_op ~ expr)? }
-fusion_summon_action  = { "fusion_summon" ~ selector ~ ("using" ~ selector)? }
+fusion_summon_action  = { "fusion_summon" ~ selector ~ ("using" ~ selector)? ~ fusion_plus_clause? ~ fusion_forced_self? ~ fusion_disposal? }
+// T38 S5 — fusion proc knobs. `plus` widens the material pool beyond the
+// default hand/field pool (lua `extrafil`); `including self` forces this
+// card as one of the materials (lua `gc = Fusion.ForcedHandler`);
+// `sending_materials_to` overrides the default to-GY material disposal
+// (lua `extraop = Fusion.BanishMaterial / Fusion.ShuffleMaterial`).
+// `banished`/`deck` share no prefix — no ordered-choice hazard.
+fusion_plus_clause    = { "plus" ~ selector }
+fusion_forced_self    = { "including" ~ "self" }
+fusion_disposal       = { "sending_materials_to" ~ material_destination }
+material_destination  = { "banished" | "deck" }
 synchro_summon_action = { "synchro_summon" ~ selector ~ ("using" ~ selector)? }
 xyz_summon_action     = { "xyz_summon" ~ selector ~ ("using" ~ selector)? }
 normal_summon_action  = { "normal_summon" ~ selector }

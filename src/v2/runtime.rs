@@ -172,6 +172,73 @@ pub enum DamageRule {
     ReflectBattleDamage,
 }
 
+/// Runtime-surface description of an EXTRA fusion-material pool (T38 S5,
+/// the `plus <selector>` clause on `fusion_summon`).
+///
+/// Mirror of the fusion procedure's `extrafil` parameter
+/// (`Fusion.CreateSummonEff` / `Fusion.SummonEffTG` in the lua library):
+/// a closure `function(e,tp,mg) return
+/// Duel.GetMatchingGroup(<filter>,tp,<my>,<opp>,nil) end` whose group is
+/// merged into the default material pool (`Duel.GetFusionMaterial(tp)`,
+/// hand + field) before `CheckFusionMaterial` runs. This struct carries
+/// the same filter + location pair in engine-consumable form. Same
+/// runtime-surface mirror pattern as `TokenSpec` (T17) /
+/// `PlayerRestriction` (T36) / `DamageRule` (T37).
+///
+/// Fields:
+/// - `filter`: card-class filter (mirror of the selector's card_filter;
+///   `CardFilter::Monster` for the dominant
+///   `Fusion.IsMonsterFilter(...)` lua shape, archetype/name variants
+///   for `Card.IsSetCard` / code filters).
+/// - `my_location` / `opponent_location`: EDOPro `LOCATION_*` bitmasks
+///   naming the searched zones on each side, RELATIVE to the `player`
+///   argument of the same `fusion_summon` call — exactly the
+///   `Duel.GetMatchingGroup(filter, tp, my, opp)` argument pair (the
+///   `SetTargetRange` convention). The dominant corpus shape is
+///   `(LOCATION_GRAVE, 0)` — "you can also use monsters in your GY".
+///
+/// Not yet mirrored (register_redirect `filter_flags` precedent —
+/// documented summary now, extension later without breaking the seam):
+/// `where`-clause predicates on the `plus` selector (race / attribute /
+/// stat constraints). The S5 translator emit set is archetype /
+/// monster-class pools, which `CardFilter` already carries.
+///
+/// Distinct from `EFFECT_EXTRA_FUSION_MATERIAL` — that is a continuous
+/// effect a CARD carries to inject itself into other summons' pools;
+/// this struct is the summoning EFFECT's own pool widening. Engines
+/// must still apply their normal material-legality checks
+/// (`Card.IsCanBeFusionMaterial`, immunity) over the merged pool.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExtraMaterialPool {
+    pub filter: CardFilter,
+    pub my_location: u32,
+    pub opponent_location: u32,
+}
+
+/// Non-default fusion-material disposal destination (T38 S5, the
+/// `sending_materials_to <dest>` clause on `fusion_summon`).
+///
+/// Runtime-surface mirror of `ast::MaterialDestination`; same pattern as
+/// `Duration` (T21) / `PlayerRestriction` (T36) / `DamageRule` (T37).
+/// Maps 1:1 to the fusion procedure's `extraop` parameter — the closed
+/// set of library disposals:
+///
+/// | Variant | lua `extraop` | disposal |
+/// |---|---|---|
+/// | *(None at the call site)* | `nil` | default: materials go to the GY as part of the summon (`matfilter` defaults to `Card.IsAbleToGrave`) |
+/// | `Banished` | `Fusion.BanishMaterial` | `Duel.Remove(sg, POS_FACEUP, REASON_EFFECT\|REASON_MATERIAL\|REASON_FUSION)` |
+/// | `Deck` | `Fusion.ShuffleMaterial` | `Duel.SendtoDeck(sg, nil, 2, REASON_EFFECT\|REASON_MATERIAL\|REASON_FUSION)` |
+///
+/// Disposal happens BEFORE the summon completes (the ocgcore
+/// disposal-before-summon / BreakEffect seam); engines must also gate
+/// material legality on the destination (`IsAbleToRemove` /
+/// `IsAbleToDeck` instead of the default `IsAbleToGrave`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MaterialDestination {
+    Banished,
+    Deck,
+}
+
 // ── Runtime Abstraction ───────────────────────────────────────
 
 /// Trait that engines implement to expose game state and operations
@@ -1281,12 +1348,37 @@ pub trait DuelScriptRuntime {
 
     /// Perform a Fusion Summon of `card_id` using `material_ids`.
     ///
+    /// T38 S5 widened this signature with the three fusion proc knobs.
+    /// **ygobeetle mirror obligation**: `YgobeetleRuntimeAdapter` must be
+    /// updated to the widened signature (engine-dev story; the duelscript
+    /// side ships the seam only). Parameter ↔ lua mapping
+    /// (`Fusion.CreateSummonEff` / `SummonEffTG+OP` named args):
+    ///
+    /// | Param | DSL clause | lua param |
+    /// |---|---|---|
+    /// | `material_ids` | `using <selector>` | `matfilter` (resolved to ids by the compiler) |
+    /// | `extra_pool` | `plus <selector>` | `extrafil` (see [`ExtraMaterialPool`]) |
+    /// | `must_include_self` | `including self` | `gc = Fusion.ForcedHandler` |
+    /// | `material_destination` | `sending_materials_to <dest>` | `extraop` (see [`MaterialDestination`]) |
+    ///
+    /// # Args
+    /// - `extra_pool`: extra material pool merged into the default
+    ///   hand/field pool before material selection; `None` = default pool
+    ///   only.
+    /// - `must_include_self`: when `true`, the effect's own card must be
+    ///   one of the chosen materials (the summon is illegal without it).
+    /// - `material_destination`: non-default material disposal; `None` =
+    ///   materials to GY.
+    ///
     /// # Returns
     /// `true` if the summon succeeded.
     ///
     /// # Default
     /// Returns `true`.
-    fn fusion_summon(&mut self, _card_id: u32, _player: u8, _material_ids: &[u32]) -> bool { true }
+    fn fusion_summon(&mut self, _card_id: u32, _player: u8, _material_ids: &[u32],
+                     _extra_pool: Option<&ExtraMaterialPool>,
+                     _must_include_self: bool,
+                     _material_destination: Option<MaterialDestination>) -> bool { true }
 
     /// Perform a Synchro Summon of `card_id` using `material_ids`.
     ///

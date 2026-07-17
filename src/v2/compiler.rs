@@ -11,7 +11,7 @@
 use std::sync::Arc;
 use super::ast::*;
 use super::constants as tm;
-use super::runtime::{DamageRule as RuntimeDamageRule, DamageType, Duration as RuntimeDuration, DuelScriptRuntime, CardFilter as RuntimeCardFilter, PlayerRestriction as RuntimePlayerRestriction, Stat, TokenSpec};
+use super::runtime::{DamageRule as RuntimeDamageRule, DamageType, Duration as RuntimeDuration, DuelScriptRuntime, CardFilter as RuntimeCardFilter, ExtraMaterialPool, MaterialDestination as RuntimeMaterialDestination, PlayerRestriction as RuntimePlayerRestriction, Stat, TokenSpec};
 
 // ── Output Types ────────────────────────────────────────────
 
@@ -179,7 +179,9 @@ fn compile_summon(summon: &SummonBlock, card: &Card) -> Vec<CompiledEffectV2> {
             if has_fusion || has_link {
                 Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
                     let player = rt.effect_player();
-                    rt.fusion_summon(card_id_u32, player, &[]);
+                    // Declared-materials procedure: no proc knobs (T38 S5
+                    // clauses ride resolve-time `fusion_summon` actions only).
+                    rt.fusion_summon(card_id_u32, player, &[], None, false, None);
                 }))
             } else if has_synchro {
                 Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
@@ -1467,6 +1469,50 @@ fn zone_to_location(zone: &Zone) -> u32 {
     }
 }
 
+/// T38 S5 — map a `fusion_summon` `plus <selector>` clause to the
+/// runtime-surface [`ExtraMaterialPool`] spec (the lua `extrafil`
+/// filter + location pair).
+///
+/// Only structured (`Counted`) selectors map — the validator rejects
+/// shorthand/binding pools, so the `None` fallthrough here is a
+/// defensive drop, not a silent policy. The controller resolves to the
+/// `(my, opponent)` location-mask pair relative to the resolving player
+/// (the `Duel.GetMatchingGroup(f, tp, my, opp)` convention); an
+/// unspecified controller searches both sides, matching
+/// `resolve_v2_selector`'s convention. A selector without a zone list
+/// defaults to on-field, matching `resolve_v2_selector`. The selector's
+/// quantity and `where` clause are not carried (validator warns on
+/// non-`all` quantity; `where` mirroring is a documented seam
+/// extension — see [`ExtraMaterialPool`]).
+fn plus_selector_to_pool(sel: &Selector) -> Option<ExtraMaterialPool> {
+    match sel {
+        Selector::Counted { filter, controller, zone, .. } => {
+            let mask = match zone {
+                Some(ZoneFilter::In(zones)) | Some(ZoneFilter::From(zones)) => {
+                    zones.iter().map(zone_to_location).fold(0, |acc, loc| acc | loc)
+                }
+                Some(ZoneFilter::OnField(_)) | None => tm::LOCATION_ONFIELD,
+            };
+            let (my, opp) = match (controller, zone) {
+                (Some(Controller::You), _)      => (mask, 0),
+                (Some(Controller::Opponent), _) => (0, mask),
+                (Some(Controller::Either), _)   => (mask, mask),
+                // No controller: honor an `on <side> field` zone filter,
+                // otherwise search both sides.
+                (None, Some(ZoneFilter::OnField(FieldOwner::Your)))     => (mask, 0),
+                (None, Some(ZoneFilter::OnField(FieldOwner::Opponent))) => (0, mask),
+                (None, _)                                               => (mask, mask),
+            };
+            Some(ExtraMaterialPool {
+                filter: ast_filter_to_runtime(filter),
+                my_location: my,
+                opponent_location: opp,
+            })
+        }
+        _ => None,
+    }
+}
+
 fn player_who_to_idx(who: &PlayerWho, player: u8) -> u8 {
     match who {
         PlayerWho::You | PlayerWho::Controller => player,
@@ -2652,11 +2698,16 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 rt.ritual_summon(card_id, player, &mats);
             }
         }
-        Action::FusionSummon { target, materials } => {
+        Action::FusionSummon { target, materials, extra_materials, include_self, material_destination } => {
             let targets = resolve_v2_selector(target, rt, player);
             let mats = materials.as_ref().map(|m| resolve_v2_selector(m, rt, player)).unwrap_or_default();
+            let pool = extra_materials.as_ref().and_then(plus_selector_to_pool);
+            let dest = material_destination.map(|d| match d {
+                MaterialDestination::Banished => RuntimeMaterialDestination::Banished,
+                MaterialDestination::Deck     => RuntimeMaterialDestination::Deck,
+            });
             if let Some(&card_id) = targets.first() {
-                rt.fusion_summon(card_id, player, &mats);
+                rt.fusion_summon(card_id, player, &mats, pool.as_ref(), *include_self, dest);
             }
         }
         Action::SynchroSummon { target, materials } => {
@@ -4038,6 +4089,84 @@ card "Empty Replacement Card" {
         let log = rt.dump_calls();
         assert!(log.contains("fusion_summon"),
             "operation should call fusion_summon; got: {}", log);
+    }
+
+    /// T38 S5 — resolve-time fusion_summon with all three proc clauses:
+    /// the runtime call must carry the pool spec (filter + my/opp location
+    /// masks from the `plus` selector), the must-include-self flag, and
+    /// the disposal destination.
+    #[test]
+    fn test_fusion_summon_s5_clauses_reach_runtime() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let source = r#"
+            card "Fusion Clause Runtime Test" {
+                id: 55555555
+                type: Normal Spell
+                effect "Fuse" {
+                    speed: 1
+                    resolve {
+                        fusion_summon (1, fusion monster) plus (all, monster, you control, in gy) including self sending_materials_to deck
+                    }
+                }
+            }
+        "#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        assert_eq!(compiled.effects.len(), 1);
+
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 55555555;
+        rt.effect_player = 0;
+        let fusion_id: u32 = 44444444;
+        rt.state.add_card(CardSnapshot::monster(fusion_id, "Fusion Target", 2500, 2000, 8));
+        rt.state.players[0].field_monsters.push(fusion_id);
+        if let Some(ref op) = compiled.effects[0].operation {
+            op(&mut rt);
+        }
+        let log = rt.dump_calls();
+        assert!(log.contains("fusion_summon"), "expected fusion_summon; got: {}", log);
+        assert!(log.contains("card=44444444"), "wrong summon target; got: {}", log);
+        // Pool spec: monsters in YOUR GY → filter Monster, my=LOCATION_GRAVE(0x10), opp=0.
+        assert!(log.contains("filter: Monster"), "pool filter missing; got: {}", log);
+        assert!(log.contains(&format!("my_location: {}", tm::LOCATION_GRAVE)),
+            "pool my_location wrong; got: {}", log);
+        assert!(log.contains("opponent_location: 0"), "pool opp_location wrong; got: {}", log);
+        assert!(log.contains("include_self=true"), "include_self flag lost; got: {}", log);
+        assert!(log.contains("destination=Some(Deck)"), "disposal lost; got: {}", log);
+    }
+
+    /// T38 S5 — the bare form keeps the default knobs: no pool, no
+    /// forced self, default (GY) disposal.
+    #[test]
+    fn test_fusion_summon_bare_form_defaults() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let source = r#"
+            card "Fusion Bare Runtime Test" {
+                id: 55555556
+                type: Normal Spell
+                effect "Fuse" {
+                    speed: 1
+                    resolve {
+                        fusion_summon (1, fusion monster)
+                    }
+                }
+            }
+        "#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 55555556;
+        rt.effect_player = 0;
+        let fusion_id: u32 = 44444445;
+        rt.state.add_card(CardSnapshot::monster(fusion_id, "Fusion Target", 2500, 2000, 8));
+        rt.state.players[0].field_monsters.push(fusion_id);
+        if let Some(ref op) = compiled.effects[0].operation {
+            op(&mut rt);
+        }
+        let log = rt.dump_calls();
+        assert!(log.contains("extra_pool=None"), "expected no pool; got: {}", log);
+        assert!(log.contains("include_self=false"), "expected no forced self; got: {}", log);
+        assert!(log.contains("destination=None"), "expected default disposal; got: {}", log);
     }
 
     /// (b) Synchro monster with synchro_materials → operation calls synchro_summon.
