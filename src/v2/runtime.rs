@@ -199,9 +199,13 @@ pub enum DamageRule {
 ///
 /// Not yet mirrored (register_redirect `filter_flags` precedent —
 /// documented summary now, extension later without breaking the seam):
-/// `where`-clause predicates on the `plus` selector (race / attribute /
-/// stat constraints). The S5 translator emit set is archetype /
-/// monster-class pools, which `CardFilter` already carries.
+/// `where`-clause predicates and position filters on the `plus`
+/// selector (race / attribute / stat / face-up constraints). These ARE
+/// carried in the DSL text and AST — the .ds line remains the source of
+/// truth for the eventual mirror (the S5 translator emits the corpus's
+/// natural archetype spelling as a where-clause) — but this spec hands
+/// the engine filter + location only; the validator warns at the call
+/// site so the gap is visible.
 ///
 /// Distinct from `EFFECT_EXTRA_FUSION_MATERIAL` — that is a continuous
 /// effect a CARD carries to inject itself into other summons' pools;
@@ -1349,9 +1353,14 @@ pub trait DuelScriptRuntime {
     /// Perform a Fusion Summon of `card_id` using `material_ids`.
     ///
     /// T38 S5 widened this signature with the three fusion proc knobs.
-    /// **ygobeetle mirror obligation**: `YgobeetleRuntimeAdapter` must be
-    /// updated to the widened signature (engine-dev story; the duelscript
-    /// side ships the seam only). Parameter ↔ lua mapping
+    /// **ygobeetle mirror obligation (engine-dev story; the duelscript
+    /// side ships the seam only)**: `YgobeetleRuntimeAdapter` does NOT
+    /// currently override `fusion_summon`, so the next dep bump compiles
+    /// CLEAN and the new knobs are silent no-ops through this trait
+    /// default — the risk is behavioral silence, not a build break.
+    /// Schedule the mirror on semantics (pool widening / forced material /
+    /// disposal correctness); no compile error will ever surface it.
+    /// Parameter ↔ lua mapping
     /// (`Fusion.CreateSummonEff` / `SummonEffTG+OP` named args):
     ///
     /// | Param | DSL clause | lua param |
