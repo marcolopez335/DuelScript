@@ -466,24 +466,35 @@ fn check_target_references(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
 // (parenthesized) selectors are required. A count-limited pool
 // (`(1, …)` / `(2+, …)`) is legal but the quantity is not carried
 // through the runtime seam (count-limited pools are the lua `fcheck`
-// class, out of S5 scope) — warn so the mis-fit is visible.
+// class, out of S5 scope) — warn so the mis-fit is visible. Likewise
+// `where` predicates and position filters on the pool: DSL-carried (the
+// corpus's natural archetype spelling IS the where-clause form), but
+// `ExtraMaterialPool` mirrors only filter + location today — warn so the
+// author sees the engine-side gap instead of a silent drop.
 fn check_fusion_extra_pools(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
-    let mut check = |actions: &[Action], effect_name: &str| {
+    let mut check = |actions: &[Action], block_name: &str| {
         walk_actions(actions, &mut |a| {
             if let Action::FusionSummon { extra_materials: Some(pool), .. } = a {
                 match pool {
-                    Selector::Counted { quantity, .. } => {
+                    Selector::Counted { quantity, position, where_clause, .. } => {
                         if !matches!(quantity, Quantity::All) {
                             errors.push(warn(ctx.name(), &format!(
-                                "Effect '{}': fusion_summon `plus` pool quantity is not carried \
-                                 through the runtime seam — use `all`", effect_name
+                                "'{}': fusion_summon `plus` pool quantity is not carried \
+                                 through the runtime seam — use `all`", block_name
+                            )));
+                        }
+                        if where_clause.is_some() || position.is_some() {
+                            errors.push(warn(ctx.name(), &format!(
+                                "'{}': fusion_summon `plus` pool `where`/position filters \
+                                 are DSL-carried but not yet mirrored into the runtime \
+                                 pool spec — the engine sees filter + location only", block_name
                             )));
                         }
                     }
                     _ => errors.push(err(ctx.name(), &format!(
-                        "Effect '{}': fusion_summon `plus` pool must be a structured \
+                        "'{}': fusion_summon `plus` pool must be a structured \
                          (parenthesized) selector — shorthand selectors name a single \
-                         resolved card and cannot describe a material pool", effect_name
+                         resolved card and cannot describe a material pool", block_name
                     ))),
                 }
             }
@@ -496,6 +507,14 @@ fn check_fusion_extra_pools(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
                 check(&opt.resolve, &effect.name);
             }
         }
+    }
+    // Replacement blocks (`do { action+ }`) accept the full action grammar
+    // too — without this walk a shorthand pool inside a replacement would
+    // skip the structured-selector error and hit the compiler's defensive
+    // drop (the exact silent-drop path the error exists to prevent).
+    for repl in &ctx.card.replacements {
+        let name = repl.name.as_deref().unwrap_or("replacement");
+        check(&repl.actions, name);
     }
 }
 
@@ -933,6 +952,67 @@ card "Fusion Plus Quantity Test" {
         let report = validate_v2(&file);
         assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
         assert_eq!(report.warning_count(), 1, "warnings: {:?}", report.errors);
+    }
+
+    #[test]
+    fn test_fusion_plus_pool_warns_on_where_clause() {
+        // T38 S5 review minor 1: `where` predicates on the plus pool are
+        // DSL-carried (the corpus's natural archetype spelling) but not
+        // yet mirrored into ExtraMaterialPool — the validator must
+        // surface the engine-side gap, same shape as the quantity warn.
+        let source = r#"
+card "Fusion Plus Where Test" {
+    id: 1
+    type: Normal Spell
+
+    effect "Fuse" {
+        speed: 1
+        resolve {
+            fusion_summon (1, fusion monster) plus (all, monster, you control, in gy, where archetype == "Shaddoll")
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
+        assert_eq!(report.warning_count(), 1, "warnings: {:?}", report.errors);
+        assert!(report.errors[0].message.contains("not yet mirrored"),
+            "unexpected message: {}", report.errors[0].message);
+    }
+
+    #[test]
+    fn test_fusion_plus_pool_shorthand_in_replacement_errors() {
+        // T38 S5 review minor 2: replacement blocks accept the full
+        // action grammar — a shorthand pool inside `do { … }` must hit
+        // the structured-selector error, not the compiler's silent drop.
+        let source = r#"
+card "Fusion Plus Replacement Test" {
+    id: 1
+    type: Normal Spell
+
+    effect "Place" {
+        speed: 1
+        resolve {
+            draw 1
+        }
+    }
+
+    replacement "Fuse Instead" {
+        instead_of: destroyed
+        do {
+            fusion_summon (1, fusion monster) plus searched
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        assert_eq!(report.error_count(), 1, "errors: {:?}", report.errors);
+        let msg = &report.errors.iter().find(|e| matches!(e.severity, Severity::Error))
+            .expect("expected an error").message;
+        assert!(msg.contains("structured"), "unexpected message: {}", msg);
+        assert!(msg.contains("Fuse Instead"), "replacement name missing from: {}", msg);
     }
 
     #[test]
