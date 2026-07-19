@@ -347,6 +347,7 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             // Parameterized forms whose params don't decode return None
             // and fall through to the no-handler skip below.
             let helper_line = eff.summon_helper_line();
+            let is_helper_fill = helper_line.is_some();
             let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
                 vec![lua_ast::DslLine::Action(text)]
             } else if eff.is_summon_helper() {
@@ -397,6 +398,11 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             // 10 — c9798352's `banish self` header contradicts the
             // lua's banish-a-Trap-from-Deck cost).
             if !cost_header_matches(&new_txt[block_lo..block_hi], eff, &walk.functions) {
+                r.effects_incomplete += 1;
+                continue;
+            }
+            // T38 S5 review — frame parity for summon-helper fills.
+            if is_helper_fill && !helper_frame_matches(&new_txt[block_lo..block_hi], eff) {
                 r.effects_incomplete += 1;
                 continue;
             }
@@ -453,6 +459,7 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
                 continue; // see Pass A — no unambiguous block for this effect
             };
             let helper_line = eff.summon_helper_line();
+            let is_helper_fill = helper_line.is_some();
             let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
                 vec![lua_ast::DslLine::Action(text)]
             } else if eff.is_summon_helper() {
@@ -486,6 +493,8 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             // T38 S6 review — cost-header parity, same rationale as
             // Pass A.
             if !cost_header_matches(block, eff, &walk.functions) { continue; }
+            // T38 S5 review — frame parity for summon-helper fills.
+            if is_helper_fill && !helper_frame_matches(block, eff) { continue; }
             // T38 S6 — bare-target gate + decl co-emission, same
             // rationale as Pass A.
             let mut co_target: Option<String> = None;
@@ -970,6 +979,34 @@ fn render_choose_block(spec: &lua_ast::ChooseSpec, card_id: u32) -> Option<Strin
 /// incomplete-header class is corpus-wide pre-existing (conservative
 /// cost extraction) and gating it would diverge from every earlier
 /// phase's fills.
+/// T38 S5 review — frame parity for summon-helper fills (c29280589,
+/// c58657303). The Variant-B frame exemption assumes the .ds block
+/// header models the chain's frame; for SetCondition (an activation
+/// window: opponent's-Main-Phase-only, Necrovalley-only) and SetCost,
+/// the pre-Phase-10 bare headers (speed / once_per_turn only) model
+/// NOTHING — filling the resolve would make the header live and
+/// silently drop the window. Require a modeling surface to exist at
+/// all; exact cost parity stays with [`cost_header_matches`], whose
+/// no-block-cost arm passes and so never catches this hole for
+/// helper fills.
+fn helper_frame_matches(block: &str, eff: &lua_ast::EffectSkeleton) -> bool {
+    // set_calls double-checks the handler fields — inline closures
+    // (`SetCondition(function() return Duel.IsMainPhase() end)`,
+    // c92003832 / c95515789) must gate exactly like named handlers.
+    let has = |method: &str| eff.set_calls.iter().any(|(m, _)| m == method);
+    if (eff.condition_handler.is_some() || has("SetCondition"))
+        && !(block.contains("trigger:")
+            || block.contains("timing:")
+            || block.contains("condition"))
+    {
+        return false;
+    }
+    if (eff.cost_handler.is_some() || has("SetCost")) && !block.contains("cost {") {
+        return false;
+    }
+    true
+}
+
 fn cost_header_matches(
     block: &str,
     eff: &lua_ast::EffectSkeleton,
@@ -983,6 +1020,8 @@ fn cost_header_matches(
     // surface is unchanged.
     //   - Cost.SelfBanish  → banish self (Duel.Remove(c, …, REASON_COST))
     //   - Cost.SelfTribute → tribute self (Duel.Release(c, REASON_COST))
+    //   - Cost.SelfToGrave → send self to gy (Duel.SendtoGrave(c,
+    //     REASON_COST)) — T38 S5, c11493868's Variant-B fusion frame.
     //   - Cost.DetachFromSelf(n), single literal arg → detach n from
     //     self; min/max or function-valued forms stay unverifiable.
     match handler {
@@ -991,6 +1030,9 @@ fn cost_header_matches(
         }
         "Cost.SelfTribute" => {
             return normalize_ws(&block_cost) == "cost { tribute self }";
+        }
+        "Cost.SelfToGrave" => {
+            return normalize_ws(&block_cost) == "cost { send self to gy }";
         }
         _ => {}
     }

@@ -458,6 +458,14 @@ pub struct SummonHelperOp {
     /// expression-keyed or mixed fields, or the ident never resolved.
     /// Emit must skip (skip-not-mis-emit).
     pub unresolved: bool,
+    /// T38 S5 — the `extrafil` param decoded into a rendered `plus`
+    /// pool selector. The pool body lives in a named function
+    /// (`s.fextra`), so decoding needs `walk.functions`, which the
+    /// emit path never sees — [`resolve_fusion_pools`] fills this at
+    /// walk time instead. None while an `extrafil` param is present
+    /// means the pool didn't decode, and the emit arm skips the whole
+    /// line (skip-not-mis-emit).
+    pub plus_pool: Option<String>,
 }
 
 /// Positional parameter names of `Fusion.SummonEffOP` (from
@@ -608,9 +616,27 @@ impl EffectSkeleton {
             if self.set_calls.iter().any(|(m, _)| !allowed.contains(&m.as_str())) {
                 return None;
             }
+        } else if op.kind == SummonHelperKind::FusionSummonEffOp {
+            // T38 S5 review (c1498449) — Variant-B TG/OP pairing gate:
+            // the target side of a hand-built chain can carry its OWN
+            // SummonEffTG params, or wrap the TG call in a custom
+            // closure (c1498449's s.fustg smuggles an fcheck extrafil
+            // through the target side only). The OP-side decode never
+            // sees those, so emitting from it alone would drop them.
+            // Canonical corpus chains pass the SAME argument text to
+            // both factories — require exactly that (or no SetTarget).
+            if let Some(t) = self.target_handler.as_deref() {
+                let t_args = t.trim().strip_prefix("Fusion.SummonEffTG");
+                let o_args = self.operation_handler.as_deref()
+                    .and_then(|o| o.trim().strip_prefix("Fusion.SummonEffOP"));
+                match (t_args, o_args) {
+                    (Some(ta), Some(oa)) if ta.trim() == oa.trim() => {}
+                    _ => return None,
+                }
+            }
         }
         match op.kind {
-            SummonHelperKind::FusionSummonEffOp => fusion_helper_line(&op.params),
+            SummonHelperKind::FusionSummonEffOp => fusion_helper_line(op),
             SummonHelperKind::RitualOperation => ritual_helper_line(&op.params),
         }
     }
@@ -638,20 +664,55 @@ impl EffectSkeleton {
     }
 }
 
-/// Emit `fusion_summon ...` from decoded `Fusion.SummonEffOP` params.
+/// Emit `fusion_summon ...` from a decoded `Fusion.SummonEffOP` /
+/// `CreateSummonEff` param set.
 ///
 /// EMIT: `fusfilter` mapping to a where-clause (archetype / race /
-/// attribute / level), `matfilter` mapping to a material selector. Any
-/// other param (extrafil, extraop, gc, stage2, extratg, location, …) has
-/// no DSL equivalent — the whole line skips because dropping the param
-/// would change semantics (e.g. gc forces a specific material).
-fn fusion_helper_line(params: &[(String, String)]) -> Option<String> {
+/// attribute / level), `matfilter` mapping to a material selector, and
+/// (T38 S5, the knobs the grammar PR #148 opened) a clean `extrafil` →
+/// `plus <pool>` (resolved into `op.plus_pool` at walk time — see
+/// [`resolve_fusion_pools`]), library `extraop` → `sending_materials_to
+/// banished|deck`, and `gc = Fusion.ForcedHandler` → `including self`.
+/// Any other param (stage2, extratg, chkf, value, location, …) has no
+/// DSL equivalent — the whole line skips because dropping the param
+/// would change semantics.
+fn fusion_helper_line(op: &SummonHelperOp) -> Option<String> {
+    // extraop resolves first — the matfilter arm needs it to decide
+    // whether a legality predicate is the destination gate's spelling.
+    let extraop = op.params.iter()
+        .find(|(k, _)| k == "extraop")
+        .map(|(_, v)| v.trim());
+    let dest: Option<&'static str> = match extraop {
+        None => None,
+        Some("Fusion.BanishMaterial")  => Some("banished"),
+        Some("Fusion.ShuffleMaterial") => Some("deck"),
+        Some(_) => return None,
+    };
     let mut where_clause: Option<String> = None;
     let mut using: Option<&'static str> = None;
-    for (k, v) in params {
+    let mut pool: Option<&str> = None;
+    let mut include_self = false;
+    for (k, v) in &op.params {
         match k.as_str() {
             "fusfilter" => where_clause = Some(summon_filter_to_where(v)?),
-            "matfilter" => using = Some(fusion_matfilter_to_using(v)?),
+            // The default material pool's matfilter defaults to
+            // Card.IsAbleToGrave (SummonEffTG); disposal-variant cards
+            // swap in the predicate their destination demands. A bare
+            // legality predicate MATCHING the extraop is the
+            // destination gate's lua spelling — absorbed, since the
+            // runtime contract gates material legality on the
+            // destination. Mismatches stay real constraints and skip.
+            "matfilter" => match v.trim() {
+                "Fusion.OnFieldMat" => using = Some(fusion_matfilter_to_using(v)?),
+                p if destination_legality_absorbed(p, extraop) => {}
+                _ => return None,
+            },
+            "extrafil"  => pool = Some(op.plus_pool.as_deref()?),
+            "extraop"   => {} // resolved above
+            "gc" => {
+                if v.trim() != "Fusion.ForcedHandler" { return None; }
+                include_self = true;
+            }
             _ => return None,
         }
     }
@@ -659,10 +720,14 @@ fn fusion_helper_line(params: &[(String, String)]) -> Option<String> {
         Some(w) => format!("(1, fusion monster, where {w})"),
         None => "(1, fusion monster)".to_string(),
     };
-    Some(match using {
-        Some(u) => format!("fusion_summon {sel} using {u}"),
-        None => format!("fusion_summon {sel}"),
-    })
+    // Clause order is fixed by the grammar: using < plus <
+    // including self < sending_materials_to.
+    let mut line = format!("fusion_summon {sel}");
+    if let Some(u) = using { line.push_str(&format!(" using {u}")); }
+    if let Some(p) = pool { line.push_str(&format!(" plus {p}")); }
+    if include_self { line.push_str(" including self"); }
+    if let Some(d) = dest { line.push_str(&format!(" sending_materials_to {d}")); }
+    Some(line)
 }
 
 /// Emit `ritual_summon ...` from decoded `Ritual.Operation` params.
@@ -1143,6 +1208,11 @@ fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
         "SET_AZAMINA"      => "Azamina",
         // T38 S4 — archetypes referenced by ritual-proc summon filters.
         "SET_BLACK_LUSTER_SOLDIER" => "Black Luster Soldier",
+        // T38 S5 — fusion-proc summon filters (c44771289, c25800447,
+        // c34325937).
+        "SET_BURNING_ABYSS" => "Burning Abyss",
+        "SET_CUBIC"        => "Cubic",
+        "SET_SALAMANGREAT" => "Salamangreat",
         "SET_CYBER_ANGEL"  => "Cyber Angel",
         // T38 S1 — archetypes referenced by stat-chip group filters.
         "SET_CHRONOMALY"   => "Chronomaly",
@@ -1546,7 +1616,138 @@ pub fn analyze(src: &str) -> String {
 pub fn walk(parsed: &full_moon::ast::Ast) -> LuaReport {
     let mut report = LuaReport::default();
     walk_block(parsed.nodes(), &mut report);
+    resolve_fusion_pools(&mut report);
     report
+}
+
+/// T38 S5 — walk-finalize pass: decode each fusion helper's `extrafil`
+/// param into a rendered `plus` pool selector. The pool body lives in a
+/// named function (`s.fextra`), so decoding needs `walk.functions`;
+/// the emit path (`summon_helper_line`) never sees the report, so
+/// resolution happens here and the emit arm just consumes
+/// [`SummonHelperOp::plus_pool`].
+fn resolve_fusion_pools(report: &mut LuaReport) {
+    let LuaReport { effects, functions, .. } = report;
+    for eff in effects.iter_mut() {
+        let Some(op) = eff.summon_helper_op.as_mut() else { continue };
+        if op.kind != SummonHelperKind::FusionSummonEffOp { continue; }
+        let Some(extrafil) = op.params.iter()
+            .find(|(k, _)| k == "extrafil")
+            .map(|(_, v)| v.clone())
+        else { continue };
+        let extraop = op.params.iter()
+            .find(|(k, _)| k == "extraop")
+            .map(|(_, v)| v.clone());
+        op.plus_pool = fusion_plus_pool(&extrafil, extraop.as_deref(), functions);
+    }
+}
+
+/// Decode a fusion `extrafil` param into a rendered `plus` pool
+/// selector (T38 S5). Whitelist — anything else returns None and the
+/// emit arm skips the whole line:
+/// - the param names a walked function (`s.fextra`) whose whole body is
+///   ONE unconditional `return Duel.GetMatchingGroup(F, tp, my, opp,
+///   nil)`. `FunctionBody::return_expr` is None for multi-statement,
+///   guarded, and multi-value-return bodies, so every conditional pool
+///   and the fcheck second return value (`return g, s.fcheck`) fall out
+///   here by construction.
+/// - `F` maps through [`fusion_pool_filter`].
+/// - the scope player is literally `tp` and the exception arg `nil` —
+///   the same `(my, opp)` convention the v2 compiler's
+///   `plus_selector_to_pool` maps back to location masks.
+/// - one side's mask only, or both sides with the SAME mask; a single
+///   known zone token per side. `LOCATION_ONFIELD` renders zoneless
+///   (the pool selector's compiler default).
+fn fusion_plus_pool(
+    extrafil: &str,
+    extraop: Option<&str>,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<String> {
+    let body = functions.get(extrafil.trim())?;
+    let ret = body.return_expr.as_deref()?.trim();
+    let args_str = ret
+        .strip_prefix("Duel.GetMatchingGroup(")?
+        .strip_suffix(')')?;
+    let args = split_top_level_commas(args_str)?;
+    if args.len() != 5 { return None; }
+    if args[1].trim() != "tp" || args[4].trim() != "nil" { return None; }
+    let (kind, face_up) = fusion_pool_filter(&args[0], extraop)?;
+    let (my, opp) = (args[2].trim(), args[3].trim());
+    if my == "0" && opp == "0" { return None; }
+    if my != "0" && opp != "0" && my != opp { return None; }
+    let controller = controller_from_scope("tp", my, opp)?;
+    let mask = if my != "0" { my } else { opp };
+    let zone = match mask {
+        "LOCATION_ONFIELD" => None,
+        _ => Some(pool_zone_clause(mask)?),
+    };
+    let mut parts = vec!["all".to_string(), kind.to_string(), controller];
+    if let Some(z) = zone { parts.push(z); }
+    if face_up { parts.push("face_up".to_string()); }
+    Some(format!("({})", parts.join(", ")))
+}
+
+/// Map the pool filter `F` of a clean extrafil to a `(card_filter
+/// kind, face_up)` pair. Destination-legality predicates
+/// (IsAbleToGrave / IsAbleToDeck / IsAbleToRemove) are absorbed ONLY
+/// when the extraop routes materials to that exact destination — the
+/// runtime contract already gates material legality on the
+/// destination, so the predicate is the lua spelling of the same rule.
+/// A mismatched legality predicate poisons the pool.
+fn fusion_pool_filter(filter: &str, extraop: Option<&str>) -> Option<(&'static str, bool)> {
+    let filter = filter.trim();
+    match filter {
+        "nil" | "aux.TRUE" => Some(("card", false)),
+        "Card.IsFaceup"    => Some(("card", true)),
+        "Card.IsMonster"   => Some(("monster", false)),
+        _ => {
+            let inner = filter
+                .strip_prefix("Fusion.IsMonsterFilter(")?
+                .strip_suffix(')')?;
+            let mut face_up = false;
+            for pred in split_top_level_commas(inner)? {
+                match pred.trim() {
+                    "Card.IsFaceup" => face_up = true,
+                    p if destination_legality_absorbed(p, extraop) => {}
+                    _ => return None,
+                }
+            }
+            Some(("monster", face_up))
+        }
+    }
+}
+
+/// True when a material-legality predicate is the lua spelling of the
+/// disposal destination's own legality gate — the runtime contract
+/// (STORIES T38 S5 seam) makes engines gate material legality on the
+/// destination, so the predicate adds nothing the DSL line doesn't
+/// already say. Applies to both the `plus` pool filter and the default
+/// pool's `matfilter`. A predicate whose destination does NOT match the
+/// extraop stays a real constraint (caller skips).
+fn destination_legality_absorbed(pred: &str, extraop: Option<&str>) -> bool {
+    matches!(
+        (pred, extraop.map(str::trim)),
+        ("Card.IsAbleToGrave", None)
+            | ("Card.IsAbleToDeck", Some("Fusion.ShuffleMaterial"))
+            | ("Card.IsAbleToRemove", Some("Fusion.BanishMaterial"))
+    )
+}
+
+/// Single-token pool zone clause. Compound masks return None — the
+/// zone_list grammar could express some, but no clean corpus pool
+/// needs it yet (skip-not-mis-emit).
+fn pool_zone_clause(loc: &str) -> Option<String> {
+    let zone = match loc {
+        "LOCATION_HAND"    => "hand",
+        "LOCATION_DECK"    => "deck",
+        "LOCATION_GRAVE"   => "gy",
+        "LOCATION_REMOVED" => "banished",
+        "LOCATION_EXTRA"   => "extra_deck",
+        "LOCATION_MZONE"   => "monster_zone",
+        "LOCATION_SZONE"   => "spell_trap_zone",
+        _ => return None,
+    };
+    Some(format!("in {zone}"))
 }
 
 fn walk_block(block: &Block, report: &mut LuaReport) {
@@ -2032,6 +2233,7 @@ fn ritual_helper_op_from_call(fc: &FunctionCall) -> SummonHelperOp {
         kind: SummonHelperKind::RitualOperation,
         params: Vec::new(),
         unresolved: true,
+        plus_pool: None,
     };
     let head = call_head_string(fc);
     let lvtype = if head.contains("Greater") { "RITPROC_GREATER" } else { "RITPROC_EQUAL" };
@@ -2077,6 +2279,7 @@ fn ritual_helper_op_from_call(fc: &FunctionCall) -> SummonHelperOp {
                 kind: SummonHelperKind::RitualOperation,
                 params,
                 unresolved: false,
+                plus_pool: None,
             }
         }
         _ => unresolved, // AddWholeLevelTribute and anything unexpected
@@ -2153,7 +2356,7 @@ fn plain_helper_op_from_expr(
 ) -> SummonHelperOp {
     match expr {
         Expression::FunctionCall(fc) => plain_helper_op_from_call(fc, kind, names),
-        _ => SummonHelperOp { kind, params: Vec::new(), unresolved: true },
+        _ => SummonHelperOp { kind, params: Vec::new(), unresolved: true, plus_pool: None },
     }
 }
 
@@ -2169,7 +2372,7 @@ fn plain_helper_op_from_call(
     kind: SummonHelperKind,
     names: &[&str],
 ) -> SummonHelperOp {
-    let unresolved = SummonHelperOp { kind, params: Vec::new(), unresolved: true };
+    let unresolved = SummonHelperOp { kind, params: Vec::new(), unresolved: true, plus_pool: None };
     let params = match fc.suffixes().last() {
         Some(Suffix::Call(Call::AnonymousCall(ast::FunctionArgs::Parentheses { arguments, .. }))) => {
             // Named-args table passed with explicit parens:
@@ -2205,7 +2408,7 @@ fn plain_helper_op_from_call(
     };
     let params: Vec<(String, String)> =
         params.into_iter().filter(|(k, _)| k != "desc").collect();
-    SummonHelperOp { kind, params, unresolved: false }
+    SummonHelperOp { kind, params, unresolved: false, plus_pool: None }
 }
 
 /// Base identifier of an assignment target — `params` for `params = x`,
@@ -2258,7 +2461,7 @@ fn summon_helper_from_expr(
         _ => return None,
     };
     let unresolved = |used: Option<String>| Some((
-        SummonHelperOp { kind, params: Vec::new(), unresolved: true },
+        SummonHelperOp { kind, params: Vec::new(), unresolved: true, plus_pool: None },
         used,
     ));
     let arg_exprs: Vec<&Expression> = match fc.suffixes().last() {
@@ -2268,7 +2471,7 @@ fn summon_helper_from_expr(
         // `Fusion.SummonEffOP{...}` table-call sugar.
         Some(Suffix::Call(Call::AnonymousCall(ast::FunctionArgs::TableConstructor(tc)))) => {
             return match named_table_params(tc) {
-                Some(params) => Some((SummonHelperOp { kind, params, unresolved: false }, None)),
+                Some(params) => Some((SummonHelperOp { kind, params, unresolved: false, plus_pool: None }, None)),
                 None => unresolved(None),
             };
         }
@@ -2289,7 +2492,7 @@ fn summon_helper_from_expr(
                 Some(Expression::TableConstructor(tc)) => {
                     match positional_table_params(tc, names) {
                         Some(params) => Some((
-                            SummonHelperOp { kind, params, unresolved: false },
+                            SummonHelperOp { kind, params, unresolved: false, plus_pool: None },
                             Some(var),
                         )),
                         None => unresolved(Some(var)),
@@ -2301,7 +2504,7 @@ fn summon_helper_from_expr(
         // Inline named-args table.
         if let Expression::TableConstructor(tc) = arg_exprs[0] {
             return match named_table_params(tc) {
-                Some(params) => Some((SummonHelperOp { kind, params, unresolved: false }, None)),
+                Some(params) => Some((SummonHelperOp { kind, params, unresolved: false, plus_pool: None }, None)),
                 None => unresolved(None),
             };
         }
@@ -2311,14 +2514,14 @@ fn summon_helper_from_expr(
             return match local_exprs.get(&raw) {
                 Some(Expression::TableConstructor(tc)) => match named_table_params(tc) {
                     Some(params) => Some((
-                        SummonHelperOp { kind, params, unresolved: false },
+                        SummonHelperOp { kind, params, unresolved: false, plus_pool: None },
                         Some(raw),
                     )),
                     None => unresolved(Some(raw)),
                 },
                 Some(other) => {
                     let params = positional_params(&[other.to_string().trim().to_string()], names);
-                    Some((SummonHelperOp { kind, params, unresolved: false }, Some(raw)))
+                    Some((SummonHelperOp { kind, params, unresolved: false, plus_pool: None }, Some(raw)))
                 }
                 None => unresolved(Some(raw)),
             };
@@ -2328,7 +2531,7 @@ fn summon_helper_from_expr(
     // General positional form.
     let raws: Vec<String> = arg_exprs.iter().map(|e| e.to_string().trim().to_string()).collect();
     let params = positional_params(&raws, names);
-    Some((SummonHelperOp { kind, params, unresolved: false }, None))
+    Some((SummonHelperOp { kind, params, unresolved: false, plus_pool: None }, None))
 }
 
 /// Zip raw positional args with helper param names, dropping `nil`s.
@@ -12299,9 +12502,11 @@ end
     }
 
     #[test]
-    fn p12_skip_gc_param() {
-        // D/D Swirl Slime shape: gc (5th positional) forces a specific
-        // material — no DSL equivalent, whole line skips.
+    fn p12_gc_forced_handler_emits_including_self() {
+        // D/D Swirl Slime shape: gc (5th positional) forces the handler
+        // itself as material. Skipped in Phase 12; T38 S5's grammar
+        // (`including self`) expresses it exactly. A gc outside
+        // Fusion.ForcedHandler stays inexpressible and skips.
         let src = r#"
 function s.initial_effect(c)
     local params={aux.FilterBoolFunction(Card.IsSetCard,SET_DDD),nil,nil,nil,Fusion.ForcedHandler}
@@ -12310,13 +12515,21 @@ function s.initial_effect(c)
     c:RegisterEffect(e1)
 end
 "#;
-        assert_eq!(p12_line(src, 0), None);
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some(r#"fusion_summon (1, fusion monster, where archetype == "D/D/D") including self"#),
+        );
+
+        let custom = src.replace("Fusion.ForcedHandler", "s.gcheck");
+        assert_eq!(p12_line(&custom, 0), None);
     }
 
     #[test]
-    fn p12_skip_extraop_param() {
-        // Banish-the-materials variant: extraop changes material
-        // disposal — plain emit would be semantically wrong.
+    fn p12_extraop_banish_absorbs_matfilter() {
+        // Banish-the-materials variant. Skipped in Phase 12; T38 S5
+        // emits the disposal clause, and the matfilter's
+        // Card.IsAbleToRemove is the destination gate's own lua
+        // spelling — absorbed, not a `using` constraint.
         let src = r#"
 function s.initial_effect(c)
     local e1=Effect.CreateEffect(c)
@@ -12324,7 +12537,15 @@ function s.initial_effect(c)
     c:RegisterEffect(e1)
 end
 "#;
-        assert_eq!(p12_line(src, 0), None);
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some("fusion_summon (1, fusion monster) sending_materials_to banished"),
+        );
+
+        // The same predicate under the DEFAULT (GY) disposal is a real
+        // constraint the DSL can't express — skip.
+        let mismatched = src.replace(",Fusion.BanishMaterial", "");
+        assert_eq!(p12_line(&mismatched, 0), None);
     }
 
     #[test]
@@ -12826,8 +13047,10 @@ end
 
     #[test]
     fn plain_helper_fusion_undecodable_extrafil_skips() {
-        // extrafil widens the material pool — no DSL equivalent, so the
-        // old bare-line emit would over-permit. Must skip.
+        // extrafil widens the material pool. T38 S5 emits a `plus`
+        // clause for CLEAN pools; here the named fn has no body in
+        // scope, so the pool can't decode and the line must skip — a
+        // bare line would over-permit.
         let src = r#"
 function s.initial_effect(c)
     local e1=Fusion.CreateSummonEff(c,aux.FilterBoolFunction(Card.IsRace,RACE_DRAGON),nil,s.fextra)
@@ -12835,6 +13058,198 @@ function s.initial_effect(c)
 end
 "#;
         assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn fusion_s5_clean_pool_emits_plus_clause() {
+        // c25800447 Fusion of Fire shape: unconditional extrafil over
+        // the opponent's field. (0, LOCATION_ONFIELD) → "opponent
+        // controls" with the zoneless on-field default the compiler
+        // maps straight back to the same mask pair.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff(c,aux.FilterBoolFunction(Card.IsSetCard,SET_SHADDOLL),nil,s.fextra)
+    c:RegisterEffect(e1)
+end
+function s.fextra(e,tp,mg)
+    return Duel.GetMatchingGroup(Fusion.IsMonsterFilter(Card.IsFaceup),tp,0,LOCATION_ONFIELD,nil)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some(r#"fusion_summon (1, fusion monster, where archetype == "Shaddoll") plus (all, monster, opponent controls, face_up)"#),
+        );
+    }
+
+    #[test]
+    fn fusion_s5_pool_legality_absorbed_by_matching_extraop() {
+        // Banished-zone pool whose IsAbleToDeck predicate is the lua
+        // spelling of the ShuffleMaterial destination gate — absorbed,
+        // not emitted. Clause order: plus < sending_materials_to.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff(c,aux.FilterBoolFunction(Card.IsSetCard,SET_SHADDOLL),nil,s.fextra,Fusion.ShuffleMaterial)
+    c:RegisterEffect(e1)
+end
+function s.fextra(e,tp,mg)
+    return Duel.GetMatchingGroup(Fusion.IsMonsterFilter(Card.IsFaceup,Card.IsAbleToDeck),tp,LOCATION_REMOVED,0,nil)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some(r#"fusion_summon (1, fusion monster, where archetype == "Shaddoll") plus (all, monster, you control, in banished, face_up) sending_materials_to deck"#),
+        );
+    }
+
+    #[test]
+    fn fusion_s5_pool_legality_mismatch_skips() {
+        // IsAbleToDeck under a BANISH disposal is a real extra
+        // constraint, not the destination gate — poisons the pool.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff(c,nil,nil,s.fextra,Fusion.BanishMaterial)
+    c:RegisterEffect(e1)
+end
+function s.fextra(e,tp,mg)
+    return Duel.GetMatchingGroup(Fusion.IsMonsterFilter(Card.IsAbleToDeck),tp,LOCATION_GRAVE,0,nil)
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn fusion_s5_fcheck_second_return_skips() {
+        // `return g, s.fcheck` — the second return value is a material
+        // check the DSL can't express. return_expr is None for
+        // multi-value returns, so the pool (and line) skip.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff(c,nil,nil,s.fextra)
+    c:RegisterEffect(e1)
+end
+function s.fextra(e,tp,mg)
+    return Duel.GetMatchingGroup(Fusion.IsMonsterFilter(Card.IsFaceup),tp,0,LOCATION_MZONE,nil),s.fcheck
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn fusion_s5_conditional_extrafil_skips() {
+        // c48144509-class: the pool only exists under a field-state
+        // guard. return_expr is None for guarded bodies — skip.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff(c,nil,nil,s.fextra)
+    c:RegisterEffect(e1)
+end
+function s.fextra(e,tp,mg)
+    if Duel.GetFieldGroupCount(tp,LOCATION_MZONE,0)==0 then
+        return Duel.GetMatchingGroup(nil,tp,LOCATION_EXTRA,0,nil)
+    end
+    return nil
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn fusion_s5_forced_handler_emits_including_self() {
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff{handler=c,gc=Fusion.ForcedHandler}
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some("fusion_summon (1, fusion monster) including self"),
+        );
+    }
+
+    #[test]
+    fn fusion_s5_custom_extraop_skips() {
+        // extraop outside the two library disposers runs arbitrary lua
+        // on the used materials — inexpressible.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff{handler=c,extrafil=s.fextra,extraop=s.extraop}
+    c:RegisterEffect(e1)
+end
+function s.fextra(e,tp,mg)
+    return Duel.GetMatchingGroup(Card.IsMonster,tp,LOCATION_GRAVE,0,nil)
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+    }
+
+    #[test]
+    fn fusion_s5_custom_target_wrapper_poisons_variant_b() {
+        // c1498449 King Dragun shape: the OP side decodes knob-free,
+        // but SetTarget is a custom wrapper that smuggles an fcheck
+        // extrafil through the TG side only. The TG/OP pairing gate
+        // must poison the line; the symmetric pair keeps emitting.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_IGNITION)
+    e1:SetTarget(s.fustg)
+    e1:SetOperation(Fusion.SummonEffOP({fusfilter=aux.FilterBoolFunction(Card.IsSetCard,SET_SHADDOLL)}))
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(p12_line(src, 0), None);
+
+        let symmetric = src.replace(
+            "e1:SetTarget(s.fustg)",
+            "e1:SetTarget(Fusion.SummonEffTG({fusfilter=aux.FilterBoolFunction(Card.IsSetCard,SET_SHADDOLL)}))",
+        );
+        assert_eq!(
+            p12_line(&symmetric, 0).as_deref(),
+            Some(r#"fusion_summon (1, fusion monster, where archetype == "Shaddoll")"#),
+        );
+    }
+
+    #[test]
+    fn fusion_s5_shared_filter_local_both_sides_emits() {
+        // c7382007 Gouki Face Turn shape: one filter local passed to
+        // both SummonEffTG and SummonEffOP on a hand-built ignition
+        // chain.
+        let src = r#"
+function s.initial_effect(c)
+    local f=aux.FilterBoolFunction(Card.IsSetCard,SET_GOUKI)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_IGNITION)
+    e2:SetRange(LOCATION_MZONE)
+    e2:SetCountLimit(1,{id,1})
+    e2:SetTarget(Fusion.SummonEffTG(f))
+    e2:SetOperation(Fusion.SummonEffOP(f))
+    c:RegisterEffect(e2)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some(r#"fusion_summon (1, fusion monster, where archetype == "Gouki")"#),
+        );
+    }
+
+    #[test]
+    fn fusion_s5_gy_pool_banish_disposal() {
+        // Plain-monster GY pool + library banish disposal — no
+        // legality predicate to absorb.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Fusion.CreateSummonEff{handler=c,extrafil=s.fextra,extraop=Fusion.BanishMaterial}
+    c:RegisterEffect(e1)
+end
+function s.fextra(e,tp,mg)
+    return Duel.GetMatchingGroup(Card.IsMonster,tp,LOCATION_GRAVE,0,nil)
+end
+"#;
+        assert_eq!(
+            p12_line(src, 0).as_deref(),
+            Some("fusion_summon (1, fusion monster) plus (all, monster, you control, in gy) sending_materials_to banished"),
+        );
     }
 
     #[test]
