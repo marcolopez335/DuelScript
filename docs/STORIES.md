@@ -204,7 +204,7 @@ fn set_damage_rule(&mut self, player: u8, rule: DamageRule, duration: Duration) 
 | # | Slice | Sub-shape | Safe yield | Grammar |
 |---|-------|-----------|-----------|---------|
 | **S1** | **Passive stat chips** (translator-only) | `:no_op` inner `EFFECT_TYPE_SINGLE` with `SetCode` in {UPDATE_ATTACK, UPDATE_DEFENSE, UPDATE_LEVEL, CHANGE_LEVEL, SET_ATTACK_FINAL, SET_DEFENSE_FINAL}, receiver ∈ {self, GetFirstTarget, single GetMatchingGroup loop}, value ∈ {int literal, `count(selector)*K`, `ceil(x.base_atk/2)`, `x.atk*2`}, reset in the exact-map table. Buckets: UPDATE_ATTACK 287 (225 pure), SET_ATTACK_FINAL 92, UPDATE_DEFENSE 54, UPDATE_LEVEL 54, CHANGE_LEVEL 40, ATK+DEF clone pairs 37. | **~160–200** | **NONE** — `modify_stat_action` / `set_stat_action` + durations `end_of_turn` / `while_face_up` / `while_on_field` / `next_standby_phase` all exist (pest:534-535, 745). Needs `ceil()` expr fn as a minor addition. **Prereqs:** reset exact-map fix (open) + set-stat duration plumb-through (✓ PR #134). |
-| **S2** | **Qualified player floodgates** | `:no_op` inner `EFFECT_TYPE_FIELD` + player `SetTargetRange` + `RESET_PHASE\|PHASE_END`, `Duel.RegisterEffect(e1,tp)`. CANNOT_SPECIAL_SUMMON 92 (79 with a `splimit` qualifier), CANNOT_ACTIVATE 41, tr=yes reset bucket 236 chains. Unfiltered subset is T36-expressible today; the qualifier extension unlocks the rest. | **~70–90** | Small extension: `restrict_action` gains `("from" ~ zone)? ~ ("except" ~ "(" ~ exempt_expr ~ ")")?` where `exempt_atom = race/attribute/archetype/named/card_type/from-zone`, or/and composition. |
+| **S2** | **Qualified player floodgates** | `:no_op` inner `EFFECT_TYPE_FIELD` + player `SetTargetRange` + `RESET_PHASE\|PHASE_END`, `Duel.RegisterEffect(e1,tp)`. CANNOT_SPECIAL_SUMMON 92 (79 with a `splimit` qualifier), CANNOT_ACTIVATE 41, tr=yes reset bucket 236 chains. Unfiltered subset is T36-expressible today; the qualifier extension unlocks the rest. | **~70–90** | **✓ grammar half shipped**: `restrict_action` gains `("from" ~ zone)? ~ ("except" ~ "(" ~ exempt_expr ~ ")")?` — full seam (pest + AST + parser + validator + compiler + fmt + trait widen + MockRuntime, tests per layer; corpus check byte-identical). `exempt_expr` is or-of-and-terms over `attribute/race/name/archetype == …`, a from-zone atom, and the ten pred_atom card-type tags (no stat compares — the 2026-07-23 re-audit found none in 152 candidate chains / 83 MVP cards). Validator: qualifiers on the Battle Phase pair error; `from` on the hand-only normal-summon/set family errors. ygobeetle mirror outstanding (engine-dev) — no adapter overrides `restrict_player`, so the widen compiles clean and qualifiers are silent no-ops via the trait default; schedule on semantics, no build break will surface it. Translator recognition/apply = PR 2. |
 | **S3** | **Snapshot negation pairs** | `:no_op` DISABLE + DISABLE_EFFECT clone on same receiver, same reset (43/61 cards paired), receiver ∈ {GetFirstTarget, GetTargetCards, group loop}, reset ∈ {end_of_turn, while_face_up}. | **~30** | **NONE** — `negate_effects <selector> <duration>` exists (pest); one DSL action lowers to the two-code pair. Field-wide "lingering" variant (18 regs) is a skip class this round. |
 | **S4** | **Ritual proc recognition** | `Ritual.AddProcEqual/Greater[Code]` single-call cards; filter reduces to code-list/archetype/race; lv nil or int; no extrafil/extraop/stage2/matfilter/CreateProc. 68-card bucket minus skips. | **~35–40** | Tiny: `summon_level` expr atom ("the summoned monster's own level") in the `where total_level` clause. `ritual_summon_action` exists (pest:519). NOTE: dormant branch `origin/worktree-ritual-addproc-assigned` (2026-06-10) already has assigned-form Ritual.AddProc* skeleton recognition + a RegisterSummonEff pass — inspect/rebase before starting S4/S5 fresh. |
 | **S5** | **Fusion proc recognition** | `Fusion.CreateSummonEff` (32) / `SummonEffTG+OP` pair (36); whitelist extraop ∈ {nil, BanishMaterial, ShuffleMaterial}, gc ∈ {nil, ForcedHandler}, unconditional extrafil, no fcheck/chkf/stage2. | **~30** | **✓ grammar half shipped (specced + shipped in same PR, T36/T37 style)**: `fusion_summon_action` gains `fusion_plus_clause? ~ fusion_forced_self? ~ fusion_disposal?` = `("plus" ~ selector)? ~ ("including" ~ "self")? ~ ("sending_materials_to" ~ ("banished"\|"deck"))?` — full seam (pest + AST + parser + validator + compiler + fmt + trait widen + MockRuntime, tests per layer; corpus check + fusion-file fmt byte-identical). `plus` narrowed to `?` (one extrafil per proc; multi-zone pools ride the selector's zone list) and `gy` dropped from the destination set (absent clause = default GY disposal — one canonical spelling). Validator: `plus` pool must be a structured selector (error); non-`all` pool quantity warns (fcheck class, not carried through the seam). **ygobeetle mirror outstanding (engine-dev)** — the adapter does NOT override `fusion_summon`, so the dep bump compiles clean and the knobs are silent no-ops via the trait default; schedule on semantics, no build break will surface it. Translator recognition/apply = PR 2. |
@@ -265,13 +265,20 @@ resolve {
 fn set_atk(&mut self, card_id: u32, value: i32, duration: Duration);
 fn set_def(&mut self, card_id: u32, value: i32, duration: Duration);
 
-// S2: qualifier rides the existing T36 method as an Option, not a new method.
-fn restrict_player_filtered(&mut self, player: u8, restriction: PlayerRestriction,
-    qualifier: RestrictionQualifier, duration: Duration) {}
-// RestrictionQualifier { from_zone: Option<Zone>, except: Option<ExemptExpr> } —
-// runtime-surface mirror enum family, same pattern as PlayerRestriction/DamageRule,
-// doc-comment table mapping to splimit predicate shapes. Evaluated per would-be-summoned
-// card at BOTH seams (action-gen mask + exec pre-check), per the PR #50 rollout pattern.
+// ✓ shipped (T38 S2 grammar PR): qualifier rides the existing T36 method
+// as an Option — the widen landed on restrict_player itself, not a new
+// method (the sketch's restrict_player_filtered name is superseded).
+fn restrict_player(&mut self, player: u8, restriction: PlayerRestriction,
+    qualifier: Option<&RestrictionQualifier>, duration: Duration) {}
+// RestrictionQualifier { from_zone: Option<u32>, except: Option<ExemptFilter> } —
+// runtime-surface mirror family, same pattern as PlayerRestriction/DamageRule;
+// zones as LOCATION_* masks, attribute/race as engine codes (TokenSpec
+// convention), archetype/name as strings (CardFilter convention); doc-comment
+// tables map every variant to its splimit predicate shape. Evaluated per
+// would-be-summoned card at BOTH seams (action-gen mask + exec pre-check),
+// per the PR #50 rollout pattern. ygobeetle mirror outstanding — no adapter
+// override exists, so the dep bump compiles clean (silent no-op via trait
+// default); schedule on semantics like the S5 fusion knobs below.
 
 // ✓ shipped (T38 S5 grammar PR): fusion proc knobs on the fusion surface.
 // ygobeetle mirror outstanding — NOTE the adapter does NOT override
