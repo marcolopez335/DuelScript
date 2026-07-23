@@ -136,6 +136,83 @@ pub enum PlayerRestriction {
     SkipBattlePhase,
 }
 
+/// T38 S2 — qualifier on a player-scoped restriction: the lua
+/// summon-limit (`SetTarget` splimit) / activation-filter (`SetValue`
+/// aclimit) closure, decomposed into data.
+///
+/// Runtime-surface mirror of the DSL `from <zone>` / `except (…)`
+/// clauses; same decoupling pattern as [`PlayerRestriction`] /
+/// [`DamageRule`].
+///
+/// | Field | DSL clause | lua predicate shape |
+/// |---|---|---|
+/// | `from_zone` | `from <zone>` | summon family: `c:IsLocation(L)`; activate family: `re:GetActivateLocation()==L` |
+/// | `except` | `except (…)` | `return not <pred>` — the closure returns true for BLOCKED cards; the exemption is `<pred>`, the operand of the `not` |
+///
+/// Engines evaluate the qualifier per would-be-summoned/activated card
+/// at BOTH seams (action-generation mask + execution pre-check), per
+/// the PR #50 rollout pattern: a card is blocked iff it matches
+/// `from_zone` (when set) AND matches no `except` conjunction.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RestrictionQualifier {
+    /// EDOPro `LOCATION_*` bitmask naming the restricted source zone
+    /// (summon family: the summoned card's origin; activate family: the
+    /// activation location). `None` = any source. Always a SINGLE real
+    /// location bit: the DSL grammar narrows qualifier zones to
+    /// {extra_deck, gy, hand, deck, banished} (the audited corpus
+    /// vocabulary), so the activate family's `GetActivateLocation()==L`
+    /// equality is well-defined — no compound/pseudo masks arrive here.
+    pub from_zone: Option<u32>,
+    /// Exemption filter — cards matching it escape the restriction.
+    /// `None` = no exemption.
+    pub except: Option<ExemptFilter>,
+}
+
+/// Or-composed exemption filter (T38 S2): a card is exempt when ANY
+/// conjunction matches.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExemptFilter {
+    pub any_of: Vec<ExemptConjunction>,
+}
+
+/// One and-term of an [`ExemptFilter`]: matches when ALL checks hold.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExemptConjunction {
+    pub all_of: Vec<ExemptCheck>,
+}
+
+/// One exemption check (T38 S2). Payload conventions follow the existing
+/// runtime surface: attribute/race as engine codes ([`TokenSpec`]),
+/// archetype/name as strings resolved engine-side ([`CardFilter`]),
+/// zones as `LOCATION_*` bitmasks.
+///
+/// | Variant | lua predicate |
+/// |---|---|
+/// | `Attribute(u32)` | `c:IsAttribute(a)` — `attribute_to_engine` code |
+/// | `Race(u32)` | `c:IsRace(r)` — `race_to_engine` bitmask |
+/// | `Name(String)` | `c:IsCode(id)` — exact card name, id resolved engine-side |
+/// | `Archetype(String)` | `c:IsSetCard(setcode)` — archetype name, setcode resolved engine-side |
+/// | `FromZone(u32)` | summon family: `c:IsLocation(L)` — exempts cards sourced from `L`; activate family: `re:GetActivateLocation()==L` — exempts effects activated in `L`. Single real location bit, same narrowed vocabulary as [`RestrictionQualifier::from_zone`] |
+/// | `IsEffect` … `IsToken` | `c:IsType(TYPE_*)` card-type tags |
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ExemptCheck {
+    Attribute(u32),
+    Race(u32),
+    Name(String),
+    Archetype(String),
+    FromZone(u32),
+    IsEffect,
+    IsNormal,
+    IsTuner,
+    IsFusion,
+    IsSynchro,
+    IsXyz,
+    IsLink,
+    IsRitual,
+    IsPendulum,
+    IsToken,
+}
+
 /// Player-scoped damage-shaping rule passed to `set_damage_rule` (T37).
 ///
 /// Runtime-surface mirror of `ast::DamageRule`; decouples the trait from the
@@ -1054,17 +1131,26 @@ pub trait DuelScriptRuntime {
     /// **ygobeetle mirror obligation:** new trait method — engine-dev must
     /// mirror this on `YgobeetleRuntimeAdapter` (companion repo), mapping
     /// each variant to its `EFFECT_CANNOT_*` / `EFFECT_SKIP_BP` registration.
+    /// **T38 S2 signature widen:** the `qualifier` param is new. As of the
+    /// widen no ygobeetle adapter overrides this method, so the dep bump
+    /// compiles clean and qualifiers are silent no-ops via this default —
+    /// like the S5 `fusion_summon` widen, schedule the mirror on semantics
+    /// (per-card evaluation at both seams); no build break will surface it.
     ///
     /// # Args
     /// - `player`: 0 or 1 — the absolute player index being restricted.
     /// - `restriction`: which action class is forbidden.
+    /// - `qualifier`: T38 S2 — optional `from <zone>` / `except (…)`
+    ///   narrowing; `None` = the unqualified T36 behaviour. See
+    ///   [`RestrictionQualifier`] for the evaluation contract.
     /// - `duration`: when the restriction expires. `Duration::Permanently`
     ///   is the opt-out (no reset; restriction persists), consistent with
     ///   the omitted-duration default on every other duration-bearing action.
     ///
     /// # Default
     /// No-op.
-    fn restrict_player(&mut self, _player: u8, _restriction: PlayerRestriction, _duration: Duration) {}
+    fn restrict_player(&mut self, _player: u8, _restriction: PlayerRestriction,
+                       _qualifier: Option<&RestrictionQualifier>, _duration: Duration) {}
 
     // ── T37: Player-scoped damage rule ───────────────────────
 
