@@ -11,7 +11,7 @@
 use std::sync::Arc;
 use super::ast::*;
 use super::constants as tm;
-use super::runtime::{DamageRule as RuntimeDamageRule, DamageType, Duration as RuntimeDuration, DuelScriptRuntime, CardFilter as RuntimeCardFilter, ExtraMaterialPool, MaterialDestination as RuntimeMaterialDestination, PlayerRestriction as RuntimePlayerRestriction, Stat, TokenSpec};
+use super::runtime::{DamageRule as RuntimeDamageRule, DamageType, Duration as RuntimeDuration, DuelScriptRuntime, CardFilter as RuntimeCardFilter, ExemptCheck as RuntimeExemptCheck, ExemptConjunction as RuntimeExemptConjunction, ExemptFilter as RuntimeExemptFilter, ExtraMaterialPool, MaterialDestination as RuntimeMaterialDestination, PlayerRestriction as RuntimePlayerRestriction, RestrictionQualifier as RuntimeRestrictionQualifier, Stat, TokenSpec};
 
 // ── Output Types ────────────────────────────────────────────
 
@@ -434,6 +434,50 @@ fn ast_player_restriction_to_runtime(r: &PlayerRestriction) -> RuntimePlayerRest
         PlayerRestriction::CannotActivate               => RuntimePlayerRestriction::CannotActivate,
         PlayerRestriction::CannotConductBattlePhase     => RuntimePlayerRestriction::CannotConductBattlePhase,
         PlayerRestriction::SkipBattlePhase              => RuntimePlayerRestriction::SkipBattlePhase,
+    }
+}
+
+/// T38 S2 — lower the DSL `from <zone>` / `except (…)` clauses into the
+/// runtime qualifier. `None` when both clauses are absent (the unqualified
+/// T36 form) so unqualified restricts stay signature-stable engine-side.
+fn restriction_qualifier_to_runtime(
+    from_zone: &Option<Zone>,
+    except: &Option<ExemptExpr>,
+) -> Option<RuntimeRestrictionQualifier> {
+    if from_zone.is_none() && except.is_none() {
+        return None;
+    }
+    Some(RuntimeRestrictionQualifier {
+        from_zone: from_zone.as_ref().map(zone_to_location),
+        except: except.as_ref().map(ast_exempt_expr_to_runtime),
+    })
+}
+
+fn ast_exempt_expr_to_runtime(e: &ExemptExpr) -> RuntimeExemptFilter {
+    RuntimeExemptFilter {
+        any_of: e.terms.iter().map(|t| RuntimeExemptConjunction {
+            all_of: t.atoms.iter().map(ast_exempt_atom_to_runtime).collect(),
+        }).collect(),
+    }
+}
+
+fn ast_exempt_atom_to_runtime(a: &ExemptAtom) -> RuntimeExemptCheck {
+    match a {
+        ExemptAtom::Attribute(x) => RuntimeExemptCheck::Attribute(attribute_to_engine(x)),
+        ExemptAtom::Race(r)      => RuntimeExemptCheck::Race(race_to_engine(r)),
+        ExemptAtom::Name(s)      => RuntimeExemptCheck::Name(s.clone()),
+        ExemptAtom::Archetype(s) => RuntimeExemptCheck::Archetype(s.clone()),
+        ExemptAtom::FromZone(z)  => RuntimeExemptCheck::FromZone(zone_to_location(z)),
+        ExemptAtom::IsEffect     => RuntimeExemptCheck::IsEffect,
+        ExemptAtom::IsNormal     => RuntimeExemptCheck::IsNormal,
+        ExemptAtom::IsTuner      => RuntimeExemptCheck::IsTuner,
+        ExemptAtom::IsFusion     => RuntimeExemptCheck::IsFusion,
+        ExemptAtom::IsSynchro    => RuntimeExemptCheck::IsSynchro,
+        ExemptAtom::IsXyz        => RuntimeExemptCheck::IsXyz,
+        ExemptAtom::IsLink       => RuntimeExemptCheck::IsLink,
+        ExemptAtom::IsRitual     => RuntimeExemptCheck::IsRitual,
+        ExemptAtom::IsPendulum   => RuntimeExemptCheck::IsPendulum,
+        ExemptAtom::IsToken      => RuntimeExemptCheck::IsToken,
     }
 }
 
@@ -2435,12 +2479,15 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 rt.register_grant(card_id, grant_code, dur_code);
             }
         }
-        Action::Restrict { scope, restriction, duration } => {
+        Action::Restrict { scope, restriction, from_zone, except, duration } => {
             // T36: resolve the relative player scope to absolute indices
             // (house style — see `player_who_to_idx`); `both_players` becomes
             // one call per player. `None` duration means "no duration clause"
             // -> Permanently, consistent with TakeControl / ModifyStat.
+            // T38 S2: from/except clauses lower to one shared qualifier
+            // (borrowed per call — the qualifier is scope-invariant).
             let rt_restriction = ast_player_restriction_to_runtime(restriction);
+            let rt_qualifier = restriction_qualifier_to_runtime(from_zone, except);
             let rt_duration = duration.as_ref()
                 .map(ast_duration_to_runtime)
                 .unwrap_or(RuntimeDuration::Permanently);
@@ -2450,7 +2497,7 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 PlayerScope::BothPlayers => &[player, 1 - player],
             };
             for &idx in players {
-                rt.restrict_player(idx, rt_restriction, rt_duration);
+                rt.restrict_player(idx, rt_restriction, rt_qualifier.as_ref(), rt_duration);
             }
         }
         Action::DamageRule { scope, rule, duration } => {
@@ -3199,17 +3246,81 @@ card "Restrict Compile Test" {
         rt.effect_player = 0;
         (compiled.effects[0].operation.as_ref().unwrap())(&mut rt);
         assert!(rt.was_called_with("restrict_player",
-            "player=0 restriction=CannotSpecialSummon dur=ThisTurn"),
+            "player=0 restriction=CannotSpecialSummon qualifier=None dur=ThisTurn"),
             "you-scope call missing; calls: {}", rt.dump_calls());
         assert!(rt.was_called_with("restrict_player",
-            "player=1 restriction=CannotActivateSpellsTraps dur=EndOfTurn"),
+            "player=1 restriction=CannotActivateSpellsTraps qualifier=None dur=EndOfTurn"),
             "opponent-scope call missing; calls: {}", rt.dump_calls());
         assert!(rt.was_called_with("restrict_player",
-            "player=0 restriction=CannotConductBattlePhase dur=Permanently"),
+            "player=0 restriction=CannotConductBattlePhase qualifier=None dur=Permanently"),
             "both_players you-side call missing; calls: {}", rt.dump_calls());
         assert!(rt.was_called_with("restrict_player",
-            "player=1 restriction=CannotConductBattlePhase dur=Permanently"),
+            "player=1 restriction=CannotConductBattlePhase qualifier=None dur=Permanently"),
             "both_players opponent-side call missing; calls: {}", rt.dump_calls());
+    }
+
+    #[test]
+    fn test_restrict_qualifier_compiles_and_executes() {
+        use super::super::mock_runtime::MockRuntime;
+        // T38 S2: from/except clauses lower to a RestrictionQualifier —
+        // from-zone as a LOCATION_* mask, except as or-composed and-terms
+        // with engine-code payloads (attribute/race codes, archetype
+        // strings, from-zone masks). Unqualified restricts still pass
+        // qualifier=None (asserted above); both_players shares one
+        // qualifier across both per-player calls.
+        let source = r#"
+card "Restrict Qualifier Compile Test" {
+    id: 30002
+    type: Normal Trap
+
+    effect "Summon Limits" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict you cannot_special_summon from extra_deck this_turn
+            restrict opponent cannot_special_summon except (race == Machine) this_turn
+            restrict both_players cannot_special_summon from extra_deck except (archetype == "HERO" and attribute == DARK) this_turn
+            restrict you cannot_special_summon except (is_synchro or from gy) this_turn
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 30002;
+        rt.effect_player = 0;
+        (compiled.effects[0].operation.as_ref().unwrap())(&mut rt);
+
+        // Bare from: LOCATION_EXTRA mask, no except.
+        let from_only = format!(
+            "player=0 restriction=CannotSpecialSummon qualifier=Some(RestrictionQualifier {{ from_zone: Some({}), except: None }}) dur=ThisTurn",
+            tm::LOCATION_EXTRA);
+        assert!(rt.was_called_with("restrict_player", &from_only),
+            "from-only call missing; calls: {}", rt.dump_calls());
+
+        // Bare except: race engine bitmask (Machine = 0x20).
+        assert!(rt.was_called_with("restrict_player",
+            "player=1 restriction=CannotSpecialSummon qualifier=Some(RestrictionQualifier { from_zone: None, except: Some(ExemptFilter { any_of: [ExemptConjunction { all_of: [Race(32)] }] }) }) dur=ThisTurn"),
+            "except-only call missing; calls: {}", rt.dump_calls());
+
+        // from+except with an and-term — identical qualifier on BOTH
+        // players' calls (both_players scope).
+        let combined = format!(
+            "restriction=CannotSpecialSummon qualifier=Some(RestrictionQualifier {{ from_zone: Some({}), except: Some(ExemptFilter {{ any_of: [ExemptConjunction {{ all_of: [Archetype(\"HERO\"), Attribute(32)] }}] }}) }}) dur=ThisTurn",
+            tm::LOCATION_EXTRA);
+        for p in 0..2 {
+            let needle = format!("player={} {}", p, combined);
+            assert!(rt.was_called_with("restrict_player", &needle),
+                "both_players side {} missing; calls: {}", p, rt.dump_calls());
+        }
+
+        // Or-composition: tag conjunction or from-zone conjunction.
+        let or_composed = format!(
+            "player=0 restriction=CannotSpecialSummon qualifier=Some(RestrictionQualifier {{ from_zone: None, except: Some(ExemptFilter {{ any_of: [ExemptConjunction {{ all_of: [IsSynchro] }}, ExemptConjunction {{ all_of: [FromZone({})] }}] }}) }}) dur=ThisTurn",
+            tm::LOCATION_GRAVE);
+        assert!(rt.was_called_with("restrict_player", &or_composed),
+            "or-composed call missing; calls: {}", rt.dump_calls());
     }
 
     #[test]
