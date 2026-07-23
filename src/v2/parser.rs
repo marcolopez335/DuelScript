@@ -1109,7 +1109,7 @@ fn parse_exempt_atom(pair: Pair<Rule>) -> Result<ExemptAtom, V2ParseError> {
             Rule::race => {
                 return Ok(ExemptAtom::Race(parse_race(first.as_str().trim())?));
             }
-            Rule::zone => {
+            Rule::restrict_zone => {
                 return Ok(ExemptAtom::FromZone(parse_zone(first.as_str().trim())?));
             }
             Rule::string => {
@@ -1911,6 +1911,9 @@ fn parse_action(pair: Pair<Rule>) -> Result<Action, V2ParseError> {
             for p in it {
                 match p.as_rule() {
                     Rule::restrict_from => {
+                        // Inner rule is restrict_zone — the narrowed
+                        // single-bit vocabulary; spellings are a subset of
+                        // zone, so parse_zone decodes it.
                         from_zone = Some(parse_zone(
                             p.into_inner().next().unwrap().as_str().trim())?);
                     }
@@ -3068,6 +3071,127 @@ card "Restrict Qualifier Test" {
                 assert_eq!(e.terms[1].atoms, vec![ExemptAtom::IsToken]);
             }
             other => panic!("expected name/tag except, got {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_restrict_exempt_all_tag_atoms_parse() {
+        // T38 S2 review minor: every card-type tag routes through a
+        // string-match table — pin all ten so a table typo can't ship
+        // silently.
+        let source = r#"
+card "Restrict Tag Atoms Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Lockdown" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict you cannot_special_summon except (is_effect or is_normal or is_tuner or is_fusion or is_synchro or is_xyz or is_link or is_ritual or is_pendulum or is_token) this_turn
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let resolve = &file.cards[0].effects[0].resolve;
+        match &resolve[0] {
+            Action::Restrict { except: Some(e), .. } => {
+                let atoms: Vec<_> = e.terms.iter()
+                    .map(|t| { assert_eq!(t.atoms.len(), 1); t.atoms[0].clone() })
+                    .collect();
+                assert_eq!(atoms, vec![
+                    ExemptAtom::IsEffect, ExemptAtom::IsNormal, ExemptAtom::IsTuner,
+                    ExemptAtom::IsFusion, ExemptAtom::IsSynchro, ExemptAtom::IsXyz,
+                    ExemptAtom::IsLink, ExemptAtom::IsRitual, ExemptAtom::IsPendulum,
+                    ExemptAtom::IsToken,
+                ]);
+            }
+            other => panic!("expected tag except, got {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_restrict_exempt_composition_grouping() {
+        // T38 S2 review minor: and binds tighter than or, and the
+        // from-zone atom is legal in any term position.
+        let source = r#"
+card "Restrict Grouping Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Lockdown" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict you cannot_special_summon except (race == Machine and from extra_deck or is_token) this_turn
+            restrict you cannot_special_summon except (is_token and from gy) this_turn
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let resolve = &file.cards[0].effects[0].resolve;
+        // [Machine AND FromZone(ExtraDeck)] OR [IsToken]
+        match &resolve[0] {
+            Action::Restrict { except: Some(e), .. } => {
+                assert_eq!(e.terms.len(), 2);
+                assert_eq!(e.terms[0].atoms, vec![
+                    ExemptAtom::Race(Race::Machine),
+                    ExemptAtom::FromZone(Zone::ExtraDeck),
+                ]);
+                assert_eq!(e.terms[1].atoms, vec![ExemptAtom::IsToken]);
+            }
+            other => panic!("expected grouped except, got {:?}", other),
+        }
+        // Mid-term (non-initial) from-zone atom.
+        match &resolve[1] {
+            Action::Restrict { except: Some(e), .. } => {
+                assert_eq!(e.terms.len(), 1);
+                assert_eq!(e.terms[0].atoms, vec![
+                    ExemptAtom::IsToken,
+                    ExemptAtom::FromZone(Zone::Gy),
+                ]);
+            }
+            other => panic!("expected mid-term from-zone, got {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_restrict_qualifier_rejects_bad_shapes() {
+        // T38 S2 review minor: pin the closed vocabulary and clause order.
+        // The exempt-atom set deliberately has no stat compares (the
+        // 152-chain audit found none), qualifier zones are narrowed to the
+        // five audited single-bit locations, `from` precedes `except`, and
+        // empty except-parens are unparseable.
+        let wrap = |line: &str| format!(r#"
+card "Restrict Bad Shape Test" {{
+    id: 1
+    type: Normal Trap
+
+    effect "Lockdown" {{
+        speed: 2
+        mandatory
+        resolve {{
+            {}
+        }}
+    }}
+}}
+"#, line);
+        for bad in [
+            // stat compare is not an exempt atom
+            "restrict you cannot_special_summon except (atk >= 1000) this_turn",
+            // clause order is fixed: from before except
+            "restrict you cannot_special_summon except (is_synchro) from extra_deck this_turn",
+            // positional/qualified zones are outside restrict_zone
+            "restrict you cannot_special_summon from top_of_deck this_turn",
+            "restrict you cannot_special_summon from extra_deck_face_up this_turn",
+            "restrict you cannot_special_summon except (from equipped) this_turn",
+            // empty except parens
+            "restrict you cannot_special_summon except () this_turn",
+        ] {
+            assert!(parse_v2(&wrap(bad)).is_err(),
+                "expected parse failure for: {}", bad);
         }
     }
 

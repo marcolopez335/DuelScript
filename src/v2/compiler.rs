@@ -3324,6 +3324,55 @@ card "Restrict Qualifier Compile Test" {
     }
 
     #[test]
+    fn test_restrict_exempt_every_atom_arm_crosses_seam() {
+        use super::super::mock_runtime::MockRuntime;
+        // T38 S2 review minor: pin ALL fifteen ast->runtime exempt-atom
+        // arms — a copy-paste swap between same-payload variants
+        // (Name/Archetype, or any two unit tags) compiles clean and would
+        // otherwise pass the suite while exempting the wrong card class.
+        let source = r#"
+card "Restrict Exempt Arms Test" {
+    id: 30003
+    type: Normal Trap
+
+    effect "Summon Limits" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict you cannot_special_summon except (attribute == LIGHT or race == Zombie or name == "Adventurer Token" or archetype == "HERO" or from banished or is_effect or is_normal or is_tuner or is_fusion or is_synchro or is_xyz or is_link or is_ritual or is_pendulum or is_token) this_turn
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 30003;
+        rt.effect_player = 0;
+        (compiled.effects[0].operation.as_ref().unwrap())(&mut rt);
+        // LIGHT = 0x10, Zombie = 0x10 (independent code spaces).
+        let needle = format!(
+            "any_of: [ExemptConjunction {{ all_of: [Attribute(16)] }}, \
+             ExemptConjunction {{ all_of: [Race(16)] }}, \
+             ExemptConjunction {{ all_of: [Name(\"Adventurer Token\")] }}, \
+             ExemptConjunction {{ all_of: [Archetype(\"HERO\")] }}, \
+             ExemptConjunction {{ all_of: [FromZone({})] }}, \
+             ExemptConjunction {{ all_of: [IsEffect] }}, \
+             ExemptConjunction {{ all_of: [IsNormal] }}, \
+             ExemptConjunction {{ all_of: [IsTuner] }}, \
+             ExemptConjunction {{ all_of: [IsFusion] }}, \
+             ExemptConjunction {{ all_of: [IsSynchro] }}, \
+             ExemptConjunction {{ all_of: [IsXyz] }}, \
+             ExemptConjunction {{ all_of: [IsLink] }}, \
+             ExemptConjunction {{ all_of: [IsRitual] }}, \
+             ExemptConjunction {{ all_of: [IsPendulum] }}, \
+             ExemptConjunction {{ all_of: [IsToken] }}]",
+            tm::LOCATION_REMOVED);
+        assert!(rt.was_called_with("restrict_player", &needle),
+            "full exempt-arm chain missing; calls: {}", rt.dump_calls());
+    }
+
+    #[test]
     fn test_set_stat_duration_compiles_and_executes() {
         use super::super::mock_runtime::{MockRuntime, CardSnapshot};
         // SetStat's Option<Duration> maps through ast_duration_to_runtime

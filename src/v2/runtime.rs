@@ -147,7 +147,7 @@ pub enum PlayerRestriction {
 /// | Field | DSL clause | lua predicate shape |
 /// |---|---|---|
 /// | `from_zone` | `from <zone>` | summon family: `c:IsLocation(L)`; activate family: `re:GetActivateLocation()==L` |
-/// | `except` | `except (…)` | `return not <pred>` (the exemption is the NEGATED predicate) |
+/// | `except` | `except (…)` | `return not <pred>` — the closure returns true for BLOCKED cards; the exemption is `<pred>`, the operand of the `not` |
 ///
 /// Engines evaluate the qualifier per would-be-summoned/activated card
 /// at BOTH seams (action-generation mask + execution pre-check), per
@@ -157,7 +157,11 @@ pub enum PlayerRestriction {
 pub struct RestrictionQualifier {
     /// EDOPro `LOCATION_*` bitmask naming the restricted source zone
     /// (summon family: the summoned card's origin; activate family: the
-    /// activation location). `None` = any source.
+    /// activation location). `None` = any source. Always a SINGLE real
+    /// location bit: the DSL grammar narrows qualifier zones to
+    /// {extra_deck, gy, hand, deck, banished} (the audited corpus
+    /// vocabulary), so the activate family's `GetActivateLocation()==L`
+    /// equality is well-defined — no compound/pseudo masks arrive here.
     pub from_zone: Option<u32>,
     /// Exemption filter — cards matching it escape the restriction.
     /// `None` = no exemption.
@@ -188,7 +192,7 @@ pub struct ExemptConjunction {
 /// | `Race(u32)` | `c:IsRace(r)` — `race_to_engine` bitmask |
 /// | `Name(String)` | `c:IsCode(id)` — exact card name, id resolved engine-side |
 /// | `Archetype(String)` | `c:IsSetCard(setcode)` — archetype name, setcode resolved engine-side |
-/// | `FromZone(u32)` | `c:IsLocation(L)` — exempts cards sourced from `L` |
+/// | `FromZone(u32)` | summon family: `c:IsLocation(L)` — exempts cards sourced from `L`; activate family: `re:GetActivateLocation()==L` — exempts effects activated in `L`. Single real location bit, same narrowed vocabulary as [`RestrictionQualifier::from_zone`] |
 /// | `IsEffect` … `IsToken` | `c:IsType(TYPE_*)` card-type tags |
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ExemptCheck {
