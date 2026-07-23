@@ -622,9 +622,17 @@ grant_ability = {
 // atom for or-composed zone exemptions ("except X monsters or summons from
 // the Extra Deck"). Composition is or-of-and-terms; `not A and not B`
 // splits into two or-terms by De Morgan at translation time.
+// Qualifier zones use restrict_zone, NOT the full zone rule: the audited
+// corpus vocabulary is exactly these five single-bit real locations, and
+// admitting positional/qualified zones (top_of_deck, extra_deck_face_up,
+// equipped, …) would silently widen at the runtime seam (zone_to_location
+// collapses them) and break the activate family's
+// `re:GetActivateLocation()==L` equality contract (compound/pseudo masks
+// never equal a real activation location).
 restrict_action = { "restrict" ~ player_scope ~ player_restriction ~ restrict_from? ~ restrict_except? ~ duration? }
-restrict_from   = { "from" ~ zone }
+restrict_from   = { "from" ~ restrict_zone }
 restrict_except = { "except" ~ "(" ~ exempt_expr ~ ")" }
+restrict_zone = { "extra_deck" | "gy" | "graveyard" | "hand" | "deck" | "banished" }
 exempt_expr = { exempt_term ~ ("or" ~ exempt_term)* }
 exempt_term = { exempt_atom ~ ("and" ~ exempt_atom)* }
 exempt_atom = {
@@ -632,7 +640,7 @@ exempt_atom = {
   | "race" ~ "==" ~ race
   | "name" ~ "==" ~ string
   | "archetype" ~ "==" ~ string
-  | "from" ~ zone
+  | "from" ~ restrict_zone
   | "is_effect" | "is_normal" | "is_tuner"
   | "is_fusion" | "is_synchro" | "is_xyz" | "is_link"
   | "is_ritual" | "is_pendulum" | "is_token"

@@ -1811,6 +1811,10 @@ card "Restrict Qualifier Roundtrip Test" {
             restrict you cannot_special_summon except (archetype == "HERO" and attribute == DARK) this_turn
             restrict opponent cannot_activate from gy end_of_turn
             restrict you cannot_special_summon except (name == "Adventurer Token" or is_token)
+            restrict you cannot_special_summon from deck
+            restrict you cannot_special_summon except (is_effect or is_normal or is_tuner or is_fusion or is_synchro or is_xyz or is_link or is_ritual or is_pendulum or is_token) this_turn
+            restrict you cannot_special_summon except (race == Machine and from extra_deck or is_token) 2_turns
+            restrict you cannot_special_summon except (is_token and from gy) this_turn
         }
     }
 }
@@ -1829,9 +1833,17 @@ card "Restrict Qualifier Roundtrip Test" {
             "missing and-composed except in:\n{}", formatted);
         assert!(formatted.contains("except (name == \"Adventurer Token\" or is_token)\n"),
             "duration-less qualified restrict mis-rendered in:\n{}", formatted);
+        assert!(formatted.contains("restrict you cannot_special_summon from deck\n"),
+            "duration-less bare-from mis-rendered in:\n{}", formatted);
+        assert!(formatted.contains("except (is_effect or is_normal or is_tuner or is_fusion or is_synchro or is_xyz or is_link or is_ritual or is_pendulum or is_token)"),
+            "missing all-tags except in:\n{}", formatted);
+        assert!(formatted.contains("except (race == Machine and from extra_deck or is_token) 2_turns"),
+            "missing and/or composition with NTurns in:\n{}", formatted);
+        assert!(formatted.contains("except (is_token and from gy)"),
+            "missing mid-term from-zone atom in:\n{}", formatted);
         let reparsed = parse_v2(&formatted)
             .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
-        assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 7);
+        assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 11);
         assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
     }
 

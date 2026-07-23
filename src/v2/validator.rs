@@ -523,14 +523,26 @@ fn check_fusion_extra_pools(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
 //
 // The `from <zone>` / `except (…)` clauses qualify WHICH cards a player
 // restriction covers — they only make sense where a per-card dimension
-// exists. Battle Phase restrictions have no card at all; normal
-// summons/sets have exactly one source (the hand), so a `from` scope is
-// either redundant or contradictory. Both are author errors, not
-// warnings: the compiler would forward a qualifier the engine can never
-// evaluate (the exact silent-drop path the S5 pool checks exist to
-// prevent). `except` stays legal on every summon/set/activate family
-// member — the lua corpus carries `not c:IsRace(…)` splimits on
-// EFFECT_CANNOT_SUMMON too (c38576155).
+// exists. Battle Phase restrictions have no card at all; normal monster
+// summons/sets have exactly one source (the hand), so a source-zone
+// dimension — whether the action-level `from` clause OR a from-zone
+// exempt atom — is either redundant or contradictory there. Both are
+// author errors, not warnings: the compiler would forward a qualifier
+// the engine can never evaluate (the exact silent-drop path the S5 pool
+// checks exist to prevent). `cannot_set_spells_traps` is NOT in the
+// hand-only family: EFFECT_CANNOT_SSET also gates effect-driven Sets
+// from non-hand zones, and the corpus carries the qualified shape
+// (c88851326 splimit `c:IsLocation(LOCATION_HAND)` — "cannot Set from
+// the hand", deck Sets stay legal). Non-zone `except` atoms stay legal
+// on every summon/set/activate family member — the lua corpus carries
+// `not c:IsRace(…)` splimits on EFFECT_CANNOT_SUMMON too (c38576155;
+// zero IsLocation splimits across all 25 CANNOT_SUMMON / 4 CANNOT_MSET
+// SetTarget bodies).
+//
+// Same-zone overlap (`from X except (from X)` where the from-zone atom
+// is a whole and-term) makes every scoped card exempt — the action is
+// an engine-side no-op. Warning, not error, matching the S5 house rule
+// for spellings that are silently inert at the seam.
 fn check_restrict_qualifiers(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
     use super::ast::PlayerRestriction as PR;
     let mut check = |actions: &[Action], block_name: &str| {
@@ -545,14 +557,29 @@ fn check_restrict_qualifiers(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
                          Battle Phase restrictions take none", block_name
                     )));
                 }
-                if from_zone.is_some()
-                    && matches!(restriction,
-                        PR::CannotNormalSummon | PR::CannotSetMonsters | PR::CannotSetSpellsTraps)
+                let except_has_from_zone = except.as_ref().is_some_and(|e|
+                    e.terms.iter().any(|t|
+                        t.atoms.iter().any(|at| matches!(at, ExemptAtom::FromZone(_)))));
+                if (from_zone.is_some() || except_has_from_zone)
+                    && matches!(restriction, PR::CannotNormalSummon | PR::CannotSetMonsters)
                 {
                     errors.push(err(ctx.name(), &format!(
-                        "'{}': restrict `from <zone>` scopes the restriction to a source \
-                         zone — normal summons/sets only ever come from the hand", block_name
+                        "'{}': restrict source-zone qualifiers (`from <zone>` or a \
+                         from-zone exempt atom) have no dimension here — normal monster \
+                         summons/sets only ever come from the hand", block_name
                     )));
+                }
+                if let (Some(fz), Some(e)) = (from_zone, except) {
+                    if e.terms.iter().any(|t|
+                        t.atoms.len() == 1
+                            && matches!(&t.atoms[0], ExemptAtom::FromZone(z) if z == fz))
+                    {
+                        errors.push(warn(ctx.name(), &format!(
+                            "'{}': `from` and a whole-term `except (from …)` name the \
+                             same zone — every card the restriction scopes to is \
+                             exempt, so the action is a no-op", block_name
+                        )));
+                    }
                 }
             }
         });
@@ -977,6 +1004,40 @@ card "Restrict Qualifier Valid Test" {
             restrict opponent cannot_normal_summon except (race == Fairy) this_turn
             restrict both_players cannot_activate from gy end_of_turn
             restrict you cannot_set_monsters except (archetype == "Shaddoll") this_turn
+            restrict you cannot_set_spells_traps from hand this_turn
+        }
+    }
+}
+"#;
+        // The last line is the c88851326 corpus shape: EFFECT_CANNOT_SSET
+        // with splimit `c:IsLocation(LOCATION_HAND)` — "cannot Set from the
+        // hand" (effect-driven deck Sets stay legal), so SSET is NOT in the
+        // hand-only family.
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
+        assert_eq!(report.warning_count(), 0, "warnings: {:?}", report.errors);
+    }
+
+    #[test]
+    fn test_restrict_qualifier_warns_on_same_zone_overlap() {
+        // T38 S2 review minor: `from X except (from X)` with a whole-term
+        // from-zone atom exempts every scoped card — engine-side no-op,
+        // warn per the S5 inert-spelling house rule. A from-zone atom
+        // and-composed with other atoms does NOT swallow the restriction
+        // and stays clean.
+        let source = r#"
+card "Restrict Overlap Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Lockdown" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict you cannot_special_summon from extra_deck except (from extra_deck) this_turn
+            restrict you cannot_special_summon from extra_deck except (is_synchro and from extra_deck) this_turn
+            restrict you cannot_special_summon from extra_deck except (from gy) this_turn
         }
     }
 }
@@ -984,7 +1045,54 @@ card "Restrict Qualifier Valid Test" {
         let file = parse_v2(source).unwrap();
         let report = validate_v2(&file);
         assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
-        assert_eq!(report.warning_count(), 0, "warnings: {:?}", report.errors);
+        assert_eq!(report.warning_count(), 1, "warnings: {:?}", report.errors);
+        assert!(report.errors.iter().any(|e| e.message.contains("no-op")),
+            "unexpected messages: {:?}", report.errors);
+    }
+
+    #[test]
+    fn test_restrict_qualifier_errors_in_nested_containers() {
+        // T38 S2 review minor: the S5 sibling check needed a post-review
+        // fix for exactly this — pin the choose-option and replacement
+        // walks so a refactor can't silently drop them.
+        let source = r#"
+card "Restrict Container Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Pick" {
+        speed: 2
+        mandatory
+        choose {
+            option "Lock" {
+                resolve {
+                    restrict opponent skip_battle_phase from extra_deck this_turn
+                }
+            }
+            option "Draw" {
+                resolve {
+                    draw 1
+                }
+            }
+        }
+    }
+
+    replacement "Lock Instead" {
+        instead_of: destroyed
+        do {
+            restrict opponent cannot_conduct_battle_phase except (is_synchro) this_turn
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        let bp_errors: Vec<_> = report.errors.iter()
+            .filter(|e| e.message.contains("Battle Phase"))
+            .collect();
+        assert_eq!(bp_errors.len(), 2, "errors: {:?}", report.errors);
+        assert!(bp_errors.iter().any(|e| e.message.contains("Lock Instead")),
+            "replacement name missing: {:?}", bp_errors);
     }
 
     #[test]
@@ -1014,10 +1122,12 @@ card "Restrict BP Qualifier Test" {
     }
 
     #[test]
-    fn test_restrict_qualifier_rejects_from_on_hand_only_restrictions() {
-        // T38 S2: normal summons/sets only come from the hand — a `from`
-        // scope is redundant or contradictory. `except` stays legal (the
-        // valid-test covers it); only `from` errors.
+    fn test_restrict_qualifier_rejects_source_zones_on_hand_only_restrictions() {
+        // T38 S2: normal monster summons/sets only come from the hand — a
+        // source-zone dimension is redundant or contradictory whether it
+        // arrives as the `from` clause OR smuggled in as a from-zone
+        // exempt atom. Non-zone `except` atoms stay legal (the valid-test
+        // covers race/archetype exemptions on this family).
         let source = r#"
 card "Restrict From Hand-Only Test" {
     id: 1
@@ -1028,15 +1138,16 @@ card "Restrict From Hand-Only Test" {
         mandatory
         resolve {
             restrict you cannot_normal_summon from deck this_turn
-            restrict you cannot_set_spells_traps from hand this_turn
+            restrict you cannot_set_monsters from deck this_turn
+            restrict you cannot_normal_summon except (from extra_deck) this_turn
         }
     }
 }
 "#;
         let file = parse_v2(source).unwrap();
         let report = validate_v2(&file);
-        assert_eq!(report.error_count(), 2, "errors: {:?}", report.errors);
-        assert!(report.errors.iter().all(|e| e.message.contains("hand")),
+        assert_eq!(report.error_count(), 3, "errors: {:?}", report.errors);
+        assert!(report.errors.iter().all(|e| e.message.contains("come from the hand")),
             "unexpected messages: {:?}", report.errors);
     }
 
