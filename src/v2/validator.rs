@@ -27,6 +27,7 @@ pub fn validate_card(card: &Card, errors: &mut Vec<ValidationError>) {
     check_effect_blocks(&ctx, errors);
     check_target_references(&ctx, errors);
     check_fusion_extra_pools(&ctx, errors);
+    check_restrict_qualifiers(&ctx, errors);
     check_spell_speeds(&ctx, errors);
     check_passive_blocks(&ctx, errors);
     check_restriction_blocks(&ctx, errors);
@@ -518,6 +519,58 @@ fn check_fusion_extra_pools(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
     }
 }
 
+// ── Restrict qualifier shape (T38 S2) ───────────────────────
+//
+// The `from <zone>` / `except (…)` clauses qualify WHICH cards a player
+// restriction covers — they only make sense where a per-card dimension
+// exists. Battle Phase restrictions have no card at all; normal
+// summons/sets have exactly one source (the hand), so a `from` scope is
+// either redundant or contradictory. Both are author errors, not
+// warnings: the compiler would forward a qualifier the engine can never
+// evaluate (the exact silent-drop path the S5 pool checks exist to
+// prevent). `except` stays legal on every summon/set/activate family
+// member — the lua corpus carries `not c:IsRace(…)` splimits on
+// EFFECT_CANNOT_SUMMON too (c38576155).
+fn check_restrict_qualifiers(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
+    use super::ast::PlayerRestriction as PR;
+    let mut check = |actions: &[Action], block_name: &str| {
+        walk_actions(actions, &mut |a| {
+            if let Action::Restrict { restriction, from_zone, except, .. } = a {
+                let qualified = from_zone.is_some() || except.is_some();
+                if qualified
+                    && matches!(restriction, PR::CannotConductBattlePhase | PR::SkipBattlePhase)
+                {
+                    errors.push(err(ctx.name(), &format!(
+                        "'{}': restrict `from`/`except` qualifiers apply per card — \
+                         Battle Phase restrictions take none", block_name
+                    )));
+                }
+                if from_zone.is_some()
+                    && matches!(restriction,
+                        PR::CannotNormalSummon | PR::CannotSetMonsters | PR::CannotSetSpellsTraps)
+                {
+                    errors.push(err(ctx.name(), &format!(
+                        "'{}': restrict `from <zone>` scopes the restriction to a source \
+                         zone — normal summons/sets only ever come from the hand", block_name
+                    )));
+                }
+            }
+        });
+    };
+    for effect in &ctx.card.effects {
+        check(&effect.resolve, &effect.name);
+        if let Some(choose) = &effect.choose {
+            for opt in &choose.options {
+                check(&opt.resolve, &effect.name);
+            }
+        }
+    }
+    for repl in &ctx.card.replacements {
+        let name = repl.name.as_deref().unwrap_or("replacement");
+        check(&repl.actions, name);
+    }
+}
+
 /// Depth-first walk over an action list, recursing into every nested
 /// action container (`if`, `coin_flip`, `dice_roll`, `delayed`,
 /// `and_if_you_do`, `then`, `also`, `for_each`, `install_watcher`,
@@ -903,6 +956,88 @@ card "Fusion Plus Valid Test" {
         let report = validate_v2(&file);
         assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
         assert_eq!(report.warning_count(), 0, "warnings: {:?}", report.errors);
+    }
+
+    #[test]
+    fn test_restrict_qualifiers_valid() {
+        // T38 S2: from/except on the summon + activate families validate
+        // clean — including except on cannot_normal_summon (the c38576155
+        // corpus shape) and from on the activate family (activation
+        // location).
+        let source = r#"
+card "Restrict Qualifier Valid Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Summon Limits" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict you cannot_special_summon from extra_deck except (is_synchro) this_turn
+            restrict opponent cannot_normal_summon except (race == Fairy) this_turn
+            restrict both_players cannot_activate from gy end_of_turn
+            restrict you cannot_set_monsters except (archetype == "Shaddoll") this_turn
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
+        assert_eq!(report.warning_count(), 0, "warnings: {:?}", report.errors);
+    }
+
+    #[test]
+    fn test_restrict_qualifier_rejects_battle_phase_qualifiers() {
+        // T38 S2: Battle Phase restrictions have no per-card dimension —
+        // any qualifier is an author error.
+        let source = r#"
+card "Restrict BP Qualifier Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Lockdown" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict opponent cannot_conduct_battle_phase except (is_synchro) this_turn
+            restrict opponent skip_battle_phase from extra_deck this_turn
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        assert_eq!(report.error_count(), 2, "errors: {:?}", report.errors);
+        assert!(report.errors.iter().all(|e| e.message.contains("Battle Phase")),
+            "unexpected messages: {:?}", report.errors);
+    }
+
+    #[test]
+    fn test_restrict_qualifier_rejects_from_on_hand_only_restrictions() {
+        // T38 S2: normal summons/sets only come from the hand — a `from`
+        // scope is redundant or contradictory. `except` stays legal (the
+        // valid-test covers it); only `from` errors.
+        let source = r#"
+card "Restrict From Hand-Only Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Lockdown" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict you cannot_normal_summon from deck this_turn
+            restrict you cannot_set_spells_traps from hand this_turn
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        assert_eq!(report.error_count(), 2, "errors: {:?}", report.errors);
+        assert!(report.errors.iter().all(|e| e.message.contains("hand")),
+            "unexpected messages: {:?}", report.errors);
     }
 
     #[test]

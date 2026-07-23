@@ -613,7 +613,30 @@ grant_ability = {
 // T36 — player-scoped restriction (resolve-time EFFECT_TYPE_FIELD effects
 // that restrict a PLAYER rather than cards; lua SetTargetRange(p1,p2) flags).
 // Prefix ordering matters: cannot_activate_* variants before cannot_activate.
-restrict_action = { "restrict" ~ player_scope ~ player_restriction ~ duration? }
+// T38 S2 — optional qualifier clauses (the lua summon-limit `SetTarget` /
+// activation-filter `SetValue` closures): `from <zone>` scopes the
+// restriction to one source zone (summon family: the summoned card's
+// origin; activate family: the activation location), `except (…)` carves
+// out an exemption. Exempt atoms are the enum/name/tag subset of pred_atom
+// (no stat compares — the splimit corpus never quantifies) plus a from-zone
+// atom for or-composed zone exemptions ("except X monsters or summons from
+// the Extra Deck"). Composition is or-of-and-terms; `not A and not B`
+// splits into two or-terms by De Morgan at translation time.
+restrict_action = { "restrict" ~ player_scope ~ player_restriction ~ restrict_from? ~ restrict_except? ~ duration? }
+restrict_from   = { "from" ~ zone }
+restrict_except = { "except" ~ "(" ~ exempt_expr ~ ")" }
+exempt_expr = { exempt_term ~ ("or" ~ exempt_term)* }
+exempt_term = { exempt_atom ~ ("and" ~ exempt_atom)* }
+exempt_atom = {
+    "attribute" ~ "==" ~ attribute
+  | "race" ~ "==" ~ race
+  | "name" ~ "==" ~ string
+  | "archetype" ~ "==" ~ string
+  | "from" ~ zone
+  | "is_effect" | "is_normal" | "is_tuner"
+  | "is_fusion" | "is_synchro" | "is_xyz" | "is_link"
+  | "is_ritual" | "is_pendulum" | "is_token"
+}
 player_scope = { "both_players" | "you" | "opponent" }
 player_restriction = {
     "cannot_special_summon"

@@ -594,7 +594,17 @@ pub enum Action {
     /// T36 — player-scoped restriction. Unlike `Grant` (card-scoped), this
     /// restricts what a PLAYER may do (lua: EFFECT_TYPE_FIELD +
     /// EFFECT_FLAG_PLAYER_TARGET + SetTargetRange(p1,p2) player flags).
-    Restrict { scope: PlayerScope, restriction: PlayerRestriction, duration: Option<Duration> },
+    /// T38 S2 — `from_zone` (`from <zone>` clause) scopes the restriction to
+    /// one source zone; `except` (`except (…)` clause) carves out an
+    /// exemption. Together they mirror the lua summon-limit `SetTarget` /
+    /// activation-filter `SetValue` qualifier closures.
+    Restrict {
+        scope: PlayerScope,
+        restriction: PlayerRestriction,
+        from_zone: Option<Zone>,
+        except: Option<ExemptExpr>,
+        duration: Option<Duration>,
+    },
     /// T37 — player-scoped damage-shaping rule. Shapes the damage a PLAYER
     /// takes (lua: resolve-time EFFECT_TYPE_FIELD + EFFECT_FLAG_PLAYER_TARGET
     /// with EFFECT_CHANGE_DAMAGE / EFFECT_AVOID_BATTLE_DAMAGE / etc.).
@@ -704,6 +714,50 @@ pub enum PlayerRestriction {
     CannotConductBattlePhase,
     /// EFFECT_SKIP_BP — Battle Phase is skipped.
     SkipBattlePhase,
+}
+
+/// T38 S2 — exemption expression on a player-scoped restriction (the
+/// `except (…)` clause): or-composition of and-terms over a closed atom
+/// vocabulary. Mirrors the lua summon-limit (`SetTarget` splimit) /
+/// activation-filter (`SetValue` aclimit) predicate shapes:
+/// `return not c:IsRace(R)` → one atom; `not (A and B)` → one and-term;
+/// `not A and not B` → two or-terms (De Morgan).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExemptExpr {
+    /// Or-composed terms — a card is exempt when ANY term matches.
+    pub terms: Vec<ExemptTerm>,
+}
+
+/// One and-term of an [`ExemptExpr`]: matches when ALL atoms hold.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExemptTerm {
+    pub atoms: Vec<ExemptAtom>,
+}
+
+/// Closed exempt-atom vocabulary: the enum/name/tag subset of
+/// `PredicateAtom` (no stat compares, no position tags — the splimit
+/// corpus never quantifies or inspects position) plus a from-zone atom
+/// for or-composed zone exemptions.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ExemptAtom {
+    Attribute(Attribute),
+    Race(Race),
+    Name(String),
+    Archetype(String),
+    /// Exempts cards sourced from a zone (`from <zone>` inside the
+    /// parens — distinct from the action-level `from` clause, which
+    /// SCOPES the restriction to a zone rather than exempting one).
+    FromZone(Zone),
+    IsEffect,
+    IsNormal,
+    IsTuner,
+    IsFusion,
+    IsSynchro,
+    IsXyz,
+    IsLink,
+    IsRitual,
+    IsPendulum,
+    IsToken,
 }
 
 // ── Player-Scoped Damage Rules (T37) ─────────────────────────

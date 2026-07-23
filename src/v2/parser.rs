@@ -1075,6 +1075,71 @@ fn parse_pred_atom(pair: Pair<Rule>) -> Result<PredicateAtom, V2ParseError> {
     }
 }
 
+// ── Exempt Expressions (T38 S2 restrict qualifiers) ─────────
+
+fn parse_exempt_expr(pair: Pair<Rule>) -> Result<ExemptExpr, V2ParseError> {
+    let mut terms = Vec::new();
+    for p in pair.into_inner() {
+        if p.as_rule() == Rule::exempt_term {
+            terms.push(parse_exempt_term(p)?);
+        }
+    }
+    Ok(ExemptExpr { terms })
+}
+
+fn parse_exempt_term(pair: Pair<Rule>) -> Result<ExemptTerm, V2ParseError> {
+    let mut atoms = Vec::new();
+    for p in pair.into_inner() {
+        if p.as_rule() == Rule::exempt_atom {
+            atoms.push(parse_exempt_atom(p)?);
+        }
+    }
+    Ok(ExemptTerm { atoms })
+}
+
+fn parse_exempt_atom(pair: Pair<Rule>) -> Result<ExemptAtom, V2ParseError> {
+    let text = normalize_ws(pair.as_str());
+    let inner: Vec<Pair<Rule>> = pair.into_inner().collect();
+
+    if let Some(first) = inner.first() {
+        match first.as_rule() {
+            Rule::attribute => {
+                return Ok(ExemptAtom::Attribute(parse_attribute(first.as_str().trim())?));
+            }
+            Rule::race => {
+                return Ok(ExemptAtom::Race(parse_race(first.as_str().trim())?));
+            }
+            Rule::zone => {
+                return Ok(ExemptAtom::FromZone(parse_zone(first.as_str().trim())?));
+            }
+            Rule::string => {
+                let s = strip_quotes(first.as_str());
+                if text.starts_with("name") {
+                    return Ok(ExemptAtom::Name(s));
+                }
+                if text.starts_with("archetype") {
+                    return Ok(ExemptAtom::Archetype(s));
+                }
+            }
+            _ => {}
+        }
+    }
+
+    match text.as_str() {
+        "is_effect"   => Ok(ExemptAtom::IsEffect),
+        "is_normal"   => Ok(ExemptAtom::IsNormal),
+        "is_tuner"    => Ok(ExemptAtom::IsTuner),
+        "is_fusion"   => Ok(ExemptAtom::IsFusion),
+        "is_synchro"  => Ok(ExemptAtom::IsSynchro),
+        "is_xyz"      => Ok(ExemptAtom::IsXyz),
+        "is_link"     => Ok(ExemptAtom::IsLink),
+        "is_ritual"   => Ok(ExemptAtom::IsRitual),
+        "is_pendulum" => Ok(ExemptAtom::IsPendulum),
+        "is_token"    => Ok(ExemptAtom::IsToken),
+        _ => Err(V2ParseError::UnknownRule(format!("exempt_atom: {}", text))),
+    }
+}
+
 // ── Conditions ──────────────────────────────────────────────
 
 fn parse_condition(pair: Pair<Rule>) -> Result<Condition, V2ParseError> {
@@ -1840,11 +1905,23 @@ fn parse_action(pair: Pair<Rule>) -> Result<Action, V2ParseError> {
             let mut it = inner.into_inner();
             let scope = parse_player_scope(it.next().unwrap().as_str().trim())?;
             let restriction = parse_player_restriction(it.next().unwrap().as_str().trim())?;
-            let duration = it.next()
-                .filter(|p| p.as_rule() == Rule::duration)
-                .map(|p| parse_duration(p.as_str().trim()))
-                .transpose()?;
-            Ok(Action::Restrict { scope, restriction, duration })
+            let mut from_zone = None;
+            let mut except = None;
+            let mut duration = None;
+            for p in it {
+                match p.as_rule() {
+                    Rule::restrict_from => {
+                        from_zone = Some(parse_zone(
+                            p.into_inner().next().unwrap().as_str().trim())?);
+                    }
+                    Rule::restrict_except => {
+                        except = Some(parse_exempt_expr(p.into_inner().next().unwrap())?);
+                    }
+                    Rule::duration => duration = Some(parse_duration(p.as_str().trim())?),
+                    _ => {}
+                }
+            }
+            Ok(Action::Restrict { scope, restriction, from_zone, except, duration })
         }
         Rule::damage_rule_action => {
             let mut it = inner.into_inner();
@@ -2864,16 +2941,22 @@ card "Restrict Test" {
         assert!(matches!(&resolve[0], Action::Restrict {
             scope: PlayerScope::You,
             restriction: PlayerRestriction::CannotSpecialSummon,
+            from_zone: None,
+            except: None,
             duration: Some(Duration::ThisTurn),
         }));
         assert!(matches!(&resolve[1], Action::Restrict {
             scope: PlayerScope::Opponent,
             restriction: PlayerRestriction::CannotActivateSpellsTraps,
+            from_zone: None,
+            except: None,
             duration: Some(Duration::EndOfTurn),
         }));
         assert!(matches!(&resolve[2], Action::Restrict {
             scope: PlayerScope::BothPlayers,
             restriction: PlayerRestriction::CannotActivate,
+            from_zone: None,
+            except: None,
             duration: None,
         }));
         assert!(matches!(&resolve[3], Action::Restrict {
@@ -2885,8 +2968,107 @@ card "Restrict Test" {
         assert!(matches!(&resolve[5], Action::Restrict {
             scope: PlayerScope::Opponent,
             restriction: PlayerRestriction::SkipBattlePhase,
+            from_zone: None,
+            except: None,
             duration: Some(Duration::NTurns(2)),
         }));
+    }
+
+    #[test]
+    fn test_restrict_qualifier_clauses_parse() {
+        // T38 S2: `from <zone>` / `except (…)` qualifiers — bare from,
+        // bare except (single atom), from+except combined, or-composition
+        // with a from-zone atom, and-composition, and every atom family.
+        let source = r#"
+card "Restrict Qualifier Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Summon Limits" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict you cannot_special_summon from extra_deck this_turn
+            restrict both_players cannot_special_summon except (race == Insect) this_turn
+            restrict you cannot_special_summon from extra_deck except (is_synchro) this_turn
+            restrict you cannot_special_summon except (archetype == "Vaylantz" or from extra_deck) this_turn
+            restrict you cannot_special_summon except (archetype == "HERO" and attribute == DARK) this_turn
+            restrict opponent cannot_activate from gy end_of_turn
+            restrict you cannot_special_summon except (name == "Adventurer Token" or is_token) this_turn
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let resolve = &file.cards[0].effects[0].resolve;
+        assert_eq!(resolve.len(), 7);
+
+        // Bare `from`.
+        assert!(matches!(&resolve[0], Action::Restrict {
+            scope: PlayerScope::You,
+            restriction: PlayerRestriction::CannotSpecialSummon,
+            from_zone: Some(Zone::ExtraDeck),
+            except: None,
+            duration: Some(Duration::ThisTurn),
+        }));
+
+        // Bare `except`, single race atom.
+        match &resolve[1] {
+            Action::Restrict { from_zone: None, except: Some(e), .. } => {
+                assert_eq!(e.terms.len(), 1);
+                assert_eq!(e.terms[0].atoms, vec![ExemptAtom::Race(Race::Insect)]);
+            }
+            other => panic!("expected qualified Restrict, got {:?}", other),
+        }
+
+        // `from` + `except` combined, tag atom.
+        match &resolve[2] {
+            Action::Restrict { from_zone: Some(Zone::ExtraDeck), except: Some(e), .. } => {
+                assert_eq!(e.terms[0].atoms, vec![ExemptAtom::IsSynchro]);
+            }
+            other => panic!("expected from+except Restrict, got {:?}", other),
+        }
+
+        // Or-composition: archetype atom or from-zone atom.
+        match &resolve[3] {
+            Action::Restrict { from_zone: None, except: Some(e), .. } => {
+                assert_eq!(e.terms.len(), 2);
+                assert_eq!(e.terms[0].atoms, vec![ExemptAtom::Archetype("Vaylantz".into())]);
+                assert_eq!(e.terms[1].atoms, vec![ExemptAtom::FromZone(Zone::ExtraDeck)]);
+            }
+            other => panic!("expected or-composed except, got {:?}", other),
+        }
+
+        // And-composition inside one term.
+        match &resolve[4] {
+            Action::Restrict { except: Some(e), .. } => {
+                assert_eq!(e.terms.len(), 1);
+                assert_eq!(e.terms[0].atoms, vec![
+                    ExemptAtom::Archetype("HERO".into()),
+                    ExemptAtom::Attribute(Attribute::Dark),
+                ]);
+            }
+            other => panic!("expected and-composed except, got {:?}", other),
+        }
+
+        // `from` on the activate family (activation location).
+        assert!(matches!(&resolve[5], Action::Restrict {
+            scope: PlayerScope::Opponent,
+            restriction: PlayerRestriction::CannotActivate,
+            from_zone: Some(Zone::Gy),
+            except: None,
+            duration: Some(Duration::EndOfTurn),
+        }));
+
+        // Name atom + tag atom or-composed.
+        match &resolve[6] {
+            Action::Restrict { except: Some(e), .. } => {
+                assert_eq!(e.terms.len(), 2);
+                assert_eq!(e.terms[0].atoms, vec![ExemptAtom::Name("Adventurer Token".into())]);
+                assert_eq!(e.terms[1].atoms, vec![ExemptAtom::IsToken]);
+            }
+            other => panic!("expected name/tag except, got {:?}", other),
+        }
     }
 
     #[test]

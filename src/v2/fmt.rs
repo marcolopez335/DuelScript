@@ -722,9 +722,15 @@ fn format_action(a: &Action, out: &mut String, indent: usize) {
             }
             writeln!(out, "{}", s).unwrap();
         }
-        Action::Restrict { scope, restriction, duration } => {
+        Action::Restrict { scope, restriction, from_zone, except, duration } => {
             let mut s = format!("{}restrict {} {}", pad,
                 format_player_scope(scope), format_player_restriction(restriction));
+            if let Some(z) = from_zone {
+                s.push_str(&format!(" from {}", format_zone(z)));
+            }
+            if let Some(e) = except {
+                s.push_str(&format!(" except ({})", format_exempt_expr(e)));
+            }
             if let Some(d) = duration {
                 s.push_str(&format!(" {}", format_duration(d)));
             }
@@ -1345,6 +1351,43 @@ fn format_player_restriction(r: &PlayerRestriction) -> &'static str {
     }
 }
 
+// T38 S2 — `except (…)` qualifier on a player-scoped restriction:
+// or-composed and-terms, one canonical spelling per atom (the pred_atom
+// enum/name/tag subset plus the from-zone atom).
+fn format_exempt_expr(e: &ExemptExpr) -> String {
+    e.terms
+        .iter()
+        .map(|t| {
+            t.atoms
+                .iter()
+                .map(format_exempt_atom)
+                .collect::<Vec<_>>()
+                .join(" and ")
+        })
+        .collect::<Vec<_>>()
+        .join(" or ")
+}
+
+fn format_exempt_atom(a: &ExemptAtom) -> String {
+    match a {
+        ExemptAtom::Attribute(x) => format!("attribute == {}", format_attribute(x)),
+        ExemptAtom::Race(r)      => format!("race == {}", format_race(r)),
+        ExemptAtom::Name(s)      => format!("name == \"{}\"", s),
+        ExemptAtom::Archetype(s) => format!("archetype == \"{}\"", s),
+        ExemptAtom::FromZone(z)  => format!("from {}", format_zone(z)),
+        ExemptAtom::IsEffect     => "is_effect".to_string(),
+        ExemptAtom::IsNormal     => "is_normal".to_string(),
+        ExemptAtom::IsTuner      => "is_tuner".to_string(),
+        ExemptAtom::IsFusion     => "is_fusion".to_string(),
+        ExemptAtom::IsSynchro    => "is_synchro".to_string(),
+        ExemptAtom::IsXyz        => "is_xyz".to_string(),
+        ExemptAtom::IsLink       => "is_link".to_string(),
+        ExemptAtom::IsRitual     => "is_ritual".to_string(),
+        ExemptAtom::IsPendulum   => "is_pendulum".to_string(),
+        ExemptAtom::IsToken      => "is_token".to_string(),
+    }
+}
+
 fn format_damage_rule(r: &DamageRule) -> &'static str {
     match r {
         DamageRule::NoDamage            => "no_damage",
@@ -1744,6 +1787,51 @@ card "Restrict Roundtrip Test" {
         let reparsed = parse_v2(&formatted)
             .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
         assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 11);
+        assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
+    }
+
+    #[test]
+    fn test_restrict_qualifier_clauses_roundtrip() {
+        // T38 S2: `from <zone>` / `except (…)` qualifiers — each clause
+        // alone, both combined, or/and composition, and every atom family
+        // survive the parse -> format -> reparse fixed point.
+        let source = r#"
+card "Restrict Qualifier Roundtrip Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Summon Limits" {
+        speed: 2
+        mandatory
+        resolve {
+            restrict you cannot_special_summon from extra_deck this_turn
+            restrict both_players cannot_special_summon except (race == Insect) this_turn
+            restrict you cannot_special_summon from extra_deck except (is_synchro) this_turn
+            restrict you cannot_special_summon except (archetype == "Vaylantz" or from extra_deck) this_turn
+            restrict you cannot_special_summon except (archetype == "HERO" and attribute == DARK) this_turn
+            restrict opponent cannot_activate from gy end_of_turn
+            restrict you cannot_special_summon except (name == "Adventurer Token" or is_token)
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let formatted = format_file(&file);
+        assert!(formatted.contains("restrict you cannot_special_summon from extra_deck this_turn"),
+            "missing bare-from line in:\n{}", formatted);
+        assert!(formatted.contains("restrict both_players cannot_special_summon except (race == Insect) this_turn"),
+            "missing bare-except line in:\n{}", formatted);
+        assert!(formatted.contains("restrict you cannot_special_summon from extra_deck except (is_synchro) this_turn"),
+            "missing from+except line in:\n{}", formatted);
+        assert!(formatted.contains("except (archetype == \"Vaylantz\" or from extra_deck)"),
+            "missing or-composed except in:\n{}", formatted);
+        assert!(formatted.contains("except (archetype == \"HERO\" and attribute == DARK)"),
+            "missing and-composed except in:\n{}", formatted);
+        assert!(formatted.contains("except (name == \"Adventurer Token\" or is_token)\n"),
+            "duration-less qualified restrict mis-rendered in:\n{}", formatted);
+        let reparsed = parse_v2(&formatted)
+            .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
+        assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 7);
         assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
     }
 
