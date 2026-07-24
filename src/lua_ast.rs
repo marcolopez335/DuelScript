@@ -4105,6 +4105,17 @@ const CARD_METHOD_OPS: &[&str] = &[
     "NegateEffects", "RemoveOverlayCard",
 ];
 
+/// Card methods that MUTATE but have no translator lowering (T38 S2
+/// review blocker): a body carrying one in ANY position must poison the
+/// method-op family so `body_drops_chains` rejects fills. Inline equips
+/// are invisible to every collector (equip recognition is the s.*
+/// helper-call pattern only) — without this the c33744268/c6355563
+/// Union pieces filled restrict-only resolves that silently dropped
+/// the equip half of the handler. Both spellings listed: the
+/// `contains(":{m}(")` probe requires the exact method-name-to-paren
+/// token, so the shorter name does not cover the longer one.
+const CARD_METHOD_POISON: &[&str] = &["EquipByEffect", "EquipByEffectAndLimitRegister"];
+
 /// Extract mutating Card-method statements from a function block
 /// (T38 S6). Returns `(ops, poisoned)`. The family is emptied AND
 /// flagged when:
@@ -4133,7 +4144,9 @@ fn extract_method_ops(block: &Block) -> (Vec<CardMethodOp>, bool) {
 /// conditional / value-consuming shapes have no faithful line emission.
 fn expr_has_method_op(expr: &Expression) -> bool {
     let text = expr.to_string();
-    CARD_METHOD_OPS.iter().any(|m| text.contains(&format!(":{}(", m)))
+    CARD_METHOD_OPS.iter()
+        .chain(CARD_METHOD_POISON)
+        .any(|m| text.contains(&format!(":{}(", m)))
 }
 
 /// True when any assignment in the block (recursively) writes a
@@ -4196,9 +4209,14 @@ fn collect_method_ops(
                 } else {
                     // A method op nested inside another call's argument
                     // list (or behind a chained suffix) still mutates —
-                    // poison rather than under-state.
+                    // poison rather than under-state. Unlowerable
+                    // mutators (CARD_METHOD_POISON) poison from plain
+                    // statement position too.
                     let text = fc.to_string();
-                    if CARD_METHOD_OPS.iter().any(|m| text.contains(&format!(":{}(", m))) {
+                    if CARD_METHOD_OPS.iter()
+                        .chain(CARD_METHOD_POISON)
+                        .any(|m| text.contains(&format!(":{}(", m)))
+                    {
                         *poisoned = true;
                     }
                 }
@@ -6936,26 +6954,31 @@ fn type_const_to_exempt_tag(c: &str) -> Option<&'static str> {
     })
 }
 
-/// Split `s` on `sep` at paren depth zero.
+/// Split `s` on `sep` at paren depth zero. Iterates by char boundary
+/// (T38 S2 review fix): the corpus's return-expression trivia can carry
+/// multi-byte text (Japanese trailing comments survive full_moon's
+/// to_string), and a byte-stepped `&s[i..]` slice panics mid-character
+/// — one bad card would abort the whole translate/apply run instead of
+/// skipping.
 fn split_top_level<'a>(s: &'a str, sep: &str) -> Vec<&'a str> {
     let mut parts = Vec::new();
     let mut depth = 0usize;
     let mut start = 0usize;
-    let bytes = s.as_bytes();
-    let mut i = 0;
-    while i < s.len() {
-        match bytes[i] {
-            b'(' => depth += 1,
-            b')' => depth = depth.saturating_sub(1),
+    let mut skip_until = 0usize;
+    for (i, ch) in s.char_indices() {
+        if i < skip_until {
+            continue;
+        }
+        match ch {
+            '(' => depth += 1,
+            ')' => depth = depth.saturating_sub(1),
             _ if depth == 0 && s[i..].starts_with(sep) => {
                 parts.push(&s[start..i]);
                 start = i + sep.len();
-                i += sep.len();
-                continue;
+                skip_until = start;
             }
             _ => {}
         }
-        i += 1;
     }
     parts.push(&s[start..]);
     parts
@@ -14978,6 +15001,242 @@ end
 "#, code, body);
             let actions = p11_actions(&src, "s.activate");
             assert!(actions.is_empty(), "must skip: {} {} got {:?}", code, body, actions);
+        }
+    }
+
+    #[test]
+    fn s2_gate_inline_equip_poisons_body() {
+        // T38 S2 review blocker (c33744268/c6355563 Union pieces): the
+        // handler FIRST equips via an inline
+        // c:EquipByEffectAndLimitRegister statement — invisible to every
+        // collector — then registers a now-decodable restrict chain. The
+        // fill gate must poison, or the apply pass ships a restrict-only
+        // resolve that drops the equip half.
+        let src = r#"
+function s.eqop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and c:IsRelateToEffect(e) and c:IsFaceup() then
+        local ec=Duel.SelectMatchingCard(tp,s.eqfilter,tp,LOCATION_REMOVED,0,1,1,nil,tp):GetFirst()
+        if ec then
+            c:EquipByEffectAndLimitRegister(e,tp,ec,nil,true)
+        end
+    end
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(function(e,c) return c:IsLocation(LOCATION_EXTRA) and not c:IsAttribute(ATTRIBUTE_LIGHT) end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.eqop").expect("body");
+        assert!(body.method_ops_poisoned,
+            "inline equip mutator must poison the method-op family");
+        assert!(body_drops_chains(body, &report.functions),
+            "fill gate must reject the equip-carrying body");
+    }
+
+    #[test]
+    fn s2_split_top_level_non_ascii_and_unbalanced_safe() {
+        // T38 S2 review fix: return-expression trivia can carry
+        // multi-byte text (Japanese trailing comments survive full_moon's
+        // to_string) — the splitter must stay on char boundaries, and
+        // unbalanced parens must degrade to a skip, never a panic.
+        let jp = "not c:IsRace(RACE_ZOMBIE) --エクストラ";
+        assert_eq!(split_top_level(jp, " and "), vec![jp]);
+        assert_eq!(
+            split_top_level("a and (b and c", " and "),
+            vec!["a", "(b and c"],
+        );
+        // End-to-end: a named splimit whose return line carries the
+        // comment must SKIP (suffix breaks the atom decode), not abort.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(s.splimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.splimit(e,c)
+    return not c:IsRace(RACE_ZOMBIE) --エクストラ
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "comment-suffixed splimit must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn s2_restrict_activate_monster_effects_with_location() {
+        // T38 S2 review coverage: keyword + activation-location scope
+        // combined, both conjunct orders.
+        for body in [
+            "return re:IsMonsterEffect() and re:GetActivateLocation()==LOCATION_GRAVE",
+            "return re:GetActivateLocation()==LOCATION_GRAVE and re:IsMonsterEffect()",
+        ] {
+            let src = format!(r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+    e1:SetTargetRange(0,1)
+    e1:SetValue(s.aclimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.aclimit(e,re,tp)
+    {}
+end
+"#, body);
+            assert_eq!(
+                p11_actions(&src, "s.activate"),
+                vec!["restrict opponent cannot_activate_monster_effects from gy end_of_turn"],
+                "conjunct order variant failed: {}", body,
+            );
+        }
+    }
+
+    #[test]
+    fn s2_restrict_sset_from_hand() {
+        // The c88851326 class: EFFECT_CANNOT_SSET with an
+        // IsLocation(HAND) splimit — "cannot Set from the hand" (deck
+        // Sets stay legal). SSET is deliberately NOT in the validator's
+        // hand-only family, so this emits.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SSET)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(function(e,c) return c:IsLocation(LOCATION_HAND) end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict you cannot_set_spells_traps from hand end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s2_restrict_receiver_and_arity_variants() {
+        // Named splimit with the `_c` receiver spelling, and a 7-param
+        // inline closure (the widest corpus arity) — both must decode.
+        let named = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(s.splimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.splimit(_e,_c)
+    return not _c:IsAttribute(ATTRIBUTE_WIND)
+end
+"#;
+        assert_eq!(
+            p11_actions(named, "s.activate"),
+            vec!["restrict you cannot_special_summon except (attribute == WIND) end_of_turn"],
+        );
+        let wide = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(function(e,c,sump,sumtype,sumpos,targetp,se) return not c:IsRace(RACE_DRAGON) end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(wide, "s.activate"),
+            vec!["restrict you cannot_special_summon except (race == Dragon) end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s2_restrict_group_with_sibling_conjunct() {
+        // Composition: a location scope AND a negated group in one
+        // splimit — from + one and-composed exempt term.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(function(e,c) return c:IsLocation(LOCATION_EXTRA) and not (c:IsSetCard(SET_HERO) and c:IsAttribute(ATTRIBUTE_DARK)) end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec![r#"restrict you cannot_special_summon from extra_deck except (archetype == "HERO" and attribute == DARK) end_of_turn"#],
+        );
+    }
+
+    #[test]
+    fn s2_restrict_settarget_aux_true() {
+        // SetTarget(aux.TRUE) is the unqualified-flag spelling — emits
+        // the bare keyword (c40383551 class).
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(aux.TRUE)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict you cannot_special_summon end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s2_skip_activate_edge_shapes() {
+        // Unmapped activation location, a SetTarget on the activate
+        // family, and a non-IsLocation TargetBoolFunction all skip.
+        let cases = [
+            // GetActivateLocation outside the narrowed zone set.
+            (r#"e1:SetValue(function(e,re) return re:GetActivateLocation()==LOCATION_MZONE end)"#, ""),
+            // SetTarget never appears on CANNOT_ACTIVATE in the corpus.
+            (r#"e1:SetValue(1)
+    e1:SetTarget(s.unknowntg)"#, ""),
+            // TargetBoolFunction over a non-location predicate.
+            ("", r#"e1:SetTarget(aux.TargetBoolFunction(Card.IsRace,RACE_ZOMBIE))"#),
+        ];
+        for (i, (activate_extra, summon_extra)) in cases.iter().enumerate() {
+            let (code, extra) = if summon_extra.is_empty() {
+                ("EFFECT_CANNOT_ACTIVATE", *activate_extra)
+            } else {
+                ("EFFECT_CANNOT_SPECIAL_SUMMON", *summon_extra)
+            };
+            let src = format!(r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode({})
+    e1:SetTargetRange(1,0)
+    {}
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#, code, extra);
+            let actions = p11_actions(&src, "s.activate");
+            assert!(actions.is_empty(), "case {} must skip, got {:?}", i, actions);
         }
     }
 
