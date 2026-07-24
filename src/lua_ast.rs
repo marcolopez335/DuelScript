@@ -1188,6 +1188,16 @@ fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
         "SET_VAYLANTZ"     => "Vaylantz",
         // T38 S3 — referenced by snapshot-negation group filters.
         "SET_UA"           => "U.A.",
+        // T38 S2 — archetypes referenced by summon-limit splimits.
+        "SET_ABYSS_ACTOR"   => "Abyss Actor",
+        "SET_ARCANA_FORCE"  => "Arcana Force",
+        "SET_BATTLIN_BOXER" => "Battlin' Boxer",
+        "SET_DINOMORPHIA"   => "Dinomorphia",
+        "SET_GIMMICK_PUPPET" => "Gimmick Puppet",
+        "SET_HERO"          => "HERO",
+        "SET_INFERNOID"     => "Infernoid",
+        "SET_PRANK_KIDS"    => "Prank-Kids",
+        "SET_YOSENJU"       => "Yosenju",
         _ => return None,
     })
 }
@@ -4095,6 +4105,17 @@ const CARD_METHOD_OPS: &[&str] = &[
     "NegateEffects", "RemoveOverlayCard",
 ];
 
+/// Card methods that MUTATE but have no translator lowering (T38 S2
+/// review blocker): a body carrying one in ANY position must poison the
+/// method-op family so `body_drops_chains` rejects fills. Inline equips
+/// are invisible to every collector (equip recognition is the s.*
+/// helper-call pattern only) — without this the c33744268/c6355563
+/// Union pieces filled restrict-only resolves that silently dropped
+/// the equip half of the handler. Both spellings listed: the
+/// `contains(":{m}(")` probe requires the exact method-name-to-paren
+/// token, so the shorter name does not cover the longer one.
+const CARD_METHOD_POISON: &[&str] = &["EquipByEffect", "EquipByEffectAndLimitRegister"];
+
 /// Extract mutating Card-method statements from a function block
 /// (T38 S6). Returns `(ops, poisoned)`. The family is emptied AND
 /// flagged when:
@@ -4123,7 +4144,9 @@ fn extract_method_ops(block: &Block) -> (Vec<CardMethodOp>, bool) {
 /// conditional / value-consuming shapes have no faithful line emission.
 fn expr_has_method_op(expr: &Expression) -> bool {
     let text = expr.to_string();
-    CARD_METHOD_OPS.iter().any(|m| text.contains(&format!(":{}(", m)))
+    CARD_METHOD_OPS.iter()
+        .chain(CARD_METHOD_POISON)
+        .any(|m| text.contains(&format!(":{}(", m)))
 }
 
 /// True when any assignment in the block (recursively) writes a
@@ -4186,9 +4209,14 @@ fn collect_method_ops(
                 } else {
                     // A method op nested inside another call's argument
                     // list (or behind a chained suffix) still mutates —
-                    // poison rather than under-state.
+                    // poison rather than under-state. Unlowerable
+                    // mutators (CARD_METHOD_POISON) poison from plain
+                    // statement position too.
                     let text = fc.to_string();
-                    if CARD_METHOD_OPS.iter().any(|m| text.contains(&format!(":{}(", m))) {
+                    if CARD_METHOD_OPS.iter()
+                        .chain(CARD_METHOD_POISON)
+                        .any(|m| text.contains(&format!(":{}(", m)))
+                    {
                         *poisoned = true;
                     }
                 }
@@ -6610,24 +6638,36 @@ fn field_grant_ability_for(code: &str) -> Option<&'static str> {
     })
 }
 
-/// Player-scoped restriction chain (Phase 18, T36):
+/// Player-scoped restriction chain (Phase 18, T36; qualifiers T38 S2):
 /// `EFFECT_TYPE_FIELD + SetTargetRange(<player flags>) + SetCode(<player
 /// code>) + standard reset + Duel.RegisterEffect(eN, tp)` →
-/// `restrict <you|opponent|both_players> <keyword> <duration>`.
+/// `restrict <you|opponent|both_players> <keyword> ("from" <zone>)?
+/// ("except" "(" <exempt> ")")? <duration>`.
 ///
 /// Inverts the T36 `PlayerRestriction` doc table exactly: the six
 /// value-less codes map 1:1; `EFFECT_CANNOT_ACTIVATE` keys on the
-/// `SetValue` activation filter via `classify_activate_filter`.
+/// `SetValue` activation filter via `classify_activate_filter`. T38 S2
+/// decodes the summon-limit `SetTarget` splimit (`decode_summon_limit`)
+/// into the `from`/`except` qualifier clauses, and an activation
+/// filter's `GetActivateLocation()==L` conjunct into `from <zone>`.
 ///
 /// Skip gates (None) — skip-not-mis-emit, all confirmed corpus sub-shapes:
 ///   - codes outside the 11-keyword T36 vocabulary (CANNOT_DRAW,
 ///     CANNOT_ATTACK_ANNOUNCE, …);
-///   - any `SetTarget` filter — the "cannot special summon, except X"
-///     summon-limit idiom qualifies WHICH cards the player is barred
-///     from; the unfiltered keyword would over-restrict;
+///   - `SetTarget` splimits outside `decode_summon_limit`'s closed set:
+///     label-valued (`e:GetLabel()` / `GetLabelObject`), sumtype-masked
+///     (`bit.band(sumtype, SUMMON_TYPE_*)`), link-rating, variable-arg
+///     (`races`, `orig_race`), positive non-location conjuncts (the
+///     "only X" filter class — `IsLocation(EXTRA) and IsAttribute(DARK)`
+///     restricts a POSITIVE class, not an exemption), multi-statement
+///     bodies, zones outside the narrowed restrict_zone vocabulary;
+///   - `SetTarget` on the activate family (never a corpus shape);
 ///   - `SetValue` on the value-less codes other than the literal flag
 ///     `1`, and CANNOT_ACTIVATE filters outside the four T36 shapes
-///     (attribute / location / code-specific limits);
+///     plus the S2 activation-location conjunct;
+///   - any zone dimension on the hand-only family (CANNOT_SUMMON /
+///     CANNOT_MSET) — the validator rejects those spellings, and the
+///     corpus scan found zero (25 + 4 SetTarget bodies);
 ///   - SetCondition / SetOperation closures (floodgate-style gating);
 ///   - registration to any player expr other than the literal `tp`,
 ///     card-registered chains, group-applied chains, choice arms;
@@ -6648,9 +6688,6 @@ fn translate_player_restrict_chain(
     if chain.condition.is_some() || chain.operation.is_some() {
         return None;
     }
-    if chain.set_target.is_some() {
-        return None; // filtered restriction ("…except X" summon limits)
-    }
     let dur = reset_to_duration_kw(chain.reset.as_deref(), chain.reset_count.as_deref())?;
     let reset = chain.reset.as_deref().unwrap_or("");
     if reset.contains("RESET_SELF_TURN") || reset.contains("RESET_OPPO_TURN") {
@@ -6661,8 +6698,12 @@ fn translate_player_restrict_chain(
     }
     let scope = player_scope_from_range(chain.target_range.as_deref()?)?;
     let value = chain.value.as_deref().map(str::trim);
-    let keyword = if code == "EFFECT_CANNOT_ACTIVATE" {
-        classify_activate_filter(value?, functions)?
+    let (keyword, qualifier) = if code == "EFFECT_CANNOT_ACTIVATE" {
+        if chain.set_target.is_some() {
+            return None; // never a corpus shape on the activate family
+        }
+        let (kw, from_zone) = classify_activate_filter(value?, functions)?;
+        (kw, RestrictQualifier { from_zone, except: None, except_has_zone: false })
     } else {
         // Value-less codes: lua uses no SetValue (or the literal flag 1);
         // anything else is a qualifier function — skip.
@@ -6670,7 +6711,7 @@ fn translate_player_restrict_chain(
             None | Some("1") => {}
             Some(_) => return None,
         }
-        match code {
+        let keyword = match code {
             "EFFECT_CANNOT_SPECIAL_SUMMON" => "cannot_special_summon",
             "EFFECT_CANNOT_SUMMON"         => "cannot_normal_summon",
             "EFFECT_CANNOT_MSET"           => "cannot_set_monsters",
@@ -6678,9 +6719,269 @@ fn translate_player_restrict_chain(
             "EFFECT_CANNOT_BP"             => "cannot_conduct_battle_phase",
             "EFFECT_SKIP_BP"               => "skip_battle_phase",
             _ => return None,
+        };
+        let qualifier = match chain.set_target.as_deref() {
+            None => RestrictQualifier::default(),
+            Some(raw) => decode_summon_limit(raw, functions)?,
+        };
+        // Qualifier placements the validator rejects: any qualifier on
+        // the Battle Phase pair; a zone dimension on the hand-only
+        // normal-summon/set family.
+        if !qualifier.is_empty()
+            && matches!(code, "EFFECT_CANNOT_BP" | "EFFECT_SKIP_BP")
+        {
+            return None;
         }
+        if (qualifier.from_zone.is_some() || qualifier.except_has_zone)
+            && matches!(code, "EFFECT_CANNOT_SUMMON" | "EFFECT_CANNOT_MSET")
+        {
+            return None;
+        }
+        (keyword, qualifier)
     };
-    Some(DslLine::Action(format!("restrict {} {} {}", scope, keyword, dur)))
+    let mut line = format!("restrict {} {}", scope, keyword);
+    if let Some(z) = qualifier.from_zone {
+        line.push_str(&format!(" from {}", z));
+    }
+    if let Some(e) = &qualifier.except {
+        line.push_str(&format!(" except ({})", e));
+    }
+    line.push_str(&format!(" {}", dur));
+    Some(DslLine::Action(line))
+}
+
+/// T38 S2 — decoded restrict qualifier: the `from <zone>` keyword and
+/// the rendered `except (…)` body (fmt-canonical spellings, joined at
+/// emit time). `except_has_zone` tracks from-zone exempt atoms so the
+/// hand-only family gate can reject smuggled zone dimensions without
+/// re-parsing the rendered text.
+#[derive(Default)]
+struct RestrictQualifier {
+    from_zone: Option<&'static str>,
+    except: Option<String>,
+    except_has_zone: bool,
+}
+
+impl RestrictQualifier {
+    fn is_empty(&self) -> bool {
+        self.from_zone.is_none() && self.except.is_none()
+    }
+}
+
+/// Decode a summon-limit `SetTarget` splimit into the S2 qualifier.
+/// Closed accept set (skip-not-mis-emit; every reject is a confirmed
+/// corpus sub-shape — see the caller's gate list):
+///   - the literal flag `1` / `aux.TRUE` → unqualified;
+///   - `aux.TargetBoolFunction(Card.IsLocation, LOC)` → `from <zone>`;
+///   - inline `function(e,c,…) return <expr> end` closures (the card is
+///     the SECOND param) and named `s.*` filters resolved through the
+///     walk's function table whose body is a single `return <expr>`
+///     (receiver tried as `c` then `_c` — param names aren't recorded);
+///   - `<expr>` = top-level `and`-conjunction of:
+///       positive `c:IsLocation(L)`      → the `from` clause (at most one);
+///       `not c:IsRace/IsAttribute/IsSetCard/IsType/Is*Monster(…)`
+///                                       → one or-term each (De Morgan:
+///                                         `not A and not B` = except (A or B));
+///       `not c:IsLocation(L)`           → a from-zone or-term;
+///       `c:GetRace()~=RACE_X`           → an or-term (inherently negated);
+///       `not (A and B and …)`           → ONE and-term of positive atoms.
+///     Any other conjunct — positive non-location atoms (the "only X"
+///     restriction class), `or` at top level or inside a negated group,
+///     variable args, label/sumtype forms — fails the whole decode.
+fn decode_summon_limit(
+    raw: &str,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<RestrictQualifier> {
+    let raw = raw.trim();
+    if raw == "1" || raw == "aux.TRUE" {
+        return Some(RestrictQualifier::default());
+    }
+    if let Some(rest) = raw.strip_prefix("aux.TargetBoolFunction(") {
+        let inner = rest.strip_suffix(')')?;
+        let (f, arg) = inner.split_once(',')?;
+        if f.trim() != "Card.IsLocation" {
+            return None;
+        }
+        return Some(RestrictQualifier {
+            from_zone: Some(location_to_restrict_zone(arg.trim())?),
+            except: None,
+            except_has_zone: false,
+        });
+    }
+    if let Some((receiver, expr)) = splimit_closure_body(raw) {
+        return decode_splimit_expr(&expr, &receiver);
+    }
+    // Named file-local filter; splimit convention is (e, c, …) but param
+    // names aren't recorded — try the two corpus receiver spellings.
+    let expr = functions.get(raw)?.return_expr.as_deref()?;
+    decode_splimit_expr(expr, "c").or_else(|| decode_splimit_expr(expr, "_c"))
+}
+
+/// Extract the (card-param, return-expression) of an inline
+/// `function(e,c,…) return <expr> end` summon-limit closure. The card
+/// is the SECOND param by lua convention (`(e,c,sump,sumtype,sumpos,
+/// targetp)` — arities 2..=7 appear in the corpus).
+fn splimit_closure_body(raw: &str) -> Option<(String, String)> {
+    let r = raw.strip_prefix("function")?.trim_start();
+    let r = r.strip_prefix('(')?;
+    let (params, r) = r.split_once(')')?;
+    let params: Vec<&str> = params.split(',').map(str::trim).collect();
+    if !(2..=7).contains(&params.len()) {
+        return None;
+    }
+    let r = r.trim_start().strip_prefix("return")?;
+    let expr = r.trim().strip_suffix("end")?.trim().to_string();
+    Some((params[1].to_string(), expr))
+}
+
+/// Decode a splimit return-expression over card receiver `card` into
+/// the S2 qualifier. See `decode_summon_limit` for the accept set.
+fn decode_splimit_expr(expr: &str, card: &str) -> Option<RestrictQualifier> {
+    let normalized = expr.split_whitespace().collect::<Vec<_>>().join(" ");
+    if split_top_level(&normalized, " or ").len() > 1 {
+        return None; // top-level or — only negated-group De Morgan is in scope
+    }
+    let mut from_zone: Option<&'static str> = None;
+    let mut or_terms: Vec<String> = Vec::new();
+    let mut except_has_zone = false;
+    for conjunct in split_top_level(&normalized, " and ") {
+        let conjunct = conjunct.trim();
+        if let Some(group) = conjunct
+            .strip_prefix("not (")
+            .and_then(|r| r.strip_suffix(')'))
+        {
+            // `not (A and B and …)` → one and-term of positive atoms.
+            let mut atoms = Vec::new();
+            for part in split_top_level(group, " and ") {
+                if part.contains(" or ") {
+                    return None; // or inside a negated group — out of scope
+                }
+                let (atom, is_zone) = splimit_atom_to_exempt(part.trim(), card)?;
+                except_has_zone |= is_zone;
+                atoms.push(atom);
+            }
+            if atoms.len() < 2 {
+                return None; // `not (single)` never appears un-flattened
+            }
+            or_terms.push(atoms.join(" and "));
+        } else if let Some(neg) = conjunct.strip_prefix("not ") {
+            let (atom, is_zone) = splimit_atom_to_exempt(neg.trim(), card)?;
+            except_has_zone |= is_zone;
+            or_terms.push(atom);
+        } else if let Some(rest) = conjunct.strip_prefix(&format!("{}:GetRace()~=", card)) {
+            // Inherently negated race comparison (`c:GetRace()~=RACE_X`).
+            let race = race_const_to_dsl(rest.trim())?;
+            or_terms.push(format!("race == {}", race));
+        } else {
+            // Positive conjunct: only a location scope is decodable —
+            // any other positive atom is the "only X" restriction class.
+            let arg = conjunct
+                .strip_prefix(&format!("{}:IsLocation(", card))
+                .and_then(|r| r.strip_suffix(')'))?;
+            if from_zone.is_some() {
+                return None; // two positive location scopes — not a corpus shape
+            }
+            from_zone = Some(location_to_restrict_zone(arg.trim())?);
+        }
+    }
+    Some(RestrictQualifier {
+        from_zone,
+        except: if or_terms.is_empty() { None } else { Some(or_terms.join(" or ")) },
+        except_has_zone,
+    })
+}
+
+/// Decode one POSITIVE splimit atom over `card` into its fmt-canonical
+/// exempt-atom spelling. Returns `(spelling, is_zone_atom)`.
+fn splimit_atom_to_exempt(atom: &str, card: &str) -> Option<(String, bool)> {
+    // Card-class method predicates (`c:IsSynchroMonster()` …).
+    for (method, tag) in [
+        ("IsSynchroMonster()", "is_synchro"),
+        ("IsFusionMonster()", "is_fusion"),
+        ("IsXyzMonster()", "is_xyz"),
+        ("IsLinkMonster()", "is_link"),
+        ("IsRitualMonster()", "is_ritual"),
+    ] {
+        if atom == format!("{}:{}", card, method) {
+            return Some((tag.to_string(), false));
+        }
+    }
+    let (method, arg) = atom
+        .strip_prefix(&format!("{}:", card))?
+        .split_once('(')?;
+    let arg = arg.strip_suffix(')')?.trim();
+    if arg.contains(',') || arg.contains('|') || arg.contains('+') {
+        return None; // multi-constant masks are out of the closed set
+    }
+    Some(match method {
+        "IsRace" => (format!("race == {}", race_const_to_dsl(arg)?), false),
+        "IsAttribute" => (format!("attribute == {}", attribute_const_to_dsl(arg)?), false),
+        "IsSetCard" => (format!("archetype == \"{}\"", setcode_const_to_archetype(arg)?), false),
+        "IsType" => (type_const_to_exempt_tag(arg)?.to_string(), false),
+        "IsLocation" => (format!("from {}", location_to_restrict_zone(arg)?), true),
+        _ => return None,
+    })
+}
+
+/// Map a `LOCATION_*` constant to the narrowed `restrict_zone` keyword.
+/// The grammar deliberately admits only these five single-bit real
+/// locations (T38 S2 review) — anything else skips.
+fn location_to_restrict_zone(c: &str) -> Option<&'static str> {
+    Some(match c {
+        "LOCATION_EXTRA"   => "extra_deck",
+        "LOCATION_GRAVE"   => "gy",
+        "LOCATION_HAND"    => "hand",
+        "LOCATION_DECK"    => "deck",
+        "LOCATION_REMOVED" => "banished",
+        _ => return None,
+    })
+}
+
+/// Map a `TYPE_*` constant to its exempt-atom card-type tag.
+fn type_const_to_exempt_tag(c: &str) -> Option<&'static str> {
+    Some(match c {
+        "TYPE_EFFECT"   => "is_effect",
+        "TYPE_NORMAL"   => "is_normal",
+        "TYPE_TUNER"    => "is_tuner",
+        "TYPE_FUSION"   => "is_fusion",
+        "TYPE_SYNCHRO"  => "is_synchro",
+        "TYPE_XYZ"      => "is_xyz",
+        "TYPE_LINK"     => "is_link",
+        "TYPE_RITUAL"   => "is_ritual",
+        "TYPE_PENDULUM" => "is_pendulum",
+        "TYPE_TOKEN"    => "is_token",
+        _ => return None,
+    })
+}
+
+/// Split `s` on `sep` at paren depth zero. Iterates by char boundary
+/// (T38 S2 review fix): the corpus's return-expression trivia can carry
+/// multi-byte text (Japanese trailing comments survive full_moon's
+/// to_string), and a byte-stepped `&s[i..]` slice panics mid-character
+/// — one bad card would abort the whole translate/apply run instead of
+/// skipping.
+fn split_top_level<'a>(s: &'a str, sep: &str) -> Vec<&'a str> {
+    let mut parts = Vec::new();
+    let mut depth = 0usize;
+    let mut start = 0usize;
+    let mut skip_until = 0usize;
+    for (i, ch) in s.char_indices() {
+        if i < skip_until {
+            continue;
+        }
+        match ch {
+            '(' => depth += 1,
+            ')' => depth = depth.saturating_sub(1),
+            _ if depth == 0 && s[i..].starts_with(sep) => {
+                parts.push(&s[start..i]);
+                start = i + sep.len();
+                skip_until = start;
+            }
+            _ => {}
+        }
+    }
+    parts.push(&s[start..]);
+    parts
 }
 
 /// Decode a FIELD chain's player-flag `SetTargetRange` into the DSL
@@ -6698,7 +6999,8 @@ fn player_scope_from_range(range: &str) -> Option<&'static str> {
 }
 
 /// Classify an `EFFECT_CANNOT_ACTIVATE` chain's `SetValue` activation
-/// filter into the matching T36 keyword. Accepted forms:
+/// filter into the matching T36 keyword plus the S2 activation-location
+/// scope (`from <zone>`), when present. Accepted forms:
 ///   - the literal flag `1` (everything) → `cannot_activate`;
 ///   - inline `function(e,re[,tp]) return <expr> end` closures — the
 ///     activating-effect param is the SECOND one;
@@ -6708,10 +7010,10 @@ fn player_scope_from_range(range: &str) -> Option<&'static str> {
 fn classify_activate_filter(
     value: &str,
     functions: &BTreeMap<String, FunctionBody>,
-) -> Option<&'static str> {
+) -> Option<(&'static str, Option<&'static str>)> {
     let value = value.trim();
     if value == "1" {
-        return Some("cannot_activate");
+        return Some(("cannot_activate", None));
     }
     if let Some((param, expr)) = activate_filter_closure_body(value) {
         return classify_activate_expr(&expr, &param);
@@ -6742,11 +7044,14 @@ fn activate_filter_closure_body(raw: &str) -> Option<(String, String)> {
 }
 
 /// Classify an activation-filter expression (conjunction of predicates
-/// on the activating effect `eff`) into a T36 keyword. The accept set is
-/// closed — exactly the four filter shapes the T36 survey blessed; any
-/// other conjunct (attribute / location / code-specific limits, owner
+/// on the activating effect `eff`) into a T36 keyword plus the S2
+/// activation-location scope. The accept set is closed — the four
+/// filter shapes the T36 survey blessed, each optionally conjoined with
+/// ONE `GetActivateLocation()==LOC` scope (T38 S2), plus the bare
+/// location scope alone (→ unqualified `cannot_activate from <zone>`);
+/// any other conjunct (attribute / code-specific limits, owner
 /// comparisons, …) fails the whole filter (skip-not-mis-emit).
-fn classify_activate_expr(expr: &str, eff: &str) -> Option<&'static str> {
+fn classify_activate_expr(expr: &str, eff: &str) -> Option<(&'static str, Option<&'static str>)> {
     let normalized = expr.split_whitespace().collect::<Vec<_>>().join(" ");
     if normalized.contains(" or ") {
         return None;
@@ -6756,6 +7061,7 @@ fn classify_activate_expr(expr: &str, eff: &str) -> Option<&'static str> {
     let mut monster = false;         // IsMonsterEffect()
     let mut spell = false;           // IsSpellEffect() / GetHandler():IsSpell()
     let mut trap = false;            // IsTrapEffect() / GetHandler():IsTrap()
+    let mut from_zone: Option<&'static str> = None; // GetActivateLocation()==LOC
     for conjunct in normalized.split(" and ") {
         let c: String = conjunct.chars().filter(|ch| !ch.is_whitespace()).collect();
         match c.strip_prefix(eff)? {
@@ -6763,16 +7069,23 @@ fn classify_activate_expr(expr: &str, eff: &str) -> Option<&'static str> {
             ":IsMonsterEffect()" => monster = true,
             ":IsSpellEffect()" | ":GetHandler():IsSpell()" => spell = true,
             ":IsTrapEffect()" | ":GetHandler():IsTrap()" => trap = true,
-            _ => return None,
+            rest => match rest.strip_prefix(":GetActivateLocation()==") {
+                Some(loc) if from_zone.is_none() => {
+                    from_zone = Some(location_to_restrict_zone(loc)?);
+                }
+                _ => return None,
+            },
         }
     }
-    match (card_activation, monster, spell, trap) {
-        (true,  false, false, false) => Some("cannot_activate_spells_traps"),
-        (false, true,  false, false) => Some("cannot_activate_monster_effects"),
-        (true,  false, true,  false) => Some("cannot_activate_spells"),
-        (true,  false, false, true)  => Some("cannot_activate_traps"),
-        _ => None,
-    }
+    let keyword = match (card_activation, monster, spell, trap) {
+        (true,  false, false, false) => "cannot_activate_spells_traps",
+        (false, true,  false, false) => "cannot_activate_monster_effects",
+        (true,  false, true,  false) => "cannot_activate_spells",
+        (true,  false, false, true)  => "cannot_activate_traps",
+        (false, false, false, false) if from_zone.is_some() => "cannot_activate",
+        _ => return None,
+    };
+    Some((keyword, from_zone))
 }
 
 /// Player-scoped damage-shaping chain (Phase 19, T37):
@@ -14381,11 +14694,13 @@ end
         );
     }
 
+    // ── T38 S2: qualified restricts — splimit → from/except ───────
+
     #[test]
-    fn p18_skip_filtered_special_summon() {
-        // The dominant SKIP class: a SetTarget summon-limit filter
-        // ("cannot special summon, except Zombie monsters") qualifies
-        // WHICH cards — the unfiltered keyword would over-restrict.
+    fn s2_restrict_except_race_named_fn() {
+        // T36's dominant skip class, now decoded (T38 S2): `not
+        // c:IsRace(R)` splimit = "cannot special summon, except R
+        // monsters" → the except clause.
         let src = r#"
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local e1=Effect.CreateEffect(e:GetHandler())
@@ -14400,8 +14715,548 @@ function s.splimit(e,c)
     return not c:IsRace(RACE_ZOMBIE)
 end
 "#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict you cannot_special_summon except (race == Zombie) end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s2_restrict_except_race_getrace_neq() {
+        // c22657402 shape: the `~=` spelling of the race exemption.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(function(e,c) return c:GetRace()~=RACE_ZOMBIE end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict you cannot_special_summon except (race == Zombie) end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s2_restrict_from_extra_deck() {
+        // c20292186 shape: positive IsLocation splimit = "cannot special
+        // summon FROM the Extra Deck" → the from clause.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,1)
+    e1:SetTarget(s.splimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.splimit(e,c)
+    return c:IsLocation(LOCATION_EXTRA)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict both_players cannot_special_summon from extra_deck end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s2_restrict_from_targetboolfunction() {
+        // c28053763 shape: the library shorthand for the location scope.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(aux.TargetBoolFunction(Card.IsLocation,LOCATION_EXTRA))
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict you cannot_special_summon from extra_deck end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s2_restrict_from_plus_except_tag() {
+        // c18458255 shape: location scope + negated type = "cannot
+        // special summon from the Extra Deck, except Pendulum monsters";
+        // c39015 flips the conjunct order — both must decode identically.
+        for body in [
+            "return c:IsLocation(LOCATION_EXTRA) and not c:IsType(TYPE_PENDULUM)",
+            "return not c:IsType(TYPE_PENDULUM) and c:IsLocation(LOCATION_EXTRA)",
+        ] {
+            let src = format!(r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(s.splimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.splimit(e,c)
+    {}
+end
+"#, body);
+            assert_eq!(
+                p11_actions(&src, "s.activate"),
+                vec!["restrict you cannot_special_summon from extra_deck except (is_pendulum) end_of_turn"],
+                "conjunct order variant failed: {}", body,
+            );
+        }
+    }
+
+    #[test]
+    fn s2_restrict_except_synchro_monster_method() {
+        // c73218792 shape: the card-class method spelling of the type tag.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(function(e,c) return c:IsLocation(LOCATION_EXTRA) and not c:IsSynchroMonster() end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict you cannot_special_summon from extra_deck except (is_synchro) end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s2_restrict_except_or_terms_demorgan() {
+        // c14418464 shape: `not A and not B` = except (A or B) — the
+        // De Morgan split, with a from-zone exempt atom in the second
+        // or-term.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(s.splimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.splimit(e,c)
+    return not c:IsSetCard(SET_VAYLANTZ) and not c:IsLocation(LOCATION_EXTRA)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec![r#"restrict you cannot_special_summon except (archetype == "Vaylantz" or from extra_deck) end_of_turn"#],
+        );
+    }
+
+    #[test]
+    fn s2_restrict_except_and_group() {
+        // c52947044 shape: `not (A and B)` = one and-composed exempt term.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(s.splimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.splimit(e,c)
+    return not (c:IsSetCard(SET_HERO) and c:IsAttribute(ATTRIBUTE_DARK))
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec![r#"restrict you cannot_special_summon except (archetype == "HERO" and attribute == DARK) end_of_turn"#],
+        );
+    }
+
+    #[test]
+    fn s2_restrict_normal_summon_race_exemption() {
+        // c38576155 shape: race exemption on CANNOT_SUMMON — legal (no
+        // zone dimension), the corpus proof that except stays open on
+        // the hand-only family.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(function(e,c) return not c:IsRace(RACE_FAIRY) end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict you cannot_normal_summon except (race == Fairy) end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s2_restrict_activate_location() {
+        // c21044178 shape: GetActivateLocation()==GRAVE = "cannot
+        // activate effects in the GY" → cannot_activate from gy.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+    e1:SetTargetRange(1,1)
+    e1:SetValue(function(e,re) return re:GetActivateLocation()==LOCATION_GRAVE end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict both_players cannot_activate from gy end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s2_skip_positive_class_filter() {
+        // c4398189 shape: location AND a positive attribute — that's an
+        // "only DARK monsters from the Extra Deck" restriction class,
+        // not an exemption; from/except cannot express it.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(function(e,c) return c:IsLocation(LOCATION_EXTRA) and c:IsAttribute(ATTRIBUTE_DARK) end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
         let actions = p11_actions(src, "s.activate");
-        assert!(actions.is_empty(), "summon-limit filter must skip, got {:?}", actions);
+        assert!(actions.is_empty(), "positive class filter must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn s2_skip_label_and_sumtype_filters() {
+        // Label-valued (cross-effect protocol) and sumtype-masked
+        // splimits stay outside the closed decode set.
+        for body in [
+            "return c:IsCode(e:GetLabel())",
+            "return sumtype&SUMMON_TYPE_FUSION==SUMMON_TYPE_FUSION",
+            "return not c:IsRace(races)",
+        ] {
+            let src = format!(r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(s.splimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.splimit(e,c,sump,sumtype,sumpos,targetp)
+    {}
+end
+"#, body);
+            let actions = p11_actions(&src, "s.activate");
+            assert!(actions.is_empty(), "exotic splimit must skip: {} got {:?}", body, actions);
+        }
+    }
+
+    #[test]
+    fn s2_skip_unmapped_zone_and_hand_only_dimension() {
+        // LOCATION_MZONE is outside the narrowed restrict_zone
+        // vocabulary; a zone dimension on CANNOT_SUMMON would trip the
+        // validator's hand-only rule — both skip.
+        for (code, body) in [
+            ("EFFECT_CANNOT_SPECIAL_SUMMON", "return c:IsLocation(LOCATION_MZONE)"),
+            ("EFFECT_CANNOT_SUMMON", "return c:IsLocation(LOCATION_EXTRA)"),
+            ("EFFECT_CANNOT_SUMMON", "return not c:IsLocation(LOCATION_EXTRA)"),
+        ] {
+            let src = format!(r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode({})
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(s.splimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.splimit(e,c)
+    {}
+end
+"#, code, body);
+            let actions = p11_actions(&src, "s.activate");
+            assert!(actions.is_empty(), "must skip: {} {} got {:?}", code, body, actions);
+        }
+    }
+
+    #[test]
+    fn s2_gate_inline_equip_poisons_body() {
+        // T38 S2 review blocker (c33744268/c6355563 Union pieces): the
+        // handler FIRST equips via an inline
+        // c:EquipByEffectAndLimitRegister statement — invisible to every
+        // collector — then registers a now-decodable restrict chain. The
+        // fill gate must poison, or the apply pass ships a restrict-only
+        // resolve that drops the equip half.
+        let src = r#"
+function s.eqop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if Duel.GetLocationCount(tp,LOCATION_SZONE)>0 and c:IsRelateToEffect(e) and c:IsFaceup() then
+        local ec=Duel.SelectMatchingCard(tp,s.eqfilter,tp,LOCATION_REMOVED,0,1,1,nil,tp):GetFirst()
+        if ec then
+            c:EquipByEffectAndLimitRegister(e,tp,ec,nil,true)
+        end
+    end
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(function(e,c) return c:IsLocation(LOCATION_EXTRA) and not c:IsAttribute(ATTRIBUTE_LIGHT) end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.eqop").expect("body");
+        assert!(body.method_ops_poisoned,
+            "inline equip mutator must poison the method-op family");
+        assert!(body_drops_chains(body, &report.functions),
+            "fill gate must reject the equip-carrying body");
+    }
+
+    #[test]
+    fn s2_split_top_level_non_ascii_and_unbalanced_safe() {
+        // T38 S2 review fix: return-expression trivia can carry
+        // multi-byte text (Japanese trailing comments survive full_moon's
+        // to_string) — the splitter must stay on char boundaries, and
+        // unbalanced parens must degrade to a skip, never a panic.
+        let jp = "not c:IsRace(RACE_ZOMBIE) --エクストラ";
+        assert_eq!(split_top_level(jp, " and "), vec![jp]);
+        assert_eq!(
+            split_top_level("a and (b and c", " and "),
+            vec!["a", "(b and c"],
+        );
+        // End-to-end: a named splimit whose return line carries the
+        // comment must SKIP (suffix breaks the atom decode), not abort.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(s.splimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.splimit(e,c)
+    return not c:IsRace(RACE_ZOMBIE) --エクストラ
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "comment-suffixed splimit must skip, got {:?}", actions);
+    }
+
+    #[test]
+    fn s2_restrict_activate_monster_effects_with_location() {
+        // T38 S2 review coverage: keyword + activation-location scope
+        // combined, both conjunct orders.
+        for body in [
+            "return re:IsMonsterEffect() and re:GetActivateLocation()==LOCATION_GRAVE",
+            "return re:GetActivateLocation()==LOCATION_GRAVE and re:IsMonsterEffect()",
+        ] {
+            let src = format!(r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+    e1:SetTargetRange(0,1)
+    e1:SetValue(s.aclimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.aclimit(e,re,tp)
+    {}
+end
+"#, body);
+            assert_eq!(
+                p11_actions(&src, "s.activate"),
+                vec!["restrict opponent cannot_activate_monster_effects from gy end_of_turn"],
+                "conjunct order variant failed: {}", body,
+            );
+        }
+    }
+
+    #[test]
+    fn s2_restrict_sset_from_hand() {
+        // The c88851326 class: EFFECT_CANNOT_SSET with an
+        // IsLocation(HAND) splimit — "cannot Set from the hand" (deck
+        // Sets stay legal). SSET is deliberately NOT in the validator's
+        // hand-only family, so this emits.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SSET)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(function(e,c) return c:IsLocation(LOCATION_HAND) end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict you cannot_set_spells_traps from hand end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s2_restrict_receiver_and_arity_variants() {
+        // Named splimit with the `_c` receiver spelling, and a 7-param
+        // inline closure (the widest corpus arity) — both must decode.
+        let named = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(s.splimit)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.splimit(_e,_c)
+    return not _c:IsAttribute(ATTRIBUTE_WIND)
+end
+"#;
+        assert_eq!(
+            p11_actions(named, "s.activate"),
+            vec!["restrict you cannot_special_summon except (attribute == WIND) end_of_turn"],
+        );
+        let wide = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(function(e,c,sump,sumtype,sumpos,targetp,se) return not c:IsRace(RACE_DRAGON) end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(wide, "s.activate"),
+            vec!["restrict you cannot_special_summon except (race == Dragon) end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s2_restrict_group_with_sibling_conjunct() {
+        // Composition: a location scope AND a negated group in one
+        // splimit — from + one and-composed exempt term.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(function(e,c) return c:IsLocation(LOCATION_EXTRA) and not (c:IsSetCard(SET_HERO) and c:IsAttribute(ATTRIBUTE_DARK)) end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec![r#"restrict you cannot_special_summon from extra_deck except (archetype == "HERO" and attribute == DARK) end_of_turn"#],
+        );
+    }
+
+    #[test]
+    fn s2_restrict_settarget_aux_true() {
+        // SetTarget(aux.TRUE) is the unqualified-flag spelling — emits
+        // the bare keyword (c40383551 class).
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(aux.TRUE)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["restrict you cannot_special_summon end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn s2_skip_activate_edge_shapes() {
+        // Unmapped activation location, a SetTarget on the activate
+        // family, and a non-IsLocation TargetBoolFunction all skip.
+        let cases = [
+            // GetActivateLocation outside the narrowed zone set.
+            (r#"e1:SetValue(function(e,re) return re:GetActivateLocation()==LOCATION_MZONE end)"#, ""),
+            // SetTarget never appears on CANNOT_ACTIVATE in the corpus.
+            (r#"e1:SetValue(1)
+    e1:SetTarget(s.unknowntg)"#, ""),
+            // TargetBoolFunction over a non-location predicate.
+            ("", r#"e1:SetTarget(aux.TargetBoolFunction(Card.IsRace,RACE_ZOMBIE))"#),
+        ];
+        for (i, (activate_extra, summon_extra)) in cases.iter().enumerate() {
+            let (code, extra) = if summon_extra.is_empty() {
+                ("EFFECT_CANNOT_ACTIVATE", *activate_extra)
+            } else {
+                ("EFFECT_CANNOT_SPECIAL_SUMMON", *summon_extra)
+            };
+            let src = format!(r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode({})
+    e1:SetTargetRange(1,0)
+    {}
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#, code, extra);
+            let actions = p11_actions(&src, "s.activate");
+            assert!(actions.is_empty(), "case {} must skip, got {:?}", i, actions);
+        }
+    }
+
+    #[test]
+    fn s2_skip_top_level_or_splimit() {
+        // Top-level or in a splimit — only the negated-group De Morgan
+        // composition is in scope.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_CANNOT_SPECIAL_SUMMON)
+    e1:SetTargetRange(1,0)
+    e1:SetTarget(function(e,c) return not c:IsRace(RACE_ZOMBIE) or c:IsLocation(LOCATION_EXTRA) end)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(actions.is_empty(), "top-level or must skip, got {:?}", actions);
     }
 
     #[test]
