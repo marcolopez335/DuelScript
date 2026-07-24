@@ -4105,16 +4105,40 @@ const CARD_METHOD_OPS: &[&str] = &[
     "NegateEffects", "RemoveOverlayCard",
 ];
 
-/// Card methods that MUTATE but have no translator lowering (T38 S2
-/// review blocker): a body carrying one in ANY position must poison the
-/// method-op family so `body_drops_chains` rejects fills. Inline equips
-/// are invisible to every collector (equip recognition is the s.*
-/// helper-call pattern only) — without this the c33744268/c6355563
-/// Union pieces filled restrict-only resolves that silently dropped
-/// the equip half of the handler. Both spellings listed: the
-/// `contains(":{m}(")` probe requires the exact method-name-to-paren
-/// token, so the shorter name does not cover the longer one.
-const CARD_METHOD_POISON: &[&str] = &["EquipByEffect", "EquipByEffectAndLimitRegister"];
+/// Card/effect methods that MUTATE but have no translator lowering: a
+/// body carrying one in ANY position must poison the method-op family
+/// so `body_drops_chains` rejects fills. Started as the T38 S2 review
+/// blocker pair (inline equips — the c33744268/c6355563 Union pieces
+/// filled restrict-only resolves that silently dropped the equip half
+/// of the handler); the S2b general gate grew it to every mutating
+/// method the corpus survey found. Statement position no longer needs
+/// this list (`statement_call_is_benign` poisons every unrecognised
+/// statement call), but EXPRESSION positions — an assignment RHS
+/// (`local fe=c:RegisterFlagEffect(…)`), an if-condition, a return, a
+/// nested argument — can only be probed by name: a general expression
+/// probe would poison every `c:IsFaceup()` query. Equip spellings both
+/// listed: the `contains(":{m}(")` probe requires the exact
+/// method-name-to-paren token, so the shorter name does not cover the
+/// longer one.
+const CARD_METHOD_POISON: &[&str] = &[
+    // select-then-equip inlines (T38 S2 review blocker)
+    "EquipByEffect", "EquipByEffectAndLimitRegister",
+    // card-attached flag state
+    "RegisterFlagEffect", "ResetFlagEffect", "SetFlagEffectLabel",
+    // summon-procedure / location state
+    "CancelToGrave", "CompleteProcedure", "SetMaterial",
+    "AddMonsterAttribute", "AddMonsterAttributeComplete",
+    "MoveAdjacent", "ReverseInDeck",
+    // card-target links
+    "SetCardTarget", "CancelCardTarget",
+    // per-card status words
+    "SetStatus", "SetTurnCounter", "AssumeProperty", "EnableGeminiStatus",
+    // live-effect surgery (registered effect objects — chain BUILDS on
+    // bindings created in the body are the chain walker's territory)
+    "Reset", "CopyEffect", "ResetEffect",
+    "CreateRelation", "CreateEffectRelation", "ClearEffectRelation",
+    "ReleaseEffectRelation",
+];
 
 /// Extract mutating Card-method statements from a function block
 /// (T38 S6). Returns `(ops, poisoned)`. The family is emptied AND
@@ -4128,15 +4152,132 @@ const CARD_METHOD_POISON: &[&str] = &["EquipByEffect", "EquipByEffectAndLimitReg
 ///     and if it does" idiom on Blue Flame Swordsman), an assignment
 ///     RHS, a loop condition, a return, or an argument. The mutation
 ///     still fires at runtime but is invisible to the statement walk,
-///     so an unflagged body would fill an under-stated resolve.
+///     so an unflagged body would fill an under-stated resolve;
+///   - any statement-position call NO collector family owns (T38 S2b
+///     general gate) — an unmodeled mutating card/group method, a
+///     foreign library helper registration (`aux.DelayedOperation`),
+///     an effect registration the chain walk didn't build. The curated
+///     benign set lives in `statement_call_is_benign`.
 fn extract_method_ops(block: &Block) -> (Vec<CardMethodOp>, bool) {
+    let mut chain_bindings: BTreeSet<String> = BTreeSet::new();
+    collect_chain_binding_names(block, &mut chain_bindings);
     let mut out = Vec::new();
     let mut poisoned = false;
-    collect_method_ops(block, None, false, &mut out, &mut poisoned);
+    collect_method_ops(block, None, false, &chain_bindings, &mut out, &mut poisoned);
     if poisoned {
         return (Vec::new(), true);
     }
     (out, false)
+}
+
+/// Names of the Effect chain bindings a block creates — `local eN =
+/// Effect.CreateEffect(…)` plus clones of those bindings — collected
+/// recursively so the T38 S2b statement gate can tell chain-builder
+/// writes (`e1:SetCode(…)`, the chain walker's territory) from
+/// live-effect surgery on foreign receivers (`e:GetLabelObject():
+/// SetValue(…)`). Mirrors `collect_register_chains`' binding rules.
+fn collect_chain_binding_names(block: &Block, out: &mut BTreeSet<String>) {
+    for stmt in block.stmts() {
+        match stmt {
+            Stmt::LocalAssignment(la) => {
+                let names: Vec<String> = la.names().iter()
+                    .map(|n| n.token().to_string()).collect();
+                let exprs: Vec<&Expression> = la.expressions().iter().collect();
+                for (i, name) in names.iter().enumerate() {
+                    let Some(expr) = exprs.get(i) else { continue };
+                    if expr_is_effect_createeffect(expr) {
+                        out.insert(name.clone());
+                    } else if let Some(src) = expr_clone_source(expr) {
+                        if out.contains(&src) {
+                            out.insert(name.clone());
+                        }
+                    }
+                }
+            }
+            Stmt::If(if_stmt) => {
+                collect_chain_binding_names(if_stmt.block(), out);
+                for ei in if_stmt.else_if().into_iter().flatten() {
+                    collect_chain_binding_names(ei.block(), out);
+                }
+                if let Some(eb) = if_stmt.else_block() {
+                    collect_chain_binding_names(eb, out);
+                }
+            }
+            Stmt::While(w)       => collect_chain_binding_names(w.block(), out),
+            Stmt::Repeat(r)      => collect_chain_binding_names(r.block(), out),
+            Stmt::NumericFor(nf) => collect_chain_binding_names(nf.block(), out),
+            Stmt::GenericFor(gf) => collect_chain_binding_names(gf.block(), out),
+            Stmt::Do(d)          => collect_chain_binding_names(d.block(), out),
+            _ => {}
+        }
+    }
+}
+
+/// Classify a statement-position call the method-op walk does not
+/// itself collect (T38 S2b general gate). `true` means another
+/// collector family owns the statement's semantics — and gates its own
+/// completeness — or the call provably has no duel-state surface.
+/// Everything else poisons the method-op family: the pre-gate walk was
+/// blind to unmodeled mutating statements, which is exactly how the
+/// c33744268/c6355563 inline-equip fills under-stated their cards.
+///
+/// The benign set, family by family:
+///   - `<recv>:RegisterEffect(eN[,forced])` / `Duel.RegisterEffect(eN,p)`
+///     where eN is a chain binding built in this body — chain walker.
+///     Registering a FOREIGN effect (a handler param, a GetLabelObject
+///     fetch, an inline `e1:Clone()` argument) is unmodeled: poison.
+///   - `AddCounter` / `RemoveCounter` — Phase 13 counter walker (which
+///     carries its own expression/either-or poison semantics).
+///   - `KeepAlive` / `DeleteGroup` — group lifetime bookkeeping (GC pin
+///     / dealloc); no duel-state surface. Selection EDITS (`Merge`,
+///     `Sub`, `AddCard`, `RemoveCard`, `Remove`, `Clear`, `Match`,
+///     `ForEach`) are NOT benign — they rewrite a selection a later
+///     emitted line may consume, so they fall through to poison.
+///   - `Set*` on a chain binding — chain walker (same rule as
+///     `choice_arm_shape_ok`). `Set*` on anything else is live-object
+///     mutation: poison.
+///   - `Duel.*` dot statements — the calls extractor; unknown methods
+///     Todo at translate time and every fill site refuses Todo lines.
+///   - `s.*` dot statements — the helper-call extractor; the
+///     `body_drops_chains` helper-completeness pass refuses any that
+///     don't lower.
+///   - `table.*` — in-memory lua bookkeeping only.
+///   - `aux.RegisterClientHint` (+ `Auxiliary.` spelling) — client UI
+///     hint, no duel-state surface.
+fn statement_call_is_benign(fc: &FunctionCall, chain_bindings: &BTreeSet<String>) -> bool {
+    if let Some((_recv, args)) = try_register_effect_call(fc) {
+        return args.first().is_some_and(|a| chain_bindings.contains(a));
+    }
+    if let Some(args) = try_duel_register_effect_call(fc) {
+        return args.first().is_some_and(|a| chain_bindings.contains(a));
+    }
+    match fc.suffixes().last() {
+        Some(Suffix::Call(Call::MethodCall(mc))) => {
+            let m = mc.name().token().to_string();
+            if m == "AddCounter" || m == "RemoveCounter" { return true; }
+            if m == "KeepAlive" || m == "DeleteGroup" { return true; }
+            // Single-suffix only: `e1:GetLabelObject():SetValue(…)` is
+            // live-effect surgery even when e1 is a chain binding — the
+            // chain walker records direct `e1:Set*` writes exclusively.
+            if m.starts_with("Set") && fc.suffixes().count() == 1 {
+                if let Some((bind, _, _)) = method_call_on_binding(fc) {
+                    if chain_bindings.contains(&bind) { return true; }
+                }
+            }
+            false
+        }
+        Some(Suffix::Call(Call::AnonymousCall(_))) => {
+            let head = call_head_string(fc);
+            if head.starts_with("Duel.") { return true; }
+            if helper_call_from_fc(fc).is_some() { return true; }
+            if head.starts_with("table.") { return true; }
+            if head == "aux.RegisterClientHint" || head == "Auxiliary.RegisterClientHint" {
+                return true;
+            }
+            false
+        }
+        _ => false,
+    }
 }
 
 /// Detection-only textual scan for a card-method mutation inside an
@@ -4188,6 +4329,7 @@ fn collect_method_ops(
     block: &Block,
     loop_ctx: Option<CounterLoopCtx<'_>>,
     in_alt_arm: bool,
+    chain_bindings: &BTreeSet<String>,
     out: &mut Vec<CardMethodOp>,
     poisoned: &mut bool,
 ) {
@@ -4207,15 +4349,18 @@ fn collect_method_ops(
                     if in_alt_arm { *poisoned = true; }
                     out.push(op);
                 } else {
-                    // A method op nested inside another call's argument
-                    // list (or behind a chained suffix) still mutates —
-                    // poison rather than under-state. Unlowerable
-                    // mutators (CARD_METHOD_POISON) poison from plain
-                    // statement position too.
+                    // A known mutator nested inside another call's
+                    // argument list (or behind a chained suffix) still
+                    // mutates — poison rather than under-state. Beyond
+                    // the known names, ANY statement-position call no
+                    // collector family owns is unmodeled behavior (T38
+                    // S2b general gate): poison unless the curated
+                    // benign classification vouches for it.
                     let text = fc.to_string();
                     if CARD_METHOD_OPS.iter()
                         .chain(CARD_METHOD_POISON)
                         .any(|m| text.contains(&format!(":{}(", m)))
+                        || !statement_call_is_benign(fc, chain_bindings)
                     {
                         *poisoned = true;
                     }
@@ -4223,13 +4368,13 @@ fn collect_method_ops(
             }
             Stmt::If(if_stmt) => {
                 if expr_has_method_op(if_stmt.condition()) { *poisoned = true; }
-                collect_method_ops(if_stmt.block(), loop_ctx, in_alt_arm, out, poisoned);
+                collect_method_ops(if_stmt.block(), loop_ctx, in_alt_arm, chain_bindings, out, poisoned);
                 for ei in if_stmt.else_if().into_iter().flatten() {
                     if expr_has_method_op(ei.condition()) { *poisoned = true; }
-                    collect_method_ops(ei.block(), loop_ctx, true, out, poisoned);
+                    collect_method_ops(ei.block(), loop_ctx, true, chain_bindings, out, poisoned);
                 }
                 if let Some(else_block) = if_stmt.else_block() {
-                    collect_method_ops(else_block, loop_ctx, true, out, poisoned);
+                    collect_method_ops(else_block, loop_ctx, true, chain_bindings, out, poisoned);
                 }
             }
             // while/repeat/numeric-for loops have no translatable member
@@ -4238,15 +4383,15 @@ fn collect_method_ops(
             Stmt::While(w) => {
                 if expr_has_method_op(w.condition()) { *poisoned = true; }
                 collect_method_ops(
-                    w.block(), Some(CounterLoopCtx { group: "", var: "" }), in_alt_arm, out, poisoned);
+                    w.block(), Some(CounterLoopCtx { group: "", var: "" }), in_alt_arm, chain_bindings, out, poisoned);
             }
             Stmt::Repeat(r) => {
                 if expr_has_method_op(r.until()) { *poisoned = true; }
                 collect_method_ops(
-                    r.block(), Some(CounterLoopCtx { group: "", var: "" }), in_alt_arm, out, poisoned);
+                    r.block(), Some(CounterLoopCtx { group: "", var: "" }), in_alt_arm, chain_bindings, out, poisoned);
             }
             Stmt::NumericFor(nf) => collect_method_ops(
-                nf.block(), Some(CounterLoopCtx { group: "", var: "" }), in_alt_arm, out, poisoned),
+                nf.block(), Some(CounterLoopCtx { group: "", var: "" }), in_alt_arm, chain_bindings, out, poisoned),
             Stmt::GenericFor(gf) => {
                 let group = aux_next_source_group(gf)
                     .or_else(|| iter_method_source_group(gf))
@@ -4255,9 +4400,9 @@ fn collect_method_ops(
                     .map(|n| n.token().to_string())
                     .unwrap_or_default();
                 let ctx = CounterLoopCtx { group: &group, var: &var };
-                collect_method_ops(gf.block(), Some(ctx), in_alt_arm, out, poisoned);
+                collect_method_ops(gf.block(), Some(ctx), in_alt_arm, chain_bindings, out, poisoned);
             }
-            Stmt::Do(d) => collect_method_ops(d.block(), loop_ctx, in_alt_arm, out, poisoned),
+            Stmt::Do(d) => collect_method_ops(d.block(), loop_ctx, in_alt_arm, chain_bindings, out, poisoned),
             Stmt::LocalAssignment(la) => {
                 for e in la.expressions() {
                     if expr_has_method_op(e) { *poisoned = true; }
@@ -5530,6 +5675,16 @@ pub fn body_drops_chains(
             return true;
         }
     }
+    // Helper-call completeness (T38 S2b general gate): every collected
+    // s.* helper statement must lower (today only the Phase 17
+    // select-then-equip wrapper does) — the emit loop silently skips
+    // helpers with no lowering, so an unconsumed helper alongside
+    // translatable siblings would fill an under-stated resolve.
+    for (name, args) in &body.helper_calls {
+        if translate_equip_helper_call(name, args, body, functions).is_none() {
+            return true;
+        }
+    }
     // T38 S3 — mirror the emit loop's paired-negation fold: a covered
     // EFFECT_DISABLE_EFFECT companion is emitted content (its semantics
     // ride the DISABLE sibling's `negate_effects` line), not a drop.
@@ -5922,7 +6077,19 @@ fn translate_install_watcher_chain(
     }
     let op_name = chain.operation.as_deref()?;
     let op_body = functions.get(op_name)?;
+    // Fill-gate parity (T38 S2b): a sub-handler the apply passes would
+    // refuse — a poisoned method-op/counter family, a dropped chain, an
+    // unconsumed helper — must not materialise as a check body either,
+    // and a Todo line marks an untranslated call the check would
+    // silently omit. Before this the action filter below dropped both
+    // classes without a trace.
+    if body_drops_chains(op_body, functions) {
+        return None;
+    }
     let lines = translate_body_with_functions(op_body, functions);
+    if lines.iter().any(|l| !l.is_action()) {
+        return None;
+    }
     // Collect every translated ACTION line from the sub-handler. The DSL
     // `check { action+ }` grammar accepts whitespace-separated action
     // atoms, so we join with a single space rather than emit a multi-line
@@ -15037,6 +15204,222 @@ end
             "inline equip mutator must poison the method-op family");
         assert!(body_drops_chains(body, &report.functions),
             "fill gate must reject the equip-carrying body");
+    }
+
+    /// T38 S2b helper: walk one operation body and return (poisoned,
+    /// drops) under the general statement gate.
+    fn s2b_gate(src: &str, handler: &str) -> (bool, bool) {
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get(handler).expect("body");
+        (body.method_ops_poisoned, body_drops_chains(body, &report.functions))
+    }
+
+    #[test]
+    fn s2b_general_gate_poisons_unmodeled_card_methods() {
+        // Statement-position card mutators outside every collector
+        // family — each next to a perfectly translatable Duel call, the
+        // exact shape that under-stated the Union-piece fills.
+        for stmt in [
+            "c:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD,0,1)",
+            "c:CancelToGrave(false)",
+            "c:SetCardTarget(c)",
+            "c:SetTurnCounter(1)",
+            "c:AssumeProperty(ASSUME_TYPE,TYPE_TUNER)",
+            "aux.addTempLizardCheck(c,tp)",
+            "aux.ToHandOrElse(c,tp)",
+            "aux.DelayedOperation(c,PHASE_END,id,e,tp)",
+            "aux.SetUnionState(c)",
+        ] {
+            let src = format!(r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    {}
+    Duel.Draw(tp,1,REASON_EFFECT)
+end
+"#, stmt);
+            let (poisoned, drops) = s2b_gate(&src, "s.operation");
+            assert!(poisoned, "must poison: {}", stmt);
+            assert!(drops, "fill gate must reject: {}", stmt);
+        }
+    }
+
+    #[test]
+    fn s2b_general_gate_poisons_proc_summon_riders() {
+        // Special-summon-with-procedure idiom: the fill would state the
+        // summon while dropping material assignment and the proper-
+        // summon completion marker.
+        let src = r#"
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)
+    tc:SetMaterial(nil)
+    tc:CompleteProcedure()
+end
+"#;
+        let (poisoned, drops) = s2b_gate(src, "s.spop");
+        assert!(poisoned && drops);
+    }
+
+    #[test]
+    fn s2b_general_gate_poisons_group_selection_edits() {
+        // A selection edit between binding and consumption makes the
+        // emitted selector WRONG, not just under-stated: g is bound to
+        // the matching-group spec but sends the merged group.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local g=Duel.GetMatchingGroup(Card.IsCode,tp,LOCATION_MZONE,0,nil,1000)
+    g:Merge(eg)
+    Duel.SendtoGrave(g,REASON_EFFECT)
+end
+"#;
+        let (poisoned, drops) = s2b_gate(src, "s.operation");
+        assert!(poisoned && drops, "selection edit must poison");
+    }
+
+    #[test]
+    fn s2b_general_gate_benign_statements_keep_fills() {
+        // Every benign-allowlist family in one body: chain build +
+        // registration, group lifetime bookkeeping, client hint, lua
+        // table bookkeeping, counter placement. No poison, no drop.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    aux.RegisterClientHint(c,nil,tp,1,0,aux.Stringid(id,0))
+    local t={}
+    table.insert(t,tc)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(500)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+    local g=Duel.GetMatchingGroup(Card.IsCode,tp,LOCATION_MZONE,0,nil,1000)
+    g:KeepAlive()
+    g:DeleteGroup()
+    e:GetHandler():AddCounter(COUNTER_SPELL,1)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        assert!(!body.method_ops_poisoned,
+            "benign-allowlist statements must not poison");
+    }
+
+    #[test]
+    fn s2b_general_gate_foreign_effect_registration_poisons() {
+        // Registering an effect the walk did NOT build here — the chain
+        // walker records nothing, so the fill would drop a real
+        // registration.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    c:RegisterEffect(e)
+    Duel.Draw(tp,1,REASON_EFFECT)
+end
+"#;
+        let (poisoned, drops) = s2b_gate(src, "s.operation");
+        assert!(poisoned && drops, "foreign RegisterEffect must poison");
+    }
+
+    #[test]
+    fn s2b_general_gate_live_effect_surgery_poisons() {
+        // Set* through a chained receiver mutates a LIVE registered
+        // effect — chain-builder territory is direct single-suffix
+        // writes on bindings created in this body only.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    e:GetLabelObject():SetValue(500)
+    Duel.Draw(tp,1,REASON_EFFECT)
+end
+"#;
+        let (poisoned, drops) = s2b_gate(src, "s.operation");
+        assert!(poisoned && drops, "live-effect Set* must poison");
+
+        // And the plain-receiver form on a handler param.
+        let src2 = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    e:SetLabel(1)
+    Duel.Draw(tp,1,REASON_EFFECT)
+end
+"#;
+        let (poisoned2, _) = s2b_gate(src2, "s.operation");
+        assert!(poisoned2, "Set* on a non-chain receiver must poison");
+    }
+
+    #[test]
+    fn s2b_expression_position_flag_write_poisons() {
+        // The extended CARD_METHOD_POISON names reach expression
+        // positions through the textual probes — the assignment-RHS
+        // flag write is the canonical shape.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local fe=c:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD,0,1)
+    Duel.Draw(tp,1,REASON_EFFECT)
+end
+"#;
+        let (poisoned, drops) = s2b_gate(src, "s.operation");
+        assert!(poisoned && drops, "expression-position flag write must poison");
+    }
+
+    #[test]
+    fn s2b_helper_completeness_gates_unconsumed_helpers() {
+        // An s.* helper statement with no lowering used to be silently
+        // skipped by the emit loop while sibling lines filled.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    s.bookkeep(e,tp)
+    Duel.Draw(tp,1,REASON_EFFECT)
+end
+function s.bookkeep(e,tp)
+    Duel.Hint(HINT_CARD,0,id)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.operation").expect("body");
+        assert!(!body.method_ops_poisoned,
+            "helper statements are the helper family's, not poison");
+        assert!(body_drops_chains(body, &report.functions),
+            "unconsumed helper must fail the completeness gate");
+    }
+
+    #[test]
+    fn s2b_watcher_refuses_gate_failing_subhandler() {
+        // Future Drive shape, but the watcher sub-handler carries an
+        // unmodeled flag write: the check body would silently omit it,
+        // so no install_watcher line may emit.
+        let src = r#"
+local s,id=GetID()
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    local e3=Effect.CreateEffect(c)
+    e3:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+    e3:SetCode(EVENT_BATTLE_DESTROYING)
+    e3:SetOperation(s.damop)
+    e3:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e3)
+end
+function s.damop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    c:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD,0,1)
+    Duel.Damage(1-tp,1000,REASON_EFFECT)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").expect("activate body");
+        let lines = translate_body_with_functions(body, &report.functions);
+        assert!(
+            !lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("install_watcher"))),
+            "gate-failing sub-handler must not materialise a watcher, got: {:?}", lines,
+        );
     }
 
     #[test]
