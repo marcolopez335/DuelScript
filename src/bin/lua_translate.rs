@@ -27,7 +27,7 @@ use duelscript::lua_ast;
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
-        eprintln!("usage: lua_translate <dump|apply> <lua-file>");
+        eprintln!("usage: lua_translate <dump|translate|apply|audit-fills> <path>");
         process::exit(2);
     }
     let mode = args[1].as_str();
@@ -116,11 +116,124 @@ fn main() {
             println!("  retrofit conflicts:      {}", report.retrofit_conflicts);
             println!("  retrofit removal cands:  {}", report.retrofit_removals);
         }
+        "audit-fills" => {
+            // T38 S2b — policy-flip retrofit audit: re-derive every
+            // shipped (non-empty) resolve under the current translator
+            // and report the ones the fill gate now refuses. A hit whose
+            // shipped lines byte-match the current rendering is a machine
+            // fill the gate has invalidated (`--stub` rewrites those back
+            // to empty resolves); mismatches print both sides and stay
+            // report-only for hand verification.
+            //
+            //   lua_translate audit-fills <corpus_dir> <lua_dir> [cards.cdb] [--stub]
+            if args.len() < 4 {
+                eprintln!("usage: lua_translate audit-fills <corpus_dir> <lua_dir> [cards.cdb] [--stub]");
+                process::exit(2);
+            }
+            let corpus = &args[2];
+            let lua_dir = &args[3];
+            let stub = args.iter().any(|a| a == "--stub");
+            let cdb = args.get(4).map(String::as_str).filter(|a| *a != "--stub");
+            load_card_names(cdb, lua_dir);
+            audit_fills(corpus, lua_dir, stub);
+        }
         _ => {
             eprintln!("unknown mode: {}", mode);
             process::exit(2);
         }
     }
+}
+
+/// Byte span of a `resolve { … }` body inside `[lo, hi)` — brace-matched
+/// (install_watcher action lines carry `{ }` pairs), string-aware.
+/// Returns `(after_open_brace, at_close_brace)`.
+fn resolve_inner_span(txt: &str, lo: usize, hi: usize) -> Option<(usize, usize)> {
+    let rel = txt[lo..hi].find("resolve {")?;
+    let open = lo + rel + "resolve ".len(); // index of '{'
+    let mut depth = 0i32;
+    let mut in_string = false;
+    for (i, c) in txt[open..hi].char_indices() {
+        match c {
+            '"' => in_string = !in_string,
+            '{' if !in_string => depth += 1,
+            '}' if !in_string => {
+                depth -= 1;
+                if depth == 0 {
+                    return Some((open + c.len_utf8(), open + i));
+                }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+/// See the `audit-fills` mode arm. Walks handler-derived effect blocks
+/// only — summon-helper and replacement-chain fills don't flow through
+/// `body_drops_chains`, so the gate flip can't invalidate them.
+fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool) {
+    let mut paths: Vec<std::path::PathBuf> = match fs::read_dir(corpus_dir) {
+        Ok(e) => e.flatten().map(|e| e.path())
+            .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("ds"))
+            .collect(),
+        Err(e) => { eprintln!("cannot read {}: {}", corpus_dir, e); return; }
+    };
+    paths.sort();
+    let (mut stubs, mut reviews) = (0usize, 0usize);
+    for path in paths {
+        let Ok(txt) = fs::read_to_string(&path) else { continue };
+        let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
+        let lua_path = Path::new(lua_dir).join(format!("{}.lua", stem));
+        let Ok(lua_src) = fs::read_to_string(&lua_path) else { continue };
+        let Ok(parsed) = full_moon::parse(&lua_src) else { continue };
+        let walk = lua_ast::walk(&parsed);
+        if walk.effects.is_empty() { continue; }
+        let assign = block_match::compute_assignments(&walk, &txt);
+        let mut new_txt = txt.clone();
+        let mut changed = false;
+        for (eff_i, eff) in walk.effects.iter().enumerate() {
+            if eff.is_summon_helper() || eff.is_replacement_chain() { continue; }
+            let Some(handler) = eff.operation_handler.as_deref() else { continue };
+            let handler = handler.trim();
+            let Some(block_idx) = assign.by_effect[eff_i] else { continue };
+            let Some(body) = walk.functions.get(handler) else { continue };
+            if !lua_ast::body_drops_chains(body, &walk.functions) { continue; }
+            // Offsets recomputed against new_txt — a stub earlier in this
+            // file shifts every later block.
+            let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else { continue };
+            let Some((inner_lo, inner_hi)) = resolve_inner_span(&new_txt, block_lo, block_hi) else { continue };
+            let shipped: Vec<String> = new_txt[inner_lo..inner_hi].lines()
+                .map(str::trim).filter(|l| !l.is_empty()).map(str::to_string).collect();
+            if shipped.is_empty() { continue; } // already a stub
+            let lines = lua_ast::translate_body_with_functions(body, &walk.functions);
+            let rendered: Vec<String> = lines.iter().filter(|l| l.is_action())
+                .map(|l| l.clone().into_string("").trim().to_string()).collect();
+            let reason = if body.method_ops_poisoned { "method-poison" }
+                else if body.counter_ops_poisoned { "counter-poison" }
+                else { "drop" };
+            if shipped == rendered {
+                stubs += 1;
+                println!("STUB   {} block={} handler={} reason={} lines={}",
+                    stem, block_idx, handler, reason, shipped.len());
+                for l in &shipped { println!("    - {}", l); }
+                if stub {
+                    new_txt = format!("{}\n        {}", &new_txt[..inner_lo], &new_txt[inner_hi..]);
+                    changed = true;
+                }
+            } else {
+                reviews += 1;
+                println!("REVIEW {} block={} handler={} reason={}", stem, block_idx, handler, reason);
+                for l in &shipped  { println!("    shipped:  {}", l); }
+                for l in &rendered { println!("    rendered: {}", l); }
+            }
+        }
+        if changed {
+            if let Err(e) = fs::write(&path, &new_txt) {
+                eprintln!("cannot write {}: {}", path.display(), e);
+            }
+        }
+    }
+    println!("=== audit-fills: {} stub, {} review ===", stubs, reviews);
 }
 
 /// Populate the lua_ast passcode → card-name table used by the
