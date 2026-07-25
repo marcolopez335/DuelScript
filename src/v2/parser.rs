@@ -1568,6 +1568,10 @@ fn parse_action(pair: Pair<Rule>) -> Result<Action, V2ParseError> {
             let sel = parse_selector(it.next().unwrap())?;
             let dest = if text.contains("to owner") {
                 ReturnDest::Owner
+            } else if text.ends_with("to field") {
+                // Suffix match, not contains: an on-field selector spells
+                // "field" too, and no other clause follows the dest.
+                ReturnDest::Field
             } else if text.contains("hand") {
                 ReturnDest::Hand
             } else if text.contains("extra_deck") {
@@ -1607,14 +1611,18 @@ fn parse_action(pair: Pair<Rule>) -> Result<Action, V2ParseError> {
             let sel = parse_selector(it.next().unwrap())?;
             let mut zone = None;
             let mut pos = None;
+            let mut binding = None;
             for p in it {
                 match p.as_rule() {
                     Rule::zone => zone = Some(parse_zone(p.as_str().trim())?),
                     Rule::battle_position => pos = Some(parse_battle_position(p.as_str().trim())?),
+                    Rule::binding => binding = Some(
+                        p.into_inner().next().unwrap().as_str().to_string()
+                    ),
                     _ => {}
                 }
             }
-            Ok(Action::SpecialSummon(sel, zone, pos))
+            Ok(Action::SpecialSummon(sel, zone, pos, binding))
         }
         Rule::ritual_summon_action => {
             let mut target: Option<Selector> = None;
@@ -3225,6 +3233,55 @@ card "Delayed Arming Test" {
                 assert_eq!(body.len(), 1);
             }
             other => panic!("expected until-phase form, got {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_special_summon_binding_and_return_to_field_parse() {
+        // T38 S8b: `as <ident>` on special_summon declares a named
+        // binding the delayed wrapper body references; `return … to
+        // field` is the Duel.ReturnToField dest. Both new surfaces in
+        // one resolve, plus the binding-free spellings staying intact.
+        let source = r#"
+card "Summon Binding Test" {
+    id: 1
+    type: Normal Spell
+
+    effect "Pull" {
+        speed: 1
+        mandatory
+        resolve {
+            special_summon (1, monster, you control, from deck) as sp
+            delayed on end_phase until end_of_turn {
+                destroy sp
+            }
+            special_summon (1, monster, you control, from gy)
+            return target to field
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let resolve = &file.cards[0].effects[0].resolve;
+        assert_eq!(resolve.len(), 4);
+        match &resolve[0] {
+            Action::SpecialSummon(_, _, _, Some(b)) => assert_eq!(b, "sp"),
+            other => panic!("expected bound special_summon, got {:?}", other),
+        }
+        match &resolve[1] {
+            Action::Delayed { body, .. } => match &body[0] {
+                Action::Destroy(Selector::Binding(name)) => assert_eq!(name, "sp"),
+                other => panic!("expected destroy-by-binding, got {:?}", other),
+            },
+            other => panic!("expected delayed wrapper, got {:?}", other),
+        }
+        match &resolve[2] {
+            Action::SpecialSummon(_, _, _, None) => {}
+            other => panic!("expected unbound special_summon, got {:?}", other),
+        }
+        match &resolve[3] {
+            Action::Return(Selector::Target, ReturnDest::Field) => {}
+            other => panic!("expected return-to-field, got {:?}", other),
         }
     }
 

@@ -934,9 +934,11 @@ fn action_category(action: &Action) -> u32 {
         Action::Return(_, ReturnDest::Owner) => tm::CATEGORY_TOHAND,
         Action::Return(_, ReturnDest::Deck(_)) => tm::CATEGORY_TODECK,
         Action::Return(_, ReturnDest::ExtraDeck) => tm::CATEGORY_TODECK,
+        // Return-to-field (T38 S8b) has no CATEGORY_* bit in edopro.
+        Action::Return(_, ReturnDest::Field) => 0,
         Action::Search(_, _) => tm::CATEGORY_SEARCH,
         Action::AddToHand(_, _) => tm::CATEGORY_TOHAND,
-        Action::SpecialSummon(_, _, _) => tm::CATEGORY_SPECIAL_SUMMON,
+        Action::SpecialSummon(_, _, _, _) => tm::CATEGORY_SPECIAL_SUMMON,
         Action::NormalSummon(_) => tm::CATEGORY_SUMMON,
         Action::Damage(_, _) => tm::CATEGORY_DAMAGE,
         Action::GainLp(_) => tm::CATEGORY_RECOVER,
@@ -2292,7 +2294,7 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 rt.send_to_hand(&cards);
             }
         }
-        Action::SpecialSummon(sel, source_zone, pos) => {
+        Action::SpecialSummon(sel, source_zone, pos, binding) => {
             let pos_val = match pos {
                 Some(BattlePosition::Attack)          => tm::POS_FACEUP_ATTACK,   // 0x1
                 Some(BattlePosition::Defense)         => tm::POS_FACEUP_DEFENSE,  // 0x4 (was 0x2 = POS_FACEDOWN_ATTACK)
@@ -2310,6 +2312,14 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 sel.clone()
             };
             let cards = resolve_v2_selector(&scoped_sel, rt, player);
+            // T38 S8b — `as <name>` stores the summoned card for later
+            // Selector::Binding references (the delayed-wrapper idiom).
+            // Single-card limitation: multi-card summons store only the
+            // first (same convention as NegateEffects' `__negated__`;
+            // the translator only emits the binding on quantity-1 pulls).
+            if let (Some(name), Some(&first_id)) = (binding, cards.first()) {
+                rt.set_binding(name, first_id);
+            }
             for card_id in cards {
                 rt.special_summon(card_id, player, pos_val);
             }
@@ -2474,6 +2484,7 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                     }
                 }
                 ReturnDest::ExtraDeck => { rt.send_to_deck(&cards, false); }
+                ReturnDest::Field => { rt.return_to_field(&cards); }
             }
         }
         Action::Grant(sel, ability, duration) => {
@@ -3401,6 +3412,51 @@ card "Delayed On Compile Test" {
         let up = format!("phase={:#x} card=30004", tm::PHASE_END);
         assert!(rt.was_called_with("register_delayed", &up),
             "until-phase routing lost; calls: {}", rt.dump_calls());
+    }
+
+    #[test]
+    fn test_special_summon_binding_flows_to_delayed_body() {
+        use super::super::mock_runtime::{CardSnapshot, MockRuntime};
+        // T38 S8b: `as sp` stores the summoned card; the delayed
+        // wrapper's `destroy sp` resolves the binding to that exact
+        // card (mock executes wrapper bodies inline — house
+        // convention). `return self to field` exercises the new
+        // ReturnDest::Field -> return_to_field lowering.
+        let source = r#"
+card "Summon Binding Compile Test" {
+    id: 30006
+    type: Normal Spell
+
+    effect "Pull" {
+        speed: 1
+        mandatory
+        resolve {
+            special_summon (1, monster, you control, from deck) as sp
+            delayed on end_phase until end_of_turn {
+                destroy sp
+            }
+            return self to field
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 30006;
+        rt.effect_player = 0;
+        rt.state.add_card(CardSnapshot::monster(41, "Pulled Monster", 1000, 1000, 4));
+        rt.state.players[0].deck = vec![41u32];
+        (compiled.effects[0].operation.as_ref().unwrap())(&mut rt);
+
+        assert!(rt.was_called_with("set_binding", r#"name="sp" card=41"#),
+            "summon binding not stored; calls: {}", rt.dump_calls());
+        assert!(rt.was_called_with("special_summon", "card=41"),
+            "summon missing; calls: {}", rt.dump_calls());
+        assert!(rt.was_called_with("destroy", "ids=[41]"),
+            "delayed body did not resolve the binding; calls: {}", rt.dump_calls());
+        assert!(rt.was_called_with("return_to_field", "ids=[30006]"),
+            "return-to-field lowering missing; calls: {}", rt.dump_calls());
     }
 
     #[test]

@@ -444,6 +444,7 @@ fn format_action(a: &Action, out: &mut String, indent: usize) {
                 ReturnDest::Deck(Some(DeckPosition::Shuffle)) => "deck shuffle".to_string(),
                 ReturnDest::ExtraDeck => "extra_deck".to_string(),
                 ReturnDest::Owner => "owner".to_string(),
+                ReturnDest::Field => "field".to_string(),
             };
             writeln!(out, "{}return {} to {}", pad, format_selector(sel), dest_str).unwrap();
         }
@@ -461,13 +462,16 @@ fn format_action(a: &Action, out: &mut String, indent: usize) {
             }
             writeln!(out, "{}", s).unwrap();
         }
-        Action::SpecialSummon(sel, zone, pos) => {
+        Action::SpecialSummon(sel, zone, pos, binding) => {
             let mut s = format!("{}special_summon {}", pad, format_selector(sel));
             if let Some(z) = zone {
                 s.push_str(&format!(" from {}", format_zone(z)));
             }
             if let Some(p) = pos {
                 s.push_str(&format!(" in {}", format_battle_position(p)));
+            }
+            if let Some(b) = binding {
+                s.push_str(&format!(" as {}", b));
             }
             writeln!(out, "{}", s).unwrap();
         }
@@ -1903,6 +1907,42 @@ card "Delayed Roundtrip Test" {
         let reparsed = parse_v2(&formatted)
             .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
         assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 4);
+        assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
+    }
+
+    #[test]
+    fn test_s8b_summon_binding_and_return_to_field_roundtrip() {
+        // T38 S8b: the `as <ident>` summon binding and the `to field`
+        // return dest survive the parse -> format -> reparse fixed point.
+        let source = r#"
+card "S8b Roundtrip Test" {
+    id: 1
+    type: Normal Spell
+
+    effect "Pull" {
+        speed: 1
+        mandatory
+        resolve {
+            special_summon (1, monster, you control, from deck) as sp
+            delayed on end_phase until end_of_turn {
+                destroy sp
+            }
+            return self to field
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let formatted = format_file(&file);
+        assert!(formatted.contains("special_summon (1, monster, you control, from deck) as sp"),
+            "summon binding mis-rendered in:\n{}", formatted);
+        assert!(formatted.contains("destroy sp"),
+            "binding reference mis-rendered in:\n{}", formatted);
+        assert!(formatted.contains("return self to field"),
+            "return-to-field mis-rendered in:\n{}", formatted);
+        let reparsed = parse_v2(&formatted)
+            .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
+        assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 3);
         assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
     }
 

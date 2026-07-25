@@ -536,7 +536,11 @@ pub enum Action {
     Return(Selector, ReturnDest),
     Search(Selector, Option<Zone>),
     AddToHand(Selector, Option<Zone>),
-    SpecialSummon(Selector, Option<Zone>, Option<BattlePosition>),
+    /// T38 S8b — the 4th field is the optional `as <ident>` binding: the
+    /// compiler stores the (first) summoned card under the name so later
+    /// actions in the same resolve (typically a `delayed on end_phase`
+    /// wrapper body) reference it via `Selector::Binding`.
+    SpecialSummon(Selector, Option<Zone>, Option<BattlePosition>, Option<String>),
     RitualSummon {
         target: Selector,
         materials: Option<Selector>,
@@ -654,7 +658,9 @@ pub enum DelayedArming {
 pub enum MaterialDestination { Banished, Deck }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ReturnDest { Hand, Deck(Option<DeckPosition>), ExtraDeck, Owner }
+/// `Field` (T38 S8b) — lua `Duel.ReturnToField`: a temporarily-banished
+/// card comes back to the field (the REASON_TEMPORARY banish idiom).
+pub enum ReturnDest { Hand, Deck(Option<DeckPosition>), ExtraDeck, Owner, Field }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DeckPosition { Top, Bottom, Shuffle }

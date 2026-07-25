@@ -797,6 +797,22 @@ pub trait DuelScriptRuntime {
     /// Returns `0` (no-op).
     fn return_to_owner(&mut self, _card_ids: &[u32]) -> u32 { 0 }
 
+    /// Return each card in `card_ids` to the field (T38 S8b) — the lua
+    /// `Duel.ReturnToField` seam: a card banished with `REASON_TEMPORARY`
+    /// comes back to the zone it left, in the position it left in. Cards
+    /// not in the temporarily-banished state silently no-op.
+    ///
+    /// **ygobeetle mirror obligation:** new trait method — engine-dev
+    /// mirrors on semantics; default no-op means the dep bump compiles
+    /// clean and un-mirrored `return … to field` lines silently skip.
+    ///
+    /// # Returns
+    /// Number of cards successfully returned.
+    ///
+    /// # Default
+    /// Returns `0` (no-op).
+    fn return_to_field(&mut self, _card_ids: &[u32]) -> u32 { 0 }
+
     /// Remove `card_ids` from the field as a tribute cost.
     ///
     /// # Returns

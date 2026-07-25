@@ -522,6 +522,10 @@ impl DuelScriptRuntime for MockRuntime {
         self.record("return_to_owner", format!("ids={:?}", card_ids));
         card_ids.len() as u32
     }
+    fn return_to_field(&mut self, card_ids: &[u32]) -> u32 {
+        self.record("return_to_field", format!("ids={:?}", card_ids));
+        card_ids.len() as u32
+    }
     fn tribute(&mut self, card_ids: &[u32]) -> u32 {
         self.record("tribute", format!("ids={:?}", card_ids));
         card_ids.len() as u32
