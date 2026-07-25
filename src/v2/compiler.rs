@@ -2709,10 +2709,29 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 }
             }
         }
-        Action::Delayed { until, body } => {
-            let phase_code = phase_name_to_code(until);
+        Action::Delayed { arming, body } => {
             let card_id = rt.effect_card_id();
-            rt.register_delayed(phase_code, card_id);
+            match arming {
+                DelayedArming::UntilPhase(until) => {
+                    let phase_code = phase_name_to_code(until);
+                    rt.register_delayed(phase_code, card_id);
+                }
+                DelayedArming::OnEvent { trigger, until } => {
+                    // T38 S8: event-armed wrapper — lua inner
+                    // FIELD+CONTINUOUS effect on the event code, reset
+                    // from the duration (absent clause = end_of_turn).
+                    // The validator rejects zero-code triggers
+                    // (ignition/custom), so the defensive skip here can
+                    // only fire on unvalidated ASTs.
+                    let event_code = trigger_to_event_code(&Some(trigger.clone()));
+                    if event_code != 0 {
+                        let dur = until.as_ref()
+                            .map(ast_duration_to_runtime)
+                            .unwrap_or(RuntimeDuration::EndOfTurn);
+                        rt.register_delayed_trigger(event_code, card_id, dur);
+                    }
+                }
+            }
             // In mock/test context also execute body immediately so tests can observe
             for a in body {
                 execute_v2_action(a, rt, player);
@@ -3321,6 +3340,56 @@ card "Restrict Qualifier Compile Test" {
             tm::LOCATION_GRAVE);
         assert!(rt.was_called_with("restrict_player", &or_composed),
             "or-composed call missing; calls: {}", rt.dump_calls());
+    }
+
+    #[test]
+    fn test_delayed_on_compiles_and_executes() {
+        use super::super::mock_runtime::MockRuntime;
+        // T38 S8: the on-form registers the event wrapper — phase events
+        // as EVENT_PHASE|PHASE_*, an absent until clause defaulting to
+        // EndOfTurn — and the mock executes the body inline (the
+        // register_delayed house convention). The until-phase form still
+        // routes to register_delayed.
+        let source = r#"
+card "Delayed On Compile Test" {
+    id: 30004
+    type: Normal Trap
+
+    effect "Later" {
+        speed: 2
+        mandatory
+        target (1, monster, from field)
+        resolve {
+            delayed on end_phase {
+                destroy target
+            }
+            delayed on destroys_by_battle until this_turn {
+                damage opponent 1000
+            }
+            delayed until end {
+                draw 1
+            }
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 30004;
+        rt.effect_player = 0;
+        (compiled.effects[0].operation.as_ref().unwrap())(&mut rt);
+
+        let pe = format!("event={:#x} card=30004 dur=EndOfTurn",
+            tm::EVENT_PHASE | tm::PHASE_END);
+        assert!(rt.was_called_with("register_delayed_trigger", &pe),
+            "phase-end wrapper missing; calls: {}", rt.dump_calls());
+        let bd = format!("event={:#x} card=30004 dur=ThisTurn", tm::EVENT_BATTLE_DESTROYING);
+        assert!(rt.was_called_with("register_delayed_trigger", &bd),
+            "battle-destroying wrapper missing; calls: {}", rt.dump_calls());
+        // Bodies execute inline in mock context (house convention).
+        assert!(rt.was_called_with("damage", "player=1 amount=1000"),
+            "wrapper body not executed; calls: {}", rt.dump_calls());
     }
 
     #[test]
