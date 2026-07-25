@@ -835,7 +835,7 @@ fn scan_actions(actions: &[Action], scan: &mut TargetScan) {
             | Action::Return(s, _)
             | Action::Search(s, _)
             | Action::AddToHand(s, _)
-            | Action::SpecialSummon(s, _, _)
+            | Action::SpecialSummon(s, _, _, _)
             | Action::NormalSummon(s)
             | Action::Set(s, _)
             | Action::FlipDown(s)

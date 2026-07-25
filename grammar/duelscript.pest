@@ -512,11 +512,18 @@ discard_action        = { "discard" ~ selector }
 destroy_action        = { "destroy" ~ selector }
 banish_action         = { "banish" ~ selector ~ ("from" ~ zone)? ~ "face_down"? }
 send_action           = { "send" ~ selector ~ "to" ~ zone }
-return_action         = { "return" ~ selector ~ "to" ~ ("owner" | "hand" | "deck" ~ deck_position? | "extra_deck") }
+// T38 S8b — `to field` returns a temporarily-banished card to the field
+// (lua `Duel.ReturnToField`, the REASON_TEMPORARY banish idiom).
+return_action         = { "return" ~ selector ~ "to" ~ ("owner" | "hand" | "deck" ~ deck_position? | "extra_deck" | "field") }
 deck_position         = { "top" | "bottom" | "shuffle" }
 search_action         = { "search" ~ selector ~ ("from" ~ zone)? }
 add_to_hand_action    = { "add_to_hand" ~ selector ~ ("from" ~ zone)? }
-special_summon_action = { "special_summon" ~ selector ~ ("from" ~ zone)? ~ ("in" ~ battle_position)? }
+// T38 S8b — optional `as <ident>` binding (shared `binding` rule, same
+// surface as target_decl / cost actions): later actions in the same
+// resolve reference the summoned card by name, e.g. a `delayed on
+// end_phase` wrapper's `destroy sp` (lua SetLabelObject on the
+// just-summoned card).
+special_summon_action = { "special_summon" ~ selector ~ ("from" ~ zone)? ~ ("in" ~ battle_position)? ~ binding? }
 ritual_summon_action  = { "ritual_summon" ~ selector ~ ("using" ~ selector)? ~ ("where" ~ "total_level" ~ compare_op ~ expr)? }
 fusion_summon_action  = { "fusion_summon" ~ selector ~ ("using" ~ selector)? ~ fusion_plus_clause? ~ fusion_forced_self? ~ fusion_disposal? }
 // T38 S5 — fusion proc knobs. `plus` widens the material pool beyond the
