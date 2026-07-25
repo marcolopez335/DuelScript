@@ -6226,16 +6226,33 @@ fn is_availability_check(
 ) -> bool {
     let Some(cond_body) = functions.get(cond) else { return false };
     // The call sits in RETURN position (never collected into `calls`) —
-    // parse the filter straight off the single-return expression text.
+    // parse the args straight off the single-return expression text.
     let Some(expr) = cond_body.return_expr.as_deref() else { return false };
-    let Some(rest) = expr.trim().strip_prefix("Duel.IsExistingMatchingCard(") else {
+    let expr = expr.trim();
+    // A conjoined condition (`IsExistingMatchingCard(…) and X`) is a
+    // semantic gate, not the bare check — the suffix strip below would
+    // silently swallow the extra conjunct otherwise.
+    if split_top_level(expr, " and ").len() > 1 || split_top_level(expr, " or ").len() > 1 {
+        return false;
+    }
+    let Some(rest) = expr.strip_prefix("Duel.IsExistingMatchingCard(") else {
         return false;
     };
-    let Some((cond_filter, _)) = rest.split_once(',') else { return false };
-    let cond_filter = cond_filter.trim();
+    let Some(inner) = rest.strip_suffix(')') else { return false };
+    // [filter, tp, location, …] — the check only restates the op's
+    // search when BOTH the filter and the location match (a gy-check
+    // condition over a deck-search op is a lossy drop, not the
+    // availability idiom).
+    let cond_args: Vec<&str> = split_top_level(inner, ",")
+        .into_iter().map(str::trim).collect();
+    if cond_args.len() < 3 {
+        return false;
+    }
+    let (cond_filter, cond_loc) = (cond_args[0], cond_args[2]);
     op_body.calls.iter().any(|c| {
         c.method == "Duel.SelectMatchingCard"
             && c.args.get(1).map(|a| a.trim()) == Some(cond_filter)
+            && c.args.get(3).map(|a| a.trim()) == Some(cond_loc)
     })
 }
 
@@ -16196,6 +16213,46 @@ end
             !actions.iter().any(|a| a.starts_with("delayed on")),
             "compound-location search must skip, got {:?}", actions,
         );
+    }
+
+    #[test]
+    fn s8_skip_availability_cond_location_mismatch() {
+        // A gy-check condition over a deck-search op is a SEMANTIC gate
+        // (search deck only while one sits in gy) -- dropping it would
+        // change behavior; likewise a conjoined check. Both skip.
+        let base = |cond_ret: &str| format!(r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_PHASE+PHASE_END)
+    e1:SetCondition(s.thcon)
+    e1:SetOperation(s.thop)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.thfilter(c)
+    return c:IsSetCard(SET_GUSTO) and c:IsAbleToHand()
+end
+function s.thcon(e,tp,eg,ep,ev,re,r,rp)
+    return {}
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+    if #g>0 then
+        Duel.SendtoHand(g,nil,REASON_EFFECT)
+    end
+end
+"#, cond_ret);
+        for cond in [
+            "Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_GRAVE,0,1,nil)",
+            "Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil) and Duel.IsTurnPlayer(tp)",
+        ] {
+            let actions = p11_actions(&base(cond), "s.activate");
+            assert!(
+                !actions.iter().any(|a| a.starts_with("delayed on")),
+                "lossy cond drop: {} got {:?}", cond, actions,
+            );
+        }
     }
 
     #[test]
