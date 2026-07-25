@@ -18,7 +18,7 @@ card "Exosister Karmael" {
         timing: if
         trigger: summoned by special
         resolve {
-            delayed on end_phase until end_of_turn { set (1, card, you control) }
+            install_watcher "setop" { event: end_phase duration: end_of_turn check { set (1, card, you control) } }
         }
     }
 

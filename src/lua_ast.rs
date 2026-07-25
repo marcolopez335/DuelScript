@@ -3848,6 +3848,15 @@ fn collect_register_chains(
                     }
                 }
             }
+            // A plain reassignment invalidates the recorded initializer
+            // (S8 review: `tc=Duel.GetAttacker()` after the local would
+            // resolve stale) — drop the entry so the raw name survives
+            // and the target-provenance gate skips instead of mis-aiming.
+            Stmt::Assignment(a) => {
+                for var in a.variables() {
+                    locals.remove(var.to_string().trim());
+                }
+            }
             Stmt::FunctionCall(fc) => {
                 if let Some((bind, method, args)) = method_call_on_binding(fc) {
                     if let Some(chain) = by_binding.get_mut(&bind) {
@@ -3880,12 +3889,15 @@ fn collect_register_chains(
                             // function's non-chain locals so the
                             // delayed-wrapper emitter can check the
                             // stored object IS the chain target.
+                            // Conflict-tracked like every other slot
+                            // (S8 review): a branch-conditional second
+                            // store poisons rather than last-write-wins.
                             "SetLabelObject" => {
-                                chain.label_object = arg.map(|a| {
+                                let resolved = arg.map(|a| {
                                     let a = a.trim().to_string();
                                     locals.get(&a).cloned().unwrap_or(a)
                                 });
-                                false
+                                set_or_conflict(&mut chain.label_object, resolved, seeds, "label_object")
                             }
                             _ => false,
                         };
@@ -3992,6 +4004,7 @@ fn seeded_slot_names(chain: &RegisterEffectChain) -> BTreeSet<&'static str> {
     if chain.target_range.is_some() { names.insert("target_range"); }
     if chain.set_target.is_some()   { names.insert("set_target"); }
     if chain.property.is_some()     { names.insert("property"); }
+    if chain.label_object.is_some() { names.insert("label_object"); }
     names
 }
 
@@ -6172,6 +6185,18 @@ fn translate_delayed_on_chain(
     if normalized != "EVENT_PHASE+PHASE_END" && normalized != "EVENT_PHASE|PHASE_END" {
         return None;
     }
+    // CONTINUOUS only (S8 review blocker): a FIELD+TRIGGER_F chain
+    // creates a chain link with activation windows and a SetTarget
+    // handler — rewriting it to continuous-op semantics would discard
+    // both. The dispatch's FIELD check alone does not exclude it.
+    if !chain.effect_type.as_deref()
+        .is_some_and(|t| t.contains("EFFECT_TYPE_CONTINUOUS"))
+    {
+        return None;
+    }
+    if chain.set_target.is_some() {
+        return None; // trigger-style chk/target handler — not a with_op wrapper
+    }
     if !chain.duel_registered || chain.multi_target || chain.in_choice_arm {
         return None;
     }
@@ -6239,20 +6264,29 @@ fn is_availability_check(
         return false;
     };
     let Some(inner) = rest.strip_suffix(')') else { return false };
-    // [filter, tp, location, …] — the check only restates the op's
-    // search when BOTH the filter and the location match (a gy-check
-    // condition over a deck-search op is a lossy drop, not the
-    // availability idiom).
+    // (filter, player, loc1, loc2, count, exception) — the check only
+    // restates the op's search when EVERY dimension is redundant
+    // against the op's Select(player, filter, player, loc1, loc2, min,
+    // max, exception): pairwise filter/player/locations, count == the
+    // op's min == 1, and a nil exception. Anything else — a "need N
+    // copies" gate, an opponent-side probe, an exception card — is a
+    // semantic condition whose drop would change behavior (S8 review).
     let cond_args: Vec<&str> = split_top_level(inner, ",")
         .into_iter().map(str::trim).collect();
-    if cond_args.len() < 3 {
+    if cond_args.len() < 5 {
         return false;
     }
-    let (cond_filter, cond_loc) = (cond_args[0], cond_args[2]);
+    if cond_args[4] != "1" || cond_args.get(5).copied().unwrap_or("nil") != "nil" {
+        return false;
+    }
     op_body.calls.iter().any(|c| {
         c.method == "Duel.SelectMatchingCard"
-            && c.args.get(1).map(|a| a.trim()) == Some(cond_filter)
-            && c.args.get(3).map(|a| a.trim()) == Some(cond_loc)
+            && c.args.first().map(|a| a.trim()) == Some(cond_args[1])
+            && c.args.get(1).map(|a| a.trim()) == Some(cond_args[0])
+            && c.args.get(2).map(|a| a.trim()) == Some(cond_args[1])
+            && c.args.get(3).map(|a| a.trim()) == Some(cond_args[2])
+            && c.args.get(4).map(|a| a.trim()) == Some(cond_args[3])
+            && c.args.get(5).map(|a| a.trim()) == Some("1")
     })
 }
 
@@ -6267,6 +6301,12 @@ fn decode_delayed_translated_body(
     functions: &BTreeMap<String, FunctionBody>,
 ) -> Option<String> {
     if !op_body.register_chains.is_empty() {
+        return None;
+    }
+    // Script-helper statement calls (`s.xxx(…)`) are consumed by no
+    // wrapper path — a body carrying one would fire more than the lone
+    // rendered action states (S8 review).
+    if !op_body.helper_calls.is_empty() {
         return None;
     }
     if body_drops_chains(op_body, functions) {
@@ -16256,6 +16296,195 @@ end
     }
 
     #[test]
+    fn s8_skip_trigger_f_and_non_phase_end_routing() {
+        // S8 review blockers: a Duel-registered FIELD+TRIGGER_F chain
+        // must NOT rewrite to continuous delayed-on semantics (its
+        // SetTarget chk-handler and chain-link windows would vanish),
+        // and non-PHASE_END with_op chains keep their install_watcher
+        // routing (no flip outside the bucket this slice owns).
+        let trigger_f = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_TRIGGER_F)
+    e1:SetCode(EVENT_PHASE+PHASE_END)
+    e1:SetTarget(s.deltg)
+    e1:SetOperation(s.delop)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.deltg(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return true end
+end
+function s.delop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Draw(tp,1,REASON_EFFECT)
+end
+"#;
+        let actions = p11_actions(trigger_f, "s.activate");
+        assert!(
+            !actions.iter().any(|a| a.starts_with("delayed on")),
+            "TRIGGER_F must not become delayed-on, got {:?}", actions,
+        );
+        let non_phase_end = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_BATTLE_DESTROYING)
+    e1:SetOperation(s.delop)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.delop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Draw(tp,1,REASON_EFFECT)
+end
+"#;
+        let actions = p11_actions(non_phase_end, "s.activate");
+        assert!(
+            actions.iter().any(|a| a.starts_with("install_watcher")),
+            "non-PHASE_END with_op must keep watcher routing, got {:?}", actions,
+        );
+        assert!(
+            !actions.iter().any(|a| a.starts_with("delayed on")),
+            "non-PHASE_END must not flip to delayed-on, got {:?}", actions,
+        );
+    }
+
+    #[test]
+    fn s8_skip_availability_cond_count_and_helper_gates() {
+        // S8 review blockers: a need-N-copies availability check is a
+        // semantic gate (count must be 1 AND mirror the op's min); an
+        // op body carrying a script-helper statement fires more than
+        // the lone rendered action states.
+        let count_gate = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_PHASE+PHASE_END)
+    e1:SetCondition(s.thcon)
+    e1:SetOperation(s.thop)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.thfilter(c)
+    return c:IsSetCard(SET_GUSTO) and c:IsAbleToHand()
+end
+function s.thcon(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,3,nil)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+    if #g>0 then
+        Duel.SendtoHand(g,nil,REASON_EFFECT)
+    end
+end
+"#;
+        let actions = p11_actions(count_gate, "s.activate");
+        assert!(
+            !actions.iter().any(|a| a.starts_with("delayed on")),
+            "need-3-copies gate must not drop, got {:?}", actions,
+        );
+        let helper = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_PHASE+PHASE_END)
+    e1:SetOperation(s.delop)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.delop(e,tp,eg,ep,ev,re,r,rp)
+    s.extraop(e,tp)
+    Duel.Draw(tp,1,REASON_EFFECT)
+end
+function s.extraop(e,tp)
+    Duel.Damage(1-tp,500,REASON_EFFECT)
+end
+"#;
+        let actions = p11_actions(helper, "s.activate");
+        assert!(
+            !actions.iter().any(|a| a.starts_with("delayed on")),
+            "helper-carrying op must not emit, got {:?}", actions,
+        );
+    }
+
+    #[test]
+    fn s8_label_object_reassignment_and_clone() {
+        // S8 review: a reassignment between the local and the store must
+        // poison provenance (skip, never aim at the stale initializer);
+        // clone-inherited label objects keep working.
+        let reassigned = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    tc=Duel.GetAttacker()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_PHASE+PHASE_END)
+    e1:SetLabelObject(tc)
+    e1:SetOperation(s.delop)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.delop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Destroy(e:GetLabelObject(),REASON_EFFECT)
+end
+"#;
+        let actions = p11_actions(reassigned, "s.operation");
+        assert!(
+            !actions.iter().any(|a| a.starts_with("delayed on")),
+            "reassigned label local must skip, got {:?}", actions,
+        );
+        let cloned = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_PHASE+PHASE_END)
+    e1:SetLabelObject(tc)
+    e1:SetOperation(s.delop)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    local e2=e1:Clone()
+    Duel.RegisterEffect(e2,tp)
+end
+function s.delop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Destroy(e:GetLabelObject(),REASON_EFFECT)
+end
+"#;
+        assert_eq!(
+            p11_actions(cloned, "s.operation"),
+            vec!["delayed on end_phase until end_of_turn { destroy target }"],
+        );
+    }
+
+    #[test]
+    fn s8_staleness_guard_inverted_comment_and_numeric_forms() {
+        // S8 review: the inverted comparison (fires only when the flag
+        // is GONE — a semantic inversion) and a comment-carrying guard
+        // must NOT flag; a numeric flag id must.
+        let wrap = |body: &str| format!(r#"
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+{}
+end
+"#, body);
+        for bad in [
+            "    local tc=e:GetLabelObject()
+    return tc:GetFlagEffect(id)==0",
+            "    local tc=e:GetLabelObject()
+    -- guard
+    return tc:GetFlagEffect(id)~=0",
+        ] {
+            let parsed = full_moon::parse(&wrap(bad)).expect("parse");
+            let report = walk(&parsed);
+            assert!(!report.functions.get("s.descon").is_some_and(|f| f.staleness_guard),
+                "must NOT flag: {}", bad);
+        }
+        let numeric = wrap("    local tc=e:GetLabelObject()
+    return tc:GetFlagEffect(33396948)~=0");
+        let parsed = full_moon::parse(&numeric).expect("parse");
+        let report = walk(&parsed);
+        assert!(report.functions.get("s.descon").is_some_and(|f| f.staleness_guard),
+            "numeric flag id must flag");
+    }
+
+    #[test]
     fn s2_skip_top_level_or_splimit() {
         // Top-level or in a splimit — only the negated-group De Morgan
         // composition is in scope.
@@ -18673,4 +18902,3 @@ card "S6 Emit Forms" {
         assert_eq!(crate::v2::fmt::format_file(&reparsed), formatted);
     }
 }
-
