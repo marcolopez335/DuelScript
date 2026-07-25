@@ -131,6 +131,16 @@ pub struct FunctionBody {
     /// constraint lives outside the call's arguments and has no DSL
     /// surface.
     pub summon_check_additional: bool,
+    /// True when the body is the delayed-wrapper STALENESS-GUARD
+    /// boilerplate (T38 S8): a `local <b>=e:GetLabelObject()` binding
+    /// followed by exactly one flag-vs-label comparison from the closed
+    /// corpus family (GetFlagEffectLabel ==/~= e:GetLabel(),
+    /// GetFlagEffect ~= 0, with or without the `e:Reset()` stale-side
+    /// cleanup). Semantics: "the stored card is still the same
+    /// instance" — the DSL's implicit stale-target fizzle, so a
+    /// delayed-on chain whose SetCondition carries this flag DROPS the
+    /// guard rather than skipping the chain.
+    pub staleness_guard: bool,
 }
 
 /// A guarded-value function body (Phase 19): `if cond then return
@@ -262,6 +272,13 @@ pub struct RegisterEffectChain {
     /// is the affected-card filter `(e, c) → bool`; resolve-time emit maps
     /// it to a DSL selector kind/where-clause or skips.
     pub set_target: Option<String>,
+    /// First arg of `SetLabelObject(...)` (T38 S8), resolved ONE hop
+    /// through the enclosing body's local bindings at capture time
+    /// (`local tc=Duel.GetFirstTarget()` + `SetLabelObject(tc)` records
+    /// `Duel.GetFirstTarget()`). The delayed-wrapper emitter requires
+    /// the resolved text to be the chain-target source before mapping
+    /// the op body's `e:GetLabelObject()` reference to `target`.
+    pub label_object: Option<String>,
     /// Raw second arg of `SetReset(reset, count)` when present (Phase 15).
     /// A count above 1 means the effect survives multiple reset events
     /// (e.g. `RESET_PHASE|PHASE_END, 2` = end of NEXT turn) — not a
@@ -1569,6 +1586,62 @@ fn walk_block(block: &Block, report: &mut LuaReport) {
     }
 }
 
+/// T38 S8 — true when `block` is the delayed-wrapper STALENESS-GUARD
+/// boilerplate. Closed family, matched on the whitespace-stripped body
+/// text (comments or any extra statement fail the match — skip, never
+/// approximate):
+///   local <b>=e:GetLabelObject()
+///   + one of
+///     if <b>:GetFlagEffectLabel(A)~=e:GetLabel() then e:Reset() return false else return true end
+///     if <b>:GetFlagEffectLabel(A)==e:GetLabel() then return true else e:Reset() return false end
+///     if <b>:GetFlagEffect(A)~=0 then return true else e:Reset() return false end
+///     return <b>:GetFlagEffectLabel(A)==e:GetLabel()
+///     return <b>:GetFlagEffect(A)~=0
+/// where A is a single identifier/number (the flag id).
+fn is_staleness_guard_block(block: &Block) -> bool {
+    let stripped: String = block.to_string()
+        .chars()
+        .filter(|c| !c.is_whitespace())
+        .collect();
+    let rest = match stripped.strip_prefix("local") {
+        Some(r) => r,
+        None => return false,
+    };
+    let (binding, rest) = match rest.split_once('=') {
+        Some(x) => x,
+        None => return false,
+    };
+    if binding.is_empty()
+        || !binding.chars().all(|c| c.is_alphanumeric() || c == '_')
+    {
+        return false;
+    }
+    let rest = match rest.strip_prefix("e:GetLabelObject()") {
+        Some(r) => r,
+        None => return false,
+    };
+    let hole_ok = |arg: &str| {
+        !arg.is_empty() && arg.chars().all(|c| c.is_alphanumeric() || c == '_')
+    };
+    let forms: [(String, &str); 5] = [
+        (format!("if{}:GetFlagEffectLabel(", binding),
+         ")~=e:GetLabel()thene:Reset()returnfalseelsereturntrueend"),
+        (format!("if{}:GetFlagEffectLabel(", binding),
+         ")==e:GetLabel()thenreturntrueelsee:Reset()returnfalseend"),
+        (format!("if{}:GetFlagEffect(", binding),
+         ")~=0thenreturntrueelsee:Reset()returnfalseend"),
+        (format!("return{}:GetFlagEffectLabel(", binding),
+         ")==e:GetLabel()"),
+        (format!("return{}:GetFlagEffect(", binding),
+         ")~=0"),
+    ];
+    forms.iter().any(|(prefix, suffix)| {
+        rest.strip_prefix(prefix.as_str())
+            .and_then(|r| r.strip_suffix(suffix))
+            .is_some_and(|arg| hole_ok(arg))
+    })
+}
+
 fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
     match stmt {
         // `function s.initial_effect(c) ... end`
@@ -1592,6 +1665,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             let (inline_options, choice_arms) = extract_choice_arms(body_block);
             let helper_calls = extract_helper_calls(body_block);
             let equip_helper = extract_equip_helper(body);
+            let staleness_guard = is_staleness_guard_block(body_block);
             // SetLabel-linked form (target side) and op-side inline form
             // are mutually exclusive in practice — a body matching both
             // would need two SelectOption calls, which both reject.
@@ -1628,6 +1702,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                     method_ops,
                     method_ops_poisoned,
                     summon_check_additional,
+                    staleness_guard,
                 });
             }
         }
@@ -3734,7 +3809,8 @@ fn zone_from_locations(my: &str, opp: &str) -> Option<String> {
 fn extract_register_chains(block: &Block) -> Vec<RegisterEffectChain> {
     let mut chains = Vec::new();
     let mut by_binding: BTreeMap<String, RegisterEffectChain> = BTreeMap::new();
-    collect_register_chains(block, None, false, &mut by_binding, &mut chains);
+    let mut locals: BTreeMap<String, String> = BTreeMap::new();
+    collect_register_chains(block, None, false, &mut by_binding, &mut locals, &mut chains);
     chains
 }
 
@@ -3743,6 +3819,7 @@ fn collect_register_chains(
     loop_source: Option<&str>,
     choice_arm: bool,
     by_binding: &mut BTreeMap<String, RegisterEffectChain>,
+    locals: &mut BTreeMap<String, String>,
     out: &mut Vec<RegisterEffectChain>,
 ) {
     for stmt in block.stmts() {
@@ -3761,6 +3838,12 @@ fn collect_register_chains(
                                 seeded.clone_seeded = seeded_slot_names(&seeded);
                                 by_binding.insert(name.clone(), seeded);
                             }
+                        } else {
+                            // T38 S8: non-chain locals feed the one-hop
+                            // SetLabelObject resolution (whole-function
+                            // scope, same rationale as by_binding).
+                            locals.insert(name.clone(),
+                                expr.to_string().trim().to_string());
                         }
                     }
                 }
@@ -3793,6 +3876,17 @@ fn collect_register_chains(
                             "SetType"      => { chain.effect_type = arg; false }
                             "SetOperation" => set_or_conflict(&mut chain.operation, arg, seeds, "operation"),
                             "SetCondition" => set_or_conflict(&mut chain.condition, arg, seeds, "condition"),
+                            // T38 S8: resolved one hop through the
+                            // function's non-chain locals so the
+                            // delayed-wrapper emitter can check the
+                            // stored object IS the chain target.
+                            "SetLabelObject" => {
+                                chain.label_object = arg.map(|a| {
+                                    let a = a.trim().to_string();
+                                    locals.get(&a).cloned().unwrap_or(a)
+                                });
+                                false
+                            }
                             _ => false,
                         };
                         if conflicted {
@@ -3839,24 +3933,24 @@ fn collect_register_chains(
                 let has_arms = if_stmt.else_if().is_some_and(|eis| eis.len() > 0)
                     || if_stmt.else_block().is_some();
                 let arm = choice_arm || has_arms;
-                collect_register_chains(if_stmt.block(), loop_source, arm, by_binding, out);
+                collect_register_chains(if_stmt.block(), loop_source, arm, by_binding, locals, out);
                 for ei in if_stmt.else_if().into_iter().flatten() {
-                    collect_register_chains(ei.block(), loop_source, arm, by_binding, out);
+                    collect_register_chains(ei.block(), loop_source, arm, by_binding, locals, out);
                 }
                 if let Some(else_block) = if_stmt.else_block() {
-                    collect_register_chains(else_block, loop_source, arm, by_binding, out);
+                    collect_register_chains(else_block, loop_source, arm, by_binding, locals, out);
                 }
             }
-            Stmt::While(w)       => collect_register_chains(w.block(), loop_source, choice_arm, by_binding, out),
-            Stmt::Repeat(r)      => collect_register_chains(r.block(), loop_source, choice_arm, by_binding, out),
-            Stmt::NumericFor(nf) => collect_register_chains(nf.block(), Some(""), choice_arm, by_binding, out),
+            Stmt::While(w)       => collect_register_chains(w.block(), loop_source, choice_arm, by_binding, locals, out),
+            Stmt::Repeat(r)      => collect_register_chains(r.block(), loop_source, choice_arm, by_binding, locals, out),
+            Stmt::NumericFor(nf) => collect_register_chains(nf.block(), Some(""), choice_arm, by_binding, locals, out),
             Stmt::GenericFor(gf) => {
                 let inner = aux_next_source_group(gf)
                     .or_else(|| iter_method_source_group(gf));
                 let inner_ref = inner.as_deref().or(Some(""));
-                collect_register_chains(gf.block(), inner_ref, choice_arm, by_binding, out);
+                collect_register_chains(gf.block(), inner_ref, choice_arm, by_binding, locals, out);
             }
-            Stmt::Do(d)          => collect_register_chains(d.block(), loop_source, choice_arm, by_binding, out),
+            Stmt::Do(d)          => collect_register_chains(d.block(), loop_source, choice_arm, by_binding, locals, out),
             _ => {}
         }
     }
@@ -5866,6 +5960,15 @@ fn translate_register_chain(
         if let Some(line) = translate_damage_rule_chain(code, chain, functions) {
             return vec![line];
         }
+        // T38 S8: the PHASE_END with_op class routes to the delayed-on
+        // wrapper BEFORE the watcher fallback — `delayed on` is the
+        // faithful form for an event chain whose SetOperation RUNS
+        // actions (install_watcher's check{} was the Phase 16
+        // approximation; the 16 shipped end_phase watcher lines are
+        // retrofitted in this PR's corpus commit).
+        if let Some(line) = translate_delayed_on_chain(code, chain, functions) {
+            return vec![line];
+        }
         if let Some(trigger) = trigger_for_event_code(code) {
             return translate_install_watcher_chain(trigger, chain, functions)
                 .into_iter()
@@ -6032,6 +6135,203 @@ fn trigger_for_event_code(code: &str) -> Option<&'static str> {
         "EVENT_PHASE+PHASE_END"     => "end_phase",
         "EVENT_PHASE+PHASE_STANDBY" => "standby_phase",
         "EVENT_PHASE+PHASE_BATTLE"  => "battle_phase",
+        _ => return None,
+    })
+}
+
+/// T38 S8 — with_op delayed wrapper (PHASE_END MVP): an inner
+/// `EFFECT_TYPE_FIELD + EFFECT_TYPE_CONTINUOUS` chain on
+/// `EVENT_PHASE|PHASE_END` with its own `SetOperation` →
+/// `delayed on end_phase until end_of_turn { <action> }`.
+///
+/// Scope: the PHASE_END bucket ONLY (46/139 audit chains). Other event
+/// codes keep their existing install_watcher routing unchanged — no
+/// routing flip outside the bucket this slice owns.
+///
+/// Accept set (skip-not-mis-emit; every reject is a confirmed corpus
+/// sub-shape):
+///   - code `EVENT_PHASE+PHASE_END` / `EVENT_PHASE|PHASE_END` (both
+///     corpus spellings), FIELD+CONTINUOUS, `Duel.RegisterEffect(eN,tp)`;
+///   - plain end-of-turn reset, count 1 (`SetCountLimit(1)` rides free:
+///     bounded by the end-of-turn reset, a PHASE_END wrapper fires at
+///     most once anyway — the S8 grammar collapse note);
+///   - condition absent OR the staleness-guard boilerplate
+///     (`FunctionBody::staleness_guard`) — the guard restates the DSL's
+///     implicit stale-target fizzle, so it drops rather than skips; any
+///     other condition (deferred-search availability, turn-count gates,
+///     flag protocols) skips this MVP;
+///   - op body = ONE mutating Duel call on the chain's stored label
+///     object (`decode_delayed_op_body`), the stored object resolved to
+///     the chain target (`Duel.GetFirstTarget()`); pure UI hints ignored.
+fn translate_delayed_on_chain(
+    code: &str,
+    chain: &RegisterEffectChain,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<DslLine> {
+    let normalized: String = code.chars().filter(|c| !c.is_whitespace()).collect();
+    if normalized != "EVENT_PHASE+PHASE_END" && normalized != "EVENT_PHASE|PHASE_END" {
+        return None;
+    }
+    if !chain.duel_registered || chain.multi_target || chain.in_choice_arm {
+        return None;
+    }
+    if chain.register_target.trim() != "tp" {
+        return None;
+    }
+    if reset_to_duration_kw(chain.reset.as_deref(), chain.reset_count.as_deref())
+        != Some("end_of_turn")
+    {
+        return None;
+    }
+    let reset = chain.reset.as_deref().unwrap_or("");
+    if reset.contains("RESET_SELF_TURN") || reset.contains("RESET_OPPO_TURN") {
+        return None;
+    }
+    if chain.reset_count.as_deref().is_some_and(|c| c.trim() != "1") {
+        return None;
+    }
+    let op = chain.operation.as_deref()?;
+    let op_body = functions.get(op)?;
+    if let Some(cond) = chain.condition.as_deref() {
+        // Two droppable condition classes; anything else is a semantic
+        // gate and skips:
+        //   - the staleness-guard boilerplate (implicit fizzle);
+        //   - the deferred-search availability check — a bare
+        //     `IsExistingMatchingCard(F, …)` whose filter F is the op's
+        //     own SelectMatchingCard filter (implicit in the search
+        //     action's can-I-find-one semantics).
+        let droppable = functions.get(cond).is_some_and(|f| f.staleness_guard)
+            || is_availability_check(cond, op_body, functions);
+        if !droppable {
+            return None;
+        }
+    }
+    let action = decode_delayed_op_body(op_body, chain)
+        .or_else(|| decode_delayed_translated_body(op_body, functions))?;
+    Some(DslLine::Action(format!(
+        "delayed on end_phase until end_of_turn {{ {} }}", action
+    )))
+}
+
+/// True when `cond` names a bare availability check for the op's own
+/// search: a single-return `Duel.IsExistingMatchingCard(F, …)` body
+/// whose filter F is also the filter of the op body's
+/// `Duel.SelectMatchingCard` (the c18716735 deferred-search class).
+/// The check restates the search action's implicit "if one exists"
+/// semantics, so it drops rather than skipping the chain.
+fn is_availability_check(
+    cond: &str,
+    op_body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> bool {
+    let Some(cond_body) = functions.get(cond) else { return false };
+    // The call sits in RETURN position (never collected into `calls`) —
+    // parse the filter straight off the single-return expression text.
+    let Some(expr) = cond_body.return_expr.as_deref() else { return false };
+    let Some(rest) = expr.trim().strip_prefix("Duel.IsExistingMatchingCard(") else {
+        return false;
+    };
+    let Some((cond_filter, _)) = rest.split_once(',') else { return false };
+    let cond_filter = cond_filter.trim();
+    op_body.calls.iter().any(|c| {
+        c.method == "Duel.SelectMatchingCard"
+            && c.args.get(1).map(|a| a.trim()) == Some(cond_filter)
+    })
+}
+
+/// Class-B delayed op body (the 24-chain PHASE_END majority): the body
+/// translates through the standard machinery to EXACTLY one action line
+/// (deferred searches, group sends — the shapes the watcher path
+/// previously approximated with `check { … }`). Bodies with inner
+/// chains or multiple actions skip — a wrapper stating half the firing
+/// under-states the card.
+fn decode_delayed_translated_body(
+    op_body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<String> {
+    if !op_body.register_chains.is_empty() {
+        return None;
+    }
+    if body_drops_chains(op_body, functions) {
+        return None;
+    }
+    // Zone-fidelity gate (c33854624): the general selector renderer
+    // drops compound LOCATION masks (a deck|gy search renders
+    // zoneless, and a zoneless selector defaults to on-field at
+    // resolve) — reject rather than under-specify the source zone.
+    let compound_location = op_body.calls.iter().any(|c| {
+        c.args.iter().any(|a| {
+            let a: String = a.chars().filter(|ch| !ch.is_whitespace()).collect();
+            a.contains("LOCATION_") && (a.contains('|') || a.contains('+'))
+        })
+    });
+    if compound_location {
+        return None;
+    }
+    let lines = translate_body_with_functions(op_body, functions);
+    // Any Todo line means untranslated content — emitting the lone
+    // action beside it would under-state the firing.
+    if lines.iter().any(|l| matches!(l, DslLine::Todo(_))) {
+        return None;
+    }
+    let actions: Vec<String> = lines
+        .into_iter()
+        .filter_map(|l| match l {
+            DslLine::Action(s) => Some(s),
+            _ => None,
+        })
+        .collect();
+    let [action] = actions.as_slice() else { return None };
+    if action.starts_with("delayed on") || action.starts_with("install_watcher") {
+        return None; // no wrapper-in-wrapper emission
+    }
+    Some(action.clone())
+}
+
+/// Decode a delayed-wrapper op body into its single DSL action. Closed
+/// set: exactly ONE mutating Duel call (UI hints ignored), no inner
+/// chains/counter/method ops, first arg resolving (through the op
+/// body's locals) to `e:GetLabelObject()`, and the OUTER chain's stored
+/// label object resolved to `Duel.GetFirstTarget()` — the chain target,
+/// so the reference renders as `target`:
+///   Duel.Destroy(tc, REASON_EFFECT)                → destroy target
+///   Duel.Remove(tc, POS_FACEUP, REASON_EFFECT)     → banish target
+///   Duel.SendtoGrave(tc, REASON_EFFECT)            → send target to gy
+///   Duel.SendtoDeck(tc, nil, SEQ_DECKSHUFFLE, R)   → return target to deck
+fn decode_delayed_op_body(
+    op_body: &FunctionBody,
+    chain: &RegisterEffectChain,
+) -> Option<String> {
+    if chain.label_object.as_deref()?.trim() != "Duel.GetFirstTarget()" {
+        return None; // stored object is not the chain target
+    }
+    if !op_body.register_chains.is_empty()
+        || !op_body.counter_ops.is_empty()
+        || op_body.counter_ops_poisoned
+        || !op_body.method_ops.is_empty()
+        || op_body.method_ops_poisoned
+        || !op_body.helper_calls.is_empty()
+    {
+        return None;
+    }
+    let muts: Vec<&DuelCall> = op_body.calls.iter()
+        .filter(|c| !matches!(c.method.as_str(), "Duel.Hint" | "Duel.HintSelection"))
+        .collect();
+    let [call] = muts.as_slice() else { return None };
+    let arg0 = call.args.first()?.trim();
+    let resolved = op_body.value_bindings.get(arg0)
+        .map(|s| s.trim())
+        .unwrap_or(arg0);
+    if resolved.replace(' ', "") != "e:GetLabelObject()" {
+        return None;
+    }
+    let rest: Vec<&str> = call.args.iter().skip(1).map(|a| a.trim()).collect();
+    Some(match (call.method.as_str(), rest.as_slice()) {
+        ("Duel.Destroy", ["REASON_EFFECT"]) => "destroy target".to_string(),
+        ("Duel.Remove", ["POS_FACEUP", "REASON_EFFECT"]) => "banish target".to_string(),
+        ("Duel.SendtoGrave", ["REASON_EFFECT"]) => "send target to gy".to_string(),
+        ("Duel.SendtoDeck", ["nil", "SEQ_DECKSHUFFLE", "REASON_EFFECT"]) =>
+            "return target to deck".to_string(),
         _ => return None,
     })
 }
@@ -15623,6 +15923,281 @@ end
         }
     }
 
+    // ── T38 S8: with_op PHASE_END chains → delayed on end_phase ───
+
+    #[test]
+    fn s8_delayed_destroy_with_staleness_guard() {
+        // The dominant Class-A shape (c17236839/c38572779 family):
+        // target stored via SetLabelObject, staleness-guard condition
+        // (the implicit fizzle — drops), op destroys the stored card.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_PHASE+PHASE_END)
+    e1:SetCountLimit(1)
+    e1:SetLabelObject(tc)
+    e1:SetCondition(s.descon)
+    e1:SetOperation(s.desop)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    if tc:GetFlagEffectLabel(id)~=e:GetLabel() then
+        e:Reset()
+        return false
+    else
+        return true
+    end
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    Duel.Destroy(tc,REASON_EFFECT)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.operation"),
+            vec!["delayed on end_phase until end_of_turn { destroy target }"],
+        );
+    }
+
+    #[test]
+    fn s8_delayed_labelobj_mutation_family() {
+        // Each closed op mapping: banish / to-grave / to-deck, direct
+        // labelobj arg (no local) and no condition at all.
+        for (op_stmt, expected) in [
+            ("Duel.Remove(e:GetLabelObject(),POS_FACEUP,REASON_EFFECT)",
+             "delayed on end_phase until end_of_turn { banish target }"),
+            ("Duel.SendtoGrave(e:GetLabelObject(),REASON_EFFECT)",
+             "delayed on end_phase until end_of_turn { send target to gy }"),
+            ("Duel.SendtoDeck(e:GetLabelObject(),nil,SEQ_DECKSHUFFLE,REASON_EFFECT)",
+             "delayed on end_phase until end_of_turn { return target to deck }"),
+        ] {
+            let src = format!(r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_PHASE|PHASE_END)
+    e1:SetLabelObject(tc)
+    e1:SetOperation(s.delop)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.delop(e,tp,eg,ep,ev,re,r,rp)
+    {}
+end
+"#, op_stmt);
+            assert_eq!(
+                p11_actions(&src, "s.operation"),
+                vec![expected.to_string()],
+                "op variant failed: {}", op_stmt,
+            );
+        }
+    }
+
+    #[test]
+    fn s8_staleness_guard_recognizer_forms() {
+        // All five closed guard spellings flag; near-misses (extra
+        // statement, different comparison, trailing comment) do not.
+        let wrap = |body: &str| format!(r#"
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+{}
+end
+"#, body);
+        for good in [
+            "    local tc=e:GetLabelObject()\n    if tc:GetFlagEffectLabel(id)~=e:GetLabel() then\n        e:Reset()\n        return false\n    else\n        return true\n    end",
+            "    local tc=e:GetLabelObject()\n    if tc:GetFlagEffectLabel(id)==e:GetLabel() then\n        return true\n    else\n        e:Reset()\n        return false\n    end",
+            "    local tc=e:GetLabelObject()\n    if tc:GetFlagEffect(id)~=0 then\n        return true\n    else\n        e:Reset()\n        return false\n    end",
+            "    local tc=e:GetLabelObject()\n    return tc:GetFlagEffectLabel(id)==e:GetLabel()",
+            "    local g=e:GetLabelObject()\n    return g:GetFlagEffect(id)~=0",
+        ] {
+            let parsed = full_moon::parse(&wrap(good)).expect("parse");
+            let report = walk(&parsed);
+            assert!(report.functions.get("s.descon").is_some_and(|f| f.staleness_guard),
+                "must flag: {}", good);
+        }
+        for bad in [
+            // turn-count gate — a SEMANTIC condition, not the fizzle
+            "    local tc=e:GetLabelObject()\n    return Duel.GetTurnCount()~=e:GetLabel() and tc:GetFlagEffect(id)~=0",
+            // availability check
+            "    return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK,0,1,nil)",
+            // extra statement after the guard
+            "    local tc=e:GetLabelObject()\n    Duel.Hint(HINT_CARD,0,id)\n    return tc:GetFlagEffect(id)~=0",
+        ] {
+            let parsed = full_moon::parse(&wrap(bad)).expect("parse");
+            let report = walk(&parsed);
+            assert!(!report.functions.get("s.descon").is_some_and(|f| f.staleness_guard),
+                "must NOT flag: {}", bad);
+        }
+    }
+
+    #[test]
+    fn s8_skip_delayed_edge_shapes() {
+        // Skip battery: semantic condition; label object that is not the
+        // chain target; multi-call op body; non-PHASE_END event
+        // (install_watcher keeps its routing); two-turn reset count.
+        let base = |code: &str, label_src: &str, cond: &str, op_body: &str, reset: &str| format!(r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc={}
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode({})
+    e1:SetLabelObject(tc)
+    {}
+    e1:SetOperation(s.delop)
+    e1:SetReset({})
+    Duel.RegisterEffect(e1,tp)
+end
+function s.delcon(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.IsTurnPlayer(1-tp)
+end
+function s.delop(e,tp,eg,ep,ev,re,r,rp)
+{}
+end
+"#, label_src, code, cond, reset, op_body);
+        let cases = [
+            // semantic SetCondition → skip
+            base("EVENT_PHASE+PHASE_END", "Duel.GetFirstTarget()",
+                 "e1:SetCondition(s.delcon)",
+                 "    Duel.Destroy(e:GetLabelObject(),REASON_EFFECT)",
+                 "RESET_PHASE|PHASE_END"),
+            // stored object is not the chain target → skip
+            base("EVENT_PHASE+PHASE_END", "Duel.GetAttacker()",
+                 "",
+                 "    Duel.Destroy(e:GetLabelObject(),REASON_EFFECT)",
+                 "RESET_PHASE|PHASE_END"),
+            // multi-mutation op body → skip
+            base("EVENT_PHASE+PHASE_END", "Duel.GetFirstTarget()",
+                 "",
+                 "    Duel.Destroy(e:GetLabelObject(),REASON_EFFECT)\n    Duel.Draw(tp,1,REASON_EFFECT)",
+                 "RESET_PHASE|PHASE_END"),
+            // two-turn reset → skip
+            base("EVENT_PHASE+PHASE_END", "Duel.GetFirstTarget()",
+                 "",
+                 "    Duel.Destroy(e:GetLabelObject(),REASON_EFFECT)",
+                 "RESET_PHASE|PHASE_END,2"),
+        ];
+        for (i, src) in cases.iter().enumerate() {
+            let actions = p11_actions(src, "s.operation");
+            assert!(
+                !actions.iter().any(|a| a.starts_with("delayed on")),
+                "case {} must not emit delayed-on, got {:?}", i, actions,
+            );
+        }
+    }
+
+    #[test]
+    fn s8_delayed_deferred_search_with_availability_cond() {
+        // The Class-B majority (c18716735 family): deferred search whose
+        // SetCondition is the bare availability check for the op's own
+        // filter -- restates the search action's implicit "if one
+        // exists", so it drops. A DIFFERENT-filter condition is a
+        // semantic gate and skips.
+        let base = |cond_filter: &str| format!(r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_PHASE+PHASE_END)
+    e1:SetCountLimit(1)
+    e1:SetCondition(s.thcon)
+    e1:SetOperation(s.thop)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.thfilter(c)
+    return c:IsSetCard(SET_METALFOES) and c:IsMonster() and c:IsAbleToHand()
+end
+function s.otherfilter(c)
+    return c:IsSetCard(SET_SHADDOLL)
+end
+function s.thcon(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.IsExistingMatchingCard({},tp,LOCATION_DECK,0,1,nil)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Hint(HINT_CARD,0,id)
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+    local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+    if #g>0 then
+        Duel.SendtoHand(g,nil,REASON_EFFECT)
+        Duel.ConfirmCards(1-tp,g)
+    end
+end
+"#, cond_filter);
+        assert_eq!(
+            p11_actions(&base("s.thfilter"), "s.activate"),
+            vec!["delayed on end_phase until end_of_turn { add_to_hand (1, card, you control, from deck) }"],
+        );
+        let mismatched = p11_actions(&base("s.otherfilter"), "s.activate");
+        assert!(
+            !mismatched.iter().any(|a| a.starts_with("delayed on")),
+            "different-filter condition must skip, got {:?}", mismatched,
+        );
+    }
+
+    #[test]
+    fn s8_delayed_class_b_routing_flip() {
+        // The c77675029 class: a no-condition with_op chain the watcher
+        // path previously approximated -- delayed-on now takes
+        // precedence (the 4-line corpus retrofit in this PR).
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_PHASE+PHASE_END)
+    e1:SetCountLimit(1)
+    e1:SetOperation(s.delop)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.delop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Draw(tp,1,REASON_EFFECT)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["delayed on end_phase until end_of_turn { draw 1 }"],
+        );
+    }
+
+    #[test]
+    fn s8_skip_compound_location_search() {
+        // c33854624: a deck|gy search renders zoneless through the
+        // general selector path (which defaults on-field at resolve) --
+        // the zone-fidelity gate must refuse rather than under-specify.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_PHASE+PHASE_END)
+    e1:SetCountLimit(1)
+    e1:SetCondition(s.thcon)
+    e1:SetOperation(s.thop)
+    e1:SetReset(RESET_PHASE|PHASE_END)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.thfilter(c)
+    return c:IsSetCard(SET_GUSTO) and c:IsAbleToHand()
+end
+function s.thcon(e,tp,eg,ep,ev,re,r,rp)
+    return Duel.IsExistingMatchingCard(s.thfilter,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,nil)
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK|LOCATION_GRAVE,0,1,1,nil)
+    if #g>0 then
+        Duel.SendtoHand(g,nil,REASON_EFFECT)
+    end
+end
+"#;
+        let actions = p11_actions(src, "s.activate");
+        assert!(
+            !actions.iter().any(|a| a.starts_with("delayed on")),
+            "compound-location search must skip, got {:?}", actions,
+        );
+    }
+
     #[test]
     fn s2_skip_top_level_or_splimit() {
         // Top-level or in a splimit — only the negated-group De Morgan
@@ -18041,3 +18616,4 @@ card "S6 Emit Forms" {
         assert_eq!(crate::v2::fmt::format_file(&reparsed), formatted);
     }
 }
+
