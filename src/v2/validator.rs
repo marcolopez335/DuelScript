@@ -602,57 +602,163 @@ fn check_restrict_qualifiers(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
 // ── Delayed-on wrapper shape (T38 S8) ───────────────────────
 //
 // `delayed on <event>` registers a fire-later body on an engine event
-// (lua inner FIELD+CONTINUOUS effect). Three author errors:
-//   1. triggers with no engine event code — `ignition` is a
-//      tagging-only marker and `custom` a user-defined channel; the
-//      compiler would silently drop the wrapper (the exact silent-drop
-//      class these checks exist to prevent);
-//   2. a `choose` block inside the body — the wrapper fires outside
-//      the chain, where no actor exists to dispatch an interactive
-//      branch;
-//   3. a nested `delayed` inside the body — compounded arming has no
-//      corpus shape and no single reset the runtime seam could carry.
+// (lua inner FIELD+CONTINUOUS effect). The runtime seam carries ONE
+// u32 event code and a duration — nothing else — so the checks close
+// every gap where a validated spelling would silently under-deliver:
+//   1. triggers whose event code is 0 error — single source of truth
+//      is `compiler::trigger_to_event_code` itself (S8 review blocker:
+//      an enumerated ignition/custom list missed the SentTo/ReturnedTo
+//      unmapped-zone arms, and the compiler's defensive skip silently
+//      dropped fully-validated wrappers);
+//   2. bare `summoned` errors — effect headers multi-emit it across
+//      summon events; the single-code seam would narrow it to special
+//      summons only;
+//   3. qualified triggers error — who/category/method/reason/zone-from
+//      qualifiers are runtime FILTERS the seam cannot deliver, so the
+//      wrapper would fire on every occurrence (`summoned by flip` is
+//      exempt: flip selects its own event code rather than filtering);
+//   4. `choose` in the body errors — the wrapper fires outside the
+//      chain, with no actor to dispatch an interactive branch;
+//   5. chain-context `negate` in the body errors — no chain binding
+//      exists at event fire time;
+//   6. `delayed` wrappers do not nest, in either direction (compounded
+//      arming has no corpus shape and no single reset to carry);
+//   7. standby/draw-phase arming bounded by an end-of-turn duration
+//      warns — from most activation windows the event has already
+//      elapsed, so the wrapper usually resets before it can fire (the
+//      S5 inert-spelling rule; the real corpus PHASE_STANDBY chains
+//      carry next-turn resets outside today's duration vocabulary).
 // Body references to `target` stay LEGAL: they resolve to the OUTER
 // effect's stored chain target at fire time (the lua SetLabelObject
 // plumbing — see runtime.rs register_delayed_trigger), and the
 // existing target-reference scan already requires the effect to
 // declare one.
+//
+// Implemented as a context-tracking scanner rather than `walk_actions`:
+// the generic walk re-visits nested wrappers, double-reporting body
+// defects (S8 review nit).
 fn check_delayed_on_bodies(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
-    let mut check = |actions: &[Action], block_name: &str| {
-        walk_actions(actions, &mut |a| {
-            if let Action::Delayed { arming: DelayedArming::OnEvent { trigger, .. }, body } = a {
-                if matches!(trigger, Trigger::Ignition | Trigger::Custom(_)) {
+    fn delayed_on_trigger_error(trigger: &Trigger) -> Option<&'static str> {
+        if super::compiler::trigger_to_event_code(&Some(trigger.clone())) == 0 {
+            return Some("carries no engine event code");
+        }
+        if matches!(trigger, Trigger::Summoned(None)) {
+            return Some("is ambiguous here — spell it special_summoned / \
+                         normal_summoned / flip_summoned");
+        }
+        let qualified = match trigger {
+            Trigger::Summoned(Some(m)) | Trigger::SpecialSummoned(Some(m)) =>
+                !matches!(m, SummonMethod::Flip),
+            Trigger::Destroyed(Some(_))
+            | Trigger::DestroyedByBattle
+            | Trigger::DestroyedByEffect => true,
+            Trigger::SentTo(_, Some(_)) => true,
+            Trigger::BattleDamage(Some(_)) | Trigger::DirectAttackDamage => true,
+            Trigger::StandbyPhase(Some(_)) => true,
+            Trigger::Activates { .. } | Trigger::SpellTrapActivated => true,
+            Trigger::OpponentAttackDeclared => true,
+            Trigger::Unequipped => true,
+            Trigger::UsedAsMaterial { role, method, summoned_by_binding } =>
+                role.is_some() || method.is_some() || summoned_by_binding.is_some(),
+            _ => false,
+        };
+        if qualified {
+            return Some("carries a qualifier the single-event seam cannot deliver — \
+                         the wrapper would fire on every occurrence");
+        }
+        None
+    }
+
+    fn scan(
+        actions: &[Action],
+        in_delayed_on: bool,
+        in_delayed: bool,
+        ctx: &Ctx,
+        block_name: &str,
+        errors: &mut Vec<ValidationError>,
+    ) {
+        for a in actions {
+            match a {
+                Action::Delayed { arming, body } => {
+                    if in_delayed {
+                        errors.push(err(ctx.name(), &format!(
+                            "'{}': `delayed` wrappers do not nest", block_name
+                        )));
+                    }
+                    let mut body_in_on = in_delayed_on;
+                    if let DelayedArming::OnEvent { trigger, until } = arming {
+                        if let Some(why) = delayed_on_trigger_error(trigger) {
+                            errors.push(err(ctx.name(), &format!(
+                                "'{}': this `delayed on` trigger {}", block_name, why
+                            )));
+                        }
+                        if matches!(trigger, Trigger::StandbyPhase(None) | Trigger::DrawPhase)
+                            && matches!(until,
+                                None | Some(Duration::EndOfTurn) | Some(Duration::ThisTurn))
+                        {
+                            errors.push(warn(ctx.name(), &format!(
+                                "'{}': a standby/draw-phase arming bounded by end of turn \
+                                 usually elapses before the event — the wrapper resets \
+                                 without firing from most activation windows", block_name
+                            )));
+                        }
+                        body_in_on = true;
+                    }
+                    scan(body, body_in_on, true, ctx, block_name, errors);
+                }
+                Action::Choose(block) => {
+                    if in_delayed_on {
+                        errors.push(err(ctx.name(), &format!(
+                            "'{}': a `delayed on` body cannot contain `choose` — the \
+                             wrapper fires outside the chain, with no actor to dispatch \
+                             a branch", block_name
+                        )));
+                    }
+                    for opt in &block.options {
+                        scan(&opt.resolve, in_delayed_on, in_delayed, ctx, block_name, errors);
+                    }
+                }
+                Action::Negate(_) if in_delayed_on => {
                     errors.push(err(ctx.name(), &format!(
-                        "'{}': `delayed on` needs an engine event — `ignition`/`custom` \
-                         triggers carry no event code", block_name
+                        "'{}': chain-context `negate` cannot be delivered at event fire \
+                         time — no chain binding exists inside a `delayed on` body",
+                        block_name
                     )));
                 }
-                walk_actions(body, &mut |inner| match inner {
-                    Action::Choose(_) => errors.push(err(ctx.name(), &format!(
-                        "'{}': a `delayed on` body cannot contain `choose` — the wrapper \
-                         fires outside the chain, with no actor to dispatch a branch",
-                        block_name
-                    ))),
-                    Action::Delayed { .. } => errors.push(err(ctx.name(), &format!(
-                        "'{}': `delayed` wrappers do not nest inside a `delayed on` body",
-                        block_name
-                    ))),
-                    _ => {}
-                });
+                Action::If { then, otherwise, .. } => {
+                    scan(then, in_delayed_on, in_delayed, ctx, block_name, errors);
+                    scan(otherwise, in_delayed_on, in_delayed, ctx, block_name, errors);
+                }
+                Action::CoinFlip { heads, tails } => {
+                    scan(heads, in_delayed_on, in_delayed, ctx, block_name, errors);
+                    scan(tails, in_delayed_on, in_delayed, ctx, block_name, errors);
+                }
+                Action::DiceRoll(body)
+                | Action::AndIfYouDo(body)
+                | Action::Then(body)
+                | Action::Also(body)
+                | Action::ForEach { body, .. } => {
+                    scan(body, in_delayed_on, in_delayed, ctx, block_name, errors);
+                }
+                Action::InstallWatcher { check, .. } => {
+                    scan(check, in_delayed_on, in_delayed, ctx, block_name, errors);
+                }
+                _ => {}
             }
-        });
-    };
+        }
+    }
+
     for effect in &ctx.card.effects {
-        check(&effect.resolve, &effect.name);
+        scan(&effect.resolve, false, false, ctx, &effect.name, errors);
         if let Some(choose) = &effect.choose {
             for opt in &choose.options {
-                check(&opt.resolve, &effect.name);
+                scan(&opt.resolve, false, false, ctx, &effect.name, errors);
             }
         }
     }
     for repl in &ctx.card.replacements {
         let name = repl.name.as_deref().unwrap_or("replacement");
-        check(&repl.actions, name);
+        scan(&repl.actions, false, false, ctx, name, errors);
     }
 }
 
@@ -1283,6 +1389,171 @@ card "Delayed On Bad Shapes Test" {
             .filter(|e| e.message.contains("delayed") || e.message.contains("event code"))
             .collect();
         assert_eq!(s8_errors.len(), 3, "errors: {:?}", report.errors);
+    }
+
+    #[test]
+    fn test_delayed_on_rejects_zero_code_and_qualified_triggers() {
+        // S8 review blocker: every trigger whose event code maps to 0
+        // errors (single source of truth = trigger_to_event_code, not an
+        // enumerated variant list), bare `summoned` errors (the header
+        // multi-emit cannot ride a single-code seam), and qualified
+        // triggers error (the seam carries no runtime filter).
+        let wrap = |line: &str| format!(r#"
+card "Delayed On Trigger Gate Test" {{
+    id: 1
+    type: Normal Trap
+
+    effect "Later" {{
+        speed: 2
+        mandatory
+        resolve {{
+            delayed on {} {{
+                draw 1
+            }}
+        }}
+    }}
+}}
+"#, line);
+        for (bad, needle) in [
+            ("sent_to extra_deck", "no engine event code"),
+            ("returned_to gy", "no engine event code"),
+            ("summoned", "ambiguous"),
+            ("summoned by fusion", "qualifier"),
+            ("opponent_activates", "qualifier"),
+            ("spell_trap_activated", "qualifier"),
+            ("destroyed_by_battle", "qualifier"),
+            ("battle_damage to you", "qualifier"),
+            ("standby_phase of yours", "qualifier"),
+        ] {
+            let file = parse_v2(&wrap(bad)).unwrap();
+            let report = validate_v2(&file);
+            assert_eq!(report.error_count(), 1, "{}: errors: {:?}", bad, report.errors);
+            assert!(report.errors[0].message.contains(needle),
+                "{}: unexpected message: {}", bad, report.errors[0].message);
+        }
+        // Unqualified mapped triggers stay legal — including the S8
+        // review addition damage_step_end (the STORIES example (b)
+        // arming) and `summoned by flip` (its own event code, not a
+        // filter).
+        for good in ["damage_step_end", "special_summoned", "summoned by flip",
+                     "chain_solving", "chain_solved", "destroys_by_battle", "destroyed"] {
+            let file = parse_v2(&wrap(good)).unwrap();
+            let report = validate_v2(&file);
+            assert_eq!(report.error_count(), 0, "{}: errors: {:?}", good, report.errors);
+        }
+    }
+
+    #[test]
+    fn test_delayed_on_warns_on_elapsed_phase_arming() {
+        // S8 review: standby/draw arming bounded by end of turn usually
+        // resets before the event — S5 inert-spelling warning.
+        let source = r#"
+card "Delayed On Elapsed Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Later" {
+        speed: 2
+        mandatory
+        resolve {
+            delayed on standby_phase {
+                draw 1
+            }
+            delayed on draw_phase until this_turn {
+                draw 1
+            }
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
+        assert_eq!(report.warning_count(), 2, "warnings: {:?}", report.errors);
+    }
+
+    #[test]
+    fn test_delayed_on_rejects_negate_body_and_reverse_nesting() {
+        // S8 review: chain-context negate has no chain binding at fire
+        // time; nesting is banned in BOTH directions (a delayed-on
+        // inside a delayed-until body previously slipped through).
+        let source = r#"
+card "Delayed On Negate Nest Test" {
+    id: 1
+    type: Counter Trap
+
+    effect "Later" {
+        speed: 3
+        mandatory
+        resolve {
+            delayed on chain_solving {
+                negate
+            }
+            delayed until end {
+                delayed on end_phase {
+                    draw 1
+                }
+            }
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        let negate_errors = report.errors.iter()
+            .filter(|e| e.message.contains("chain binding")).count();
+        let nest_errors = report.errors.iter()
+            .filter(|e| e.message.contains("do not nest")).count();
+        assert_eq!(negate_errors, 1, "errors: {:?}", report.errors);
+        assert_eq!(nest_errors, 1, "errors: {:?}", report.errors);
+    }
+
+    #[test]
+    fn test_delayed_on_container_walks_pinned() {
+        // S8 review: the choose-option and replacement walks for
+        // delayed-on checks, pinned like the S2/S5 siblings.
+        let source = r#"
+card "Delayed On Container Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Pick" {
+        speed: 2
+        mandatory
+        choose {
+            option "Later" {
+                resolve {
+                    delayed on sent_to extra_deck {
+                        draw 1
+                    }
+                }
+            }
+            option "Now" {
+                resolve {
+                    draw 1
+                }
+            }
+        }
+    }
+
+    replacement "Later Instead" {
+        instead_of: destroyed
+        do {
+            delayed on opponent_activates {
+                draw 1
+            }
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        let s8_errors: Vec<_> = report.errors.iter()
+            .filter(|e| e.message.contains("event code") || e.message.contains("qualifier"))
+            .collect();
+        assert_eq!(s8_errors.len(), 2, "errors: {:?}", report.errors);
+        assert!(s8_errors.iter().any(|e| e.message.contains("Later Instead")),
+            "replacement name missing: {:?}", s8_errors);
     }
 
     #[test]

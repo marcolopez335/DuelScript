@@ -1221,6 +1221,7 @@ fn format_trigger(trigger: &Trigger) -> String {
             };
             format!("standby_phase of {}", o)
         }
+        Trigger::DamageStepEnd => "damage_step_end".to_string(),
         Trigger::EndPhase => "end_phase".to_string(),
         Trigger::DrawPhase => "draw_phase".to_string(),
         Trigger::MainPhase => "main_phase".to_string(),
@@ -1879,6 +1880,9 @@ card "Delayed Roundtrip Test" {
             delayed on standby_phase until end_of_turn {
                 damage opponent 500
             }
+            delayed on damage_step_end until end_of_turn {
+                damage opponent 1000
+            }
             delayed until end {
                 draw 1
             }
@@ -1892,11 +1896,13 @@ card "Delayed Roundtrip Test" {
             "bare on-form mis-rendered in:\n{}", formatted);
         assert!(formatted.contains("delayed on standby_phase until end_of_turn {\n"),
             "on-form with duration mis-rendered in:\n{}", formatted);
+        assert!(formatted.contains("delayed on damage_step_end until end_of_turn {\n"),
+            "damage_step_end arming mis-rendered in:\n{}", formatted);
         assert!(formatted.contains("delayed until end {\n"),
             "until-phase form mis-rendered in:\n{}", formatted);
         let reparsed = parse_v2(&formatted)
             .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
-        assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 3);
+        assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 4);
         assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
     }
 

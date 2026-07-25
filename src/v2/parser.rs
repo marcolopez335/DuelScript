@@ -1348,6 +1348,7 @@ fn parse_trigger(pair: Pair<Rule>) -> Result<Trigger, V2ParseError> {
             "attacked" => Ok(Trigger::Attacked),
             "battle_damage" => Ok(Trigger::BattleDamage(None)),
             "direct_attack_damage" => Ok(Trigger::DirectAttackDamage),
+            "damage_step_end" => Ok(Trigger::DamageStepEnd),
             "damage_calculation" => Ok(Trigger::DamageCalculation),
             "standby_phase" => Ok(Trigger::StandbyPhase(None)),
             "end_phase" => Ok(Trigger::EndPhase),

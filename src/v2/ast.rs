@@ -203,6 +203,9 @@ pub enum Trigger {
     BattleDamage(Option<PlayerWho>),
     DirectAttackDamage,
     DamageCalculation,
+    /// `EVENT_DAMAGE_STEP_END` — fires when a damage step finishes
+    /// (T38 S8; the Dinowrestler Martial Anga wrapper class).
+    DamageStepEnd,
     StandbyPhase(Option<PhaseOwner>),
     EndPhase,
     DrawPhase,

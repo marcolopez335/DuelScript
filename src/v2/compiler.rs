@@ -839,7 +839,11 @@ fn compile_redirect(redirect: &Redirect, card: &Card) -> CompiledEffectV2 {
 
 // ── Trigger → Event Code ────────────────────────────────────
 
-fn trigger_to_event_code(trigger: &Option<Trigger>) -> u32 {
+// `pub(super)` (T38 S8 review): the validator's delayed-on zero-code
+// check shares THIS mapping as its single source of truth — an
+// enumerated variant list drifted the moment it was written (the
+// SentTo/ReturnedTo unmapped-zone arms silently dropped wrappers).
+pub(super) fn trigger_to_event_code(trigger: &Option<Trigger>) -> u32 {
     match trigger {
         None => tm::EVENT_FREE_CHAIN,
         Some(t) => match t {
@@ -872,6 +876,7 @@ fn trigger_to_event_code(trigger: &Option<Trigger>) -> u32 {
                 => tm::EVENT_ATTACK_ANNOUNCE,
             Trigger::Attacked => tm::EVENT_BE_BATTLE_TARGET,
             Trigger::BattleDamage(_) | Trigger::DirectAttackDamage => tm::EVENT_BATTLE_DAMAGE,
+            Trigger::DamageStepEnd => tm::EVENT_DAMAGE_STEP_END,
             Trigger::DamageCalculation => tm::EVENT_PRE_DAMAGE_CALCULATE,
             Trigger::StandbyPhase(_) => tm::EVENT_PHASE | tm::PHASE_STANDBY,
             Trigger::EndPhase => tm::EVENT_PHASE | tm::PHASE_END,
@@ -2720,9 +2725,10 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                     // T38 S8: event-armed wrapper — lua inner
                     // FIELD+CONTINUOUS effect on the event code, reset
                     // from the duration (absent clause = end_of_turn).
-                    // The validator rejects zero-code triggers
-                    // (ignition/custom), so the defensive skip here can
-                    // only fire on unvalidated ASTs.
+                    // The validator rejects every trigger this mapping
+                    // sends to 0 (it calls trigger_to_event_code
+                    // directly — S8 review), so the defensive skip here
+                    // can only fire on unvalidated ASTs.
                     let event_code = trigger_to_event_code(&Some(trigger.clone()));
                     if event_code != 0 {
                         let dur = until.as_ref()
@@ -3390,6 +3396,33 @@ card "Delayed On Compile Test" {
         // Bodies execute inline in mock context (house convention).
         assert!(rt.was_called_with("damage", "player=1 amount=1000"),
             "wrapper body not executed; calls: {}", rt.dump_calls());
+        // Backward compat (S8 review): the pre-S8 until-phase form still
+        // routes to register_delayed.
+        let up = format!("phase={:#x} card=30004", tm::PHASE_END);
+        assert!(rt.was_called_with("register_delayed", &up),
+            "until-phase routing lost; calls: {}", rt.dump_calls());
+    }
+
+    #[test]
+    fn test_delayed_on_zero_code_trigger_never_reaches_engine() {
+        use super::super::mock_runtime::MockRuntime;
+        // S8 review pin: the compiler's defensive skip keeps event=0 off
+        // the seam even for ASTs that bypassed validation (the validator
+        // shares trigger_to_event_code, so this is unreachable from
+        // parsed+validated input — belt and braces).
+        let action = Action::Delayed {
+            arming: DelayedArming::OnEvent {
+                trigger: Trigger::Custom("homebrew".into()),
+                until: None,
+            },
+            body: vec![Action::Draw(Expr::Literal(1))],
+        };
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 30005;
+        rt.effect_player = 0;
+        execute_v2_action(&action, &mut rt, 0);
+        assert!(!rt.was_called_with("register_delayed_trigger", ""),
+            "event=0 must never reach the engine; calls: {}", rt.dump_calls());
     }
 
     #[test]

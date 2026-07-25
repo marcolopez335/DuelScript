@@ -1253,9 +1253,12 @@ pub trait DuelScriptRuntime {
     /// Phase").
     ///
     /// Body delivery follows the `register_delayed` precedent: the
-    /// engine re-enters `card_id`'s compiled effect for the wrapper
-    /// body at fire time (the compiled-closure seam carries no body
-    /// payload — same open evolution point as `register_delayed`).
+    /// engine re-enters `card_id`'s compiled effect for the WRAPPER
+    /// BODY ONLY at fire time (the compiled-closure seam carries no
+    /// body payload — same open evolution point as `register_delayed`).
+    /// Fire-time execution must NOT re-run the arming action itself:
+    /// re-entering the whole resolve would re-register the wrapper on
+    /// every firing and compound recurring events geometrically.
     /// Body references to the outer chain target resolve through the
     /// engine's stored-target state (lua `SetLabelObject` plumbing)
     /// with the standard stale-target fizzle: gone/face-down targets
@@ -1268,7 +1271,9 @@ pub trait DuelScriptRuntime {
     /// # Args
     /// - `event`: EDOPro `EVENT_*` code (phase events arrive as
     ///   `EVENT_PHASE | PHASE_*`). Never `0` — the validator rejects
-    ///   unmapped triggers (`ignition` / `custom`).
+    ///   every trigger whose event code maps to 0 (it shares the
+    ///   compiler's `trigger_to_event_code` as the single source of
+    ///   truth), and the compiler defensively skips 0 besides.
     /// - `card_id`: Card whose wrapper body fires on the event.
     /// - `duration`: reset bound; the compiler defaults an absent
     ///   `until` clause to `Duration::EndOfTurn`.

@@ -231,6 +231,7 @@ trigger_expr = {
   | "attacked"
   | "battle_damage" ~ damage_qualifier?
   | "direct_attack_damage"
+  | "damage_step_end"
   | "damage_calculation"
     // Phase triggers
   | "standby_phase" ~ phase_qualifier?
@@ -693,7 +694,7 @@ choose_action   = { "choose" ~ "{" ~ option_block ~ option_block+ ~ "}" }
 // events bounded by end_of_turn the recurrence collapses to the corpus's
 // dominant one-shot ("destroy it during the End Phase") — a dedicated
 // `once` modifier rides a later slice if a non-collapsing bucket lands.
-delayed_action  = { "delayed" ~ (delayed_on | "until" ~ phase_name) ~ "{" ~ action+ ~ "}" }
+delayed_action  = { "delayed" ~ ("until" ~ phase_name | delayed_on) ~ "{" ~ action+ ~ "}" }
 delayed_on      = { "on" ~ trigger_expr ~ ("until" ~ duration)? }
 and_if_you_do_action = { "and_if_you_do" ~ "{" ~ action+ ~ "}" }
 then_action     = { "then" ~ "{" ~ action+ ~ "}" }
