@@ -631,6 +631,12 @@ impl DuelScriptRuntime for MockRuntime {
             format!("event={:#x} card={} dur={:?}", event, card_id, duration));
     }
 
+    // Recorded so tests can pin the pre-S8 until-phase routing too
+    // (S8 review: backward-compat path was asserted nowhere).
+    fn register_delayed(&mut self, phase: u32, card_id: u32) {
+        self.record("register_delayed", format!("phase={:#x} card={}", phase, card_id));
+    }
+
     // ── Phase 3: confirm ─────────────────────────────────────
     fn confirm_cards(&mut self, owner: u8, audience: u8, cards: &[u32]) {
         self.record("confirm_cards",
