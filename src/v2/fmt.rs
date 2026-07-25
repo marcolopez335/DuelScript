@@ -767,8 +767,19 @@ fn format_action(a: &Action, out: &mut String, indent: usize) {
         Action::Choose(block) => {
             format_choose_block(block, out, indent);
         }
-        Action::Delayed { until, body } => {
-            writeln!(out, "{}delayed until {} {{", pad, format_phase_name(until)).unwrap();
+        Action::Delayed { arming, body } => {
+            match arming {
+                DelayedArming::UntilPhase(until) => {
+                    writeln!(out, "{}delayed until {} {{", pad, format_phase_name(until)).unwrap();
+                }
+                DelayedArming::OnEvent { trigger, until } => {
+                    let mut s = format!("{}delayed on {}", pad, format_trigger(trigger));
+                    if let Some(d) = until {
+                        s.push_str(&format!(" until {}", format_duration(d)));
+                    }
+                    writeln!(out, "{} {{", s).unwrap();
+                }
+            }
             for a in body {
                 format_action(a, out, indent + 4);
             }
@@ -1844,6 +1855,48 @@ card "Restrict Qualifier Roundtrip Test" {
         let reparsed = parse_v2(&formatted)
             .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
         assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 11);
+        assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
+    }
+
+    #[test]
+    fn test_delayed_on_roundtrips() {
+        // T38 S8: both arming forms — bare on-event, on-event with
+        // duration, and the pre-S8 until-phase form — survive the
+        // parse -> format -> reparse fixed point.
+        let source = r#"
+card "Delayed Roundtrip Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Later" {
+        speed: 2
+        mandatory
+        target (1, monster, from field)
+        resolve {
+            delayed on end_phase {
+                destroy target
+            }
+            delayed on standby_phase until end_of_turn {
+                damage opponent 500
+            }
+            delayed until end {
+                draw 1
+            }
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let formatted = format_file(&file);
+        assert!(formatted.contains("delayed on end_phase {\n"),
+            "bare on-form mis-rendered in:\n{}", formatted);
+        assert!(formatted.contains("delayed on standby_phase until end_of_turn {\n"),
+            "on-form with duration mis-rendered in:\n{}", formatted);
+        assert!(formatted.contains("delayed until end {\n"),
+            "until-phase form mis-rendered in:\n{}", formatted);
+        let reparsed = parse_v2(&formatted)
+            .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
+        assert_eq!(reparsed.cards[0].effects[0].resolve.len(), 3);
         assert_eq!(format_file(&reparsed), formatted, "fmt not a fixed point");
     }
 

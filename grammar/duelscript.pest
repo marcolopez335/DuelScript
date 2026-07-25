@@ -685,7 +685,16 @@ damage_rule = {
 if_action       = { "if" ~ "(" ~ condition_expr ~ ")" ~ "{" ~ action+ ~ "}" ~ ("else" ~ "{" ~ action+ ~ "}")? }
 for_each_action = { "for_each" ~ selector ~ "in" ~ zone ~ "{" ~ action+ ~ "}" }
 choose_action   = { "choose" ~ "{" ~ option_block ~ option_block+ ~ "}" }
-delayed_action  = { "delayed" ~ "until" ~ phase_name ~ "{" ~ action+ ~ "}" }
+// T38 S8 — two arming forms. `delayed until <phase>` (pre-S8, unchanged):
+// phase-deferred one-shot. `delayed on <event> (until <duration>)?` (NEW):
+// event-armed wrapper — lua inner EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS
+// chain with its own SetOperation; fires on EVERY occurrence of the event
+// until the duration resets (absent clause = end_of_turn). For phase
+// events bounded by end_of_turn the recurrence collapses to the corpus's
+// dominant one-shot ("destroy it during the End Phase") — a dedicated
+// `once` modifier rides a later slice if a non-collapsing bucket lands.
+delayed_action  = { "delayed" ~ (delayed_on | "until" ~ phase_name) ~ "{" ~ action+ ~ "}" }
+delayed_on      = { "on" ~ trigger_expr ~ ("until" ~ duration)? }
 and_if_you_do_action = { "and_if_you_do" ~ "{" ~ action+ ~ "}" }
 then_action     = { "then" ~ "{" ~ action+ ~ "}" }
 also_action     = { "also" ~ "{" ~ action+ ~ "}" }

@@ -28,6 +28,7 @@ pub fn validate_card(card: &Card, errors: &mut Vec<ValidationError>) {
     check_target_references(&ctx, errors);
     check_fusion_extra_pools(&ctx, errors);
     check_restrict_qualifiers(&ctx, errors);
+    check_delayed_on_bodies(&ctx, errors);
     check_spell_speeds(&ctx, errors);
     check_passive_blocks(&ctx, errors);
     check_restriction_blocks(&ctx, errors);
@@ -598,6 +599,63 @@ fn check_restrict_qualifiers(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
     }
 }
 
+// ── Delayed-on wrapper shape (T38 S8) ───────────────────────
+//
+// `delayed on <event>` registers a fire-later body on an engine event
+// (lua inner FIELD+CONTINUOUS effect). Three author errors:
+//   1. triggers with no engine event code — `ignition` is a
+//      tagging-only marker and `custom` a user-defined channel; the
+//      compiler would silently drop the wrapper (the exact silent-drop
+//      class these checks exist to prevent);
+//   2. a `choose` block inside the body — the wrapper fires outside
+//      the chain, where no actor exists to dispatch an interactive
+//      branch;
+//   3. a nested `delayed` inside the body — compounded arming has no
+//      corpus shape and no single reset the runtime seam could carry.
+// Body references to `target` stay LEGAL: they resolve to the OUTER
+// effect's stored chain target at fire time (the lua SetLabelObject
+// plumbing — see runtime.rs register_delayed_trigger), and the
+// existing target-reference scan already requires the effect to
+// declare one.
+fn check_delayed_on_bodies(ctx: &Ctx, errors: &mut Vec<ValidationError>) {
+    let mut check = |actions: &[Action], block_name: &str| {
+        walk_actions(actions, &mut |a| {
+            if let Action::Delayed { arming: DelayedArming::OnEvent { trigger, .. }, body } = a {
+                if matches!(trigger, Trigger::Ignition | Trigger::Custom(_)) {
+                    errors.push(err(ctx.name(), &format!(
+                        "'{}': `delayed on` needs an engine event — `ignition`/`custom` \
+                         triggers carry no event code", block_name
+                    )));
+                }
+                walk_actions(body, &mut |inner| match inner {
+                    Action::Choose(_) => errors.push(err(ctx.name(), &format!(
+                        "'{}': a `delayed on` body cannot contain `choose` — the wrapper \
+                         fires outside the chain, with no actor to dispatch a branch",
+                        block_name
+                    ))),
+                    Action::Delayed { .. } => errors.push(err(ctx.name(), &format!(
+                        "'{}': `delayed` wrappers do not nest inside a `delayed on` body",
+                        block_name
+                    ))),
+                    _ => {}
+                });
+            }
+        });
+    };
+    for effect in &ctx.card.effects {
+        check(&effect.resolve, &effect.name);
+        if let Some(choose) = &effect.choose {
+            for opt in &choose.options {
+                check(&opt.resolve, &effect.name);
+            }
+        }
+    }
+    for repl in &ctx.card.replacements {
+        let name = repl.name.as_deref().unwrap_or("replacement");
+        check(&repl.actions, name);
+    }
+}
+
 /// Depth-first walk over an action list, recursing into every nested
 /// action container (`if`, `coin_flip`, `dice_roll`, `delayed`,
 /// `and_if_you_do`, `then`, `also`, `for_each`, `install_watcher`,
@@ -1149,6 +1207,82 @@ card "Restrict From Hand-Only Test" {
         assert_eq!(report.error_count(), 3, "errors: {:?}", report.errors);
         assert!(report.errors.iter().all(|e| e.message.contains("come from the hand")),
             "unexpected messages: {:?}", report.errors);
+    }
+
+    #[test]
+    fn test_delayed_on_valid_with_target_body() {
+        // T38 S8: a delayed-on body referencing the OUTER effect's chain
+        // target is the dominant corpus shape ("destroy it during the
+        // End Phase") — must validate clean when the effect declares one.
+        let source = r#"
+card "Delayed On Valid Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Later" {
+        speed: 2
+        mandatory
+        target (1, monster, from field)
+        resolve {
+            banish target
+            delayed on end_phase {
+                destroy target
+            }
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        assert_eq!(report.error_count(), 0, "errors: {:?}", report.errors);
+        assert_eq!(report.warning_count(), 0, "warnings: {:?}", report.errors);
+    }
+
+    #[test]
+    fn test_delayed_on_rejects_bad_shapes() {
+        // T38 S8: zero-event-code triggers, choose in the body, and
+        // nested delayed all error.
+        let source = r#"
+card "Delayed On Bad Shapes Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Later" {
+        speed: 2
+        mandatory
+        resolve {
+            delayed on ignition {
+                draw 1
+            }
+            delayed on end_phase {
+                choose {
+                    option "A" {
+                        resolve {
+                            draw 1
+                        }
+                    }
+                    option "B" {
+                        resolve {
+                            damage opponent 500
+                        }
+                    }
+                }
+            }
+            delayed on end_phase {
+                delayed until end {
+                    draw 1
+                }
+            }
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let report = validate_v2(&file);
+        let s8_errors: Vec<_> = report.errors.iter()
+            .filter(|e| e.message.contains("delayed") || e.message.contains("event code"))
+            .collect();
+        assert_eq!(s8_errors.len(), 3, "errors: {:?}", report.errors);
     }
 
     #[test]

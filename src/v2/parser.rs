@@ -1980,14 +1980,29 @@ fn parse_action(pair: Pair<Rule>) -> Result<Action, V2ParseError> {
         }
         Rule::delayed_action => {
             let mut it = inner.into_inner();
-            let phase = parse_phase_name(it.next().unwrap().as_str().trim())?;
+            // T38 S8: two arming forms — `on <trigger> (until <duration>)?`
+            // arrives as a delayed_on sub-pair; the pre-S8 `until <phase>`
+            // form arrives as a bare phase_name pair.
+            let first = it.next().unwrap();
+            let arming = match first.as_rule() {
+                Rule::delayed_on => {
+                    let mut on = first.into_inner();
+                    let trigger = parse_trigger(on.next().unwrap())?;
+                    let until = on.next()
+                        .filter(|p| p.as_rule() == Rule::duration)
+                        .map(|p| parse_duration(p.as_str().trim()))
+                        .transpose()?;
+                    DelayedArming::OnEvent { trigger, until }
+                }
+                _ => DelayedArming::UntilPhase(parse_phase_name(first.as_str().trim())?),
+            };
             let mut body = Vec::new();
             for p in it {
                 if p.as_rule() == Rule::action {
                     body.push(parse_action(p)?);
                 }
             }
-            Ok(Action::Delayed { until: phase, body })
+            Ok(Action::Delayed { arming, body })
         }
         Rule::and_if_you_do_action => {
             let mut actions = Vec::new();
@@ -3154,6 +3169,61 @@ card "Restrict Grouping Test" {
                 ]);
             }
             other => panic!("expected mid-term from-zone, got {:?}", other),
+        }
+    }
+
+    #[test]
+    fn test_delayed_arming_forms_parse() {
+        // T38 S8: the event-armed form (bare, with duration, non-phase
+        // event) and the pre-S8 phase-deferred form — all four AST shapes.
+        let source = r#"
+card "Delayed Arming Test" {
+    id: 1
+    type: Normal Trap
+
+    effect "Later" {
+        speed: 2
+        mandatory
+        target (1, monster, from field)
+        resolve {
+            delayed on end_phase {
+                destroy target
+            }
+            delayed on end_phase until end_of_turn {
+                banish target
+            }
+            delayed on destroys_by_battle until end_of_turn {
+                damage opponent 1000
+            }
+            delayed until end {
+                draw 1
+            }
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let resolve = &file.cards[0].effects[0].resolve;
+        assert_eq!(resolve.len(), 4);
+        match &resolve[0] {
+            Action::Delayed { arming: DelayedArming::OnEvent { trigger: Trigger::EndPhase, until: None }, body } => {
+                assert_eq!(body.len(), 1);
+            }
+            other => panic!("expected bare on-form, got {:?}", other),
+        }
+        match &resolve[1] {
+            Action::Delayed { arming: DelayedArming::OnEvent { trigger: Trigger::EndPhase, until: Some(Duration::EndOfTurn) }, .. } => {}
+            other => panic!("expected on-form with duration, got {:?}", other),
+        }
+        match &resolve[2] {
+            Action::Delayed { arming: DelayedArming::OnEvent { trigger: Trigger::DestroysByBattle, until: Some(Duration::EndOfTurn) }, .. } => {}
+            other => panic!("expected battle-destroying on-form, got {:?}", other),
+        }
+        match &resolve[3] {
+            Action::Delayed { arming: DelayedArming::UntilPhase(PhaseName::End), body } => {
+                assert_eq!(body.len(), 1);
+            }
+            other => panic!("expected until-phase form, got {:?}", other),
         }
     }
 

@@ -612,13 +612,34 @@ pub enum Action {
     If { condition: Condition, then: Vec<Action>, otherwise: Vec<Action> },
     ForEach { selector: Selector, zone: Zone, body: Vec<Action> },
     Choose(ChooseBlock),
-    Delayed { until: PhaseName, body: Vec<Action> },
+    /// `delayed` wrapper — see [`DelayedArming`] for the two forms
+    /// (phase-deferred T21 form; event-armed T38 S8 form).
+    Delayed { arming: DelayedArming, body: Vec<Action> },
     AndIfYouDo(Vec<Action>),
     Then(Vec<Action>),
     Also(Vec<Action>),
     InstallWatcher { name: String, event: Trigger, duration: Duration, check: Vec<Action> },
     SwapControl(Selector, Selector),
     SwapStats(Selector),
+}
+
+/// T38 S8 — how a `delayed` wrapper arms.
+#[derive(Debug, Clone)]
+pub enum DelayedArming {
+    /// `delayed until <phase>` — the pre-S8 phase-deferred form,
+    /// unchanged: the body runs once at the named phase of this turn.
+    UntilPhase(PhaseName),
+    /// `delayed on <event> (until <duration>)?` — event-armed (T38 S8):
+    /// lua registers an inner `EFFECT_TYPE_FIELD + EFFECT_TYPE_CONTINUOUS`
+    /// effect on the event code with the body as its `SetOperation` and
+    /// the duration as its `SetReset` (absent clause = `end_of_turn`).
+    /// Fires on EVERY occurrence of the event until the reset — NOT
+    /// one-shot; for phase events bounded by `end_of_turn` the
+    /// recurrence collapses to a single firing (the dominant corpus
+    /// bucket). Body references to `target` resolve to the OUTER
+    /// effect's chain target at fire time (the lua `SetLabelObject`
+    /// plumbing), with the standard stale-target fizzle.
+    OnEvent { trigger: Trigger, until: Option<Duration> },
 }
 
 /// T38 S5 — non-default fusion-material disposal destination

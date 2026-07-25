@@ -1240,6 +1240,43 @@ pub trait DuelScriptRuntime {
     /// No-op.
     fn register_delayed(&mut self, _phase: u32, _card_id: u32) {}
 
+    /// Register an event-armed delayed wrapper (T38 S8, the DSL
+    /// `delayed on <event> (until <duration>)? { … }` form).
+    ///
+    /// Engine side this is the lua inner-effect idiom: an
+    /// `EFFECT_TYPE_FIELD + EFFECT_TYPE_CONTINUOUS` registration on
+    /// `event` whose `SetOperation` is the wrapper body, with the reset
+    /// derived from `duration`. Fires on EVERY occurrence of the event
+    /// until the reset — NOT one-shot (for phase events bounded by
+    /// `Duration::EndOfTurn` the recurrence collapses to one firing,
+    /// which is the dominant corpus bucket: "destroy it during the End
+    /// Phase").
+    ///
+    /// Body delivery follows the `register_delayed` precedent: the
+    /// engine re-enters `card_id`'s compiled effect for the wrapper
+    /// body at fire time (the compiled-closure seam carries no body
+    /// payload — same open evolution point as `register_delayed`).
+    /// Body references to the outer chain target resolve through the
+    /// engine's stored-target state (lua `SetLabelObject` plumbing)
+    /// with the standard stale-target fizzle: gone/face-down targets
+    /// silently no-op.
+    ///
+    /// **ygobeetle mirror obligation:** new trait method — engine-dev
+    /// mirrors on semantics; default no-op means the dep bump compiles
+    /// clean and un-mirrored wrappers silently skip.
+    ///
+    /// # Args
+    /// - `event`: EDOPro `EVENT_*` code (phase events arrive as
+    ///   `EVENT_PHASE | PHASE_*`). Never `0` — the validator rejects
+    ///   unmapped triggers (`ignition` / `custom`).
+    /// - `card_id`: Card whose wrapper body fires on the event.
+    /// - `duration`: reset bound; the compiler defaults an absent
+    ///   `until` clause to `Duration::EndOfTurn`.
+    ///
+    /// # Default
+    /// No-op.
+    fn register_delayed_trigger(&mut self, _event: u32, _card_id: u32, _duration: Duration) {}
+
     // ── Phase / State Queries ────────────────────────────────
 
     /// Current game phase as an engine phase constant.

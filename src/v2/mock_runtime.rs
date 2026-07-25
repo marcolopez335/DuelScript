@@ -625,6 +625,12 @@ impl DuelScriptRuntime for MockRuntime {
         self.record("raise_custom_event", format!("name={:?} cards={:?}", name, cards));
     }
 
+    // ── T38 S8: event-armed delayed wrapper ───────────────────
+    fn register_delayed_trigger(&mut self, event: u32, card_id: u32, duration: Duration) {
+        self.record("register_delayed_trigger",
+            format!("event={:#x} card={} dur={:?}", event, card_id, duration));
+    }
+
     // ── Phase 3: confirm ─────────────────────────────────────
     fn confirm_cards(&mut self, owner: u8, audience: u8, cards: &[u32]) {
         self.record("confirm_cards",
