@@ -141,6 +141,13 @@ pub struct FunctionBody {
     /// delayed-on chain whose SetCondition carries this flag DROPS the
     /// guard rather than skipping the chain.
     pub staleness_guard: bool,
+    /// The guard's flag-id hole text when `staleness_guard` is true
+    /// (T38 S8b): the `A` of `GetFlagEffect[Label](A)`. The
+    /// self-resetting lifetime gate ties it to a same-body
+    /// `RegisterFlagEffect(A, …)` on the stored label object — a
+    /// shape-matching guard over a FOREIGN flag is a real semantic
+    /// gate, not the fizzle boilerplate.
+    pub staleness_guard_flag: Option<String>,
 }
 
 /// A guarded-value function body (Phase 19): `if cond then return
@@ -285,9 +292,20 @@ pub struct RegisterEffectChain {
     /// self-resetting delayed-wrapper gate requires exactly `1`: a
     /// named once-per-turn limit (`SetCountLimit(1,id)`) tracks the
     /// NAME across copies — a different lifetime than the wrapper
-    /// idiom's bare per-turn count. Plain overwrite on rewrite (same
-    /// narrow-consumption convention as `label_object`).
+    /// idiom's bare per-turn count. Conflict-tracked through the
+    /// set_or_conflict / clone-seed protocol (S8b review): a branch-
+    /// conditional `SetCountLimit(1,id)` / `SetCountLimit(1)` pair
+    /// must poison, not last-write-win into the bare-count gate.
     pub count_limit: Option<String>,
+    /// Flag ids (`RegisterFlagEffect` first arg) registered in the
+    /// enclosing body on the SAME object this chain stored via
+    /// `SetLabelObject` (receiver and label compared after the one-hop
+    /// local resolution; T38 S8b review). The self-resetting lifetime
+    /// gate requires the staleness guard's flag to be one of these —
+    /// a shape-matching guard over a FOREIGN flag is a real semantic
+    /// gate ("only if effect X flagged it"), not the fizzle
+    /// boilerplate, and dropping it would mis-state the card.
+    pub label_flag_ids: Vec<String>,
     /// Raw second arg of `SetReset(reset, count)` when present (Phase 15).
     /// A count above 1 means the effect survives multiple reset events
     /// (e.g. `RESET_PHASE|PHASE_END, 2` = end of NEXT turn) — not a
@@ -1796,10 +1814,10 @@ fn walk_block(block: &Block, report: &mut LuaReport) {
     }
 }
 
-/// T38 S8 — true when `block` is the delayed-wrapper STALENESS-GUARD
-/// boilerplate. Closed family, matched on the whitespace-stripped body
-/// text (comments or any extra statement fail the match — skip, never
-/// approximate):
+/// T38 S8 — Some(flag id) when `block` is the delayed-wrapper
+/// STALENESS-GUARD boilerplate. Closed family, matched on the
+/// whitespace-stripped body text (comments or any extra statement fail
+/// the match — skip, never approximate):
 ///   local <b>=e:GetLabelObject()
 ///   + one of
 ///     if <b>:GetFlagEffectLabel(A)~=e:GetLabel() then e:Reset() return false else return true end
@@ -1807,29 +1825,22 @@ fn walk_block(block: &Block, report: &mut LuaReport) {
 ///     if <b>:GetFlagEffect(A)~=0 then return true else e:Reset() return false end
 ///     return <b>:GetFlagEffectLabel(A)==e:GetLabel()
 ///     return <b>:GetFlagEffect(A)~=0
-/// where A is a single identifier/number (the flag id).
-fn is_staleness_guard_block(block: &Block) -> bool {
+/// where A is a single identifier/number (the flag id) — returned so
+/// the self-resetting lifetime gate can tie it to a same-body flag
+/// registration on the stored label object (T38 S8b review).
+fn staleness_guard_flag_of(block: &Block) -> Option<String> {
     let stripped: String = block.to_string()
         .chars()
         .filter(|c| !c.is_whitespace())
         .collect();
-    let rest = match stripped.strip_prefix("local") {
-        Some(r) => r,
-        None => return false,
-    };
-    let (binding, rest) = match rest.split_once('=') {
-        Some(x) => x,
-        None => return false,
-    };
+    let rest = stripped.strip_prefix("local")?;
+    let (binding, rest) = rest.split_once('=')?;
     if binding.is_empty()
         || !binding.chars().all(|c| c.is_alphanumeric() || c == '_')
     {
-        return false;
+        return None;
     }
-    let rest = match rest.strip_prefix("e:GetLabelObject()") {
-        Some(r) => r,
-        None => return false,
-    };
+    let rest = rest.strip_prefix("e:GetLabelObject()")?;
     let hole_ok = |arg: &str| {
         !arg.is_empty() && arg.chars().all(|c| c.is_alphanumeric() || c == '_')
     };
@@ -1845,10 +1856,11 @@ fn is_staleness_guard_block(block: &Block) -> bool {
         (format!("return{}:GetFlagEffect(", binding),
          ")~=0"),
     ];
-    forms.iter().any(|(prefix, suffix)| {
+    forms.iter().find_map(|(prefix, suffix)| {
         rest.strip_prefix(prefix.as_str())
             .and_then(|r| r.strip_suffix(suffix))
-            .is_some_and(|arg| hole_ok(arg))
+            .filter(|arg| hole_ok(arg))
+            .map(str::to_string)
     })
 }
 
@@ -1875,7 +1887,8 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             let (inline_options, choice_arms) = extract_choice_arms(body_block);
             let helper_calls = extract_helper_calls(body_block);
             let equip_helper = extract_equip_helper(body);
-            let staleness_guard = is_staleness_guard_block(body_block);
+            let staleness_guard_flag = staleness_guard_flag_of(body_block);
+            let staleness_guard = staleness_guard_flag.is_some();
             // SetLabel-linked form (target side) and op-side inline form
             // are mutually exclusive in practice — a body matching both
             // would need two SelectOption calls, which both reject.
@@ -1913,6 +1926,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                     method_ops_poisoned,
                     summon_check_additional,
                     staleness_guard,
+                    staleness_guard_flag,
                 });
             }
         }
@@ -4022,8 +4036,26 @@ fn extract_register_chains(block: &Block) -> Vec<RegisterEffectChain> {
     let mut chains = Vec::new();
     let mut by_binding: BTreeMap<String, RegisterEffectChain> = BTreeMap::new();
     let mut locals: BTreeMap<String, String> = BTreeMap::new();
-    collect_register_chains(block, None, false, &mut by_binding, &mut locals, &mut chains);
+    let mut flag_regs: Vec<(String, String)> = Vec::new();
+    collect_register_chains(block, None, false, &mut by_binding, &mut locals, &mut flag_regs, &mut chains);
     chains
+}
+
+/// Flag ids registered (so far in the walk) on the object a chain
+/// stored via `SetLabelObject` — receiver and label compared after the
+/// same one-hop local resolution, so `local tc=g:GetFirst()` +
+/// `tc:RegisterFlagEffect(id,…)` + `SetLabelObject(tc)` tie up (T38
+/// S8b review: the self-resetting gate must reject foreign-flag
+/// guards).
+fn label_flag_ids_for(
+    chain: &RegisterEffectChain,
+    flag_regs: &[(String, String)],
+) -> Vec<String> {
+    let Some(label) = chain.label_object.as_deref() else { return Vec::new() };
+    flag_regs.iter()
+        .filter(|(recv, _)| recv == label)
+        .map(|(_, id)| id.clone())
+        .collect()
 }
 
 fn collect_register_chains(
@@ -4032,6 +4064,7 @@ fn collect_register_chains(
     choice_arm: bool,
     by_binding: &mut BTreeMap<String, RegisterEffectChain>,
     locals: &mut BTreeMap<String, String>,
+    flag_regs: &mut Vec<(String, String)>,
     out: &mut Vec<RegisterEffectChain>,
 ) {
     for stmt in block.stmts() {
@@ -4071,6 +4104,15 @@ fn collect_register_chains(
             }
             Stmt::FunctionCall(fc) => {
                 if let Some((bind, method, args)) = method_call_on_binding(fc) {
+                    // T38 S8b — flag registrations on NON-chain locals
+                    // feed the label-flag tie (receiver resolved through
+                    // the same one-hop locals map as SetLabelObject).
+                    if method == "RegisterFlagEffect" && !by_binding.contains_key(&bind) {
+                        if let Some(id) = args.first() {
+                            let recv = locals.get(&bind).cloned().unwrap_or_else(|| bind.clone());
+                            flag_regs.push((recv, id.trim().to_string()));
+                        }
+                    }
                     if let Some(chain) = by_binding.get_mut(&bind) {
                         let arg = args.first().cloned();
                         let seeds = &mut chain.clone_seeded;
@@ -4113,10 +4155,11 @@ fn collect_register_chains(
                             }
                             // T38 S8b — the self-resetting lifetime gate
                             // consults the plain per-turn count.
+                            // Conflict-tracked (S8b review): a branch-
+                            // conditional named/bare pair must poison.
                             "SetCountLimit" => {
-                                chain.count_limit =
-                                    (!args.is_empty()).then(|| args.join(","));
-                                false
+                                let joined = (!args.is_empty()).then(|| args.join(","));
+                                set_or_conflict(&mut chain.count_limit, joined, seeds, "count_limit")
                             }
                             _ => false,
                         };
@@ -4134,6 +4177,7 @@ fn collect_register_chains(
                             emitted.loop_source_group = loop_source.map(str::to_string);
                             emitted.in_choice_arm = choice_arm;
                             emitted.forced = args.len() > 1;
+                            emitted.label_flag_ids = label_flag_ids_for(&emitted, flag_regs);
                             out.push(emitted);
                         }
                     }
@@ -4151,6 +4195,7 @@ fn collect_register_chains(
                             emitted.multi_target = loop_source.is_some();
                             emitted.loop_source_group = loop_source.map(str::to_string);
                             emitted.in_choice_arm = choice_arm;
+                            emitted.label_flag_ids = label_flag_ids_for(&emitted, flag_regs);
                             out.push(emitted);
                         }
                     }
@@ -4164,24 +4209,24 @@ fn collect_register_chains(
                 let has_arms = if_stmt.else_if().is_some_and(|eis| eis.len() > 0)
                     || if_stmt.else_block().is_some();
                 let arm = choice_arm || has_arms;
-                collect_register_chains(if_stmt.block(), loop_source, arm, by_binding, locals, out);
+                collect_register_chains(if_stmt.block(), loop_source, arm, by_binding, locals, flag_regs, out);
                 for ei in if_stmt.else_if().into_iter().flatten() {
-                    collect_register_chains(ei.block(), loop_source, arm, by_binding, locals, out);
+                    collect_register_chains(ei.block(), loop_source, arm, by_binding, locals, flag_regs, out);
                 }
                 if let Some(else_block) = if_stmt.else_block() {
-                    collect_register_chains(else_block, loop_source, arm, by_binding, locals, out);
+                    collect_register_chains(else_block, loop_source, arm, by_binding, locals, flag_regs, out);
                 }
             }
-            Stmt::While(w)       => collect_register_chains(w.block(), loop_source, choice_arm, by_binding, locals, out),
-            Stmt::Repeat(r)      => collect_register_chains(r.block(), loop_source, choice_arm, by_binding, locals, out),
-            Stmt::NumericFor(nf) => collect_register_chains(nf.block(), Some(""), choice_arm, by_binding, locals, out),
+            Stmt::While(w)       => collect_register_chains(w.block(), loop_source, choice_arm, by_binding, locals, flag_regs, out),
+            Stmt::Repeat(r)      => collect_register_chains(r.block(), loop_source, choice_arm, by_binding, locals, flag_regs, out),
+            Stmt::NumericFor(nf) => collect_register_chains(nf.block(), Some(""), choice_arm, by_binding, locals, flag_regs, out),
             Stmt::GenericFor(gf) => {
                 let inner = aux_next_source_group(gf)
                     .or_else(|| iter_method_source_group(gf));
                 let inner_ref = inner.as_deref().or(Some(""));
-                collect_register_chains(gf.block(), inner_ref, choice_arm, by_binding, locals, out);
+                collect_register_chains(gf.block(), inner_ref, choice_arm, by_binding, locals, flag_regs, out);
             }
-            Stmt::Do(d)          => collect_register_chains(d.block(), loop_source, choice_arm, by_binding, locals, out),
+            Stmt::Do(d)          => collect_register_chains(d.block(), loop_source, choice_arm, by_binding, locals, flag_regs, out),
             _ => {}
         }
     }
@@ -4224,6 +4269,7 @@ fn seeded_slot_names(chain: &RegisterEffectChain) -> BTreeSet<&'static str> {
     if chain.set_target.is_some()   { names.insert("set_target"); }
     if chain.property.is_some()     { names.insert("property"); }
     if chain.label_object.is_some() { names.insert("label_object"); }
+    if chain.count_limit.is_some()  { names.insert("count_limit"); }
     names
 }
 
@@ -6091,9 +6137,22 @@ fn translate_choice_arm(
     functions: &BTreeMap<String, FunctionBody>,
 ) -> Option<Vec<DslLine>> {
     let mut out = Vec::new();
-    for c in &arm.calls {
+    // T38 S8b review — the arm loop is a THIRD emitter beside the flat
+    // body walk and `body_drops_chains`: without the same pairing, an
+    // arm chain reaching the summoned-card labelobj decode would emit
+    // `{ destroy sp }` while the arm's summon line never declared the
+    // binding (validator-clean, silently-dead reference at runtime).
+    let bound_call = summon_bound_call(arm, functions);
+    for (i, c) in arm.calls.iter().enumerate() {
         match translate_call_with_functions(c, arm, functions) {
-            Some(DslLine::Action(s)) => out.push(DslLine::Action(s)),
+            Some(DslLine::Action(s)) => {
+                let s = if Some(i) == bound_call {
+                    format!("{} as {}", s, SUMMON_BINDING_NAME)
+                } else {
+                    s
+                };
+                out.push(DslLine::Action(s));
+            }
             Some(DslLine::Todo(_)) => return None,
             None => {}
         }
@@ -6402,9 +6461,15 @@ fn trigger_for_event_code(code: &str) -> Option<&'static str> {
 ///           free: bounded by the end-of-turn reset, a PHASE_END wrapper
 ///           fires at most once anyway — the S8 grammar collapse note);
 ///       (b) T38 S8b, the SELF-RESETTING idiom: no `SetReset` at all,
-///           bare `SetCountLimit(1)`, and a staleness-guard condition —
-///           the guard's `e:Reset()` arm retires the wrapper the moment
-///           the stored card's flag dies, so the effective lifetime is
+///           bare `SetCountLimit(1)`, and a staleness-guard condition
+///           whose flag id THIS body registered on the stored label
+///           object (`RegisterEffectChain::label_flag_ids` — a shape-
+///           matching guard over a foreign flag is a real semantic
+///           gate, review fix). The flag dies with the card
+///           (RESETS_STANDARD registration), so once it is gone the
+///           wrapper is retired (the `e:Reset()` guard arms) or
+///           permanently inert (the bare-return guard forms — game-
+///           visibly identical), bounding the effective lifetime to
 ///           this turn's end phase. `until end_of_turn` approximates
 ///           one corner: when the end-phase op fails to move the card
 ///           (protection), lua retries NEXT turn while its flag lives —
@@ -6415,8 +6480,8 @@ fn trigger_for_event_code(code: &str) -> Option<&'static str> {
 ///     other condition (deferred-search availability, turn-count gates,
 ///     flag protocols) skips this MVP. In idiom (b) the guard is
 ///     REQUIRED — it IS the lifetime bound — and the availability-check
-///     drop class stays reset-gated only (no `e:Reset()` arm there, so
-///     a no-reset availability chain would re-fire every turn);
+///     drop class stays reset-gated only (nothing retires a no-reset
+///     availability chain, which would re-fire every turn);
 ///   - op body = ONE mutating Duel call on the chain's stored label
 ///     object (`decode_delayed_op_body`), the stored object resolving
 ///     to the chain target / the handler card / the just-summoned card
@@ -6460,11 +6525,16 @@ fn translate_delayed_on_chain(
         && !reset.contains("RESET_SELF_TURN")
         && !reset.contains("RESET_OPPO_TURN")
         && !chain.reset_count.as_deref().is_some_and(|c| c.trim() != "1");
+    // T38 S8b review — the guard's flag must be one THIS body
+    // registered on the stored label object: a shape-matching guard
+    // over a foreign flag ("only if effect X flagged it") is a real
+    // semantic gate whose drop would mis-state the card.
     let self_resetting = chain.reset.is_none()
         && chain.count_limit.as_deref().is_some_and(|c| c.trim() == "1")
         && chain.condition.as_deref()
             .and_then(|c| functions.get(c))
-            .is_some_and(|f| f.staleness_guard);
+            .and_then(|f| f.staleness_guard_flag.as_deref())
+            .is_some_and(|flag| chain.label_flag_ids.iter().any(|id| id == flag));
     if !eot_reset && !self_resetting {
         return None;
     }
@@ -6658,18 +6728,39 @@ fn summon_binding_call_idx(
 
 /// T38 S8b — Some(call index) when any register chain of `body` emits
 /// an `sp`-referencing delayed wrapper, i.e. the summon line must carry
-/// the `as sp` binding. Structural, not textual: a chain qualifies when
-/// the full wrapper emission succeeds AND its label is the summoned-
-/// card form (`decode_delayed_op_body` renders `sp` exactly then, so
-/// the two sides can never disagree).
+/// the `as sp` binding. Structural, not textual, and routing-faithful
+/// (S8b review): a chain qualifies only when
+///   - `translate_register_chain` — the emit loop's ACTUAL route,
+///     which carries the conflicting_sets reject and the
+///     EFFECT_TYPE_FIELD dispatch that `translate_delayed_on_chain`
+///     alone does not — renders exactly the delayed wrapper line, and
+///   - the wrapper came through the LABELOBJ decode (an eot-reset
+///     chain emitting via the Class-B translated-body route never
+///     references `sp`), and
+///   - the label pairs to the body's single summon call.
+/// A chain the emit loop drops or routes elsewhere stamps no binding —
+/// no dangling `as sp` on any path.
 fn summon_bound_call(
     body: &FunctionBody,
     functions: &BTreeMap<String, FunctionBody>,
 ) -> Option<usize> {
     for chain in &body.register_chains {
         let Some(code) = chain.code.as_deref() else { continue };
-        if translate_delayed_on_chain(code, chain, body, functions).is_none() {
+        let Some(delayed) = translate_delayed_on_chain(code, chain, body, functions) else {
             continue;
+        };
+        let emitted = translate_register_chain(chain, body, functions);
+        let routed = matches!(
+            (emitted.as_slice(), &delayed),
+            ([DslLine::Action(a)], DslLine::Action(b)) if a == b
+        );
+        if !routed {
+            continue;
+        }
+        let Some(op_body) = chain.operation.as_deref()
+            .and_then(|op| functions.get(op)) else { continue };
+        if decode_delayed_op_body(op_body, chain, body, functions).is_none() {
+            continue; // Class-B route — the wrapper body never says `sp`
         }
         if let Some(i) = summon_binding_call_idx(chain, body, functions) {
             return Some(i);
@@ -6693,7 +6784,15 @@ fn summon_bound_call(
 ///   Duel.SendtoGrave(tc, REASON_EFFECT)            → send <sel> to gy
 ///   Duel.SendtoDeck(tc, nil, SEQ_DECKSHUFFLE, R)   → return <sel> to deck
 ///   Duel.SendtoHand(tc, nil, REASON_EFFECT)        → return <sel> to hand
-///   Duel.ReturnToField(tc)                         → return <sel> to field
+///
+/// Duel.ReturnToField is deliberately ABSENT (S8b review): its family
+/// pairs with a REASON_TEMPORARY banish in the same handler, which the
+/// generic path renders as a plain (permanent) `banish` — and this
+/// range's own `return_to_field` runtime contract no-ops on cards not
+/// in the temporarily-banished state, so the emitted pair would be
+/// self-contradictory. The `return … to field` DSL surface ships
+/// reader-side only (the LinkedCard precedent) until a temporary-
+/// banish action surface exists.
 fn decode_delayed_op_body(
     op_body: &FunctionBody,
     chain: &RegisterEffectChain,
@@ -6740,9 +6839,6 @@ fn decode_delayed_op_body(
         // T38 S8b — `nil` player arg = the owner's hand; a literal
         // player redirect has no DSL surface and skips.
         ("Duel.SendtoHand", ["nil", "REASON_EFFECT"]) => format!("return {} to hand", sel),
-        // T38 S8b — the temporary-banish comeback (Duel.ReturnToField
-        // takes only the card).
-        ("Duel.ReturnToField", []) => format!("return {} to field", sel),
         _ => return None,
     })
 }
@@ -17051,14 +17147,19 @@ end
     fn s8b_no_reset_chain_target_destroy() {
         // The reset-gate relaxation alone: a no-reset self-resetting
         // wrapper whose label is the CHAIN TARGET keeps the shipped
-        // `destroy target` rendering — no binding involved.
+        // `destroy target` rendering — no binding involved. The body
+        // registers the guard's flag on the stored card (the lifetime
+        // tie the S8b review made mandatory).
         let src = r#"
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstTarget()
+    local fid=e:GetHandler():GetFieldID()
+    tc:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD,0,1,fid)
     local e1=Effect.CreateEffect(e:GetHandler())
     e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
     e1:SetCode(EVENT_PHASE+PHASE_END)
     e1:SetCountLimit(1)
+    e1:SetLabel(fid)
     e1:SetLabelObject(tc)
     e1:SetCondition(s.descon)
     e1:SetOperation(s.desop)
@@ -17085,13 +17186,20 @@ end
     }
 
     #[test]
-    fn s8b_return_to_field_target() {
-        // The temporary-banish comeback (c36261276 class): eot reset,
-        // no condition, chain-target label, ReturnToField op.
-        let src = r#"
+    fn s8b_return_to_field_wrapper_skips() {
+        // The temporary-banish comeback family (c36261276 class) must
+        // NOT emit (S8b review): the family's banish is
+        // REASON_TEMPORARY, which the generic path renders as a plain
+        // (permanent) `banish` — pairing it with `return … to field`
+        // (whose runtime contract no-ops on non-temporarily-banished
+        // cards) states a self-contradiction. Both reason spellings
+        // skip until a temporary-banish surface exists; the dropped
+        // chain also keeps the fill gated (`body_drops_chains`).
+        for reason in ["REASON_EFFECT+REASON_TEMPORARY", "REASON_EFFECT"] {
+            let src = format!(r#"
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstTarget()
-    if Duel.Remove(tc,POS_FACEUP,REASON_EFFECT) ~= 0 then
+    if Duel.Remove(tc,POS_FACEUP,{}) ~= 0 then
         local e1=Effect.CreateEffect(e:GetHandler())
         e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
         e1:SetCode(EVENT_PHASE+PHASE_END)
@@ -17105,27 +17213,31 @@ end
 function s.retop(e,tp,eg,ep,ev,re,r,rp)
     Duel.ReturnToField(e:GetLabelObject())
 end
-"#;
-        assert_eq!(
-            p11_actions(src, "s.operation"),
-            vec![
-                "banish target",
-                "delayed on end_phase until end_of_turn { return target to field }",
-            ],
-        );
+"#, reason);
+            let actions = p11_actions(&src, "s.operation");
+            assert!(
+                !actions.iter().any(|a| a.contains("to field")),
+                "ReturnToField must not decode ({}), got {:?}", reason, actions,
+            );
+        }
     }
 
     #[test]
     fn s8b_self_label_return_to_hand() {
         // The c24506253 class: the wrapper stores the HANDLER card —
-        // renders through the `self` selector, no binding needed.
+        // renders through the `self` selector, no binding needed. The
+        // body registers the guard's flag on the handler (via the
+        // `local c` spelling, exercising the receiver's one-hop
+        // resolution against the label).
         let src = r#"
 function s.spop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    c:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD,0,1,0)
     local e1=Effect.CreateEffect(e:GetHandler())
     e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
     e1:SetCode(EVENT_PHASE+PHASE_END)
     e1:SetCountLimit(1)
-    e1:SetLabelObject(e:GetHandler())
+    e1:SetLabelObject(c)
     e1:SetCondition(s.retcon)
     e1:SetOperation(s.retop)
     Duel.RegisterEffect(e1,tp)
@@ -17143,6 +17255,240 @@ end
             p11_actions(src, "s.spop"),
             vec!["delayed on end_phase until end_of_turn { return self to hand }"],
         );
+    }
+
+    #[test]
+    fn s8b_foreign_flag_guard_skips() {
+        // S8b review — a shape-matching guard over a flag THIS body
+        // never registered on the stored card is a real semantic gate
+        // ("destroy it only if effect X flagged it"), not the fizzle
+        // boilerplate. Two spellings: no registration at all, and a
+        // registration under a DIFFERENT id.
+        for reg_line in ["", "tc:RegisterFlagEffect(id2,RESET_EVENT|RESETS_STANDARD,0,1,0)"] {
+            let src = format!(r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    {}
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_PHASE+PHASE_END)
+    e1:SetCountLimit(1)
+    e1:SetLabelObject(tc)
+    e1:SetCondition(s.descon)
+    e1:SetOperation(s.desop)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    return tc:GetFlagEffect(id)~=0
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Destroy(e:GetLabelObject(),REASON_EFFECT)
+end
+"#, reg_line);
+            let actions = p11_actions(&src, "s.operation");
+            assert!(
+                !actions.iter().any(|a| a.starts_with("delayed on")),
+                "foreign-flag guard must skip (reg={:?}), got {:?}", reg_line, actions,
+            );
+        }
+    }
+
+    #[test]
+    fn s8b_branch_conditional_count_limit_skips() {
+        // S8b review — a branch-conditional named/bare SetCountLimit
+        // pair poisons the chain (conflicting_sets) in BOTH arm orders:
+        // last-write-wins would gate one runtime arm as the bare
+        // per-turn wrapper. No wrapper line, no dangling binding.
+        for (first, second) in [
+            ("e1:SetCountLimit(1,id)", "e1:SetCountLimit(1)"),
+            ("e1:SetCountLimit(1)", "e1:SetCountLimit(1,id)"),
+        ] {
+            let src = s8b_summon_wrapper_src(
+                &format!("if Duel.GetTurnCount()>1 then {} else {} end", first, second),
+                "e1:SetCondition(s.descon)",
+                "Duel.Destroy(tc,REASON_EFFECT)",
+            );
+            let actions = p11_actions(&src, "s.spop");
+            assert!(
+                !actions.iter().any(|a| a.starts_with("delayed on") || a.contains(" as sp")),
+                "conflicting SetCountLimit must skip ({} / {}), got {:?}",
+                first, second, actions,
+            );
+        }
+    }
+
+    #[test]
+    fn s8b_eot_reset_summoned_label_pairs() {
+        // The corpus-real eot-reset + summoned-label combination
+        // (c71340250 / c59822133 class): the pairing rides the plain
+        // end-of-turn reset too, not just the self-resetting idiom.
+        let src = r#"
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,Card.IsMonster,tp,LOCATION_GRAVE,0,1,1,nil)
+    local tc=g:GetFirst()
+    if tc and Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)~=0 then
+        local fid=e:GetHandler():GetFieldID()
+        tc:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD,0,1,fid)
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+        e1:SetCode(EVENT_PHASE+PHASE_END)
+        e1:SetCountLimit(1)
+        e1:SetReset(RESET_PHASE|PHASE_END)
+        e1:SetLabel(fid)
+        e1:SetLabelObject(tc)
+        e1:SetCondition(s.descon)
+        e1:SetOperation(s.desop)
+        Duel.RegisterEffect(e1,tp)
+    end
+end
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    if tc:GetFlagEffectLabel(id)==e:GetLabel() then
+        return true
+    else
+        e:Reset()
+        return false
+    end
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    Duel.Destroy(tc,REASON_EFFECT)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.spop"),
+            vec![
+                "special_summon (1, card, you control, from gy) as sp",
+                "delayed on end_phase until end_of_turn { destroy sp }",
+            ],
+        );
+    }
+
+    #[test]
+    fn s8b_class_b_wrapper_stamps_no_binding() {
+        // S8b review — an eot-reset chain whose wrapper emits through
+        // the Class-B translated-body route (deferred search) never
+        // references `sp`; the summon line must NOT gain a dangling
+        // binding even though the label/summon pairing holds.
+        let src = r#"
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,Card.IsMonster,tp,LOCATION_GRAVE,0,1,1,nil)
+    local tc=g:GetFirst()
+    if tc and Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)~=0 then
+        local fid=e:GetHandler():GetFieldID()
+        tc:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD,0,1,fid)
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+        e1:SetCode(EVENT_PHASE+PHASE_END)
+        e1:SetCountLimit(1)
+        e1:SetReset(RESET_PHASE|PHASE_END)
+        e1:SetLabel(fid)
+        e1:SetLabelObject(tc)
+        e1:SetCondition(s.descon)
+        e1:SetOperation(s.thop)
+        Duel.RegisterEffect(e1,tp)
+    end
+end
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    if tc:GetFlagEffectLabel(id)==e:GetLabel() then
+        return true
+    else
+        e:Reset()
+        return false
+    end
+end
+function s.thfilter(c)
+    return c:IsSetCard(SET_METALFOES) and c:IsAbleToHand()
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_ATOHAND)
+    local sg=Duel.SelectMatchingCard(tp,s.thfilter,tp,LOCATION_DECK,0,1,1,nil)
+    if #sg>0 then
+        Duel.SendtoHand(sg,nil,REASON_EFFECT)
+    end
+end
+"#;
+        let actions = p11_actions(src, "s.spop");
+        assert!(
+            !actions.iter().any(|a| a.contains(" as sp")),
+            "Class-B wrapper must not stamp a binding, got {:?}", actions,
+        );
+        assert!(
+            actions.iter().any(|a| a.starts_with("delayed on")),
+            "Class-B wrapper itself should still emit, got {:?}", actions,
+        );
+    }
+
+    #[test]
+    fn s8b_conflicting_sets_chain_stamps_no_binding() {
+        // S8b review — a chain the emit loop DROPS (branch-conditional
+        // SetValue → conflicting_sets, gated in translate_register_
+        // chain, which translate_delayed_on_chain alone never checks)
+        // must not leave the summon line with a dangling `as sp`.
+        let src = s8b_summon_wrapper_src(
+            "e1:SetCountLimit(1)\n        if Duel.GetTurnCount()>1 then e1:SetValue(1) else e1:SetValue(2) end",
+            "e1:SetCondition(s.descon)",
+            "Duel.Destroy(tc,REASON_EFFECT)",
+        );
+        let actions = p11_actions(&src, "s.spop");
+        assert!(
+            !actions.iter().any(|a| a.starts_with("delayed on") || a.contains(" as sp")),
+            "dropped chain must not stamp a binding, got {:?}", actions,
+        );
+    }
+
+    #[test]
+    fn s8b_choice_arm_pairs_summon_binding() {
+        // S8b review (major) — the choose path is a third emitter: an
+        // arm whose chain reaches the summoned-card labelobj decode
+        // must pair the arm's summon line with ` as sp` exactly like
+        // the flat body walk (pre-fix it emitted `{ destroy sp }`
+        // beside an unbound summon line — validator-clean, silently
+        // dead at runtime).
+        let src = r#"
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return true end
+    local opt=Duel.SelectOption(tp,aux.Stringid(id,0),aux.Stringid(id,1))
+    e:SetLabel(opt)
+end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    if e:GetLabel()==0 then
+        local g=Duel.SelectMatchingCard(tp,Card.IsMonster,tp,LOCATION_GRAVE,0,1,1,nil)
+        local tc=g:GetFirst()
+        if tc and Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)~=0 then
+            local e1=Effect.CreateEffect(e:GetHandler())
+            e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+            e1:SetCode(EVENT_PHASE+PHASE_END)
+            e1:SetCountLimit(1)
+            e1:SetReset(RESET_PHASE|PHASE_END)
+            e1:SetLabelObject(tc)
+            e1:SetOperation(s.desop)
+            Duel.RegisterEffect(e1,tp)
+        end
+    else
+        Duel.Draw(tp,1,REASON_EFFECT)
+    end
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    Duel.Destroy(tc,REASON_EFFECT)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("lua parse");
+        let report = walk(&parsed);
+        let tb = report.functions.get("s.target");
+        let ob = report.functions.get("s.operation").expect("op body");
+        let spec = extract_choose_spec(tb, ob, &report.functions)
+            .expect("choose spec — the arm shape must stay extractable or this pin is dead");
+        assert_eq!(p16_options(&spec), vec![
+            (0, vec![
+                "special_summon (1, card, you control, from gy) as sp".to_string(),
+                "delayed on end_phase until end_of_turn { destroy sp }".to_string(),
+            ]),
+            (1, vec!["draw 1".to_string()]),
+        ]);
     }
 
     #[test]
