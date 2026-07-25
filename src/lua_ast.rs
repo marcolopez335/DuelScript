@@ -275,10 +275,19 @@ pub struct RegisterEffectChain {
     /// First arg of `SetLabelObject(...)` (T38 S8), resolved ONE hop
     /// through the enclosing body's local bindings at capture time
     /// (`local tc=Duel.GetFirstTarget()` + `SetLabelObject(tc)` records
-    /// `Duel.GetFirstTarget()`). The delayed-wrapper emitter requires
-    /// the resolved text to be the chain-target source before mapping
-    /// the op body's `e:GetLabelObject()` reference to `target`.
+    /// `Duel.GetFirstTarget()`). The delayed-wrapper emitter maps the
+    /// op body's `e:GetLabelObject()` reference through this text:
+    /// the chain-target source → `target`, the handler card → `self`,
+    /// a just-summoned select group's `GetFirst()` → the `sp` summon
+    /// binding (T38 S8b) — anything else skips.
     pub label_object: Option<String>,
+    /// Raw `SetCountLimit(...)` args joined with `,` (T38 S8b). The
+    /// self-resetting delayed-wrapper gate requires exactly `1`: a
+    /// named once-per-turn limit (`SetCountLimit(1,id)`) tracks the
+    /// NAME across copies — a different lifetime than the wrapper
+    /// idiom's bare per-turn count. Plain overwrite on rewrite (same
+    /// narrow-consumption convention as `label_object`).
+    pub count_limit: Option<String>,
     /// Raw second arg of `SetReset(reset, count)` when present (Phase 15).
     /// A count above 1 means the effect survives multiple reset events
     /// (e.g. `RESET_PHASE|PHASE_END, 2` = end of NEXT turn) — not a
@@ -3899,6 +3908,13 @@ fn collect_register_chains(
                                 });
                                 set_or_conflict(&mut chain.label_object, resolved, seeds, "label_object")
                             }
+                            // T38 S8b — the self-resetting lifetime gate
+                            // consults the plain per-turn count.
+                            "SetCountLimit" => {
+                                chain.count_limit =
+                                    (!args.is_empty()).then(|| args.join(","));
+                                false
+                            }
                             _ => false,
                         };
                         if conflicted {
@@ -5607,8 +5623,21 @@ pub fn translate_body_with_functions(
     let refined = refine_group_bindings(body, functions);
     let body = refined.as_ref().unwrap_or(body);
     let mut out = Vec::new();
-    for c in &body.calls {
-        if let Some(line) = translate_call_with_functions(c, body, functions) {
+    // T38 S8b — when a delayed wrapper chain stores the just-summoned
+    // card, the summon line carries the `as sp` binding its body
+    // references. Pure function of (body, functions), so the replay in
+    // `body_drops_chains` (which re-runs `translate_register_chain`)
+    // and this loop can never disagree about whether the pairing fires.
+    let bound_call = summon_bound_call(body, functions);
+    for (i, c) in body.calls.iter().enumerate() {
+        if let Some(mut line) = translate_call_with_functions(c, body, functions) {
+            if Some(i) == bound_call {
+                if let DslLine::Action(text) = &line {
+                    line = DslLine::Action(
+                        format!("{} as {}", text, SUMMON_BINDING_NAME)
+                    );
+                }
+            }
             out.push(line);
         }
     }
@@ -5979,7 +6008,7 @@ fn translate_register_chain(
         // actions (install_watcher's check{} was the Phase 16
         // approximation; the 16 shipped end_phase watcher lines are
         // retrofitted in this PR's corpus commit).
-        if let Some(line) = translate_delayed_on_chain(code, chain, functions) {
+        if let Some(line) = translate_delayed_on_chain(code, chain, body, functions) {
             return vec![line];
         }
         if let Some(trigger) = trigger_for_event_code(code) {
@@ -6165,20 +6194,37 @@ fn trigger_for_event_code(code: &str) -> Option<&'static str> {
 /// sub-shape):
 ///   - code `EVENT_PHASE+PHASE_END` / `EVENT_PHASE|PHASE_END` (both
 ///     corpus spellings), FIELD+CONTINUOUS, `Duel.RegisterEffect(eN,tp)`;
-///   - plain end-of-turn reset, count 1 (`SetCountLimit(1)` rides free:
-///     bounded by the end-of-turn reset, a PHASE_END wrapper fires at
-///     most once anyway — the S8 grammar collapse note);
+///   - lifetime, one of two idioms:
+///       (a) plain end-of-turn reset, count 1 (`SetCountLimit(1)` rides
+///           free: bounded by the end-of-turn reset, a PHASE_END wrapper
+///           fires at most once anyway — the S8 grammar collapse note);
+///       (b) T38 S8b, the SELF-RESETTING idiom: no `SetReset` at all,
+///           bare `SetCountLimit(1)`, and a staleness-guard condition —
+///           the guard's `e:Reset()` arm retires the wrapper the moment
+///           the stored card's flag dies, so the effective lifetime is
+///           this turn's end phase. `until end_of_turn` approximates
+///           one corner: when the end-phase op fails to move the card
+///           (protection), lua retries NEXT turn while its flag lives —
+///           the DSL wrapper does not (accepted collapse, PR body);
 ///   - condition absent OR the staleness-guard boilerplate
 ///     (`FunctionBody::staleness_guard`) — the guard restates the DSL's
 ///     implicit stale-target fizzle, so it drops rather than skips; any
 ///     other condition (deferred-search availability, turn-count gates,
-///     flag protocols) skips this MVP;
+///     flag protocols) skips this MVP. In idiom (b) the guard is
+///     REQUIRED — it IS the lifetime bound — and the availability-check
+///     drop class stays reset-gated only (no `e:Reset()` arm there, so
+///     a no-reset availability chain would re-fire every turn);
 ///   - op body = ONE mutating Duel call on the chain's stored label
-///     object (`decode_delayed_op_body`), the stored object resolved to
-///     the chain target (`Duel.GetFirstTarget()`); pure UI hints ignored.
+///     object (`decode_delayed_op_body`), the stored object resolving
+///     to the chain target / the handler card / the just-summoned card
+///     (T38 S8b); pure UI hints ignored. Idiom (b) accepts ONLY this
+///     labelobj decode — a Class-B body under a staleness guard would
+///     mean the guard gates a non-labelobj op, a shape the audit never
+///     produced and the drop would mis-state.
 fn translate_delayed_on_chain(
     code: &str,
     chain: &RegisterEffectChain,
+    body: &FunctionBody,
     functions: &BTreeMap<String, FunctionBody>,
 ) -> Option<DslLine> {
     let normalized: String = code.chars().filter(|c| !c.is_whitespace()).collect();
@@ -6203,36 +6249,44 @@ fn translate_delayed_on_chain(
     if chain.register_target.trim() != "tp" {
         return None;
     }
-    if reset_to_duration_kw(chain.reset.as_deref(), chain.reset_count.as_deref())
-        != Some("end_of_turn")
-    {
-        return None;
-    }
-    let reset = chain.reset.as_deref().unwrap_or("");
-    if reset.contains("RESET_SELF_TURN") || reset.contains("RESET_OPPO_TURN") {
-        return None;
-    }
-    if chain.reset_count.as_deref().is_some_and(|c| c.trim() != "1") {
-        return None;
-    }
     let op = chain.operation.as_deref()?;
     let op_body = functions.get(op)?;
-    if let Some(cond) = chain.condition.as_deref() {
-        // Two droppable condition classes; anything else is a semantic
-        // gate and skips:
-        //   - the staleness-guard boilerplate (implicit fizzle);
-        //   - the deferred-search availability check — a bare
-        //     `IsExistingMatchingCard(F, …)` whose filter F is the op's
-        //     own SelectMatchingCard filter (implicit in the search
-        //     action's can-I-find-one semantics).
-        let droppable = functions.get(cond).is_some_and(|f| f.staleness_guard)
-            || is_availability_check(cond, op_body, functions);
-        if !droppable {
-            return None;
+    let reset = chain.reset.as_deref().unwrap_or("");
+    let eot_reset = reset_to_duration_kw(chain.reset.as_deref(), chain.reset_count.as_deref())
+        == Some("end_of_turn")
+        && !reset.contains("RESET_SELF_TURN")
+        && !reset.contains("RESET_OPPO_TURN")
+        && !chain.reset_count.as_deref().is_some_and(|c| c.trim() != "1");
+    let self_resetting = chain.reset.is_none()
+        && chain.count_limit.as_deref().is_some_and(|c| c.trim() == "1")
+        && chain.condition.as_deref()
+            .and_then(|c| functions.get(c))
+            .is_some_and(|f| f.staleness_guard);
+    if !eot_reset && !self_resetting {
+        return None;
+    }
+    if eot_reset {
+        if let Some(cond) = chain.condition.as_deref() {
+            // Two droppable condition classes; anything else is a semantic
+            // gate and skips:
+            //   - the staleness-guard boilerplate (implicit fizzle);
+            //   - the deferred-search availability check — a bare
+            //     `IsExistingMatchingCard(F, …)` whose filter F is the op's
+            //     own SelectMatchingCard filter (implicit in the search
+            //     action's can-I-find-one semantics).
+            let droppable = functions.get(cond).is_some_and(|f| f.staleness_guard)
+                || is_availability_check(cond, op_body, functions);
+            if !droppable {
+                return None;
+            }
         }
     }
-    let action = decode_delayed_op_body(op_body, chain)
-        .or_else(|| decode_delayed_translated_body(op_body, functions))?;
+    let action = if self_resetting {
+        decode_delayed_op_body(op_body, chain, body, functions)?
+    } else {
+        decode_delayed_op_body(op_body, chain, body, functions)
+            .or_else(|| decode_delayed_translated_body(op_body, functions))?
+    };
     Some(DslLine::Action(format!(
         "delayed on end_phase until end_of_turn {{ {} }}", action
     )))
@@ -6345,23 +6399,114 @@ fn decode_delayed_translated_body(
     Some(action.clone())
 }
 
+/// The fixed binding name the S8b summoned-card pairing emits: the
+/// summon line gains `as sp`, the wrapper body references `sp`.
+const SUMMON_BINDING_NAME: &str = "sp";
+
+/// T38 S8b — the summoned-card labelobj pairing: Some(call index of the
+/// enclosing body's single special-summon call) when the chain's stored
+/// label object IS the card that call just summoned. All of:
+///   - `chain.label_object` is `<g>:GetFirst()` for a plain ident `g`
+///     (the walker already resolved one local hop, so both the direct
+///     `SetLabelObject(g:GetFirst())` and the `local tc=g:GetFirst()` +
+///     `SetLabelObject(tc)` spellings arrive in this form);
+///   - `g` is a resolve-time pick (`Duel.SelectMatchingCard`) of
+///     quantity 1 — a wider pick would store only the group's first
+///     card while the summon line states them all;
+///   - the body has exactly ONE `Duel.SpecialSummon[Step]` call, whose
+///     card arg is `g` itself or a local bound to `g:GetFirst()`;
+///   - that call renders a `special_summon (…)` action line — the
+///     binding needs a line to ride.
+fn summon_binding_call_idx(
+    chain: &RegisterEffectChain,
+    body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<usize> {
+    let label = chain.label_object.as_deref()?.trim();
+    let g = label.strip_suffix(":GetFirst()")?;
+    if g.is_empty() || !g.chars().all(|c| c.is_alphanumeric() || c == '_') {
+        return None;
+    }
+    let spec = body.group_bindings.get(g)?;
+    if !spec.from_resolve_select || spec.quantity != "1" {
+        return None;
+    }
+    let mut found = None;
+    for (i, c) in body.calls.iter().enumerate() {
+        if !matches!(c.method.as_str(), "Duel.SpecialSummon" | "Duel.SpecialSummonStep") {
+            continue;
+        }
+        if found.is_some() {
+            return None; // two summons — the pairing is ambiguous
+        }
+        found = Some(i);
+    }
+    let i = found?;
+    let arg0 = body.calls[i].args.first()?.trim();
+    let arg_src = body.value_bindings.get(arg0).map(|s| s.trim()).unwrap_or(arg0);
+    if arg0 != g && arg_src.replace(' ', "") != format!("{}:GetFirst()", g) {
+        return None;
+    }
+    match translate_call_with_functions(&body.calls[i], body, functions) {
+        Some(DslLine::Action(t)) if t.starts_with("special_summon ") => Some(i),
+        _ => None,
+    }
+}
+
+/// T38 S8b — Some(call index) when any register chain of `body` emits
+/// an `sp`-referencing delayed wrapper, i.e. the summon line must carry
+/// the `as sp` binding. Structural, not textual: a chain qualifies when
+/// the full wrapper emission succeeds AND its label is the summoned-
+/// card form (`decode_delayed_op_body` renders `sp` exactly then, so
+/// the two sides can never disagree).
+fn summon_bound_call(
+    body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<usize> {
+    for chain in &body.register_chains {
+        let Some(code) = chain.code.as_deref() else { continue };
+        if translate_delayed_on_chain(code, chain, body, functions).is_none() {
+            continue;
+        }
+        if let Some(i) = summon_binding_call_idx(chain, body, functions) {
+            return Some(i);
+        }
+    }
+    None
+}
+
 /// Decode a delayed-wrapper op body into its single DSL action. Closed
 /// set: exactly ONE mutating Duel call (UI hints ignored), no inner
 /// chains/counter/method ops, first arg resolving (through the op
 /// body's locals) to `e:GetLabelObject()`, and the OUTER chain's stored
-/// label object resolved to `Duel.GetFirstTarget()` — the chain target,
-/// so the reference renders as `target`:
-///   Duel.Destroy(tc, REASON_EFFECT)                → destroy target
-///   Duel.Remove(tc, POS_FACEUP, REASON_EFFECT)     → banish target
-///   Duel.SendtoGrave(tc, REASON_EFFECT)            → send target to gy
-///   Duel.SendtoDeck(tc, nil, SEQ_DECKSHUFFLE, R)   → return target to deck
+/// label object resolving to a renderable selector —
+///   `Duel.GetFirstTarget()`      → `target` (the chain target)
+///   `e:GetHandler()`             → `self` (T38 S8b)
+///   summoned `<g>:GetFirst()`    → `sp` (T38 S8b, the summon binding —
+///                                  see `summon_binding_call_idx`)
+/// — through the closed op map:
+///   Duel.Destroy(tc, REASON_EFFECT)                → destroy <sel>
+///   Duel.Remove(tc, POS_FACEUP, REASON_EFFECT)     → banish <sel>
+///   Duel.SendtoGrave(tc, REASON_EFFECT)            → send <sel> to gy
+///   Duel.SendtoDeck(tc, nil, SEQ_DECKSHUFFLE, R)   → return <sel> to deck
+///   Duel.SendtoHand(tc, nil, REASON_EFFECT)        → return <sel> to hand
+///   Duel.ReturnToField(tc)                         → return <sel> to field
 fn decode_delayed_op_body(
     op_body: &FunctionBody,
     chain: &RegisterEffectChain,
+    outer_body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
 ) -> Option<String> {
-    if chain.label_object.as_deref()?.trim() != "Duel.GetFirstTarget()" {
-        return None; // stored object is not the chain target
-    }
+    let label = chain.label_object.as_deref()?.trim();
+    let sel = if label == "Duel.GetFirstTarget()" {
+        "target"
+    } else if label == "e:GetHandler()" {
+        "self"
+    } else if summon_binding_call_idx(chain, outer_body, functions).is_some() {
+        SUMMON_BINDING_NAME
+    } else {
+        return None; // stored object has no renderable selector
+    };
     if !op_body.register_chains.is_empty()
         || !op_body.counter_ops.is_empty()
         || op_body.counter_ops_poisoned
@@ -6384,11 +6529,17 @@ fn decode_delayed_op_body(
     }
     let rest: Vec<&str> = call.args.iter().skip(1).map(|a| a.trim()).collect();
     Some(match (call.method.as_str(), rest.as_slice()) {
-        ("Duel.Destroy", ["REASON_EFFECT"]) => "destroy target".to_string(),
-        ("Duel.Remove", ["POS_FACEUP", "REASON_EFFECT"]) => "banish target".to_string(),
-        ("Duel.SendtoGrave", ["REASON_EFFECT"]) => "send target to gy".to_string(),
+        ("Duel.Destroy", ["REASON_EFFECT"]) => format!("destroy {}", sel),
+        ("Duel.Remove", ["POS_FACEUP", "REASON_EFFECT"]) => format!("banish {}", sel),
+        ("Duel.SendtoGrave", ["REASON_EFFECT"]) => format!("send {} to gy", sel),
         ("Duel.SendtoDeck", ["nil", "SEQ_DECKSHUFFLE", "REASON_EFFECT"]) =>
-            "return target to deck".to_string(),
+            format!("return {} to deck", sel),
+        // T38 S8b — `nil` player arg = the owner's hand; a literal
+        // player redirect has no DSL surface and skips.
+        ("Duel.SendtoHand", ["nil", "REASON_EFFECT"]) => format!("return {} to hand", sel),
+        // T38 S8b — the temporary-banish comeback (Duel.ReturnToField
+        // takes only the card).
+        ("Duel.ReturnToField", []) => format!("return {} to field", sel),
         _ => return None,
     })
 }
@@ -16293,6 +16444,290 @@ end
                 "lossy cond drop: {} got {:?}", cond, actions,
             );
         }
+    }
+
+    // ── T38 S8b: summoned-card labelobj binding + self-resetting gate ─
+
+    /// The c38572779 (Miscellaneousaurus) family skeleton: pull with a
+    /// resolve-time pick, summon it, arm the no-reset self-resetting
+    /// wrapper on the summoned card. `cl`, `cond_line`, `op_stmt`
+    /// parameterize the gate batteries.
+    fn s8b_summon_wrapper_src(cl: &str, cond_line: &str, op_stmt: &str) -> String {
+        format!(r#"
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,Card.IsMonster,tp,LOCATION_GRAVE,0,1,1,nil)
+    local tc=g:GetFirst()
+    if tc and Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)~=0 then
+        local fid=e:GetHandler():GetFieldID()
+        tc:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD,0,1,fid)
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+        e1:SetProperty(EFFECT_FLAG_IGNORE_IMMUNE)
+        e1:SetCode(EVENT_PHASE+PHASE_END)
+        {}
+        e1:SetLabel(fid)
+        e1:SetLabelObject(tc)
+        {}
+        e1:SetOperation(s.desop)
+        Duel.RegisterEffect(e1,tp)
+    end
+end
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    if tc:GetFlagEffectLabel(id)==e:GetLabel() then
+        return true
+    else
+        e:Reset()
+        return false
+    end
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    {}
+end
+"#, cl, cond_line, op_stmt)
+    }
+
+    #[test]
+    fn s8b_summon_bound_delayed_destroy() {
+        // The dominant summoned-card shape: the summon line carries the
+        // `as sp` binding, the wrapper body references it. The flag
+        // plumbing (RegisterFlagEffect / SetLabel) rides free.
+        let src = s8b_summon_wrapper_src(
+            "e1:SetCountLimit(1)",
+            "e1:SetCondition(s.descon)",
+            "Duel.Destroy(tc,REASON_EFFECT)",
+        );
+        assert_eq!(
+            p11_actions(&src, "s.spop"),
+            vec![
+                "special_summon (1, card, you control, from gy) as sp",
+                "delayed on end_phase until end_of_turn { destroy sp }",
+            ],
+        );
+    }
+
+    #[test]
+    fn s8b_summon_bound_op_variants() {
+        // Each closed op mapping through the `sp` selector, including
+        // the two S8b additions (SendtoHand → to hand; SendtoDeck →
+        // to deck already shipped for `target`).
+        for (op_stmt, expected) in [
+            ("Duel.Remove(tc,POS_FACEUP,REASON_EFFECT)",
+             "delayed on end_phase until end_of_turn { banish sp }"),
+            ("Duel.SendtoGrave(tc,REASON_EFFECT)",
+             "delayed on end_phase until end_of_turn { send sp to gy }"),
+            ("Duel.SendtoDeck(tc,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)",
+             "delayed on end_phase until end_of_turn { return sp to deck }"),
+            ("Duel.SendtoHand(tc,nil,REASON_EFFECT)",
+             "delayed on end_phase until end_of_turn { return sp to hand }"),
+        ] {
+            let src = s8b_summon_wrapper_src(
+                "e1:SetCountLimit(1)",
+                "e1:SetCondition(s.descon)",
+                op_stmt,
+            );
+            assert_eq!(
+                p11_actions(&src, "s.spop"),
+                vec![
+                    "special_summon (1, card, you control, from gy) as sp".to_string(),
+                    expected.to_string(),
+                ],
+                "op variant failed: {}", op_stmt,
+            );
+        }
+    }
+
+    #[test]
+    fn s8b_self_resetting_gate_battery() {
+        // The no-reset lifetime is accepted ONLY as the full idiom:
+        // bare SetCountLimit(1) + staleness guard. Missing guard,
+        // named count limit, and count 2 all skip — and the summon
+        // line must NOT carry a dangling `as sp` when the wrapper
+        // skips.
+        for (cl, cond) in [
+            ("e1:SetCountLimit(1)", ""),                          // no guard
+            ("e1:SetCountLimit(1,id)", "e1:SetCondition(s.descon)"), // named limit
+            ("e1:SetCountLimit(2)", "e1:SetCondition(s.descon)"),  // count 2
+            ("", "e1:SetCondition(s.descon)"),                     // no limit at all
+        ] {
+            let src = s8b_summon_wrapper_src(cl, cond, "Duel.Destroy(tc,REASON_EFFECT)");
+            let actions = p11_actions(&src, "s.spop");
+            assert!(
+                !actions.iter().any(|a| a.starts_with("delayed on")),
+                "cl={:?} cond={:?} must not emit delayed-on, got {:?}", cl, cond, actions,
+            );
+            assert!(
+                !actions.iter().any(|a| a.contains(" as sp")),
+                "cl={:?} cond={:?} left a dangling binding, got {:?}", cl, cond, actions,
+            );
+        }
+    }
+
+    #[test]
+    fn s8b_two_summons_ambiguous_skips() {
+        // A second special-summon call makes the label pairing
+        // ambiguous — no binding, no wrapper line.
+        let src = r#"
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,Card.IsMonster,tp,LOCATION_GRAVE,0,1,1,nil)
+    local tc=g:GetFirst()
+    if tc and Duel.SpecialSummon(tc,0,tp,tp,false,false,POS_FACEUP)~=0 then
+        Duel.SpecialSummon(e:GetHandler(),0,tp,tp,false,false,POS_FACEUP)
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+        e1:SetCode(EVENT_PHASE+PHASE_END)
+        e1:SetCountLimit(1)
+        e1:SetLabelObject(tc)
+        e1:SetCondition(s.descon)
+        e1:SetOperation(s.desop)
+        Duel.RegisterEffect(e1,tp)
+    end
+end
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    return tc:GetFlagEffect(id)~=0
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Destroy(e:GetLabelObject(),REASON_EFFECT)
+end
+"#;
+        let actions = p11_actions(src, "s.spop");
+        assert!(
+            !actions.iter().any(|a| a.starts_with("delayed on") || a.contains(" as sp")),
+            "ambiguous pairing must skip, got {:?}", actions,
+        );
+    }
+
+    #[test]
+    fn s8b_wide_pick_skips() {
+        // A quantity-2 pick stores only the group's FIRST card in the
+        // label while the summon line states both — the pairing skips.
+        let src = r#"
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,Card.IsMonster,tp,LOCATION_GRAVE,0,2,2,nil)
+    if Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)~=0 then
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+        e1:SetCode(EVENT_PHASE+PHASE_END)
+        e1:SetCountLimit(1)
+        e1:SetLabelObject(g:GetFirst())
+        e1:SetCondition(s.descon)
+        e1:SetOperation(s.desop)
+        Duel.RegisterEffect(e1,tp)
+    end
+end
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    return tc:GetFlagEffect(id)~=0
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Destroy(e:GetLabelObject(),REASON_EFFECT)
+end
+"#;
+        let actions = p11_actions(src, "s.spop");
+        assert!(
+            !actions.iter().any(|a| a.starts_with("delayed on") || a.contains(" as sp")),
+            "wide pick must skip, got {:?}", actions,
+        );
+    }
+
+    #[test]
+    fn s8b_no_reset_chain_target_destroy() {
+        // The reset-gate relaxation alone: a no-reset self-resetting
+        // wrapper whose label is the CHAIN TARGET keeps the shipped
+        // `destroy target` rendering — no binding involved.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_PHASE+PHASE_END)
+    e1:SetCountLimit(1)
+    e1:SetLabelObject(tc)
+    e1:SetCondition(s.descon)
+    e1:SetOperation(s.desop)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.descon(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    if tc:GetFlagEffectLabel(id)~=e:GetLabel() then
+        e:Reset()
+        return false
+    else
+        return true
+    end
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    Duel.Destroy(tc,REASON_EFFECT)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.operation"),
+            vec!["delayed on end_phase until end_of_turn { destroy target }"],
+        );
+    }
+
+    #[test]
+    fn s8b_return_to_field_target() {
+        // The temporary-banish comeback (c36261276 class): eot reset,
+        // no condition, chain-target label, ReturnToField op.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if Duel.Remove(tc,POS_FACEUP,REASON_EFFECT) ~= 0 then
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+        e1:SetCode(EVENT_PHASE+PHASE_END)
+        e1:SetCountLimit(1)
+        e1:SetReset(RESET_PHASE|PHASE_END)
+        e1:SetLabelObject(tc)
+        e1:SetOperation(s.retop)
+        Duel.RegisterEffect(e1,tp)
+    end
+end
+function s.retop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.ReturnToField(e:GetLabelObject())
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.operation"),
+            vec![
+                "banish target",
+                "delayed on end_phase until end_of_turn { return target to field }",
+            ],
+        );
+    }
+
+    #[test]
+    fn s8b_self_label_return_to_hand() {
+        // The c24506253 class: the wrapper stores the HANDLER card —
+        // renders through the `self` selector, no binding needed.
+        let src = r#"
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_PHASE+PHASE_END)
+    e1:SetCountLimit(1)
+    e1:SetLabelObject(e:GetHandler())
+    e1:SetCondition(s.retcon)
+    e1:SetOperation(s.retop)
+    Duel.RegisterEffect(e1,tp)
+end
+function s.retcon(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    return tc:GetFlagEffect(id)~=0
+end
+function s.retop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=e:GetLabelObject()
+    Duel.SendtoHand(tc,nil,REASON_EFFECT)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.spop"),
+            vec!["delayed on end_phase until end_of_turn { return self to hand }"],
+        );
     }
 
     #[test]
