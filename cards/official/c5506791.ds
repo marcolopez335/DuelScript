@@ -23,7 +23,9 @@ card "Majespecter Cat - Nekomata" {
         once_per_turn: hard
         timing: when
         trigger: summoned
-        resolve { }
+        resolve {
+            delayed on end_phase until end_of_turn { add_to_hand (1, card, you control, from deck) }
+        }
     }
 
     effect "Effect 2" {
@@ -31,6 +33,8 @@ card "Majespecter Cat - Nekomata" {
         once_per_turn: hard
         timing: when
         trigger: summoned by special
-        resolve { }
+        resolve {
+            delayed on end_phase until end_of_turn { add_to_hand (1, card, you control, from deck) }
+        }
     }
 }

@@ -25,7 +25,7 @@ card "Performapal Celestial Magician" {
         resolve {
             grant self direct_attack until end_of_turn
             set_atk self self.base_atk * 2 until end_of_turn
-            install_watcher "thop" { event: end_phase duration: end_of_turn check { add_to_hand (1, card, you control, from deck) } }
+            delayed on end_phase until end_of_turn { add_to_hand (1, card, you control, from deck) }
         }
     }
 }
