@@ -9,7 +9,11 @@
 // unregistered clones) or when the .ds generator skipped a text effect.
 // The `block_alignment_hazard` gates introduced in Phase 12/14 prevent
 // the resulting mis-fills by skipping EVERYTHING past a hazard ordinal
-// — stranding ~1,650 blocks corpus-wide.
+// — stranding ~1,650 blocks corpus-wide. T38 S9 added the inverse
+// hazard: `EFFECT_TYPE_CONTINUOUS` listener chains with a SetOperation
+// consume an index but usually own no block (the generator skipped
+// them), so the listener and everything after it route through the
+// matcher too.
 //
 // This module replaces the blind zip with a conservative signature
 // alignment:
@@ -506,7 +510,11 @@ fn is_consumer(e: &EffectSkeleton) -> bool {
 /// keep the positional mapping for the trusted (pre-hazard) prefix and
 /// ask the matcher to rescue the flagged consumers; any inconsistency
 /// between the matcher and the trusted prefix falls back to the
-/// historical skip-everything-flagged behavior.
+/// historical skip-everything-flagged behavior. A continuous listener
+/// consumer (T38 S9) is itself flagged, so it is never in the trusted
+/// prefix: it claims its own block only when the generator emitted one
+/// AND the signature is distinctive (once-per-turn — a bare listener
+/// tops out below `MIN_CLAIM`), otherwise it stays unassigned.
 pub fn compute_assignments(walk: &LuaReport, ds_txt: &str) -> Assignments {
     let n = walk.effects.len();
     let consumers: Vec<usize> = (0..n).filter(|&i| is_consumer(&walk.effects[i])).collect();
@@ -954,6 +962,180 @@ end
         // and the phantom makes blocks 1/2… wait, only 2 blocks: e3
         // could sit at block 1 (phantom skipped) or behind the phantom —
         // identical ignition signatures give no anchor. Must stay None.
+        assert_eq!(a.by_effect, vec![Some(0), None]);
+        assert_eq!((a.positional, a.rescued, a.ambiguous), (1, 0, 1));
+    }
+
+    /// Tobari the Sky Ninja (c31887806) — the T38 S9 flagship. e0 is a
+    /// SINGLE+CONTINUOUS flip listener with a SetOperation: it consumed
+    /// positional index 0 although the generator emitted no block for
+    /// it, so the pre-S9 zip put e3's hand special summon into "Effect
+    /// 5" (e4's fusion block). Every consumer is now hazard-flagged and
+    /// the matcher re-anchors e3 → block 0 (ignition + hard OPT + cost)
+    /// and e4 → block 1 (quick + soft OPT); e0 claims nothing (block 0
+    /// carries a cost it can't account for — veto).
+    const TOBARI_LUA: &str = r#"
+function s.initial_effect(c)
+    local e0=Effect.CreateEffect(c)
+    e0:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+    e0:SetProperty(EFFECT_FLAG_CANNOT_DISABLE)
+    e0:SetCode(EVENT_FLIP)
+    e0:SetOperation(s.flipop)
+    c:RegisterEffect(e0)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetProperty(EFFECT_FLAG_SINGLE_RANGE)
+    e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+    e1:SetRange(LOCATION_MZONE)
+    e1:SetCondition(s.indcond)
+    e1:SetValue(1)
+    c:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_INDESTRUCTABLE_EFFECT)
+    c:RegisterEffect(e2)
+    local e3=Effect.CreateEffect(c)
+    e3:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_SET)
+    e3:SetType(EFFECT_TYPE_IGNITION)
+    e3:SetRange(LOCATION_HAND)
+    e3:SetCountLimit(1,id)
+    e3:SetCost(Cost.SelfToGrave)
+    e3:SetTarget(s.sptg)
+    e3:SetOperation(s.spop)
+    c:RegisterEffect(e3)
+    local params={function(c) return c:IsSetCard(SET_NINJA) end}
+    local e4=Effect.CreateEffect(c)
+    e4:SetCategory(CATEGORY_SPECIAL_SUMMON+CATEGORY_FUSION_SUMMON)
+    e4:SetType(EFFECT_TYPE_QUICK_O)
+    e4:SetCode(EVENT_FREE_CHAIN)
+    e4:SetRange(LOCATION_MZONE)
+    e4:SetCountLimit(1,{id,1})
+    e4:SetCondition(s.fuscond)
+    e4:SetTarget(Fusion.SummonEffTG(table.unpack(params)))
+    e4:SetOperation(Fusion.SummonEffOP(table.unpack(params)))
+    c:RegisterEffect(e4)
+end
+"#;
+
+    const TOBARI_DS: &str = r#"card "Tobari the Sky Ninja" {
+    id: 31887806
+    type: Effect Monster
+
+    passive "Effect 2" {
+        scope: self
+        grant: cannot_be_destroyed by battle
+    }
+
+    effect "Effect 4" {
+        speed: 1
+        once_per_turn: hard
+        mandatory
+        cost {
+            send self to gy
+        }
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+
+    effect "Effect 5" {
+        speed: 2
+        once_per_turn: soft
+        resolve { }
+    }
+}
+"#;
+
+    #[test]
+    fn tobari_continuous_listener_reanchors_later_consumers() {
+        let walk = walk_of(TOBARI_LUA);
+        assert!(walk.effects.iter().all(|e| e.block_alignment_hazard));
+        let a = compute_assignments(&walk, TOBARI_DS);
+        // walk.effects order: e0, e1, e2, e3, e4 (e1/e2 are passives).
+        assert_eq!(a.by_effect, vec![None, None, None, Some(0), Some(1)]);
+        assert_eq!((a.positional, a.rescued, a.ambiguous), (0, 2, 1));
+    }
+
+    /// The generator DID emit a block for the listener (146 cards
+    /// corpus-wide): a distinctive signature — once-per-turn — lets the
+    /// matcher hand the listener its own block back, and the ignition
+    /// ahead of it stays positional.
+    #[test]
+    fn continuous_listener_with_own_block_is_rescued_when_distinctive() {
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_IGNITION)
+    e1:SetOperation(s.op1)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+    e2:SetCode(EVENT_CHAINING)
+    e2:SetRange(LOCATION_MZONE)
+    e2:SetCountLimit(1)
+    e2:SetOperation(s.op2)
+    c:RegisterEffect(e2)
+end
+"#;
+        let walk = walk_of(src);
+        let ds = r#"card "X" {
+    id: 1
+    type: Effect Monster
+
+    effect "Effect 1" {
+        speed: 1
+        resolve { }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve { }
+    }
+}
+"#;
+        let a = compute_assignments(&walk, ds);
+        assert_eq!(a.by_effect, vec![Some(0), Some(1)]);
+        assert_eq!((a.positional, a.rescued, a.ambiguous), (1, 1, 0));
+    }
+
+    /// …and a bare listener (no once-per-turn) tops out at score 4 —
+    /// below MIN_CLAIM — so even a forced alignment leaves it unassigned
+    /// (skip-not-mis-fill). The trusted ignition is unaffected.
+    #[test]
+    fn continuous_listener_without_distinctive_signature_stays_unassigned() {
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_IGNITION)
+    e1:SetOperation(s.op1)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+    e2:SetCode(EVENT_CHAINING)
+    e2:SetRange(LOCATION_MZONE)
+    e2:SetOperation(s.op2)
+    c:RegisterEffect(e2)
+end
+"#;
+        let walk = walk_of(src);
+        let ds = r#"card "X" {
+    id: 1
+    type: Effect Monster
+
+    effect "Effect 1" {
+        speed: 1
+        resolve { }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        mandatory
+        resolve { }
+    }
+}
+"#;
+        let a = compute_assignments(&walk, ds);
         assert_eq!(a.by_effect, vec![Some(0), None]);
         assert_eq!((a.positional, a.rescued, a.ambiguous), (1, 0, 1));
     }

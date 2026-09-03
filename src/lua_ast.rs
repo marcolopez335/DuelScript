@@ -455,7 +455,11 @@ pub struct EffectSkeleton {
     /// source order: a bare `EFFECT_TYPE_ACTIVATE` chain with no
     /// SetOperation, a clone of a summon-helper chain, or an unregistered
     /// clone (plain registered clones are seeded into real skeletons and
-    /// consume indices like any other chain — Phase 14).
+    /// consume indices like any other chain — Phase 14). Also true for
+    /// the inverse (T38 S9): this skeleton is, or comes after, an
+    /// `EFFECT_TYPE_CONTINUOUS` listener chain with a SetOperation — it
+    /// consumes an index but the corpus generator usually emitted no
+    /// block for it.
     /// Positional block mapping is off-by-N for this effect; only a
     /// signature-forced block assignment (Phase 20 matcher) may fill it.
     pub block_alignment_hazard: bool,
@@ -2252,10 +2256,38 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
             }
         }
     }
-    if !hazards.is_empty() {
+    // T38 S9 — the INVERSE hazard: a chain that consumes a positional
+    // index without owning a block. The corpus generator never emitted
+    // `effect` blocks for the `EFFECT_TYPE_SINGLE/FIELD +
+    // EFFECT_TYPE_CONTINUOUS` listener chains registered with a
+    // SetOperation in `initial_effect` (flag registration on flip /
+    // summon, phase bookkeeping, …): of the 1,339 cards carrying one,
+    // 951 have exactly consumers-minus-continuous blocks and only 146
+    // got a block anyway. Positionally, the listener AND every consumer
+    // after it may sit one block late — Tobari the Sky Ninja (c31887806:
+    // e0 flip listener, e3 ignition, e4 quick against two blocks) put
+    // e3's hand special summon into e4's fusion block. Flag the listener
+    // itself (`<=`) and everything after it; the matcher rescues what
+    // the block signatures force — the listener's own block included,
+    // when the generator did emit one and the signature is distinctive.
+    let mut orphan_consumers: Vec<usize> = Vec::new();
+    for skel in by_binding.values() {
+        let is_continuous_consumer = skel.registered
+            && (skel.operation_handler.is_some() || skel.is_summon_helper())
+            && skel.first_arg_of("SetType")
+                .is_some_and(|t| t.contains("EFFECT_TYPE_CONTINUOUS"));
+        if is_continuous_consumer {
+            if let Some(ord) = ordinals.get(&skel.binding) {
+                orphan_consumers.push(*ord);
+            }
+        }
+    }
+    if !hazards.is_empty() || !orphan_consumers.is_empty() {
         for (binding, skel) in by_binding.iter_mut() {
             let Some(ord) = ordinals.get(binding) else { continue };
-            if hazards.iter().any(|h| h < ord) {
+            if hazards.iter().any(|h| h < ord)
+                || orphan_consumers.iter().any(|h| h <= ord)
+            {
                 skel.block_alignment_hazard = true;
             }
         }
@@ -13716,6 +13748,93 @@ end
         let report = walk(&parsed);
         assert!(report.effects[1].block_alignment_hazard,
             "helper behind a bare-activate shell must stay hazard-flagged");
+    }
+
+    #[test]
+    fn continuous_consumer_flags_itself_and_every_later_chain() {
+        // Tobari the Sky Ninja (c31887806) shape, T38 S9: e0 is a
+        // SINGLE+CONTINUOUS EVENT_FLIP listener WITH a SetOperation. It
+        // consumed positional index 0 although the corpus generator
+        // emitted no block for it, so the pre-S9 zip put e3's line one
+        // block late. The listener itself and every chain after it are
+        // flagged; only the matcher may place them.
+        let src = r#"
+function s.initial_effect(c)
+    local e0=Effect.CreateEffect(c)
+    e0:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+    e0:SetCode(EVENT_FLIP)
+    e0:SetOperation(s.flipop)
+    c:RegisterEffect(e0)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_INDESTRUCTABLE_BATTLE)
+    e1:SetValue(1)
+    c:RegisterEffect(e1)
+    local e3=Effect.CreateEffect(c)
+    e3:SetType(EFFECT_TYPE_IGNITION)
+    e3:SetRange(LOCATION_HAND)
+    e3:SetOperation(s.spop)
+    c:RegisterEffect(e3)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let flags: Vec<(String, bool)> = report.effects.iter()
+            .map(|e| (e.binding.clone(), e.block_alignment_hazard))
+            .collect();
+        assert_eq!(flags, vec![
+            ("e0".to_string(), true),
+            ("e1".to_string(), true),
+            ("e3".to_string(), true),
+        ]);
+    }
+
+    #[test]
+    fn chains_before_a_continuous_consumer_stay_trusted() {
+        // Listener LAST: the ignition ahead of it keeps its positional
+        // block (the hazard is inclusive of the listener, not of what
+        // precedes it).
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_IGNITION)
+    e1:SetOperation(s.op1)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e2:SetCode(EVENT_PHASE+PHASE_END)
+    e2:SetRange(LOCATION_MZONE)
+    e2:SetOperation(s.op2)
+    c:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let flags: Vec<(String, bool)> = report.effects.iter()
+            .map(|e| (e.binding.clone(), e.block_alignment_hazard))
+            .collect();
+        assert_eq!(flags, vec![("e1".to_string(), false), ("e2".to_string(), true)]);
+    }
+
+    #[test]
+    fn continuous_chain_without_operation_is_not_a_hazard() {
+        // No SetOperation ⇒ no index consumed ⇒ nothing to flag: the
+        // ignition after it stays on the positional fast path.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_CONTINUOUS)
+    e1:SetCode(EVENT_ADJUST)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_IGNITION)
+    e2:SetOperation(s.op2)
+    c:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        assert!(report.effects.iter().all(|e| !e.block_alignment_hazard));
     }
 
     #[test]

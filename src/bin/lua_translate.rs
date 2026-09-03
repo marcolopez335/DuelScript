@@ -399,9 +399,11 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             }
             let Some(block_idx) = assign.by_effect[eff_i] else {
                 // Hazard-gated and not rescued: a clone / bare-activate
-                // chain owns a .ds block before this one and the block
-                // signatures don't force a unique home — filling would
-                // risk landing in the wrong block.
+                // chain owns a .ds block before this one (or a
+                // continuous listener consumed an index without owning
+                // a block — T38 S9) and the block signatures don't force
+                // a unique home — filling would risk landing in the
+                // wrong block.
                 r.effects_alignment_hazard += 1;
                 continue;
             };
