@@ -18,7 +18,6 @@ card "Vampire's Curse" {
         cost {
             pay_lp 500
         }
-        condition: in_gy and reason == battle
         resolve {
             special_summon (all, card, either controls)
         }
@@ -28,11 +27,8 @@ card "Vampire's Curse" {
         speed: 1
         mandatory
         trigger: summoned by special
-        cost {
-            pay_lp 500
-        }
         resolve {
-            special_summon self
+            modify_atk self + 500 until while_face_up
         }
     }
 }
