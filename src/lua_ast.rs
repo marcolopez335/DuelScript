@@ -9377,8 +9377,24 @@ fn translate_call(c: &DuelCall, body: &FunctionBody) -> Option<DslLine> {
         // Duel.SendtoHand(target, player, reason)
         "Duel.SendtoHand" => Some(gated_action(m, a, body, |t| format!("add_to_hand {}", t))),
 
-        // Duel.SendtoDeck(target, player, sequence, reason)
-        "Duel.SendtoDeck" => Some(gated_action(m, a, body, |t| format!("send {} to deck", t))),
+        // Duel.SendtoDeck(target, player, sequence, reason) — the
+        // sequence decides where in the Deck the card lands. The compiler
+        // puts a bare `send … to deck` on TOP with no shuffle, so the
+        // pre-fix fixed spelling turned every SEQ_DECKSHUFFLE call (603
+        // corpus-wide) into a deck-top placement and dropped TOP / BOTTOM
+        // (354). The three literal sequences render the grammar's
+        // deck_position on `return … to deck`; a non-literal one is a
+        // TODO rider.
+        "Duel.SendtoDeck" => {
+            let pos = match a.get(2).map(|s| s.trim()) {
+                Some("SEQ_DECKSHUFFLE") => "shuffle",
+                Some("SEQ_DECKTOP") => "top",
+                Some("SEQ_DECKBOTTOM") => "bottom",
+                _ => return Some(DslLine::Todo(format!(
+                    "{}({}) — non-literal deck sequence", m, a.join(", ")))),
+            };
+            Some(gated_action(m, a, body, |t| format!("return {} to deck {}", t, pos)))
+        }
 
         // Duel.Remove(target, pos, reason) — banish
         "Duel.Remove" => Some(gated_action(m, a, body, |t| format!("banish {}", t))),
@@ -20454,6 +20470,23 @@ function s.activate(e,tp,eg,ep,ev,re,r,rp)
 end
 ", "s.activate");
         assert_eq!(lines, vec![DslLine::Action("draw 1".to_string())]);
+    }
+
+    #[test]
+    fn send_to_deck_carries_the_deck_sequence() {
+        let line = |call: &str| op_lines(&format!("
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	{}
+end
+", call), "s.operation").remove(0);
+        assert_eq!(line("Duel.SendtoDeck(c,nil,SEQ_DECKSHUFFLE,REASON_EFFECT)"),
+            DslLine::Action("return self to deck shuffle".to_string()));
+        assert_eq!(line("Duel.SendtoDeck(c,nil,SEQ_DECKTOP,REASON_EFFECT)"),
+            DslLine::Action("return self to deck top".to_string()));
+        assert_eq!(line("Duel.SendtoDeck(c,nil,SEQ_DECKBOTTOM,REASON_EFFECT)"),
+            DslLine::Action("return self to deck bottom".to_string()));
+        assert!(!line("Duel.SendtoDeck(c,nil,opt,REASON_EFFECT)").is_action());
     }
 
     #[test]

@@ -1323,6 +1323,15 @@ fn old_spelling(line: &str) -> String {
         // The pre-fix DiscardHand arm rendered one fixed string.
         return "discard (1+, card, you control, from hand)".to_string();
     }
+    if let Some(mid) = out.strip_prefix("return ") {
+        // The pre-fix SendtoDeck arm rendered `send … to deck` whatever
+        // the sequence.
+        for pos in [" to deck top", " to deck bottom", " to deck shuffle"] {
+            if let Some(sel) = mid.strip_suffix(pos) {
+                return format!("send {} to deck", sel);
+            }
+        }
+    }
     if out.starts_with("special_summon ") {
         for suffix in [" in defense_position", " in face_down_defense"] {
             if let Some(stripped) = out.strip_suffix(suffix) {
@@ -1334,6 +1343,18 @@ fn old_spelling(line: &str) -> String {
         }
     }
     out
+}
+
+/// A rendering that differs from the shipped lines only by spellings an
+/// earlier translator lacked: same line count, every line either equal
+/// or equal under [`old_spelling`], at least one differing. Unchanged
+/// lines in a multi-line block don't disqualify the block, and a line
+/// that already carries the new spelling (an earlier upgrade) compares
+/// equal rather than through `old_spelling`.
+fn is_mechanical_upgrade(rendered: &[String], shipped: &[String]) -> bool {
+    rendered.len() == shipped.len()
+        && rendered != shipped
+        && rendered.iter().zip(shipped).all(|(r, s)| r == s || old_spelling(r) == *s)
 }
 
 /// The handler's rendering split into action lines and TODO riders —
@@ -1406,8 +1427,7 @@ fn rederive(corpus_dir: &str, lua_dir: &str, apply: bool, stub_todo: Option<&str
                 continue;
             }
             let is_upgrade = lines.is_some() && co_target.is_none()
-                && rendered.len() == shipped.len()
-                && rendered.iter().zip(&shipped).all(|(r, s)| r != s && old_spelling(r) == *s);
+                && is_mechanical_upgrade(&rendered, &shipped);
             if is_upgrade {
                 upgrades += 1;
                 println!("UPGRADE {} block={} handler={}", stem, block_idx, handler);
@@ -1938,6 +1958,27 @@ card \"Test Monster\" {
             "special_summon (1, card, you control)");
         assert_eq!(old_spelling("discard (1, card, opponent controls, from hand)"),
             "discard (1+, card, you control, from hand)");
+        assert_eq!(old_spelling("return self to deck shuffle"), "send self to deck");
+        assert_eq!(old_spelling("return (1, card, you control, from gy) to deck bottom"),
+            "send (1, card, you control, from gy) to deck");
+        assert_eq!(old_spelling("return self to hand"), "return self to hand");
+    }
+
+    #[test]
+    fn mechanical_upgrade_tolerates_unchanged_and_already_upgraded_lines() {
+        let s = |v: &[&str]| v.iter().map(|x| x.to_string()).collect::<Vec<_>>();
+        // c13256226: one re-spelled line beside an unchanged one.
+        assert!(is_mechanical_upgrade(
+            &s(&["return self to deck shuffle", "special_summon (1, card, you control, from deck)"]),
+            &s(&["send self to deck", "special_summon (1, card, you control, from deck)"])));
+        // An earlier upgrade already in the shipped text compares equal.
+        assert!(is_mechanical_upgrade(
+            &s(&["special_summon (1, card, you control, from hand or gy)", "return self to deck top"]),
+            &s(&["special_summon (1, card, you control, from hand or gy)", "send self to deck"])));
+        // Identical, different length, or a real semantic difference: no.
+        assert!(!is_mechanical_upgrade(&s(&["draw 1"]), &s(&["draw 1"])));
+        assert!(!is_mechanical_upgrade(&s(&["draw 1", "draw 1"]), &s(&["draw 1"])));
+        assert!(!is_mechanical_upgrade(&s(&["destroy target"]), &s(&["special_summon self"])));
         assert_eq!(old_spelling("draw 1"), "draw 1");
     }
 
