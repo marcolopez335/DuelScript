@@ -60,6 +60,18 @@ These numbers are observed counts from the audit step at the time of the previou
 3. New grammar required → use `grammar-extender` agent first; that's a longer T-series-style PR.
 4. Per-archetype templates → only after no-grammar phases are exhausted; high effort, archetype-bound yield.
 
+## The error count is not the fidelity gap
+
+`duelscript check` counts EMPTY resolves (and missing resolve/choose blocks). It does not see the generator-era placeholder resolves — lines like `special_summon (all, card, either controls)` that state a CATEGORY_* bit and nothing else. Census (2026-10-13, before the refine-stubs pass): 17,231 resolve blocks, 2,046 empty, 9,793 made only of placeholders, 1,429 mixed. Track both:
+
+```bash
+# placeholder census — blocks whose every resolve line is a placeholder
+cargo run --release --features lua_ast,cdb --bin lua_translate -- \
+  refine-stubs cards/official /path/to/CardScripts/official /path/to/cards.cdb 2>&1 | tail -13
+```
+
+The report's `placeholder blocks` line is the denominator; `refined` is what the current translator would harvest. A translator improvement that turns a `SKIP … reason=Incomplete` into a fill moves that number, not the error count.
+
 ## Hazards
 
 - **Don't fixate on the headline error count.** Adding 165 passive blocks (Phase 5) only dropped 4 errors but materially improved the corpus. Some shapes need a follow-up chore PR (Phase 5b) to convert their structural improvement into an error reduction.

@@ -6,11 +6,12 @@ DuelScript replaces Lua card scripting with a readable, type-safe, declarative f
 
 ## Status
 
-- **13,298 / 13,298** cards in `cards/official/` parse, compile, and validate (100%)
+- **13,298 / 13,298** cards in `cards/official/` parse and compile (100%); **2,201 validation errors** (effects whose `resolve` the Lua→DSL translator cannot fill yet) and **6,815 generator placeholder resolves** remain — see [docs/STORIES.md](docs/STORIES.md)
 - **151 / 151** Goat Format cards hand-verified in v2 syntax
 - **135 lib tests** + full-corpus regression suite passing
 - **LSP server** + **VS Code extension** (diagnostics, hover, completion)
-- **CLI** with `check`, `inspect`, `fmt`, and `test` subcommands
+- **CLI** with `check`, `inspect`, `fmt`, and `test` subcommands; `lua_translate` (Lua→DSL translator) with `apply`, `refine-stubs`, `rederive`, `audit-fills`
+- **CI** on every PR: tests, zero-warnings build, full-corpus compile, error-count guard
 
 ## Quick Example
 
@@ -102,6 +103,16 @@ cargo run --bin duelscript -- check   cards/goat/                     # Validate
 cargo run --bin duelscript -- inspect cards/goat/pot_of_greed.ds      # Show AST
 cargo run --bin duelscript -- fmt     cards/goat/ --check             # Lint formatting
 cargo run --bin duelscript -- test    cards/goat/pot_of_greed.ds      # Run effect vs MockRuntime
+```
+
+### Translator (Lua → DSL)
+
+Reads the [ProjectIgnis CardScripts](https://github.com/ProjectIgnis/CardScripts) `official/` folder and the BabelCDB `cards.cdb` (both read-only inputs, AGPL — not part of this repo):
+
+```bash
+cargo run --release --features lua_ast,cdb --bin lua_translate -- apply        cards/official <CardScripts/official> <cards.cdb>  # fill empty resolves
+cargo run --release --features lua_ast,cdb --bin lua_translate -- refine-stubs cards/official <CardScripts/official> <cards.cdb>  # dry run: placeholder census + candidates
+cargo run --release --features lua_ast,cdb --bin lua_translate -- rederive     cards/official <CardScripts/official> <cards.cdb>  # dry run: re-derive accepted fills
 ```
 
 ### LSP / VS Code

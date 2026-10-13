@@ -2,7 +2,7 @@
 
 Active backlog of work items, ordered by yield. Each story states the goal, the agent, the acceptance criteria, and the dependency chain.
 
-State as of 2026-05-03 — `cards/official/` parses 13,298 / 13,298, **3,274 errors** / **559 warnings** remain (post-Phase 8 / Phase 9 audit-failed-stopped).
+State as of 2026-10-13 — `cards/official/` parses 13,298 / 13,298, **2,201 errors** / **1,465 warnings** remain (post-T38 S1–S9 + the refine-stubs pass). The error count is not the fidelity gap: of 17,231 resolve blocks, 2,055 are empty (the errors, minus the validator's permanent-passive relaxation), **6,815 are still generator placeholders** (`special_summon (all, card, either controls)` and nine siblings — category bits, not effects) and 1,429 mix a placeholder with real lines. Re-run `lua_translate refine-stubs` (dry) for the live placeholder census; the `error-triage` skill has the recipe.
 
 ---
 
@@ -345,6 +345,29 @@ Cross-cutting contracts (documented on the trait, per decisions-2.md house style
 
 ---
 
+### ~~T38 S10 — placeholder-resolve refinement (`refine-stubs`)~~ ✓ shipped (2026-10-13)
+**Finding.** Every translator phase since Phase 2 filled EMPTY resolves only. The cdb skeleton generator had left 9,793 resolve blocks (13,417 lines) made solely of category placeholder lines — `special_summon (all, card, either controls)` ×5,370, `add_to_hand …` ×2,291, `destroy …` ×2,268, `send … to gy` ×1,123, `return … to deck` ×774, `banish …` ×747, `return … to hand` ×511, `discard …` ×155, `take_control …` ×152, `send … to extra_deck` ×25 — which `duelscript check` never counts (a non-empty resolve is not an error), so the headline error count under-reported the fidelity gap by ~5×. Handlers the translator already derives completely sat behind them, un-harvested; this is also the "stub-refinement pass" S8b's labelobj harvest was gated on.
+
+**Shipped (tooling, `src/bin/lua_translate.rs` + `src/block_match.rs`).** Pass A's gate stack is extracted into `derive_fill_lines` / `gate_fill_block` / `derive_fill` and Pass A / A2 run on it (differential apply over a corpus copy with 3,590 emptied + 1,795 stripped resolves: byte-identical, counters included). `refine-stubs <corpus> <lua_dir> [cards.cdb] [--apply]` replaces a pure-placeholder resolve with its handler's fill when the shared gate accepts it AND three alignment gates pass — the pass rewrites NON-empty resolves, and the first dry run's 60 category-mismatch hits were all generator-skipped chains (flip effects, custom-event triggers, summon procedures: c16226786, c19050066, c27769400, c31516413) shifting every later block one chain late on the positional fast path:
+- *parity* — the chain's own `SetCategory` bits must state ≥1 placeholder class and none the placeholder lacks (the generator also read card text, so a placeholder may state more; to-GY and to-Deck families collapse the way its spellings did); rejects 888 reachable blocks, 617 of them chains with no SetCategory at all (`EFFECT_SPSUMMON_PROC` / `LIMIT_SUMMON_PROC` / continuous-listener consumers zipped onto a real effect's block — the S9 backlog (a)/(b) alignment class seen from the other side);
+- *header* — `block_match::header_agrees`: speed / trigger-line / once-per-turn agreement without MIN_CLAIM (activation chains skip the trigger-line test — the generator stamped `trigger:` on event-coded activations such as c1005587; `mandatory` is generator noise, never consulted); rejects 90;
+- *coverage* — the rendering states every placeholder category (a choose block counts across options); rejects 2.
+`rederive <corpus> <lua_dir> [cards.cdb] [--apply] [--stub-todo=<text>]` is the sibling audit for ACCEPTED fills (`audit-fills` covers refused ones): SAME / UPGRADE (mechanical re-spelling) / REFUSED (`exact=yes` = the translator's own lines; `--stub-todo` empties them) / REVIEW. Both byte-idempotent; 9 bin tests (`cargo test --features lua_ast,cdb --bin lua_translate`).
+
+**Shipped (translator fixes, `src/lua_ast.rs`).** Hand verification of 14 candidates + a shape census over the 3,238 derived fills found five skip-not-mis-emit holes, all pre-existing (every Pass A fill had the same renderings): OR'd LOCATION masks rendered NO zone (the DSL reads that as on-field — c10125011 "from your hand or GY") → `from hand or gy` zone lists; `Duel.SpecialSummon` dropped the literal position (the compiler defaults to ATTACK — c30106950 summoned in Defense) → `in defense_position` / `in face_down_defense`; summons onto the OTHER player's field (`tp,1-tp` Lava Golem, `1-tp,1-tp`) → TODO rider; `Duel.DiscardHand` was one fixed string whatever the player and count (c1197847's opponent discard became a self discard) → player / literal count / mapped filter; mid-resolution modal calls (SelectYesNo / SelectEffectYesNo / SelectOption / TossCoin / TossDice) gate the steps after them and the plain fill emitted them as musts (c20715411's optional destroy) → TODO rider; `Duel.SendtoDeck` was one fixed `send … to deck` whatever the sequence, and the compiler puts that on TOP with no shuffle — every SEQ_DECKSHUFFLE call (603 corpus-wide) became a deck-top placement and TOP/BOTTOM (354) were indistinguishable (the one choose refinement whose two options both rendered `send target to deck`) → `return … to deck top | bottom | shuffle`, non-literal sequence a TODO rider. 12 lib tests. Policy-flip retrofit via `rederive`: 35 UPGRADE rewrites (24 zone lists, 3 face-down positions, …) + 13 exact machine fills stubbed under the modal rider (+9 errors; 4 sit under the permanent-passive relaxation), then 85 more for the deck sequence (28 `return self to deck shuffle`, 8 `… to deck top`, …); 647 REVIEW hits stay report-only (M-phase text-derived lines that are MORE specific than the translator's, generation-era coarse content, 22 old-style `discard (1+ …)` lines inside blocks that differ elsewhere, and at least one wrong shipped fill — c15383415 `destroy target` where the handler flips the card face-down).
+
+**Actual yield.** 2,974 line fills + 3 choose blocks across 2,525 cards (placeholder blocks 9,792 → 6,815); top renderings `add_to_hand (1, card, you control, from deck)` ×717, `special_summon self` ×540, `destroy target` ×226, `special_summon (1, card, …, from deck/hand)` ×376. Check 2,201 / 1,465 unchanged (placeholders were never errors). Apply, refine-stubs and rederive all no-op on re-run; 732 lib + 9 bin tests + the full-corpus compile green.
+
+**Backlog (each its own audited story).**
+1. *Header-fix pass.* The generator's `trigger:` / OPT-kind headers sometimes contradict the lua chain (c3048768 `trigger: summoned` on EVENT_ATTACK_ANNOUNCE; c20715411 `once_per_turn: soft` on a hard `{id,1}` limit); refine-stubs fills onto them exactly as Pass A does (skip class 10 is enforced for cost headers only). A trigger-parity gate needs the EVENT→trigger table on the apply side; sweep both filled and placeholder blocks.
+2. *Mixed blocks* (1,429): a placeholder beside real lines — needs line-level alignment, not block replacement.
+3. *Translator coverage* is the harvest lever now: 4,855 reachable placeholder blocks skip as incomplete and 801 as todo-only. Every translator widening is harvested by re-running `refine-stubs` — report the `refined` delta, not the error delta.
+4. *Surfaces without grammar:* the optional mid-resolve step ("then you can …" — 172 placeholder blocks + 60 shipped fills carry a modal call), summons onto the other player's field (~130 corpus-wide), `Duel.LinkSummon` rendered as a plain `special_summon` (9 refined blocks; S7 did Synchro/Xyz exactly), the player's-choice `POS_FACEUP` (implicit = ATTACK today).
+5. *Unreached placeholders* (176 blocks with no assigned chain) and the 617 no-SetCategory parity rejections → the S9 (a)/(b) alignment retrofit.
+6. *rederive REVIEW* (647) is the measured drift backlog for accepted fills; `c15383415` is a confirmed wrong fill in it.
+
+---
+
 ## Per-archetype templates
 
 Long-tail. Each archetype = one PR. Defer until grammar-free phases are exhausted.
@@ -383,17 +406,8 @@ These do not reduce errors but unblock public contribution.
 
 ---
 
-### CI on PRs
-**Goal.** GitHub Actions workflow that runs:
-- `cargo test --lib`
-- `cargo test --lib --features lua_ast,cdb`
-- `cargo test --lib roundtrip`
-- `cargo build` zero-warnings check
-- `duelscript check cards/official/` fails the PR if error count rises
-
-**Acceptance.** Green badge on README. PRs that regress error count auto-block.
-
-**Agent.** `integrator`.
+### ~~CI on PRs~~ ✓ shipped (2026-10-13)
+**Shipped.** `.github/workflows/ci.yml`: tests (`cargo test --lib` default + `lua_ast,cdb`, the round-trip subset, the translator bin tests), a `-D warnings` build of every binary with every feature, the full-corpus parse+compile regression, and the error-count guard — `duelscript check cards/official/` may not report more errors than `.github/corpus-errors-baseline` (2,201). A PR that raises the count on purpose (honest stubs from a policy-flip retrofit) updates the baseline in the same change; one that lowers it gets a warning to lower the baseline. README badge pending the first green run on main.
 
 ---
 
