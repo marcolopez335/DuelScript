@@ -3897,7 +3897,7 @@ fn spec_from_matching(args: &[String], _has_opp_locs: bool, has_minmax: bool) ->
     };
     let qty = quantity_from(min_s, max_s)?;
     let controller = controller_from_scope(scope_p, my_locs, opp_locs)?;
-    let zone = zone_from_locations(my_locs, opp_locs);
+    let zone = zone_list_from_locations(my_locs, opp_locs);
     // This spec renders NO where-clause, so a filter that maps WITH a
     // predicate must not claim `filter_mapped` — the Phase 10 group-
     // modifier gate would then apply the modifier to the unfiltered
@@ -3976,7 +3976,7 @@ fn spec_from_get_matching(args: &[String]) -> Option<SelectorSpec> {
     let my_locs = args.get(2)?.as_str();
     let opp_locs = args.get(3)?.as_str();
     let controller = controller_from_scope(scope_p, my_locs, opp_locs)?;
-    let zone = zone_from_locations(my_locs, opp_locs);
+    let zone = zone_list_from_locations(my_locs, opp_locs);
     // Filters with a direct DSL equivalent refine the selector (Phase 10);
     // everything else keeps the lenient `card` kind established by earlier
     // phases but is flagged unmapped so group-applied paths can skip.
@@ -4040,7 +4040,13 @@ fn zone_from_locations(my: &str, opp: &str) -> Option<String> {
     // Pick whichever side is non-zero. If both, prefer my for now —
     // controller field already disambiguates "either".
     let loc = if my != "0" { my } else { opp };
-    let zone = match loc {
+    let zone = zone_word(loc)?; // OR'd locations or unknown → None
+    Some(format!("from {}", zone))
+}
+
+/// One `LOCATION_*` constant → the DSL zone word.
+fn zone_word(loc: &str) -> Option<&'static str> {
+    match loc {
         "LOCATION_HAND"     => Some("hand"),
         "LOCATION_DECK"     => Some("deck"),
         "LOCATION_GRAVE"    => Some("gy"),
@@ -4051,9 +4057,28 @@ fn zone_from_locations(my: &str, opp: &str) -> Option<String> {
         "LOCATION_ONFIELD"  => Some("field"),
         "LOCATION_PZONE"    => Some("pendulum_zone"),
         "LOCATION_MMZONE"   => Some("extra_monster_zone"),
-        _ => None, // OR'd locations or unknown
-    }?;
-    Some(format!("from {}", zone))
+        _ => None,
+    }
+}
+
+/// Multi-zone variant of [`zone_from_locations`] for the resolve-time
+/// selector specs (`Duel.SelectMatchingCard` / `Duel.GetMatchingGroup`
+/// paths): an OR'd mask whose every component maps renders as the
+/// grammar's `zone_list` — `LOCATION_HAND|LOCATION_GRAVE` → `from hand
+/// or gy`. Before this, such a mask rendered NO zone, which the DSL
+/// reads as on-field (c10125011's "from your hand or GY" summon became
+/// an on-field pick). A mask with an unmapped component still renders
+/// no zone, as before. The group-applied paths (grants, negations,
+/// passive counts) keep refusing OR'd masks through
+/// [`zone_from_locations`] — widening them is a separate story.
+fn zone_list_from_locations(my: &str, opp: &str) -> Option<String> {
+    let loc = if my != "0" { my } else { opp };
+    let parts: Vec<&str> = loc.split(['|', '+']).map(str::trim).collect();
+    if parts.len() < 2 {
+        return zone_from_locations(my, opp);
+    }
+    let zones = parts.iter().map(|p| zone_word(p)).collect::<Option<Vec<_>>>()?;
+    Some(format!("from {}", zones.join(" or ")))
 }
 
 /// Walk a function body and extract every `Effect.CreateEffect → Set* →
@@ -5848,7 +5873,7 @@ pub fn lookup_card_string(card_id: u32, idx: u32) -> Option<String> {
     (!s.is_empty() && !s.contains('"')).then_some(s)
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DslLine {
     /// A confidently-translated DSL action line, e.g.
     /// `damage opponent 1000` or `draw 1`.
@@ -5921,6 +5946,20 @@ pub fn translate_body_with_functions(
             }
             out.push(line);
         }
+    }
+    // Mid-resolution modal calls gate the actions after them on the
+    // player's answer or the outcome — the DSL has no optional-step
+    // surface, so the lines above would state a "you can" as a must
+    // (c20715411's optional destroy after its summon). The TODO rider
+    // marks the fill incomplete; emitters that already refused modal
+    // bodies on their own (negations, T38 S3) keep doing so. Option
+    // picks the Phase 16 choose extraction claims never reach this
+    // path — the choose block is derived first.
+    if let Some(c) = body.calls.iter().find(|c| is_modal_call(&c.method)) {
+        out.push(DslLine::Todo(format!(
+            "{} gates the steps after it on a player choice or a random outcome — no DSL surface",
+            c.method,
+        )));
     }
     // Select-then-equip helper calls (Phase 17) — `s.equipop(c,e,tp,tc)`
     // delegating to the canonical EquipByEffectAndLimitRegister wrapper.
@@ -9350,14 +9389,35 @@ fn translate_call(c: &DuelCall, body: &FunctionBody) -> Option<DslLine> {
         "Duel.Release" => Some(gated_action(m, a, body, |t| format!("send {} to gy", t))),
 
         // Duel.SpecialSummon(target, sumtype, p1, p2, nocheck, nolimit, pos)
-        "Duel.SpecialSummon" => Some(gated_action(m, a, body, |t| format!("special_summon {}", t))),
-        "Duel.SpecialSummonStep" => Some(gated_action(m, a, body, |t| format!("special_summon {}", t))),
+        // The summon is performed by `p1` and lands on `p2`'s field.
+        // The DSL's special_summon has no "to the other player's field"
+        // surface (Lava Golem's `tp,1-tp`; "your opponent Special
+        // Summons…" `1-tp,1-tp`), so any pairing but (tp, tp) is a TODO
+        // rider. The literal position carries through as `in …` — the
+        // compiler defaults an absent position to ATTACK, so a dropped
+        // POS_FACEUP_DEFENSE summoned in the wrong position (c30106950).
+        "Duel.SpecialSummon" | "Duel.SpecialSummonStep" => {
+            let players = (a.get(2).map(String::as_str), a.get(3).map(String::as_str));
+            if players != (Some("tp"), Some("tp")) {
+                return Some(DslLine::Todo(format!(
+                    "{}({}) — summoned by {} onto {}'s field, no DSL surface",
+                    m, a.join(", "), players.0.unwrap_or("?"), players.1.unwrap_or("?"),
+                )));
+            }
+            let pos = summon_position_suffix(a.get(6).map(String::as_str));
+            Some(gated_action(m, a, body, |t| format!("special_summon {}{}", t, pos)))
+        }
         "Duel.SpecialSummonComplete" => None, // boundary marker
 
-        // Duel.DiscardHand(player, filter, min, max, reason)
-        "Duel.DiscardHand" => Some(DslLine::Action(
-            "discard (1+, card, you control, from hand)".to_string()
-        )),
+        // Duel.DiscardHand(player, filter, min, max, reason) — the
+        // discarding player and the count carry through (the pre-fix
+        // fixed string stated `1+` and `you control` for every call,
+        // the opponent-discards shape included — c1197847). A generic
+        // filter renders the plain hand selector, a mapped predicate
+        // refines it, anything else over-approximates to `card` like
+        // every action selector. A non-literal player or count is a
+        // TODO rider.
+        "Duel.DiscardHand" => Some(action_discard_hand(a)),
 
         // Duel.ChangePosition(target, position) — change face-up/down
         // attack/defense. We can't always extract position from args, but
@@ -9536,6 +9596,57 @@ fn gated_action(
     render: impl FnOnce(&str) -> String,
 ) -> DslLine {
     gated_action_at(method, args, 0, body, render)
+}
+
+/// See the `Duel.DiscardHand` arm of [`translate_call`].
+fn action_discard_hand(a: &[String]) -> DslLine {
+    let player = a.first().map(String::as_str).unwrap_or("").trim();
+    let controller = match player {
+        "tp" => "you control",
+        "1-tp" => "opponent controls",
+        _ => return DslLine::Todo(format!(
+            "Duel.DiscardHand({}) — discarding player unresolved", a.join(", "))),
+    };
+    let min_s = a.get(2).map(String::as_str).unwrap_or("").trim();
+    let max_s = a.get(3).map(String::as_str).unwrap_or("").trim();
+    let Some(qty) = quantity_from(min_s, max_s) else {
+        return DslLine::Todo(format!(
+            "Duel.DiscardHand({}) — non-literal count", a.join(", ")));
+    };
+    let filter = a.get(1).map(String::as_str).unwrap_or("nil").trim();
+    let (kind, where_clause) = if is_generic_discard_filter(filter) {
+        ("card", None)
+    } else {
+        map_group_filter(filter).unwrap_or(("card", None))
+    };
+    let mut parts = vec![qty, kind.to_string(), controller.to_string(), "from hand".to_string()];
+    if let Some(w) = where_clause {
+        parts.push(format!("where {}", w));
+    }
+    DslLine::Action(format!("discard ({})", parts.join(", ")))
+}
+
+/// `in …` suffix for a special summon's literal position arg. Face-up
+/// attack and the player's-choice `POS_FACEUP` stay implicit — the
+/// compiler's default is attack and the DSL has no "either face-up"
+/// spelling — as do non-literal positions (status quo).
+fn summon_position_suffix(pos: Option<&str>) -> &'static str {
+    match pos {
+        Some("POS_FACEUP_DEFENSE") => " in defense_position",
+        Some("POS_FACEDOWN_DEFENSE") | Some("POS_FACEDOWN") => " in face_down_defense",
+        _ => "",
+    }
+}
+
+/// Mid-resolution modal calls: a yes/no prompt, an option pick, a coin
+/// or a die. Everything after one is gated on the answer or the
+/// outcome.
+fn is_modal_call(method: &str) -> bool {
+    matches!(
+        method,
+        "Duel.SelectYesNo" | "Duel.SelectEffectYesNo" | "Duel.SelectOption"
+            | "Duel.TossCoin" | "Duel.TossDice"
+    )
 }
 
 /// [`gated_action`] for methods whose card/group argument is not in
@@ -20215,5 +20326,156 @@ card "S6 Emit Forms" {
         let reparsed = crate::v2::parser::parse_v2(&formatted)
             .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
         assert_eq!(crate::v2::fmt::format_file(&reparsed), formatted);
+    }
+}
+
+#[cfg(test)]
+mod zone_list_tests {
+    use super::*;
+
+    #[test]
+    fn single_location_renders_as_before() {
+        assert_eq!(zone_list_from_locations("LOCATION_HAND", "0").as_deref(), Some("from hand"));
+        assert_eq!(zone_list_from_locations("0", "LOCATION_GRAVE").as_deref(), Some("from gy"));
+        assert_eq!(zone_list_from_locations("LOCATION_FZONE", "0"), None);
+    }
+
+    #[test]
+    fn ord_mask_renders_a_zone_list() {
+        assert_eq!(zone_list_from_locations("LOCATION_HAND|LOCATION_GRAVE", "0").as_deref(),
+            Some("from hand or gy"));
+        assert_eq!(zone_list_from_locations("LOCATION_HAND|LOCATION_DECK|LOCATION_GRAVE", "0").as_deref(),
+            Some("from hand or deck or gy"));
+        // `+` spelling of older scripts.
+        assert_eq!(zone_list_from_locations("LOCATION_DECK+LOCATION_EXTRA", "0").as_deref(),
+            Some("from deck or extra_deck"));
+        // An unmapped component still renders no zone (unchanged policy).
+        assert_eq!(zone_list_from_locations("LOCATION_HAND|LOCATION_FZONE", "0"), None);
+        // The group-applied path keeps refusing OR'd masks.
+        assert_eq!(zone_from_locations("LOCATION_HAND|LOCATION_GRAVE", "0"), None);
+    }
+
+    #[test]
+    fn resolve_select_spec_carries_the_zone_list() {
+        // c10813327 Waking the Dragon: SelectMatchingCard over DECK|EXTRA.
+        let args: Vec<String> = ["tp", "s.spfilter", "tp", "LOCATION_DECK|LOCATION_EXTRA", "0", "1", "1", "nil"]
+            .iter().map(|s| s.to_string()).collect();
+        let spec = spec_from_matching(&args, false, true).unwrap();
+        assert_eq!(spec.to_dsl(), "(1, card, you control, from deck or extra_deck)");
+        // c10125011 Constellar Tellarknights: GetMatchingGroup over HAND|GRAVE.
+        let args: Vec<String> = ["aux.NecroValleyFilter(s.spfilter)", "tp", "LOCATION_HAND|LOCATION_GRAVE", "0", "nil", "e", "tp"]
+            .iter().map(|s| s.to_string()).collect();
+        let spec = spec_from_get_matching(&args).unwrap();
+        assert_eq!(spec.to_dsl(), "(all, card, you control, from hand or gy)");
+    }
+
+    fn op_lines(src: &str, handler: &str) -> Vec<DslLine> {
+        let report = walk(&full_moon::parse(src).expect("lua parses"));
+        let body = report.functions.get(handler).expect("handler walked");
+        translate_body_with_functions(body, &report.functions)
+    }
+
+    #[test]
+    fn special_summon_carries_a_literal_defense_position() {
+        // c30106950 Suanni: a deck pull summoned in face-up Defense.
+        let lines = op_lines("
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_DECK,0,1,1,nil)
+	Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP_DEFENSE)
+end
+", "s.operation");
+        assert_eq!(lines, vec![DslLine::Action(
+            "special_summon (1, card, you control, from deck) in defense_position".to_string())]);
+        let lines = op_lines("
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEDOWN_DEFENSE)
+end
+", "s.spop");
+        assert_eq!(lines, vec![DslLine::Action("special_summon self in face_down_defense".to_string())]);
+        // Face-up attack and the player's choice stay implicit.
+        let lines = op_lines("
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+end
+", "s.spop");
+        assert_eq!(lines, vec![DslLine::Action("special_summon self".to_string())]);
+    }
+
+    #[test]
+    fn special_summon_onto_the_other_field_is_a_todo_rider() {
+        // c65477143 Abyss Actor - Liberty Dramatist: summoned to the
+        // opponent's field; "your opponent Special Summons" is the
+        // `1-tp,1-tp` pairing.
+        for players in ["tp,1-tp", "1-tp,1-tp", "p,p"] {
+            let src = format!("
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	Duel.SpecialSummon(c,1,{},false,false,POS_FACEUP)
+end
+", players);
+            let lines = op_lines(&src, "s.spop");
+            assert_eq!(lines.len(), 1, "{:?}", lines);
+            assert!(!lines[0].is_action(), "{:?}", lines);
+        }
+    }
+
+    #[test]
+    fn modal_calls_add_a_todo_rider() {
+        // c20715411 D/D/D Zero Doom Queen Machinex: summon, then "you
+        // can" destroy — the destroy must not emit as a must.
+        let lines = op_lines("
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) and Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)>0
+		and Duel.SelectYesNo(tp,aux.Stringid(id,3)) then
+		local g=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,nil)
+		Duel.Destroy(g,REASON_EFFECT)
+	end
+end
+", "s.spop");
+        assert!(lines.iter().any(|l| l.is_action()), "{:?}", lines);
+        assert!(lines.iter().any(|l| !l.is_action()), "{:?}", lines);
+        for modal in ["Duel.TossCoin(tp,1)", "Duel.TossDice(tp,1)", "Duel.SelectOption(tp,aux.Stringid(id,0),aux.Stringid(id,1))"] {
+            let src = format!("
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+	local r={}
+	Duel.Draw(tp,1,REASON_EFFECT)
+end
+", modal);
+            let lines = op_lines(&src, "s.activate");
+            assert!(lines.iter().any(|l| !l.is_action()), "{} → {:?}", modal, lines);
+        }
+        // A body without a modal call stays rider-free.
+        let lines = op_lines("
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Draw(tp,1,REASON_EFFECT)
+end
+", "s.activate");
+        assert_eq!(lines, vec![DslLine::Action("draw 1".to_string())]);
+    }
+
+    #[test]
+    fn discard_hand_carries_player_count_and_filter() {
+        let line = |call: &str| op_lines(&format!("
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+	{}
+end
+", call), "s.activate").remove(0);
+        assert_eq!(line("Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT|REASON_DISCARD)"),
+            DslLine::Action("discard (1, card, you control, from hand)".to_string()));
+        // c1197847 Phantasm Spiral Wave: the OPPONENT discards.
+        assert_eq!(line("Duel.DiscardHand(1-tp,nil,1,1,REASON_EFFECT|REASON_DISCARD)"),
+            DslLine::Action("discard (1, card, opponent controls, from hand)".to_string()));
+        assert_eq!(line("Duel.DiscardHand(tp,Card.IsDiscardable,2,2,REASON_EFFECT)"),
+            DslLine::Action("discard (2, card, you control, from hand)".to_string()));
+        assert_eq!(line("Duel.DiscardHand(tp,Card.IsDiscardable,1,60,REASON_EFFECT)"),
+            DslLine::Action("discard (1+, card, you control, from hand)".to_string()));
+        assert_eq!(line("Duel.DiscardHand(tp,Card.IsMonster,1,1,REASON_EFFECT)"),
+            DslLine::Action("discard (1, monster, you control, from hand)".to_string()));
+        // Unresolved player / non-literal count → rider, not a guess.
+        assert!(!line("Duel.DiscardHand(p,nil,1,1,REASON_EFFECT)").is_action());
+        assert!(!line("Duel.DiscardHand(tp,nil,ct,ct,REASON_EFFECT)").is_action());
     }
 }
