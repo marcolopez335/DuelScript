@@ -27,7 +27,7 @@ use duelscript::lua_ast;
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
-        eprintln!("usage: lua_translate <dump|translate|apply|audit-fills> <path>");
+        eprintln!("usage: lua_translate <dump|translate|apply|audit-fills|refine-stubs|rederive> <path>");
         process::exit(2);
     }
     let mode = args[1].as_str();
@@ -136,6 +136,51 @@ fn main() {
             let cdb = args.get(4).map(String::as_str).filter(|a| *a != "--stub");
             load_card_names(cdb, lua_dir);
             audit_fills(corpus, lua_dir, stub);
+        }
+        "refine-stubs" => {
+            // Placeholder-resolve refinement: re-derive the aligned
+            // handler of every effect block whose resolve is made only
+            // of generator-era category placeholders and replace the
+            // placeholder when the fill is complete and states every
+            // category the placeholder did. Dry run by default; `--apply`
+            // rewrites. See [`refine_stubs`].
+            //
+            //   lua_translate refine-stubs <corpus_dir> <lua_dir> [cards.cdb] [--apply]
+            if args.len() < 4 {
+                eprintln!("usage: lua_translate refine-stubs <corpus_dir> <lua_dir> [cards.cdb] [--apply]");
+                process::exit(2);
+            }
+            let corpus = &args[2];
+            let lua_dir = &args[3];
+            let apply = args.iter().any(|a| a == "--apply");
+            let cdb = args.get(4).map(String::as_str).filter(|a| *a != "--apply");
+            load_card_names(cdb, lua_dir);
+            refine_stubs(corpus, lua_dir, apply);
+        }
+        "rederive" => {
+            // Policy-flip retrofit audit for ACCEPTED fills (`audit-fills`
+            // covers the refused ones): re-derive every shipped non-empty,
+            // non-placeholder resolve under the current translator and
+            // report the ones whose rendering differs. `--apply` rewrites
+            // only the `UPGRADE` class — shipped lines equal to the
+            // rendering under an earlier spelling (no zone list, no
+            // summon position); `--stub-todo=<text>` empties fills the
+            // gate now refuses with a TODO rider containing <text> when
+            // the shipped lines are the translator's own action lines.
+            // Everything else is report-only. See [`rederive`].
+            //
+            //   lua_translate rederive <corpus_dir> <lua_dir> [cards.cdb] [--apply] [--stub-todo=<text>]
+            if args.len() < 4 {
+                eprintln!("usage: lua_translate rederive <corpus_dir> <lua_dir> [cards.cdb] [--apply] [--stub-todo=<text>]");
+                process::exit(2);
+            }
+            let corpus = &args[2];
+            let lua_dir = &args[3];
+            let apply = args.iter().any(|a| a == "--apply");
+            let stub_todo = args.iter().find_map(|a| a.strip_prefix("--stub-todo="));
+            let cdb = args.get(4).map(String::as_str).filter(|a| !a.starts_with("--"));
+            load_card_names(cdb, lua_dir);
+            rederive(corpus, lua_dir, apply, stub_todo);
         }
         _ => {
             eprintln!("unknown mode: {}", mode);
@@ -382,7 +427,8 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         // that effect. Filling "the first empty resolve anywhere" instead
         // would, on rerun, inject an earlier effect's lines into a later
         // untranslatable effect's still-empty resolve — wrong content and
-        // non-idempotent.
+        // non-idempotent. The fill itself comes from [`derive_fill`], the
+        // gate stack shared with Pass A2 and `refine-stubs`.
         for (eff_i, eff) in walk.effects.iter().enumerate() {
             if !eff.is_summon_helper() && eff.operation_handler.is_none() {
                 r.effects_no_handler += 1;
@@ -407,152 +453,63 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
                 r.effects_alignment_hazard += 1;
                 continue;
             };
-            // Phase 16 — SelectOption label-branch dispatch. When the
-            // target handler picked an option (`Duel.SelectOption` +
-            // `e:SetLabel`) and the operation handler splits on
-            // `e:GetLabel()` with one fully-translatable arm per option,
-            // a `choose { option … }` block REPLACES the empty resolve
-            // (the validator accepts either, never both). Falls through
-            // to the normal fill when the shape or a label doesn't
-            // resolve.
-            if !eff.is_summon_helper() {
-                let choose_text = eff.operation_handler.as_deref()
-                    .and_then(|oh| {
-                        let ob = walk.functions.get(oh.trim())?;
-                        let tb = eff.target_handler.as_deref()
-                            .and_then(|th| walk.functions.get(th.trim()));
-                        let spec = lua_ast::extract_choose_spec(tb, ob, &walk.functions)?;
-                        render_choose_block(&spec, card_id?)
-                    });
-                if let Some(choose_text) = choose_text {
-                    if let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) {
-                        if let Some((lo, hi)) = first_empty_resolve_within(&new_txt, block_lo, block_hi) {
-                            new_txt = format!("{}{}{}", &new_txt[..lo], choose_text, &new_txt[hi..]);
-                            filled += 1;
-                            r.chooses_injected += 1;
-                        } else if !new_txt[block_lo..block_hi].contains("resolve")
-                            && !new_txt[block_lo..block_hi].contains("choose")
-                        {
-                            // Block lacks a resolve slot entirely (the
-                            // "must have a resolve or choose" class) —
-                            // inject before the closing brace, Pass A2
-                            // style. Idempotent: the injected choose
-                            // makes this branch unreachable on rerun.
-                            let close_brace = block_hi - 1;
-                            let mut inject_pos = close_brace;
-                            let bytes = new_txt.as_bytes();
-                            while inject_pos > block_lo && bytes[inject_pos - 1].is_ascii_whitespace() {
-                                inject_pos -= 1;
-                            }
-                            let injection = format!("\n        {}", choose_text);
-                            new_txt = format!("{}{}{}", &new_txt[..inject_pos], injection, &new_txt[inject_pos..]);
-                            filled += 1;
-                            r.chooses_injected += 1;
-                        }
-                    }
-                    continue;
-                }
-            }
-            // Special case: skeletons backed by a fusion/ritual summon
-            // helper — the plain factories (Fusion.CreateSummonEff /
-            // Ritual.AddProc* / Ritual.CreateProc, fixed line) and the
-            // parameterized SetOperation forms (Fusion.SummonEffOP /
-            // Ritual.Operation, Phase 12). The helper owns the UI / op
-            // pipeline, so a summon line replaces the handler walk.
-            // Parameterized forms whose params don't decode return None
-            // and fall through to the no-handler skip below.
-            let helper_line = eff.summon_helper_line();
-            let is_helper_fill = helper_line.is_some();
-            let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
-                vec![lua_ast::DslLine::Action(text)]
-            } else if eff.is_summon_helper() {
-                // Helper params undecodable — the activation block exists
-                // in the .ds but its resolve stays an empty stub
-                // (skip-not-mis-emit).
-                r.effects_no_handler += 1;
-                continue;
-            } else {
-                // Consumer without a helper spec has an operation handler
-                // (checked at the top of the loop).
-                let handler = eff.operation_handler.as_deref().unwrap_or_default();
-                match walk.functions.get(handler.trim()) {
-                    Some(body) => {
-                        // T38 S1 — completeness gate: a handler whose
-                        // translation drops a RegisterEffect chain would
-                        // fill an under-stated resolve. Skip the whole
-                        // fill; the dropped chain is the S1b/S8 backlog.
-                        if lua_ast::body_drops_chains(body, &walk.functions) {
-                            r.effects_incomplete += 1;
-                            continue;
-                        }
-                        lua_ast::translate_body_with_functions(body, &walk.functions)
-                    }
-                    None => {
-                        r.effects_no_handler += 1; // block exists, body unknown
-                        continue;
-                    }
-                }
+            // Lines derive before the block lookup and the block-text
+            // gates after it, so the skip counters classify every effect
+            // the way the pre-refactor pass did (a positional index past
+            // the last block still counts its todo / incomplete).
+            let pre = match derive_fill_lines(eff, &walk, card_id) {
+                Ok(pre) => pre,
+                Err(FillSkip::NoHandler) => { r.effects_no_handler += 1; continue; }
+                Err(FillSkip::TodoOnly) => { r.effects_todo_only += 1; continue; }
+                Err(FillSkip::Incomplete) => { r.effects_incomplete += 1; continue; }
             };
-            if !lines.iter().any(|l| l.is_action()) {
-                r.effects_todo_only += 1;
-                continue;
-            }
-            // T38 S1 — a TODO line marks an untranslated Duel.* call in
-            // the same handler; filling only the translated remainder
-            // silently drops it. Skip-not-mis-emit.
-            if lines.iter().any(|l| !l.is_action()) {
-                r.effects_incomplete += 1;
-                continue;
-            }
             let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else {
                 continue;
             };
-            // T38 S6 review — cost-header parity: filling a resolve
-            // makes the block's header LIVE, so a block-side cost must
-            // re-derive exactly from the lua cost handler (skip class
-            // 10 — c9798352's `banish self` header contradicts the
-            // lua's banish-a-Trap-from-Deck cost).
-            if !cost_header_matches(&new_txt[block_lo..block_hi], eff, &walk.functions) {
-                r.effects_incomplete += 1;
-                continue;
-            }
-            // T38 S5 review — frame parity for summon-helper fills.
-            if is_helper_fill && !helper_frame_matches(&new_txt[block_lo..block_hi], eff) {
-                r.effects_incomplete += 1;
-                continue;
-            }
-            // T38 S6 — bare-target gate: a fill referencing `target`
-            // only lands together with a target declaration; otherwise
-            // the validator's bare-target check trades the empty-resolve
-            // error for a new one. Blocks without one get the decl
-            // CO-EMITTED from the SetTarget selector (refined extraction
-            // — exactly-mapped filters only); when that fails, the whole
-            // fill skips.
-            let mut co_target: Option<String> = None;
-            if lines_reference_target(&lines)
-                && !block_has_target_decl(&new_txt[block_lo..block_hi])
-            {
-                match target_decl_selector(eff, &walk.functions) {
-                    Some(sel) => co_target = Some(sel),
-                    None => {
-                        r.effects_incomplete += 1;
-                        continue;
+            match pre {
+                FillLines::Choose(choose_text) => {
+                    // Phase 16 — a `choose { option … }` block REPLACES
+                    // the empty resolve (the validator accepts either,
+                    // never both).
+                    if let Some((lo, hi)) = first_empty_resolve_within(&new_txt, block_lo, block_hi) {
+                        new_txt = format!("{}{}{}", &new_txt[..lo], choose_text, &new_txt[hi..]);
+                        filled += 1;
+                        r.chooses_injected += 1;
+                    } else if !new_txt[block_lo..block_hi].contains("resolve")
+                        && !new_txt[block_lo..block_hi].contains("choose")
+                    {
+                        // Block lacks a resolve slot entirely (the
+                        // "must have a resolve or choose" class) —
+                        // inject before the closing brace, Pass A2
+                        // style. Idempotent: the injected choose
+                        // makes this branch unreachable on rerun.
+                        let close_brace = block_hi - 1;
+                        let mut inject_pos = close_brace;
+                        let bytes = new_txt.as_bytes();
+                        while inject_pos > block_lo && bytes[inject_pos - 1].is_ascii_whitespace() {
+                            inject_pos -= 1;
+                        }
+                        let injection = format!("\n        {}", choose_text);
+                        new_txt = format!("{}{}{}", &new_txt[..inject_pos], injection, &new_txt[inject_pos..]);
+                        filled += 1;
+                        r.chooses_injected += 1;
                     }
                 }
-            }
-            if let Some((lo, hi)) = first_empty_resolve_within(&new_txt, block_lo, block_hi) {
-                let body = render_resolve_body(&lines);
-                let injection = match &co_target {
-                    Some(sel) => format!(
-                        "target {}\n        resolve {{\n{}        }}",
-                        sel, body,
-                    ),
-                    None => format!("resolve {{\n{}        }}", body),
-                };
-                new_txt = format!("{}{}{}", &new_txt[..lo], injection, &new_txt[hi..]);
-                filled += 1;
-                if co_target.is_some() {
-                    r.targets_injected += 1;
+                FillLines::Lines { lines, is_helper } => {
+                    let co_target = match gate_fill_block(
+                        &lines, is_helper, eff, &walk, &new_txt[block_lo..block_hi],
+                    ) {
+                        Ok(co_target) => co_target,
+                        Err(_) => { r.effects_incomplete += 1; continue; }
+                    };
+                    if let Some((lo, hi)) = first_empty_resolve_within(&new_txt, block_lo, block_hi) {
+                        let injection = render_fill(&lines, co_target.as_deref());
+                        new_txt = format!("{}{}{}", &new_txt[..lo], injection, &new_txt[hi..]);
+                        filled += 1;
+                        if co_target.is_some() {
+                            r.targets_injected += 1;
+                        }
+                    }
                 }
             }
         }
@@ -563,7 +520,9 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         // one ACTION line, so blocks without translator coverage stay
         // untouched. Effect blocks come from the shared Phase 20
         // assignment (pure-passive lua chains have no effect block and
-        // are skipped upstream).
+        // are skipped upstream). Same gate stack as Pass A via
+        // [`derive_fill`]; a choose-shaped handler already landed its
+        // block in Pass A, so only plain line fills inject here.
         for (eff_i, eff) in walk.effects.iter().enumerate() {
             if !eff.is_summon_helper() && eff.operation_handler.is_none() {
                 continue; // pure-passive — no effect block in .ds
@@ -573,30 +532,6 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             let Some(block_idx) = assign.by_effect[eff_i] else {
                 continue; // see Pass A — no unambiguous block for this effect
             };
-            let helper_line = eff.summon_helper_line();
-            let is_helper_fill = helper_line.is_some();
-            let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
-                vec![lua_ast::DslLine::Action(text)]
-            } else if eff.is_summon_helper() {
-                // Block exists, but no line to emit — see Pass A.
-                continue;
-            } else {
-                let handler = eff.operation_handler.as_deref().unwrap_or_default();
-                match walk.functions.get(handler.trim()) {
-                    Some(body) => {
-                        // T38 S1 — same completeness gate as Pass A.
-                        if lua_ast::body_drops_chains(body, &walk.functions) {
-                            continue;
-                        }
-                        lua_ast::translate_body_with_functions(body, &walk.functions)
-                    }
-                    None => continue,
-                }
-            };
-            if !lines.iter().any(|l| l.is_action()) { continue; }
-            // T38 S1 — see Pass A: TODO lines mark dropped calls.
-            if lines.iter().any(|l| !l.is_action()) { continue; }
-
             let (block_lo, block_hi) = match nth_effect_block(&new_txt, block_idx) {
                 Some(r) => r,
                 None => continue,
@@ -605,22 +540,10 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             // Skip if the block already has a resolve or choose — Pass A
             // handles those, and we don't want to double-inject.
             if block.contains("resolve") || block.contains("choose") { continue; }
-            // T38 S6 review — cost-header parity, same rationale as
-            // Pass A.
-            if !cost_header_matches(block, eff, &walk.functions) { continue; }
-            // T38 S5 review — frame parity for summon-helper fills.
-            if is_helper_fill && !helper_frame_matches(block, eff) { continue; }
-            // T38 S6 — bare-target gate + decl co-emission, same
-            // rationale as Pass A.
-            let mut co_target: Option<String> = None;
-            if lines_reference_target(&lines) && !block_has_target_decl(block) {
-                match target_decl_selector(eff, &walk.functions) {
-                    Some(sel) => co_target = Some(sel),
-                    None => continue,
-                }
-            }
+            let FillOutcome::Lines { lines, co_target } = derive_fill(eff, &walk, card_id, block) else {
+                continue;
+            };
 
-            let body_text = render_resolve_body(&lines);
             // Inject right before the block's closing `}`, after any
             // trailing whitespace, so the new resolve nests inside the
             // effect block with the standard 8-space indent.
@@ -630,13 +553,7 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             while inject_pos > block_lo && bytes[inject_pos - 1].is_ascii_whitespace() {
                 inject_pos -= 1;
             }
-            let injection = match &co_target {
-                Some(sel) => format!(
-                    "\n        target {}\n        resolve {{\n{}        }}",
-                    sel, body_text,
-                ),
-                None => format!("\n        resolve {{\n{}        }}", body_text),
-            };
+            let injection = format!("\n        {}", render_fill(&lines, co_target.as_deref()));
             new_txt = format!("{}{}{}", &new_txt[..inject_pos], injection, &new_txt[inject_pos..]);
             filled += 1;
             if co_target.is_some() {
@@ -866,6 +783,664 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         }
     }
     r
+}
+
+// ── Shared fill derivation ───────────────────────────────────
+
+/// Why a handler-derived fill was declined (Pass A report counters).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum FillSkip {
+    /// Pure-passive chain, summon helper whose params don't decode, or
+    /// a handler the walk never found — nothing to emit.
+    NoHandler,
+    /// The translator emitted nothing but TODO lines.
+    TodoOnly,
+    /// A gate refused the fill: replacement-code chain, dropped
+    /// RegisterEffect chain, TODO rider beside translated lines,
+    /// cost-header / helper-frame mismatch, or a bare `target` with no
+    /// derivable declaration.
+    Incomplete,
+}
+
+/// Stage one of a fill: what a walk effect derives on its own, before
+/// any block-text gate.
+enum FillLines {
+    /// Phase 16 — `choose { … }` text sized to replace the resolve slot.
+    Choose(String),
+    /// Action lines; `is_helper` marks a summon-helper line (its frame
+    /// parity gate runs in stage two).
+    Lines { lines: Vec<lua_ast::DslLine>, is_helper: bool },
+}
+
+/// A resolve fill derived for one walk effect against its assigned
+/// block — both stages applied.
+enum FillOutcome {
+    Choose(String),
+    /// Action lines plus the target declaration to co-emit (T38 S6).
+    Lines { lines: Vec<lua_ast::DslLine>, co_target: Option<String> },
+    Skip(FillSkip),
+}
+
+/// Stage one: the lines a walk effect derives, with every gate that
+/// needs no block text. Gate order is Pass A's: no-handler /
+/// replacement chain → choose dispatch → summon-helper line →
+/// completeness (dropped chains, TODO riders).
+fn derive_fill_lines(
+    eff: &lua_ast::EffectSkeleton,
+    walk: &lua_ast::LuaReport,
+    card_id: Option<u32>,
+) -> Result<FillLines, FillSkip> {
+    if !eff.is_summon_helper() && eff.operation_handler.is_none() {
+        return Err(FillSkip::NoHandler); // pure-passive — no effect block in .ds
+    }
+    // T38 S4 — replacement-code chains: see Pass A.
+    if eff.is_replacement_chain() {
+        return Err(FillSkip::Incomplete);
+    }
+    // Phase 16 — SelectOption label-branch dispatch. When the target
+    // handler picked an option (`Duel.SelectOption` + `e:SetLabel`) and
+    // the operation handler splits on `e:GetLabel()` with one fully-
+    // translatable arm per option, a `choose { option … }` block is the
+    // fill. Falls through to the plain fill when the shape or a label
+    // doesn't resolve.
+    if !eff.is_summon_helper() {
+        let choose_text = eff.operation_handler.as_deref().and_then(|oh| {
+            let ob = walk.functions.get(oh.trim())?;
+            let tb = eff.target_handler.as_deref()
+                .and_then(|th| walk.functions.get(th.trim()));
+            let spec = lua_ast::extract_choose_spec(tb, ob, &walk.functions)?;
+            render_choose_block(&spec, card_id?)
+        });
+        if let Some(text) = choose_text {
+            return Ok(FillLines::Choose(text));
+        }
+    }
+    // Skeletons backed by a fusion/ritual summon helper — the plain
+    // factories (Fusion.CreateSummonEff / Ritual.AddProc* /
+    // Ritual.CreateProc, fixed line) and the parameterized SetOperation
+    // forms (Fusion.SummonEffOP / Ritual.Operation, Phase 12). The
+    // helper owns the UI / op pipeline, so a summon line replaces the
+    // handler walk. Parameterized forms whose params don't decode stay
+    // empty stubs (skip-not-mis-emit).
+    let helper_line = eff.summon_helper_line();
+    let is_helper = helper_line.is_some();
+    let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
+        vec![lua_ast::DslLine::Action(text)]
+    } else if eff.is_summon_helper() {
+        return Err(FillSkip::NoHandler);
+    } else {
+        // Consumer without a helper spec has an operation handler
+        // (checked at the top).
+        let handler = eff.operation_handler.as_deref().unwrap_or_default();
+        match walk.functions.get(handler.trim()) {
+            Some(body) => {
+                // T38 S1 — completeness gate: a handler whose
+                // translation drops a RegisterEffect chain would fill an
+                // under-stated resolve. Skip the whole fill; the dropped
+                // chain is the S1b/S8 backlog.
+                if lua_ast::body_drops_chains(body, &walk.functions) {
+                    return Err(FillSkip::Incomplete);
+                }
+                lua_ast::translate_body_with_functions(body, &walk.functions)
+            }
+            None => return Err(FillSkip::NoHandler), // block exists, body unknown
+        }
+    };
+    if !lines.iter().any(|l| l.is_action()) {
+        return Err(FillSkip::TodoOnly);
+    }
+    // T38 S1 — a TODO line marks an untranslated Duel.* call in the
+    // same handler; filling only the translated remainder silently
+    // drops it. Skip-not-mis-emit.
+    if lines.iter().any(|l| !l.is_action()) {
+        return Err(FillSkip::Incomplete);
+    }
+    Ok(FillLines::Lines { lines, is_helper })
+}
+
+/// Stage two: the gates that read the assigned block's text — header
+/// parity (cost, helper frame) and the bare-target declaration. Returns
+/// the target declaration to co-emit, if the fill needs one.
+fn gate_fill_block(
+    lines: &[lua_ast::DslLine],
+    is_helper: bool,
+    eff: &lua_ast::EffectSkeleton,
+    walk: &lua_ast::LuaReport,
+    block: &str,
+) -> Result<Option<String>, FillSkip> {
+    // T38 S6 review — cost-header parity: filling a resolve makes the
+    // block's header LIVE, so a block-side cost must re-derive exactly
+    // from the lua cost handler (skip class 10 — c9798352's `banish
+    // self` header contradicts the lua's banish-a-Trap-from-Deck cost).
+    if !cost_header_matches(block, eff, &walk.functions) {
+        return Err(FillSkip::Incomplete);
+    }
+    // T38 S5 review — frame parity for summon-helper fills.
+    if is_helper && !helper_frame_matches(block, eff) {
+        return Err(FillSkip::Incomplete);
+    }
+    // T38 S6 — bare-target gate: a fill referencing `target` only lands
+    // together with a target declaration; otherwise the validator's
+    // bare-target check trades the empty-resolve error for a new one.
+    // Blocks without one get the decl CO-EMITTED from the SetTarget
+    // selector (refined extraction — exactly-mapped filters only); when
+    // that fails, the whole fill skips.
+    if lines_reference_target(lines) && !block_has_target_decl(block) {
+        return match target_decl_selector(eff, &walk.functions) {
+            Some(sel) => Ok(Some(sel)),
+            None => Err(FillSkip::Incomplete),
+        };
+    }
+    Ok(None)
+}
+
+/// Both stages: the single gate stack shared by Pass A, Pass A2,
+/// `refine-stubs` and `rederive`, so a placeholder refinement can never
+/// land a line an empty-resolve fill would have refused.
+fn derive_fill(
+    eff: &lua_ast::EffectSkeleton,
+    walk: &lua_ast::LuaReport,
+    card_id: Option<u32>,
+    block: &str,
+) -> FillOutcome {
+    match derive_fill_lines(eff, walk, card_id) {
+        Err(skip) => FillOutcome::Skip(skip),
+        Ok(FillLines::Choose(text)) => FillOutcome::Choose(text),
+        Ok(FillLines::Lines { lines, is_helper }) => {
+            match gate_fill_block(&lines, is_helper, eff, walk, block) {
+                Ok(co_target) => FillOutcome::Lines { lines, co_target },
+                Err(skip) => FillOutcome::Skip(skip),
+            }
+        }
+    }
+}
+
+/// The text that replaces a `resolve { }` slot: the rendered body at
+/// the standard 8-space block indent, preceded by the co-emitted target
+/// declaration when the fill needs one.
+fn render_fill(lines: &[lua_ast::DslLine], co_target: Option<&str>) -> String {
+    let body = render_resolve_body(lines);
+    match co_target {
+        Some(sel) => format!("target {}\n        resolve {{\n{}        }}", sel, body),
+        None => format!("resolve {{\n{}        }}", body),
+    }
+}
+
+/// The trimmed action lines of a derived fill, one entry per rendered
+/// line (a choose block contributes every line of its text).
+fn rendered_lines(outcome: &FillOutcome) -> Vec<String> {
+    match outcome {
+        FillOutcome::Choose(text) => text.lines().map(|l| l.trim().to_string()).collect(),
+        FillOutcome::Lines { lines, .. } => lines.iter()
+            .map(|l| l.clone().into_string("").trim().to_string()).collect(),
+        FillOutcome::Skip(_) => Vec::new(),
+    }
+}
+
+/// The `resolve { … }` span (keyword through closing brace) and its
+/// trimmed non-empty lines, for a block not resolved through a `choose`
+/// (nested option resolves are Phase 16 output, never audited).
+fn shipped_resolve(txt: &str, lo: usize, hi: usize) -> Option<(Vec<String>, (usize, usize))> {
+    if txt[lo..hi].contains("choose {") { return None; }
+    let (inner_lo, inner_hi) = resolve_inner_span(txt, lo, hi)?;
+    let shipped: Vec<String> = txt[inner_lo..inner_hi].lines()
+        .map(str::trim).filter(|l| !l.is_empty()).map(str::to_string).collect();
+    let kw_start = inner_lo - "resolve {".len();
+    debug_assert!(txt[kw_start..].starts_with("resolve {"));
+    Some((shipped, (kw_start, inner_hi + 1)))
+}
+
+// ── refine-stubs — placeholder-resolve refinement ────────────
+
+/// Generator-era placeholder resolve lines: the exact spellings the cdb
+/// skeleton emitted from a chain's CATEGORY_* bits before any translator
+/// ran — one line per category bit, the vacuous `(all, card, either
+/// controls)` selector, no zone. A resolve made only of these STATES a
+/// category; it does not describe the effect. Closed set (corpus census
+/// 2026-10-13: 13,417 lines, 9,793 blocks made only of them). The
+/// translator never emits the vacuous selector, so a refined block is
+/// never a placeholder block again.
+const PLACEHOLDER_LINES: &[&str] = &[
+    "special_summon (all, card, either controls)",
+    "add_to_hand (all, card, either controls)",
+    "destroy (all, card, either controls)",
+    "send (all, card, either controls) to gy",
+    "return (all, card, either controls) to deck",
+    "banish (all, card, either controls)",
+    "return (all, card, either controls) to hand",
+    "discard (all, card, either controls)",
+    "take_control (all, card, either controls)",
+    "send (all, card, either controls) to extra_deck",
+];
+
+fn is_placeholder_line(line: &str) -> bool {
+    PLACEHOLDER_LINES.contains(&line.trim())
+}
+
+/// The category class an action line states, for the coverage and
+/// parity gates. Verb families that state the same CATEGORY_* bit share
+/// a class: every summon procedure states SPECIAL_SUMMON, `search`
+/// states TOHAND like `add_to_hand`, `swap_control` states CONTROL.
+/// The generator spelled TOGRAVE / HANDES / DECKDES placeholders as
+/// `send … to gy` or `discard` interchangeably and TOEXTRA as `return
+/// … to deck`, so the to-GY and to-Deck families each collapse into one
+/// class. Lines outside the table state no gated category — they may
+/// accompany a covering line, never cover on their own. A destination
+/// reads from the LAST ` to ` (a where-clause card name may contain
+/// the word).
+fn line_category(line: &str) -> Option<&'static str> {
+    let line = line.trim();
+    let verb = line.split_whitespace().next()?;
+    let dest = || line.rsplit(" to ").next().and_then(|d| d.split_whitespace().next());
+    Some(match verb {
+        "special_summon" | "fusion_summon" | "ritual_summon" | "synchro_summon"
+        | "xyz_summon" => "special_summon",
+        "add_to_hand" | "search" => "to_hand",
+        "destroy" => "destroy",
+        "banish" => "banish",
+        "discard" | "mill" => "to_gy",
+        "take_control" | "swap_control" => "control",
+        "send" | "return" => match dest()? {
+            "gy" => "to_gy",
+            "hand" => "to_hand",
+            "deck" | "extra_deck" => "to_deck",
+            _ => return None,
+        },
+        _ => return None,
+    })
+}
+
+/// The placeholder classes a chain's own `SetCategory` bits state. The
+/// generator derived a block's placeholder lines from exactly these
+/// bits, so a block whose placeholders state a different set was
+/// generated from a DIFFERENT chain — the parity gate's alignment
+/// evidence. Bits outside the placeholder table (DRAW, DAMAGE, …) drop
+/// out; a chain with no SetCategory states the empty set.
+fn chain_category_classes(eff: &lua_ast::EffectSkeleton) -> std::collections::BTreeSet<&'static str> {
+    let mut out = std::collections::BTreeSet::new();
+    for (method, args) in &eff.set_calls {
+        if method != "SetCategory" { continue; }
+        for bit in args.iter().flat_map(|a| a.split(['+', '|'])).map(str::trim) {
+            let class = match bit {
+                "CATEGORY_SPECIAL_SUMMON" => "special_summon",
+                "CATEGORY_TOHAND" | "CATEGORY_SEARCH" => "to_hand",
+                "CATEGORY_DESTROY" => "destroy",
+                "CATEGORY_TOGRAVE" | "CATEGORY_HANDES" | "CATEGORY_DECKDES" => "to_gy",
+                "CATEGORY_TODECK" | "CATEGORY_TOEXTRA" => "to_deck",
+                "CATEGORY_REMOVE" => "banish",
+                "CATEGORY_CONTROL" => "control",
+                _ => continue,
+            };
+            out.insert(class);
+        }
+    }
+    out
+}
+
+/// Coverage gate: every category the placeholder lines state must be
+/// stated by at least one rendered line (nested lines of a multi-line
+/// action count — a `delayed … { destroy sp }` still states DESTROY).
+/// The rendering may state MORE (the generator's bits were a subset of
+/// the op's actions) but never fewer: fewer means an incomplete
+/// translation or a mis-aligned block.
+fn placeholders_covered(shipped: &[String], rendered: &[String]) -> bool {
+    let stated: std::collections::BTreeSet<&str> = rendered.iter()
+        .flat_map(|l| l.lines())
+        .filter_map(line_category)
+        .collect();
+    shipped.iter().all(|l| line_category(l).map_or(false, |c| stated.contains(c)))
+}
+
+/// The placeholder lines of an effect block whose resolve is made ONLY
+/// of placeholder lines, with the span of the whole `resolve { … }`
+/// block to replace. None for an empty resolve, a resolve carrying any
+/// non-placeholder line, or a choose-resolved block.
+fn placeholder_resolve_lines(txt: &str, lo: usize, hi: usize) -> Option<(Vec<String>, (usize, usize))> {
+    let (shipped, span) = shipped_resolve(txt, lo, hi)?;
+    if shipped.is_empty() || !shipped.iter().all(|l| is_placeholder_line(l)) {
+        return None;
+    }
+    Some((shipped, span))
+}
+
+#[derive(Default, Debug, PartialEq, Eq)]
+struct RefineStats {
+    /// Effect blocks whose resolve is made only of placeholder lines.
+    placeholder_blocks: usize,
+    /// … of which no walk effect is assigned (alignment hazard, phantom
+    /// ordinal, or a generator block with no lua chain).
+    unreached: usize,
+    refined: usize,
+    refined_choose: usize,
+    /// Chain SetCategory classes ≠ placeholder classes.
+    parity_mismatch: usize,
+    /// Chain header signature contradicts the block header.
+    header_mismatch: usize,
+    /// Rendering states fewer categories than the placeholder.
+    not_covered: usize,
+    skipped_no_handler: usize,
+    skipped_todo: usize,
+    skipped_incomplete: usize,
+}
+
+impl RefineStats {
+    fn add(&mut self, o: &RefineStats) {
+        self.placeholder_blocks += o.placeholder_blocks;
+        self.unreached += o.unreached;
+        self.refined += o.refined;
+        self.refined_choose += o.refined_choose;
+        self.parity_mismatch += o.parity_mismatch;
+        self.header_mismatch += o.header_mismatch;
+        self.not_covered += o.not_covered;
+        self.skipped_no_handler += o.skipped_no_handler;
+        self.skipped_todo += o.skipped_todo;
+        self.skipped_incomplete += o.skipped_incomplete;
+    }
+}
+
+/// Refine every pure-placeholder resolve in one .ds file whose aligned
+/// handler derives a complete fill ([`derive_fill`] — the same gate
+/// stack an empty resolve gets) stating every category the placeholder
+/// did ([`placeholders_covered`]). Two alignment gates sit on top of the
+/// positional assignment, because this pass rewrites NON-empty resolves
+/// and the uncovered-case audit found generator-skipped chains (flip
+/// effects, custom-event triggers, summon procedures) shifting every
+/// later block one chain late: the chain's own SetCategory bits must
+/// state exactly the placeholder's classes ([`chain_category_classes`])
+/// and its header signature must agree with the block header
+/// ([`block_match::header_agrees`]). Returns the rewritten text (equal
+/// to `txt` when nothing refines), per-file stats, and a log line per
+/// decision on a placeholder block. Byte-idempotent: a refined resolve
+/// is no longer a placeholder resolve.
+fn refine_file(
+    txt: &str,
+    walk: &lua_ast::LuaReport,
+    card_id: Option<u32>,
+    stem: &str,
+) -> (String, RefineStats, Vec<String>) {
+    let mut st = RefineStats::default();
+    let mut log: Vec<String> = Vec::new();
+    let assign = block_match::compute_assignments(walk, txt);
+    let kind = block_match::card_kind_from_ds(txt);
+    // Census first: placeholder blocks the effect loop never reaches
+    // have no assigned walk effect — the alignment-hazard backlog.
+    let mut reached: Vec<bool> = Vec::new();
+    for (lo, hi) in block_match::effect_block_ranges(txt) {
+        let is_ph = placeholder_resolve_lines(txt, lo, hi).is_some();
+        if is_ph { st.placeholder_blocks += 1; }
+        reached.push(!is_ph);
+    }
+    let mut new_txt = txt.to_string();
+    for (eff_i, eff) in walk.effects.iter().enumerate() {
+        let Some(block_idx) = assign.by_effect[eff_i] else { continue };
+        // Offsets recomputed against new_txt — a refinement earlier in
+        // this file shifts every later block.
+        let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else { continue };
+        let Some((shipped, span)) = placeholder_resolve_lines(&new_txt, block_lo, block_hi) else { continue };
+        if let Some(r) = reached.get_mut(block_idx) { *r = true; }
+        let handler = eff.operation_handler.as_deref().unwrap_or("<helper>").trim();
+        // Parity: the chain must state at least one placeholder class
+        // and never one the placeholder lacks (the generator also read
+        // card text, so a placeholder may state MORE than the bits —
+        // c12678870's "send the rest to the GY" line — but a chain with
+        // no category bits, or with a bit the placeholder doesn't show,
+        // generated some other block).
+        let chain_classes = chain_category_classes(eff);
+        let placeholder_classes: std::collections::BTreeSet<&str> =
+            shipped.iter().filter_map(|l| line_category(l)).collect();
+        if chain_classes.is_empty() || !chain_classes.is_subset(&placeholder_classes) {
+            st.parity_mismatch += 1;
+            log.push(format!("PARITY {} block={} handler={} chain={:?} placeholder={:?}",
+                stem, block_idx, handler, chain_classes, placeholder_classes));
+            continue;
+        }
+        let agrees = block_match::parse_block_sigs(&new_txt).get(block_idx)
+            .is_some_and(|b| block_match::header_agrees(eff, kind, b));
+        if !agrees {
+            st.header_mismatch += 1;
+            log.push(format!("HEADER {} block={} handler={}", stem, block_idx, handler));
+            continue;
+        }
+        let outcome = derive_fill(eff, walk, card_id, &new_txt[block_lo..block_hi]);
+        let (replacement, is_choose) = match &outcome {
+            FillOutcome::Skip(reason) => {
+                match reason {
+                    FillSkip::NoHandler => st.skipped_no_handler += 1,
+                    FillSkip::TodoOnly => st.skipped_todo += 1,
+                    FillSkip::Incomplete => st.skipped_incomplete += 1,
+                }
+                log.push(format!("SKIP   {} block={} handler={} reason={:?}", stem, block_idx, handler, reason));
+                continue;
+            }
+            FillOutcome::Choose(text) => (text.clone(), true),
+            FillOutcome::Lines { lines, co_target } => (render_fill(lines, co_target.as_deref()), false),
+        };
+        let rendered = rendered_lines(&outcome);
+        if !placeholders_covered(&shipped, &rendered) {
+            st.not_covered += 1;
+            log.push(format!("UNCOVERED {} block={} handler={}", stem, block_idx, handler));
+            for l in &shipped  { log.push(format!("    shipped:  {}", l)); }
+            for l in &rendered { log.push(format!("    rendered: {}", l)); }
+            continue;
+        }
+        if rendered.iter().all(|l| is_placeholder_line(l)) {
+            // Defensive — the translator never renders the vacuous
+            // selector; a rendering made of placeholders would loop.
+            continue;
+        }
+        log.push(format!("REFINE {} block={} handler={}{}", stem, block_idx, handler,
+            if is_choose { " (choose)" } else { "" }));
+        for l in &shipped  { log.push(format!("    - {}", l)); }
+        for l in &rendered { log.push(format!("    + {}", l)); }
+        new_txt = format!("{}{}{}", &new_txt[..span.0], replacement, &new_txt[span.1..]);
+        if is_choose { st.refined_choose += 1; } else { st.refined += 1; }
+    }
+    st.unreached = reached.iter().filter(|r| !**r).count();
+    (new_txt, st, log)
+}
+
+/// Walk the corpus like `audit-fills`: one (stem, text, walk, card id)
+/// visit per .ds file that has a parseable lua twin with effects.
+fn for_each_card(corpus_dir: &str, lua_dir: &str, mut visit: impl FnMut(&std::path::Path, &str, String, &lua_ast::LuaReport, Option<u32>)) {
+    let mut paths: Vec<std::path::PathBuf> = match fs::read_dir(corpus_dir) {
+        Ok(e) => e.flatten().map(|e| e.path())
+            .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("ds"))
+            .collect(),
+        Err(e) => { eprintln!("cannot read {}: {}", corpus_dir, e); return; }
+    };
+    paths.sort();
+    for path in paths {
+        let Ok(txt) = fs::read_to_string(&path) else { continue };
+        let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
+        let lua_path = Path::new(lua_dir).join(format!("{}.lua", stem));
+        let Ok(lua_src) = fs::read_to_string(&lua_path) else { continue };
+        let Ok(parsed) = full_moon::parse(&lua_src) else { continue };
+        let walk = lua_ast::walk(&parsed);
+        if walk.effects.is_empty() { continue; }
+        let card_id: Option<u32> = stem.strip_prefix('c').and_then(|s| s.parse().ok());
+        visit(&path, &stem, txt, &walk, card_id);
+    }
+}
+
+/// See the `refine-stubs` mode arm. Prints every decision and rewrites
+/// files only with `--apply`.
+fn refine_stubs(corpus_dir: &str, lua_dir: &str, apply: bool) {
+    let mut total = RefineStats::default();
+    let (mut files_scanned, mut files_changed) = (0usize, 0usize);
+    for_each_card(corpus_dir, lua_dir, |path, stem, txt, walk, card_id| {
+        files_scanned += 1;
+        let (new_txt, st, log) = refine_file(&txt, walk, card_id, stem);
+        for l in log { println!("{}", l); }
+        total.add(&st);
+        if new_txt != txt {
+            files_changed += 1;
+            if apply {
+                if let Err(e) = fs::write(path, &new_txt) {
+                    eprintln!("cannot write {}: {}", path.display(), e);
+                }
+            }
+        }
+    });
+    println!("=== refine-stubs report ({}) ===", if apply { "applied" } else { "dry run" });
+    println!("  files scanned:            {}", files_scanned);
+    println!("  placeholder blocks:       {}", total.placeholder_blocks);
+    println!("  unreached (no effect):    {}", total.unreached);
+    println!("  refined (lines):          {}", total.refined);
+    println!("  refined (choose):         {}", total.refined_choose);
+    println!("  parity mismatch:          {}", total.parity_mismatch);
+    println!("  header mismatch:          {}", total.header_mismatch);
+    println!("  not covered (category):   {}", total.not_covered);
+    println!("  skipped (no handler):     {}", total.skipped_no_handler);
+    println!("  skipped (todo only):      {}", total.skipped_todo);
+    println!("  skipped (incomplete):     {}", total.skipped_incomplete);
+    println!("  files changed:            {}", files_changed);
+}
+
+// ── rederive — accepted-fill re-derivation audit ─────────────
+
+/// The spelling an earlier translator gave `line`: multi-zone lists
+/// removed (`, from a or b` segments drop, single-zone `from x` stays),
+/// a special summon's `in defense_position` / `in face_down_defense`
+/// suffix removed, and every `discard (…)` collapsed to the one fixed
+/// string the pre-fix DiscardHand arm emitted. Equal to a shipped line
+/// exactly when the only difference is what the compound-LOCATION,
+/// summon-position and DiscardHand fixes now render.
+fn old_spelling(line: &str) -> String {
+    let mut out = String::with_capacity(line.len());
+    let mut rest = line;
+    while let Some(i) = rest.find(", from ") {
+        let after = &rest[i + 2..]; // "from …"
+        let seg_len = after.find([',', ')']).unwrap_or(after.len());
+        if after[..seg_len].contains(" or ") {
+            out.push_str(&rest[..i]);
+        } else {
+            out.push_str(&rest[..i + 2 + seg_len]);
+        }
+        rest = &rest[i + 2 + seg_len..];
+    }
+    out.push_str(rest);
+    if out.starts_with("discard (") {
+        // The pre-fix DiscardHand arm rendered one fixed string.
+        return "discard (1+, card, you control, from hand)".to_string();
+    }
+    if out.starts_with("special_summon ") {
+        for suffix in [" in defense_position", " in face_down_defense"] {
+            if let Some(stripped) = out.strip_suffix(suffix) {
+                return stripped.to_string();
+            }
+            if let Some(i) = out.find(&format!("{} as ", suffix)) {
+                return format!("{}{}", &out[..i], &out[i + suffix.len()..]);
+            }
+        }
+    }
+    out
+}
+
+/// The handler's rendering split into action lines and TODO riders —
+/// the raw translator output, before any fill gate.
+fn handler_render(eff: &lua_ast::EffectSkeleton, walk: &lua_ast::LuaReport) -> Option<(Vec<String>, Vec<String>)> {
+    let handler = eff.operation_handler.as_deref()?.trim();
+    let body = walk.functions.get(handler)?;
+    let (mut actions, mut todos) = (Vec::new(), Vec::new());
+    for l in lua_ast::translate_body_with_functions(body, &walk.functions) {
+        let is_action = l.is_action();
+        let text = l.into_string("").trim().to_string();
+        if is_action { actions.push(text); } else { todos.push(text); }
+    }
+    Some((actions, todos))
+}
+
+/// See the `rederive` mode arm. Reports every shipped non-empty, non-
+/// placeholder resolve against its current derivation: `SAME`, an
+/// `UPGRADE` (differs only by a zone list / summon position the fixed
+/// translator now renders — rewritten with `--apply`), a `REFUSED` fill
+/// (the current gate declines it; `exact=yes` when the shipped lines
+/// are the translator's own action lines — stubbed by `--stub-todo=X`
+/// when a TODO rider contains `X`), or a `REVIEW` (differs otherwise —
+/// report-only, for hand verification).
+fn rederive(corpus_dir: &str, lua_dir: &str, apply: bool, stub_todo: Option<&str>) {
+    let (mut examined, mut same, mut upgrades, mut review) = (0usize, 0usize, 0usize, 0usize);
+    let (mut refused, mut refused_exact, mut stubbed) = (0usize, 0usize, 0usize);
+    let mut files_changed = 0usize;
+    for_each_card(corpus_dir, lua_dir, |path, stem, txt, walk, card_id| {
+        let assign = block_match::compute_assignments(walk, &txt);
+        let mut new_txt = txt.clone();
+        let mut changed = false;
+        for (eff_i, eff) in walk.effects.iter().enumerate() {
+            let Some(block_idx) = assign.by_effect[eff_i] else { continue };
+            let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else { continue };
+            let Some((shipped, span)) = shipped_resolve(&new_txt, block_lo, block_hi) else { continue };
+            if shipped.is_empty() || shipped.iter().all(|l| is_placeholder_line(l)) { continue; }
+            examined += 1;
+            let handler = eff.operation_handler.as_deref().unwrap_or("<helper>").trim();
+            let outcome = derive_fill(eff, walk, card_id, &new_txt[block_lo..block_hi]);
+            let rendered = rendered_lines(&outcome);
+            let (lines, co_target) = match &outcome {
+                FillOutcome::Skip(reason) => {
+                    refused += 1;
+                    let (actions, todos) = handler_render(eff, walk).unwrap_or_default();
+                    let exact = !actions.is_empty() && actions == shipped;
+                    if exact { refused_exact += 1; }
+                    println!("REFUSED {} block={} handler={} reason={:?} exact={}",
+                        stem, block_idx, handler, reason, if exact { "yes" } else { "no" });
+                    for t in &todos { println!("    todo: {}", t); }
+                    if !exact {
+                        for l in &shipped  { println!("    shipped:  {}", l); }
+                        for l in &actions  { println!("    rendered: {}", l); }
+                    }
+                    if exact && stub_todo.is_some_and(|x| todos.iter().any(|t| t.contains(x))) {
+                        let (inner_lo, inner_hi) = (span.0 + "resolve {".len(), span.1 - 1);
+                        new_txt = format!("{}\n        {}", &new_txt[..inner_lo], &new_txt[inner_hi..]);
+                        changed = true;
+                        stubbed += 1;
+                        println!("    STUBBED");
+                    }
+                    continue;
+                }
+                FillOutcome::Choose(_) => (None, None),
+                FillOutcome::Lines { lines, co_target } => (Some(lines), co_target.as_deref()),
+            };
+            if rendered == shipped {
+                same += 1;
+                println!("SAME {} block={} handler={}", stem, block_idx, handler);
+                continue;
+            }
+            let is_upgrade = lines.is_some() && co_target.is_none()
+                && rendered.len() == shipped.len()
+                && rendered.iter().zip(&shipped).all(|(r, s)| r != s && old_spelling(r) == *s);
+            if is_upgrade {
+                upgrades += 1;
+                println!("UPGRADE {} block={} handler={}", stem, block_idx, handler);
+                for l in &shipped  { println!("    - {}", l); }
+                for l in &rendered { println!("    + {}", l); }
+                if apply {
+                    let replacement = render_fill(lines.unwrap(), None);
+                    new_txt = format!("{}{}{}", &new_txt[..span.0], replacement, &new_txt[span.1..]);
+                    changed = true;
+                }
+            } else {
+                review += 1;
+                println!("REVIEW {} block={} handler={}", stem, block_idx, handler);
+                for l in &shipped  { println!("    shipped:  {}", l); }
+                for l in &rendered { println!("    rendered: {}", l); }
+            }
+        }
+        if changed {
+            files_changed += 1;
+            if let Err(e) = fs::write(path, &new_txt) {
+                eprintln!("cannot write {}: {}", path.display(), e);
+            }
+        }
+    });
+    println!("=== rederive report ({}) ===", if apply || stub_todo.is_some() { "applied" } else { "dry run" });
+    println!("  resolves examined:        {}", examined);
+    println!("  identical:                {}", same);
+    println!("  upgrades (zone/position): {}", upgrades);
+    println!("  review (other diffs):     {}", review);
+    println!("  refused by current gate:  {}", refused);
+    println!("    of which exact fills:   {}", refused_exact);
+    println!("    stubbed:                {}", stubbed);
+    println!("  files changed:            {}", files_changed);
 }
 
 /// Locate the closing brace of the top-level `card "<name>" { … }` block.
@@ -1230,4 +1805,233 @@ fn render_resolve_body(lines: &[lua_ast::DslLine]) -> String {
         out.push('\n');
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn placeholder_lines_form_a_closed_set() {
+        assert!(is_placeholder_line("special_summon (all, card, either controls)"));
+        assert!(is_placeholder_line("    send (all, card, either controls) to gy"));
+        assert!(!is_placeholder_line("special_summon (all, card, either controls, from gy)"));
+        assert!(!is_placeholder_line("special_summon (all, card, either controls) in attack_position"));
+        assert!(!is_placeholder_line("draw 1"));
+        assert!(!is_placeholder_line("special_summon target"));
+    }
+
+    #[test]
+    fn line_category_shares_a_class_across_verb_families() {
+        assert_eq!(line_category("fusion_summon (1, card, you control, from extra_deck)"), Some("special_summon"));
+        assert_eq!(line_category("special_summon self"), Some("special_summon"));
+        assert_eq!(line_category("search (1, card, you control, from deck)"), Some("to_hand"));
+        assert_eq!(line_category("return target to hand"), Some("to_hand"));
+        assert_eq!(line_category("mill 2"), Some("to_gy"));
+        assert_eq!(line_category("discard (1, card, you control, from hand)"), Some("to_gy"));
+        assert_eq!(line_category("send (1, card, where name == \"Return to Hand\") to gy"), Some("to_gy"));
+        assert_eq!(line_category("return (1, card, you control, from gy) to deck top"), Some("to_deck"));
+        assert_eq!(line_category("send self to extra_deck"), Some("to_deck"));
+        assert_eq!(line_category("swap_control self target"), Some("control"));
+        assert_eq!(line_category("damage opponent 800"), None);
+        assert_eq!(line_category("return self to field"), None);
+        assert_eq!(line_category("}"), None);
+    }
+
+    #[test]
+    fn coverage_requires_every_placeholder_category() {
+        let s = |v: &[&str]| v.iter().map(|x| x.to_string()).collect::<Vec<_>>();
+        let shipped = s(&["special_summon (all, card, either controls)", "destroy (all, card, either controls)"]);
+        assert!(!placeholders_covered(&shipped, &s(&["special_summon target"])));
+        assert!(placeholders_covered(&shipped,
+            &s(&["destroy (1, card, opponent controls, from monster_zone)", "xyz_summon self"])));
+        // Extra categories in the rendering are fine — the generator's
+        // bits were a subset of the op's actions.
+        assert!(placeholders_covered(&s(&["destroy (all, card, either controls)"]),
+            &s(&["destroy target", "damage opponent 500"])));
+        // Nested lines of a multi-line action count.
+        assert!(placeholders_covered(&s(&["destroy (all, card, either controls)"]),
+            &s(&["delayed on end_phase until end_of_turn {\n    destroy sp\n}"])));
+        // A choose block's lines count across options.
+        assert!(placeholders_covered(&s(&["special_summon (all, card, either controls)", "take_control (all, card, either controls)"]),
+            &s(&["choose {", "option \"A\" {", "resolve {", "take_control target", "}", "}",
+                 "option \"B\" {", "resolve {", "special_summon target", "}", "}", "}"])));
+    }
+
+    #[test]
+    fn chain_category_classes_reads_set_category_bits() {
+        let mut eff = lua_ast::EffectSkeleton::default();
+        assert!(chain_category_classes(&eff).is_empty());
+        eff.set_calls.push(("SetCategory".to_string(),
+            vec!["CATEGORY_SEARCH+CATEGORY_TOHAND+CATEGORY_DESTROY".to_string()]));
+        let classes = chain_category_classes(&eff);
+        assert_eq!(classes.into_iter().collect::<Vec<_>>(), vec!["destroy", "to_hand"]);
+        let mut eff = lua_ast::EffectSkeleton::default();
+        eff.set_calls.push(("SetCategory".to_string(),
+            vec!["CATEGORY_SPECIAL_SUMMON|CATEGORY_DRAW".to_string()]));
+        assert_eq!(chain_category_classes(&eff).into_iter().collect::<Vec<_>>(), vec!["special_summon"]);
+        // The to-GY and to-Deck families collapse the way the
+        // generator's placeholders did.
+        let mut eff = lua_ast::EffectSkeleton::default();
+        eff.set_calls.push(("SetCategory".to_string(),
+            vec!["CATEGORY_HANDES+CATEGORY_DECKDES+CATEGORY_TOEXTRA".to_string()]));
+        assert_eq!(chain_category_classes(&eff).into_iter().collect::<Vec<_>>(), vec!["to_deck", "to_gy"]);
+    }
+
+    const DS_PLACEHOLDER: &str = "\
+card \"Test Monster\" {
+    id: 1
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 4
+    atk: 1000
+    def: 1000
+
+    effect \"Effect 1\" {
+        speed: 1
+        once_per_turn: hard
+        resolve {
+            special_summon (all, card, either controls)
+        }
+    }
+}
+";
+
+    #[test]
+    fn placeholder_resolve_lines_spans_the_whole_resolve_block() {
+        let (lo, hi) = block_match::effect_block_ranges(DS_PLACEHOLDER)[0];
+        let (lines, span) = placeholder_resolve_lines(DS_PLACEHOLDER, lo, hi).unwrap();
+        assert_eq!(lines, vec!["special_summon (all, card, either controls)".to_string()]);
+        assert!(DS_PLACEHOLDER[span.0..].starts_with("resolve {"));
+        assert_eq!(&DS_PLACEHOLDER[span.1 - 1..span.1], "}");
+        assert_eq!(&DS_PLACEHOLDER[span.1..span.1 + 6], "\n    }");
+        // A refined block is not a placeholder block.
+        let refined = DS_PLACEHOLDER.replace("special_summon (all, card, either controls)", "special_summon self");
+        let (lo, hi) = block_match::effect_block_ranges(&refined)[0];
+        assert!(placeholder_resolve_lines(&refined, lo, hi).is_none());
+        // A block resolved through a choose is never a placeholder block.
+        let choose = DS_PLACEHOLDER.replace(
+            "resolve {\n            special_summon (all, card, either controls)\n        }",
+            "choose {\n            option \"A\" {\n                resolve {\n                    special_summon (all, card, either controls)\n                }\n            }\n        }");
+        let (lo, hi) = block_match::effect_block_ranges(&choose)[0];
+        assert!(placeholder_resolve_lines(&choose, lo, hi).is_none());
+        // An empty resolve is Pass A's, not this pass's.
+        let empty = DS_PLACEHOLDER.replace("\n            special_summon (all, card, either controls)\n        ", " ");
+        let (lo, hi) = block_match::effect_block_ranges(&empty)[0];
+        assert!(placeholder_resolve_lines(&empty, lo, hi).is_none());
+    }
+
+    #[test]
+    fn old_spelling_drops_zone_lists_and_summon_positions() {
+        assert_eq!(old_spelling("special_summon (1, card, you control, from hand or gy)"),
+            "special_summon (1, card, you control)");
+        assert_eq!(old_spelling("special_summon (1, card, you control, from hand)"),
+            "special_summon (1, card, you control, from hand)");
+        assert_eq!(old_spelling("send (1, card, you control, from deck or extra_deck, where is_monster) to gy"),
+            "send (1, card, you control, where is_monster) to gy");
+        assert_eq!(old_spelling("special_summon (1, card, you control, from deck) in defense_position"),
+            "special_summon (1, card, you control, from deck)");
+        assert_eq!(old_spelling("special_summon self in face_down_defense as sp"),
+            "special_summon self as sp");
+        assert_eq!(old_spelling("special_summon (1, card, you control, from hand or gy) in defense_position"),
+            "special_summon (1, card, you control)");
+        assert_eq!(old_spelling("discard (1, card, opponent controls, from hand)"),
+            "discard (1+, card, you control, from hand)");
+        assert_eq!(old_spelling("draw 1"), "draw 1");
+    }
+
+    const LUA_SELF_SUMMON: &str = "\
+local s,id=GetID()
+function s.initial_effect(c)
+	--Special Summon itself from the GY
+	local e1=Effect.CreateEffect(c)
+	e1:SetDescription(aux.Stringid(id,0))
+	e1:SetCategory(CATEGORY_SPECIAL_SUMMON)
+	e1:SetType(EFFECT_TYPE_IGNITION)
+	e1:SetRange(LOCATION_GRAVE)
+	e1:SetCountLimit(1,id)
+	e1:SetTarget(s.sptg)
+	e1:SetOperation(s.spop)
+	c:RegisterEffect(e1)
+end
+function s.sptg(e,tp,eg,ep,ev,re,r,rp,chk)
+	if chk==0 then return Duel.GetLocationCount(tp,LOCATION_MZONE)>0
+		and e:GetHandler():IsCanBeSpecialSummoned(e,0,tp,false,false) end
+	Duel.SetOperationInfo(0,CATEGORY_SPECIAL_SUMMON,e:GetHandler(),1,0,0)
+end
+function s.spop(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	if c:IsRelateToEffect(e) then
+		Duel.SpecialSummon(c,0,tp,tp,false,false,POS_FACEUP)
+	end
+end
+";
+
+    fn walk(lua: &str) -> lua_ast::LuaReport {
+        lua_ast::walk(&full_moon::parse(lua).expect("lua parses"))
+    }
+
+    #[test]
+    fn refine_file_replaces_a_placeholder_with_the_derived_fill() {
+        let w = walk(LUA_SELF_SUMMON);
+        let (out, st, log) = refine_file(DS_PLACEHOLDER, &w, Some(1), "c1");
+        assert_eq!(st.placeholder_blocks, 1, "{:?}", log);
+        assert_eq!(st.refined, 1, "{:?}", log);
+        assert_eq!(out, DS_PLACEHOLDER.replace(
+            "special_summon (all, card, either controls)", "special_summon self"));
+        assert!(log.iter().any(|l| l.starts_with("REFINE c1 block=0 handler=s.spop")));
+        // Idempotent: the refined resolve is no longer a placeholder.
+        let (again, st2, _) = refine_file(&out, &w, Some(1), "c1");
+        assert_eq!(again, out);
+        assert_eq!(st2, RefineStats::default());
+    }
+
+    #[test]
+    fn refine_file_refuses_parity_and_header_mismatches() {
+        let w = walk(LUA_SELF_SUMMON);
+        // The chain states SPECIAL_SUMMON; a DESTROY placeholder was
+        // generated from some other chain.
+        let ds = DS_PLACEHOLDER.replace("special_summon (all, card, either controls)",
+            "destroy (all, card, either controls)");
+        let (out, st, log) = refine_file(&ds, &w, Some(1), "c1");
+        assert_eq!(out, ds);
+        assert_eq!(st.parity_mismatch, 1, "{:?}", log);
+        assert_eq!(st.refined, 0);
+        // An ignition chain expects no trigger line; a block carrying
+        // one belongs to a different chain.
+        let ds = DS_PLACEHOLDER.replace("        once_per_turn: hard\n",
+            "        once_per_turn: hard\n        trigger: summoned\n");
+        let (out, st, log) = refine_file(&ds, &w, Some(1), "c1");
+        assert_eq!(out, ds);
+        assert_eq!(st.header_mismatch, 1, "{:?}", log);
+        // A once-per-turn chain against a block without the line, too.
+        let ds = DS_PLACEHOLDER.replace("        once_per_turn: hard\n", "");
+        let (out, st, _) = refine_file(&ds, &w, Some(1), "c1");
+        assert_eq!(out, ds);
+        assert_eq!(st.header_mismatch, 1);
+    }
+
+    #[test]
+    fn refine_file_leaves_unassigned_placeholder_blocks_alone() {
+        // Two placeholder blocks, one chain: the second block has no
+        // walk effect and counts as unreached.
+        let w = walk(LUA_SELF_SUMMON);
+        let extra = "\
+    effect \"Effect 2\" {
+        speed: 1
+        trigger: destroyed
+        resolve {
+            add_to_hand (all, card, either controls)
+        }
+    }
+";
+        let ds = DS_PLACEHOLDER.replace("    }\n}\n", &format!("    }}\n\n{}}}\n", extra));
+        let (out, st, log) = refine_file(&ds, &w, Some(1), "c1");
+        assert_eq!(st.placeholder_blocks, 2, "{:?}", log);
+        assert_eq!(st.refined, 1, "{:?}", log);
+        assert_eq!(st.unreached, 1, "{:?}", log);
+        assert!(out.contains("add_to_hand (all, card, either controls)"));
+        assert!(out.contains("special_summon self"));
+    }
 }

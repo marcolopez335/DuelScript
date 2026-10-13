@@ -327,6 +327,37 @@ fn veto(e: &EntitySig, b: &BlockSig) -> bool {
         || (b.has_condition && !e.has_condition)
 }
 
+/// Header agreement for a positional (unscored) assignment: true when
+/// no immutable expectation the entity states contradicts the block and
+/// the mutable-feature [`veto`] doesn't fire. Weaker than a claim (no
+/// `MIN_CLAIM` — a bare block states nothing to agree with), but enough
+/// to reject a block whose header belongs to a different chain: the
+/// `refine-stubs` pass rewrites NON-empty resolves and so needs more
+/// than the positional fast path's blind zip. `mandatory` is not
+/// consulted — the generator stamped it on ignition blocks at random
+/// (c10000030), so it carries no alignment signal.
+pub fn header_agrees(skel: &EffectSkeleton, kind: CardKind, b: &BlockSig) -> bool {
+    let e = entity_sig(skel, kind);
+    if veto(&e, b) { return false; }
+    if let (Some(es), Some(bs)) = (e.speed, b.speed) {
+        if es != bs { return false; }
+    }
+    // Activation chains carry the generator's trigger line whenever
+    // their SetCode names an event (`trigger: summoned by special` on a
+    // trap's EVENT_SPSUMMON_SUCCESS activation, c1005587), so the
+    // signature's no-trigger-line expectation for them is scoring
+    // noise, not a contradiction.
+    let activate = skel.set_calls.iter().any(|(m, a)| {
+        m == "SetType" && a.first().is_some_and(|t| t.contains("EFFECT_TYPE_ACTIVATE"))
+    });
+    if !activate {
+        if let Some(t) = e.trigger_line {
+            if t != b.trigger_line { return false; }
+        }
+    }
+    e.once_per_turn == b.once_per_turn
+}
+
 /// A phantom's block-ownership is unknown, so every subset of phantoms
 /// is a possible world; more than this many phantoms (64 worlds) and we
 /// refuse to match at all. Real cards have 0–2.
