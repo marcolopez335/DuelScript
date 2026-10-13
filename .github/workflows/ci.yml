@@ -1,0 +1,76 @@
+# CI on PRs — the "CI on PRs" story in docs/STORIES.md.
+#
+#   - library tests, default features and the translator feature set
+#   - the parser/fmt round-trip tests
+#   - the translator binary's own tests (refine-stubs / rederive gates)
+#   - a zero-warnings build of every binary (lsp included)
+#   - the full-corpus parse+compile regression (normally #[ignore]-gated)
+#   - the corpus error-count guard: `duelscript check cards/official/`
+#     may not report more errors than `.github/corpus-errors-baseline`.
+#     A PR that legitimately raises the count (honest stubs from a
+#     policy-flip retrofit) updates the baseline in the same change, so
+#     the increase is visible in review; a PR that lowers it should
+#     lower the baseline too.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Library tests (default features)
+        run: cargo test --lib
+      - name: Library tests (lua_ast + cdb)
+        run: cargo test --lib --features lua_ast,cdb
+      - name: Round-trip tests
+        run: cargo test --lib roundtrip
+      - name: Translator binary tests
+        run: cargo test --features lua_ast,cdb --bin lua_translate
+
+  build:
+    name: zero-warnings build
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Build every binary with every feature
+        run: cargo build --features lua_ast,cdb,lsp --bins
+
+  corpus:
+    name: corpus guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Full-corpus parse + compile regression
+        run: cargo test --release --test corpus_compile -- --ignored
+      - name: Error count must not rise above the baseline
+        run: |
+          set -euo pipefail
+          summary=$(cargo run --release --features cdb --bin duelscript -- check cards/official/ 2>&1 | tail -1)
+          echo "$summary"
+          errors=$(echo "$summary" | grep -oE '[0-9]+ error' | grep -oE '[0-9]+')
+          baseline=$(tr -d '[:space:]' < .github/corpus-errors-baseline)
+          echo "errors=$errors baseline=$baseline"
+          if [ "$errors" -gt "$baseline" ]; then
+            echo "::error::corpus error count rose: $errors > baseline $baseline (update .github/corpus-errors-baseline only for an intentional retrofit)"
+            exit 1
+          fi
+          if [ "$errors" -lt "$baseline" ]; then
+            echo "::warning::corpus error count fell to $errors; lower .github/corpus-errors-baseline to match"
+          fi
