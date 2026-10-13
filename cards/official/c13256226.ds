@@ -17,7 +17,8 @@ card "Elemental HERO Spirit of Neos" {
         timing: when
         trigger: summoned
         resolve {
-            special_summon (all, card, either controls)
+            special_summon self in defense_position
+            grant self cannot_be_destroyed by battle until while_face_up
         }
     }
 
@@ -27,7 +28,7 @@ card "Elemental HERO Spirit of Neos" {
         timing: if
         trigger: summoned by special
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand (1, card, you control, from deck)
         }
     }
 
@@ -36,8 +37,8 @@ card "Elemental HERO Spirit of Neos" {
         once_per_turn: soft
         mandatory
         resolve {
-            return (all, card, either controls) to deck
-            special_summon (all, card, either controls)
+            send self to deck
+            special_summon (1, card, you control, from deck)
         }
     }
 }

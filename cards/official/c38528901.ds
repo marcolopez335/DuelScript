@@ -13,9 +13,10 @@ card "Shock Troops of the Ice Barrier" {
         cost {
             tribute self
         }
+        target (1, card, either controls, from monster_zone, where is_face_up and attribute == WATER)
         resolve {
-            destroy (all, card, either controls)
-            add_to_hand (all, card, either controls)
+            destroy target
+            add_to_hand (1, card, you control, from deck)
         }
     }
 }

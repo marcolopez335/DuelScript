@@ -6,7 +6,8 @@ card "Asceticism of the Six Samurai" {
         speed: 2
         mandatory
         resolve {
-            special_summon (all, card, either controls)
+            special_summon (1, card, you control, from deck)
+            install_watcher "desop" { event: end_phase duration: end_of_turn check { destroy self } }
         }
     }
 }

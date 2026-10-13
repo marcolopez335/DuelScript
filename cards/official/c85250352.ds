@@ -18,7 +18,7 @@ card "Volcanic Blaze Accelerator" {
         once_per_turn: soft
         mandatory
         resolve {
-            special_summon (all, card, either controls)
+            special_summon (1, card, you control, from hand)
         }
     }
 
@@ -26,9 +26,10 @@ card "Volcanic Blaze Accelerator" {
         speed: 1
         once_per_turn: soft
         mandatory
+        target (1, card, opponent controls, from monster_zone, where is_face_up)
         resolve {
-            send (all, card, either controls) to gy
-            destroy (all, card, either controls)
+            send (1, card, you control, from deck) to gy
+            destroy target
         }
     }
 }

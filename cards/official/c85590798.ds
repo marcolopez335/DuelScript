@@ -17,8 +17,9 @@ card "Starry Knight Ceremony" {
         once_per_turn: hard
         mandatory
         resolve {
-            add_to_hand (all, card, either controls)
-            return (all, card, either controls) to deck
+            add_to_hand (1, card, you control, from deck)
+            shuffle_deck yours
+            send (1, card, you control, from hand) to deck
         }
     }
 
@@ -28,7 +29,7 @@ card "Starry Knight Ceremony" {
         timing: if
         trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
         resolve {
-            special_summon (all, card, either controls)
+            special_summon (1, card, you control, from hand)
         }
     }
 }

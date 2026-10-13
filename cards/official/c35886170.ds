@@ -13,7 +13,9 @@ card "Gogogo Goblindbergh" {
         timing: when
         trigger: summoned
         resolve {
-            special_summon (all, card, either controls)
+            special_summon (1, card, you control, from hand or deck or gy)
+            change_position self to defense_position
+            restrict you cannot_special_summon from extra_deck except (is_xyz) end_of_turn
         }
     }
 
@@ -23,7 +25,7 @@ card "Gogogo Goblindbergh" {
         timing: if
         trigger: custom "chain_end"
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand (1, card, you control, from deck)
         }
     }
 }

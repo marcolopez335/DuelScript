@@ -21,8 +21,8 @@ card "Chanbar, the Flashy Sportsknight" {
         mandatory
         target (1, card, either controls, from field)
         resolve {
-            send (all, card, either controls) to gy
-            destroy (all, card, either controls)
+            send (1, card, you control, from hand or deck) to gy
+            destroy target
         }
     }
 
@@ -30,9 +30,10 @@ card "Chanbar, the Flashy Sportsknight" {
         speed: 1
         once_per_turn: soft
         mandatory
+        target (2, card, you control, where is_face_up)
         resolve {
-            destroy (all, card, either controls)
-            special_summon (all, card, either controls)
+            destroy target
+            special_summon self
         }
     }
 }

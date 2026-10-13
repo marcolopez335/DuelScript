@@ -17,7 +17,9 @@ card "Heavy Freight Train Derricrane" {
         timing: if
         trigger: summoned
         resolve {
-            special_summon (all, card, either controls)
+            special_summon self
+            set_atk self self.base_atk / 2 until while_face_up
+            set_def self self.base_def / 2 until while_face_up
         }
     }
 
@@ -27,7 +29,9 @@ card "Heavy Freight Train Derricrane" {
         timing: if
         trigger: summoned by special
         resolve {
-            special_summon (all, card, either controls)
+            special_summon self
+            set_atk self self.base_atk / 2 until while_face_up
+            set_def self self.base_def / 2 until while_face_up
         }
     }
 
@@ -37,7 +41,7 @@ card "Heavy Freight Train Derricrane" {
         trigger: custom "chain_end"
         target (1, card, opponent controls, from field)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 }

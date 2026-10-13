@@ -18,9 +18,12 @@ card "Endymion, the Magistus of Mastery" {
         speed: 1
         once_per_turn: soft
         mandatory
+        target (1, card, you control, from field, where is_face_up and is_spell)
         resolve {
-            destroy (all, card, either controls)
-            return (all, card, either controls) to deck
+            destroy target
+            draw 1
+            shuffle_hand yours
+            send (1, card, you control, from hand) to deck
         }
     }
 }

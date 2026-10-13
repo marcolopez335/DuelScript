@@ -12,7 +12,8 @@ card "Fairy Tail - Matchlille" {
         once_per_turn: soft
         mandatory
         resolve {
-            special_summon (all, card, either controls)
+            special_summon self
+            restrict you cannot_special_summon except (race == Spellcaster) end_of_turn
         }
     }
 
@@ -22,7 +23,7 @@ card "Fairy Tail - Matchlille" {
         timing: if
         trigger: summoned
         resolve {
-            return (all, card, either controls) to hand
+            add_to_hand (1, card, you control, from deck)
         }
     }
 
@@ -32,7 +33,7 @@ card "Fairy Tail - Matchlille" {
         timing: if
         trigger: summoned by special
         resolve {
-            return (all, card, either controls) to hand
+            add_to_hand (1, card, you control, from deck)
         }
     }
 

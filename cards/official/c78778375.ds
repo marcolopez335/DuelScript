@@ -27,8 +27,10 @@ card "Frightfur Cruel Whale" {
     effect "Effect 2" {
         speed: 2
         once_per_turn: soft
+        target (1, card, you control, from monster_zone, where is_fusion and base_atk > 0 and is_face_up)
         resolve {
-            send (all, card, either controls) to gy
+            send (1, card, you control, from deck or extra_deck) to gy
+            modify_atk target + target.base_atk / 2 until end_of_turn
         }
     }
 }

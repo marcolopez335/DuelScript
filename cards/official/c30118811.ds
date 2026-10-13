@@ -12,7 +12,7 @@ card "Backup @Ignister" {
         once_per_turn: hard
         mandatory
         resolve {
-            special_summon (all, card, either controls)
+            special_summon self
         }
     }
 
@@ -22,8 +22,9 @@ card "Backup @Ignister" {
         timing: if
         trigger: summoned
         resolve {
-            return (all, card, either controls) to hand
-            discard (all, card, either controls)
+            add_to_hand (1, card, you control, from deck)
+            shuffle_hand yours
+            discard (1, card, you control, from hand)
         }
     }
 
@@ -33,8 +34,9 @@ card "Backup @Ignister" {
         timing: if
         trigger: summoned by special
         resolve {
-            return (all, card, either controls) to hand
-            discard (all, card, either controls)
+            add_to_hand (1, card, you control, from deck)
+            shuffle_hand yours
+            discard (1, card, you control, from hand)
         }
     }
 }

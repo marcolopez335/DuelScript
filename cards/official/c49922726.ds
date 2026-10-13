@@ -17,8 +17,11 @@ card "Leraje the God of Archery" {
         speed: 1
         once_per_turn: hard
         mandatory
+        target (1, card, either controls, from monster_zone, except self, where is_face_up and def >= 0)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
+            grant self cannot_attack until end_of_turn
+            modify_def target - self.atk until while_face_up
         }
     }
 }

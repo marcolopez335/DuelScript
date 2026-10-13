@@ -18,7 +18,8 @@ card "Shinonome the Vaylantz Priestess" {
         once_per_turn: hard
         mandatory
         resolve {
-            special_summon (all, card, either controls)
+            special_summon self
+            restrict you cannot_special_summon except (archetype == "Vaylantz" or from extra_deck) end_of_turn
         }
     }
 
@@ -27,7 +28,7 @@ card "Shinonome the Vaylantz Priestess" {
         once_per_turn: soft
         mandatory
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand (1, card, you control, from deck)
         }
     }
 

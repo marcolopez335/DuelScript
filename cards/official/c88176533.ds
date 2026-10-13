@@ -17,7 +17,8 @@ card "Devotee of Nephthys" {
         timing: if
         trigger: summoned by special
         resolve {
-            special_summon (all, card, either controls)
+            special_summon (1, card, you control, from deck)
+            install_watcher "desop" { event: end_phase duration: end_of_turn check { destroy self } }
         }
     }
 
@@ -26,8 +27,8 @@ card "Devotee of Nephthys" {
         once_per_turn: soft
         mandatory
         resolve {
-            destroy (all, card, either controls)
-            special_summon (all, card, either controls)
+            destroy (1, card, you control, from hand)
+            special_summon self
         }
     }
 }

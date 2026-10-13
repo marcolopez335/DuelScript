@@ -21,8 +21,9 @@ card "Parametalfoes Azortless" {
         once_per_turn: hard
         timing: if
         trigger: destroyed
+        target (1, card, either controls, from field, where is_face_up)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 
@@ -33,8 +34,8 @@ card "Parametalfoes Azortless" {
         trigger: summoned by special
         target (1, card, opponent controls, from field)
         resolve {
-            return (all, card, either controls) to deck
-            destroy (all, card, either controls)
+            send (2, card, you control, from extra_deck) to deck
+            destroy target
         }
     }
 

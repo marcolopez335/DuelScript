@@ -17,7 +17,7 @@ card "Superheavy Samurai Monk Big Benkei" {
         once_per_turn: hard
         mandatory
         resolve {
-            return (all, card, either controls) to hand
+            add_to_hand (1, card, you control, from deck)
         }
     }
 
@@ -26,8 +26,8 @@ card "Superheavy Samurai Monk Big Benkei" {
         once_per_turn: soft
         mandatory
         resolve {
-            send (all, card, either controls) to gy
-            special_summon (all, card, either controls)
+            send (1, card, you control, from hand or deck, except self) to gy
+            special_summon self
         }
     }
 }

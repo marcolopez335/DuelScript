@@ -25,7 +25,7 @@ card "Pharaonic Guardian Sphinx" {
         mandatory
         trigger: summoned by flip
         resolve {
-            return (all, card, either controls) to deck
+            send (all, card, opponent controls, from monster_zone) to deck
         }
     }
 
@@ -35,7 +35,7 @@ card "Pharaonic Guardian Sphinx" {
         timing: if
         trigger: destroyed
         resolve {
-            special_summon (all, card, either controls)
+            special_summon (1, card, you control, from hand or deck) in face_down_defense
         }
     }
 }

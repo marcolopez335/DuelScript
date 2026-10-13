@@ -12,7 +12,9 @@ card "Heroic Challenger - Thousand Blades" {
         once_per_turn: soft
         mandatory
         resolve {
-            special_summon (all, card, either controls)
+            special_summon (1, card, you control, from deck)
+            change_position self to defense_position
+            restrict you cannot_special_summon except (archetype == "Heroic") end_of_turn
         }
     }
 }

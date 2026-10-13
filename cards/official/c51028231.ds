@@ -18,7 +18,7 @@ card "Abyss Actor - Sassy Rookie" {
         timing: if
         trigger: destroyed
         resolve {
-            special_summon (all, card, either controls)
+            special_summon (1, card, you control, from deck)
         }
     }
 
@@ -26,8 +26,9 @@ card "Abyss Actor - Sassy Rookie" {
         speed: 1
         timing: if
         trigger: destroyed
+        target (1, card, opponent controls, from monster_zone, where is_face_up and level <= 4)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 

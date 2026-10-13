@@ -29,9 +29,11 @@ card "Amazement Abomination Arlekino" {
     effect "Effect 2" {
         speed: 2
         once_per_turn: soft
+        target (1, card, either controls, from monster_zone, except self, where is_face_up and is_effect and atk > 0)
         resolve {
-            return (all, card, either controls) to deck
-            special_summon (all, card, either controls)
+            send self to deck
+            special_summon (1, card, you control, from deck)
+            set_atk target 0 until while_face_up
         }
     }
 }
