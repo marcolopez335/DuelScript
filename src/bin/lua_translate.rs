@@ -309,18 +309,34 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
             let legacy = lua_ast::with_legacy_selector_policy(|| {
                 action_lines(&lua_ast::translate_body_with_functions(body, &walk.functions))
             });
+            // T39 S5 — the Release-only legacy rendering: a block
+            // refilled under S4's exact discard line (#171) but before
+            // the Release refusal matches neither the current nor the
+            // all-flips rendering (Megalith Anastasis).
+            let legacy_release = lua_ast::with_legacy_release_policy(|| {
+                action_lines(&lua_ast::translate_body_with_functions(body, &walk.functions))
+            });
             // No gate refusal and no policy change on this body: the
             // mismatch pre-dates both — hand content or an older
             // translator's line — and is not this audit's business.
-            if drop.is_none() && legacy == rendered { continue; }
+            if drop.is_none() && legacy == rendered && legacy_release == rendered { continue; }
+            // `legacy-policy`: no gate refusal, the line-shape moved
+            // (T39 S3 selector widening, S4 DiscardHand, S5 Release).
             let reason = match &drop {
                 Some(d) => d.code(),
-                None => "selector-policy",
+                None => "legacy-policy",
             };
-            if shipped == rendered || shipped == legacy {
+            // The gate's own datum (T39 S5 census: the modal fork's
+            // discriminant) plus the TODO lines the current rendering
+            // carries — a shipped block equal to the action lines of a
+            // rendering that ALSO has TODOs is a pre-gate-era fill
+            // that dropped statements.
+            let todo_n = lines.iter().filter(|l| !l.is_action()).count();
+            let detail = drop.as_ref().map(|d| normalize_ws(d.detail())).unwrap_or_default();
+            if shipped == rendered || shipped == legacy || shipped == legacy_release {
                 stubs += 1;
-                println!("STUB   {} block={} handler={} reason={} lines={}",
-                    stem, block_idx, handler, reason, shipped.len());
+                println!("STUB   {} block={} handler={} reason={} lines={} todo={} detail={}",
+                    stem, block_idx, handler, reason, shipped.len(), todo_n, detail);
                 for l in &shipped { println!("    - {}", l); }
                 if stub {
                     new_txt = format!("{}\n        {}", &new_txt[..inner_lo], &new_txt[inner_hi..]);
@@ -328,11 +344,15 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
                 }
             } else {
                 reviews += 1;
-                println!("REVIEW {} block={} handler={} reason={}", stem, block_idx, handler, reason);
+                println!("REVIEW {} block={} handler={} reason={} todo={} detail={}",
+                    stem, block_idx, handler, reason, todo_n, detail);
                 for l in &shipped  { println!("    shipped:  {}", l); }
                 for l in &rendered { println!("    rendered: {}", l); }
                 if legacy != rendered {
                     for l in &legacy { println!("    legacy:   {}", l); }
+                }
+                if legacy_release != rendered && legacy_release != legacy {
+                    for l in &legacy_release { println!("    legacy-release: {}", l); }
                 }
             }
         }
