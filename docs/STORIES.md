@@ -347,6 +347,100 @@ Cross-cutting contracts (documented on the trait, per decisions-2.md house style
 
 ---
 
+### T39 candidates — empty-resolve triage (2026-10-20)
+
+**Why.** `duelscript check cards/official/` reports 2,327 errors on main (post-#162) and every one is `Effect 'Effect N' must have a resolve or choose block`. The T38 slices were sized from shape audits and under-delivered badly (S5 13 fills vs ~30, S2 4 vs 70–90, S8 8 vs 40–55, S8b 0) because the audits counted the *shape* while the apply pass refuses on a *different, earlier* gate. Nobody could say per block WHY it stays empty: `translate` prints no drop reason and `apply` only aggregates (`todo|incomplete|no map|align`). This section records the diagnostic that fixes that and the ranked list it produces.
+
+**Tool (shipped, this PR).** `lua_translate explain <corpus_dir> <lua_dir> [cards.cdb]` prints ONE tab-separated line per effect block the validator flags — no `choose`, and either no `resolve` or an empty one; permanent-passive activation shells (Continuous/Field/Equip Spell, Continuous Trap; no trigger line, no cost) are exempted exactly as the validator exempts them:
+
+```
+card  block  owner-binding|unassigned  reason-code  detail  SetType  stmts
+```
+
+`reason-code` is the FIRST gate that refuses along Pass A's real decision path — not a parallel heuristic: the one decision path #163 introduced (`plan_fill`, shared by Pass A, A2 and the stub-refinement Pass S) now returns a `FillPlan` whose refusal arm carries the closed `FillReason` enum (src/bin/lua_translate.rs; each variant documented, each variant documented and mapped to the `ApplyReport` counter it was always charged to), and the completeness gate became `lua_ast::body_drop_reasons` (`BodyDrop` enum, every drop in check order; `body_drops_chains` is now `body_drop_reason(..).is_some()`). `EffectSkeleton::summon_helper_verdict` names the helper gate; `FunctionBody::method_poison_source` records the first statement the S2b general gate refused. `detail` is the gate's own datum: the first unmapped `Duel.*` call, the chain's `code/type/reset/reg/value` + slot markers (`with-cond/with-op/with-target/with-range/forced/duel-reg/choice-arm/multi`, `conflicting-sets`), the poisoning statement, the helper param set, the header text — plus a remaining-blocker census on drop verdicts (`+N drops, M todo`; `+0 drops, 0 todo` = this ONE gate is the whole blocker). `stmts` is the walk-collected statement count (Duel calls + chains + method/counter ops + helper calls). Choose-shaped effects (SelectOption / label dispatch) that Phase 16 refused print `choose-undecodable` with the plain-path reason appended.
+
+**Parity proofs (rebased onto main @ 19af08eee, i.e. after #161/#162/#163; the #163 stub refinement did not move a single bucket).** 2,327 lines = the 2,327 validator errors exactly (2,061 cards; 830 shells exempt); 0 `ok` verdicts (the corpus is at the apply fixed point). `apply` output byte-identical before/after the refactor: origin/main binary vs this branch's binary on two scratch copies of `cards/official/`, `diff -rq` = 0 lines over 13,298 files, apply report identical; `audit-owners --stub`, `audit-fills --stub` and `apply` (incl. Pass S, `stubs refined: 0`) are all no-ops against the committed corpus. 755 lib tests (+4) / 22 bin tests, zero warnings.
+
+#### Reason-code table (2,327 blocks / 2,061 cards)
+
+| reason | blocks | cards | first gate that refused |
+|---|---|---|---|
+| `chain-unlowered` | 1,049 | 966 | a `RegisterEffect` chain in the op body has no lowering (T38 S1 completeness gate) |
+| `method-poison` | 311 | 295 | S2b general statement gate: an unmodeled statement-position call (first one named) |
+| `todo-only` | 264 | 239 | every `Duel.*` statement is unmapped |
+| `unassigned` | 208 | 201 | no block owner: 138 "no consumer for this block index", 69 hazard unrescued (Phase 20 / S9 / S9b), 1 no lua effects |
+| `summon-helper-undecodable` | 141 | 140 | fusion/ritual helper params or frame refuse the line |
+| `helper-unlowered` | 73 | 51 | a script-local `s.*` helper statement with no lowering |
+| `no-body` | 58 | 47 | `SetOperation` names a library fn / inline closure the walk has no body for |
+| `target-decl-undecodable` | 50 | 48 | fill references `target`, block has no decl, SetTarget filter not exactly mapped (#162 stubbed 29 more of these) |
+| `counter-op-unlowered` | 43 | 37 | counter op with computed count / unmapped receiver |
+| `method-op-unlowered` | 32 | 30 | `NegateEffects` / `UpdateAttack` / … with non-decodable args or receiver |
+| `cost-header-mismatch` | 24 | 23 | shipped `cost { … }` does not re-derive from the lua cost (skip class 10) |
+| `incomplete` | 14 | 14 | action + TODO mix |
+| `counter-poison` | 14 | 13 | expression-position / either-or counter placement |
+| `no-lines` | 13 | 12 | every collected call is a UI/query skip (`GetFirstTarget` + `ConfirmCards`, …) |
+| `mixed-method-ops` | 13 | 13 | method op beside a Duel action (S6 mixed class) |
+| `choose-undecodable` | 8 | 8 | choose-shaped but Phase 16 refused; 5 dynamic option lists |
+| `helper-frame-mismatch` | 8 | 8 | helper fill onto a header with no condition/cost surface (S5 review) |
+| `interference` | 4 | 4 | Phase 10 stat-write guard would drop a line |
+
+Owner assigned: 2,119 blocks; unassigned: 208. Reason codes that never surface from the block side but exist in the enum (Pass A counters): `no-handler` (pure passives own no block), `replacement-chain` (its block is the `replacement` surface), `no-block`.
+
+`chain-unlowered` by inner sub-gate (derived from the detail's markers): **decode-refused 484** (a mapped single-type family refused the value / receiver / reset), **field-family-refused 315** (`EFFECT_TYPE_FIELD` → Phase 15 / T36 / T37 / S8 translators all declined), **code-unmapped 190** (no family for the `SetCode`), slot-gated 39 (`forced` 15, `choice-arm` 12, `with-cond` 8, …), conflicting-sets 14, event-watcher-refused 10, equip-rider 5. Sole-blocker (`+0 drops, 0 todo`) chains: 675 / 616 cards.
+
+By owner `SetType`: IGNITION 481 / ACTIVATE 444 / QUICK_O 326 / SINGLE+TRIGGER_O 306 / FIELD+TRIGGER_O 189 / SINGLE+TRIGGER_F 154 / FIELD+TRIGGER_F 64 / FIELD 48 / (unassigned or helper, no SetType) 311. By walk statement count: 1 → 306, 2 → 620, 3 → 371, 4 → 288, 5 → 119, 6+ → 188, 0 → 35 (and 415 with no walked body: unassigned + helpers).
+
+#### Top-20 first-unmapped shapes (numbers normalized; chain = `SetCode` of the first unlowered chain)
+
+| first unmapped shape | blocks | cards | reason bucket |
+|---|---|---|---|
+| chain `EFFECT_UPDATE_ATTACK` | 218 | 201 | chain-unlowered (199 decode-refused, 7 field, 4 choice-arm, …) |
+| `Duel.ChangePosition` | 90 | 74 | todo-only / incomplete (~50 "non-toggle position matrix", ~32 "target provenance unknown", 9 unrecognized shape) |
+| helper `s.*` | 73 | 51 | helper-unlowered (`s.arcanareg` 32 / 12 cards, `s.equipop` 21 / 20, long tail 20) |
+| chain `EFFECT_SET_ATTACK_FINAL` | 68 | 63 | decode-refused 66 |
+| `Card:RegisterFlagEffect` | 64 | 62 | method-poison (58 with no other drop/todo) |
+| chain `EFFECT_UPDATE_LEVEL` | 54 | 51 | decode-refused 47 |
+| target-decl-undecodable | 50 | 48 | `s.distg` 14, `s.atktg` 7, `s.target` 7, `s.postg` 5, `s.mattg` 4 |
+| chain `EFFECT_EQUIP_LIMIT` | 47 | 46 | code-unmapped (equip rider → T33 surface) |
+| chain `EFFECT_CHANGE_LEVEL` | 40 | 37 | decode-refused 37 |
+| chain `EFFECT_DISABLE` | 38 | 37 | 21 decode-refused (SINGLE), 15 field-family (with-target) |
+| `Card:GetHandler` (`e:GetHandler():X(…)` statements: SetHint, EquipByEffect…, …) | 38 | 33 | method-poison / counter-op-unlowered |
+| `Card:CancelToGrave` | 35 | 35 | method-poison (activation shells of Fusion/Equip-like spells) |
+| chain `EFFECT_CANNOT_ACTIVATE` | 32 | 31 | field-family: `value=s.aclimit` closures (T38 S2 qualifier decode doesn't reach them) |
+| chain `EFFECT_LEAVE_FIELD_REDIRECT` | 27 | 25 | 18 code-unmapped + 9 forced — no resolve-time redirect surface |
+| `Card:SetCardTarget` | 25 | 22 | method-poison (card-target link protocol) |
+| cost-header-mismatch | 24 | 23 | `Cost.SelfDiscard` / `s.discost` / `Cost.AND(…)` vs shipped header |
+| `Duel.Equip` | 22 | 20 | todo "non-canonical shape" (equip target ≠ self/target) |
+| chain `EFFECT_CHANGE_ATTRIBUTE` | 22 | 20 | decode-refused (12 of them `value=e:GetLabel()`) |
+| `Card:NegateEffects` | 21 | 20 | 15 method-op-unlowered + 6 mixed |
+| `Card:UpdateAttack` | 21 | 20 | 12 method-op-unlowered + 4 mixed + 5 poison |
+
+Also in the top 30: chain `EFFECT_INDESTRUCTABLE_BATTLE` 20, `Card:EquipByEffectAndLimitRegister` 20, chain `EFFECT_ADD_TYPE` 20, helper `params: fusfilter,matfilter,extrafil,extraop,extratg` 19 (the `extratg` family, ~36 total), chain `EFFECT_CANNOT_TRIGGER` 19, chain `EVENT_PHASE+PHASE_END` 19 (S8 Class-B refusals), `Card:AddCounter` 19 (computed `ct` / `e:GetLabel()` counts), `Duel.ChangeTargetCard` 17 (retarget — queued grammar story), chain `EFFECT_CANNOT_ATTACK` 16, `Duel.ChainAttack` 16, `Duel.MoveSequence` 13, `Duel.Overlay` 12, `Duel.ChangeAttackTarget` 10.
+
+Decode-refused stat chips (`UPDATE_ATTACK/DEFENSE/LEVEL` + `SET_ATTACK_FINAL` + `CHANGE_LEVEL`, SINGLE type, no slot marker — 381 blocks) by `SetValue` shape: local binding (`atk` / `val` / `-ev` — `Duel.GetMatchingGroupCount(…)*K`, `g:GetClassCount(…)*K`, event values) 112, literal with a non-chain receiver (`Duel.GetAttacker()`, `e:GetLabelObject()`, `g:GetFirst()` of an unmapped group, loop vars over unmapped groups) 83, `e:GetLabel()` 55 (label plumbing, skip class 3), arithmetic (`tc:GetOverlayCount()*300`, `ct*500`, `tc:GetMaterialCount()*500`) 49, stat reads (`tc:GetAttack()/2`, `SET_ATTACK_FINAL` from another card's stat) 47, other 9.
+
+#### Ranked candidates (error-triage decision rule: reuses grammar > chore > needs grammar)
+
+"Est." = blocks whose ONLY blocker is that shape — `+0 drops, 0 todo` for drop verdicts, exactly one distinct unmapped method for todo verdicts. **This over-counts**: a block that clears the named gate still has to pass every LATER gate (cost-header parity, helper-frame parity, bare-target co-emission, the Phase 10 interference replay), and walk-invisible content is only partly visible — for `method-poison` rows the census is blind (the poison hides everything behind it), and for every row the walk does not see `if`-arm structure, local computations, or loops it did not classify. Treat Est. as an upper bound; the T38 record says real yield lands at 20–50% of it.
+
+| # | Candidate | Est. (blocks / cards) | DSL surface | Grammar? | Hard sub-classes visible now |
+|---|---|---|---|---|---|
+| **1** | **Stat-chip decode widening** — decode-refused `EFFECT_UPDATE_*` / `SET_ATTACK_FINAL` / `CHANGE_LEVEL`: (a) `value_bindings` whose RHS is `Duel.GetMatchingGroupCount(f,…)*K` → `count(sel) * K`; (b) arithmetic over `tc:GetOverlayCount()` / `GetMaterialCount()` / a loop counter `ct`; (c) multi-target `aux.Next(g)` loops whose `g` has a mapped selector → group selector line; (d) `tc`/`g:GetFirst()` receivers from an already-mapped `SelectMatchingCard` | 314 sole / 285 cards in the class; ~100 / 90 for (a)–(d) | `modify_atk/def/level <sel> ± expr until <duration>`, `set_atk/def/level` (pest:552-553); needs `target.overlay_count` expr atom (only `self.overlay_count` exists, pest:36) | NONE for (a)/(c)/(d); tiny expr atom for (b) | `e:GetLabel()` values (55, skip class 3), `GetAttacker`/`GetLabelObject` receivers (skip class 6), `g:GetClassCount(...)` ("different names", no atom), `RESET_PHASE\|PHASE_DAMAGE_CAL` resets (unmapped lifetime), stat reads from a second card |
+| **2** | **`Duel.ChangePosition` 5-arg matrix** — `(au, ad, du, dd)` quads beyond the exact toggle `(FACEUP_DEFENSE,0,FACEUP_ATTACK,0)`: `(FACEUP_DEFENSE,FACEUP_ATTACK,FACEUP_ATTACK,FACEUP_ATTACK)` / `(FACEUP_DEFENSE,FACEDOWN_DEFENSE,FACEUP_ATTACK,FACEUP_ATTACK)` are the toggle-with-flip spellings | 89 / 73 sole; ~50 / 42 for the matrix sub-shape | `change_position <sel> [to <pos>]` (pest:544) | NONE — but needs a RULING on what bare `change_position` means for the face-down arms before any matrix maps | ~32 "target provenance unknown" (candidate 4), 9 unrecognized arg shapes |
+| **3** | **Code-table extension chore** — `EFFECT_CANNOT_DIRECT_ATTACK` → `grant … cannot_attack_directly`; `EFFECT_CANNOT_TRIGGER` → `grant … cannot_activate effects`; `EFFECT_CHANGE_LSCALE` / `UPDATE_LSCALE` → `set_scale`; `EFFECT_CHANGE_LEVEL_FINAL` → `set_level`; `EFFECT_UPDATE_RANK` → `change_rank`; `EFFECT_SWAP_BASE_AD` → `swap_stats` | 9 + 18 + 12 + 5 + 2 + 4 = 50 / 47 before the value/receiver/reset decode (candidate 1's refusals apply) → ~25–35 | `grant_ability` (pest:600), `change_property_action` (pest:555), `swap_action` (pest:591) | NONE | `EFFECT_ADD_TYPE` 20, `EFFECT_TRAP_ACT_IN_SET_TURN` 11, `INDESTRUCTABLE_COUNT` 8, `EFFECT_EXTRA_ATTACK_MONSTER` 7 have no surface |
+| **4** | **Selector provenance for named filters** — "target provenance unknown" on `ChangePosition` ~32 / `Release` 13 / `Remove` 11 / `SendtoGrave` 10 / `SSet` 4 / … plus the 50 `target-decl-undecodable` blocks (`s.distg`, `s.atktg`, …): the S1 named-filter refinement maps `s.filter` bodies with exactly-mapped atoms; these carry an atom outside the mapped set | ~70 (todo side) + 50 (target-decl side) / ~110 cards | existing selector `where` clauses + `target <selector>` co-emission | NONE, but needs an atom census of the refused filters (the detail names `g` / the handler, not the atom) before an estimate is trustworthy | `REASON_COST` ops in op handlers (cost-tagged resolve ops) need a `tribute`/`banish … as cost` decision |
+| **5** | **Field-family decode widening** — `EFFECT_TYPE_FIELD` chains on codes with an existing surface: `DISABLE` + SetTarget filter → `negate_effects (all, monster, …)`; `INDESTRUCTABLE_EFFECT` 13 / `CANNOT_SPECIAL_SUMMON` 15 / `CANNOT_ATTACK` 9 / `CANNOT_ATTACK_ANNOUNCE` 9 with-target → `grant <group sel>`; `CHANGE_DAMAGE` 16 + `NO_EFFECT_DAMAGE` 8 + `REFLECT_DAMAGE` 5 → `damage_rule` (T37) when `value=s.damval` is a constant closure; `CANNOT_ACTIVATE` 30 → `restrict … except (…)` (T38 S2) when `s.aclimit` decodes | 315 in class; ~60–80 / 55–75 for the named families | `negate_effects`, `grant`, `damage_rule`, `restrict` | NONE for these; `EXTRA_SUMMON_COUNT` 16 / `SKIP_DP` 5 / `BP_TWICE` 3 / `SKIP_BP` 3 / `SET_SUMMON_COUNT_LIMIT` 3 need grammar | field chains are `duel-reg` + `with-range` by construction (not slot refusals here); the SetTarget filter must map to a selector `where` exactly |
+| **6** | **Summon-helper factory-frame relaxation** — `frame: SetCondition` 16 / `SetCost` 11 / `SetType` 7 on `Fusion.CreateSummonEff` / `Ritual.AddProc*` / `CreateProc`: emit the line when the .ds header already models the frame (the Variant-B `helper_frame_matches` rule, extended to factory forms) | 36 / 35 upper bound | `fusion_summon` / `ritual_summon` | NONE | `extratg` param family ~36 (custom target wrapper, fcheck class), `stage2` ~10, ritual own-level EQUAL 5 (`summon_level` atom, S4 backlog) |
+| **7** | **Orphan generator blocks chore** — 138 blocks with NO lua consumer for their index: generator-era extra blocks beside library procs (ritual 50, union 31, pendulum 5, equip/ER 5, link 2, xyz 1) and 44 cards whose chain registers no `SetOperation` at all (SetTarget-only activations, c14604710). Audit-then-act per Phase 5b: either recognise the proc (union → the T38 "union_proc 26" fold) or drop the block when it carries no header content | 138 / 137 | — | chore (recognisers may need `union` surfaces) | never auto-delete: the block may encode card-text structure the lua folds into a library call |
+| **8** | **Computed counter counts** — `AddCounter(COUNTER_X, ct)` / `e:GetLabel()` counts | ~28 / 25 | `place_counter <name> <unsigned> on <sel>` (pest:579) | small widen: `unsigned` → `expr` | `e:GetLabel()` counts are label plumbing |
+| **9** | **Archetype helper `s.arcanareg`** (Arcana Force coin flip) | 32 / 12 | `flip_coin { heads {…} tails {…} }` (pest:596) | NONE, archetype-bound | per-archetype rule: defer |
+| **10** | **Flag registration** — `c:/tc:RegisterFlagEffect(id, RESETS_STANDARD_PHASE_END, 0, 1)` poisons 64 blocks (58 census-clean) | ≤58 / 56 (census blind) | none — flags are the cross-effect protocol a sibling `SetCondition` reads (the S8b foreign-flag finding) | needs a `flag` surface or a proof the flag is read only by the same card's implicit stale-target fizzle | treat as skip class 3 until designed |
+| — | **Unassigned hazards** 69 (S9/S9b signature-model tuning), `EFFECT_EQUIP_LIMIT` 47 + `s.equipop` 21 + `EquipByEffectAndLimitRegister` 20 (T33 equip surface), `LEAVE_FIELD_REDIRECT` 27 (resolve-time redirect), `Duel.ChangeTargetCard` 17 + `ChangeAttackTarget` 10 (retarget story), `ChainAttack` 16, `SkipPhase` 7 (skip_phase story), `Card:CancelToGrave` 35, `Card:SetCardTarget` 25, `Card:CopyEffect` 16, `cost-header-mismatch` 24 (header-fix pass, skip class 10) | — | — | grammar stories already queued or new | — |
+
+**Recommended next three.** (1) Stat-chip decode widening (translator-only, biggest sole-blocker pool, and every later candidate's chains flow through the same decoders); (2) ChangePosition matrix (one decoder, 89 blocks behind a single `Duel.*` method — settle the bare-`change_position` semantics first); (3) the code-table chore (an afternoon, ~30 blocks, and it reuses candidate 1's decoders so it should ship right after it). Re-run `explain` after each slice; the buckets shift as gates move.
+
+---
+
 ## Per-archetype templates
 
 Long-tail. Each archetype = one PR. Defer until grammar-free phases are exhausted.
