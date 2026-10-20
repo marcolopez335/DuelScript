@@ -5,6 +5,10 @@ card "Mischief of the Wolves" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        resolve {
+            modify_level (all, card, opponent controls, from monster_zone, where is_face_up and level >= 3) - 2 until while_face_up
+            modify_level (all, card, you control, from monster_zone, where is_face_up and is_monster and not is_xyz and not is_link) + 2 until while_face_up
+        }
     }
 
     effect "Effect 2" {

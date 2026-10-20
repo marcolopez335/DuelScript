@@ -16,7 +16,10 @@ card "Gouki Bearhug" {
         once_per_turn: hard
         timing: if
         trigger: summoned
-        resolve { }
+        target (1, card, opponent controls, from monster_zone, where is_face_up and atk > 0)
+        resolve {
+            set_atk target (target.base_atk + 1) / 2 until end_of_turn
+        }
     }
 
     effect "Effect 2" {
@@ -24,7 +27,10 @@ card "Gouki Bearhug" {
         once_per_turn: hard
         timing: if
         trigger: summoned by special
-        resolve { }
+        target (1, card, opponent controls, from monster_zone, where is_face_up and atk > 0)
+        resolve {
+            set_atk target (target.base_atk + 1) / 2 until end_of_turn
+        }
     }
 
     effect "Effect 3" {

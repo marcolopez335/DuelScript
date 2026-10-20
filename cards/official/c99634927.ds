@@ -22,13 +22,18 @@ card "Abyss Actor - Funky Comedian" {
         speed: 1
         timing: if
         trigger: summoned
+        resolve {
+            modify_atk self + count((all, card, you control, from monster_zone, where archetype == "Abyss Actor" and is_face_up)) * 300 until end_of_turn
+        }
     }
 
     effect "Effect 3" {
         speed: 1
         timing: if
         trigger: summoned by special
-        resolve { }
+        resolve {
+            modify_atk self + count((all, card, you control, from monster_zone, where archetype == "Abyss Actor" and is_face_up)) * 300 until end_of_turn
+        }
     }
 
     effect "Effect 4" {

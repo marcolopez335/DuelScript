@@ -13,6 +13,7 @@ card "Laval Forest Sprite" {
         trigger: custom "chain_end"
         condition: previous_location == field
         resolve {
+            modify_atk (all, card, you control, from monster_zone, where is_face_up and archetype == "Laval") + count((all, card, you control, from gy, where archetype == "Laval")) * 200 until end_of_turn
         }
     }
 }

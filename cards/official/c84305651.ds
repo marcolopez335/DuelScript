@@ -19,6 +19,9 @@ card "Goyo King" {
         speed: 1
         mandatory
         trigger: summoned
+        resolve {
+            modify_atk self + count((all, card, you control, from monster_zone, where is_face_up and race == Warrior and attribute == EARTH and is_synchro)) * 400 until end_of_damage_step
+        }
     }
 
     effect "Effect 2" {
