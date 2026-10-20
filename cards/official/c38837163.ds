@@ -15,6 +15,17 @@ card "Akz, the Pumer" {
         speed: 1
         once_per_turn: soft
         mandatory
-        resolve { }
+        choose {
+            option "Double this card's ATK until the End Phase." {
+                resolve {
+                    set_atk self self.atk * 2 until end_of_turn
+                }
+            }
+            option "This card can attack your opponent directly this turn." {
+                resolve {
+                    grant self direct_attack until end_of_turn
+                }
+            }
+        }
     }
 }
