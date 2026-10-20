@@ -16,8 +16,9 @@ card "Performapal Sellshell Crab" {
         speed: 1
         once_per_turn: soft
         mandatory
+        target (1, card, you control, from monster_zone, where is_face_up and is_pendulum)
         resolve {
-            special_summon target
+            modify_atk target + count((all, card, you control, from monster_zone, where is_face_up and archetype == "Performapal")) * 300 until end_of_turn
         }
     }
 

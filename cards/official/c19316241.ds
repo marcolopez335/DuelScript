@@ -26,8 +26,10 @@ card "Galaxy War Drake" {
         speed: 1
         once_per_turn: soft
         mandatory
+        target (1, card, you control, from monster_zone, except self, where level == 4 and attribute == LIGHT and is_face_up)
         resolve {
-            special_summon self
+            set_level self 8 until end_of_turn
+            set_level target 8 until end_of_turn
         }
     }
 }

@@ -19,7 +19,6 @@ card "Pandemic Dragon" {
             pay_lp your_lp / 2
         }
         resolve {
-            destroy target
         }
     }
 
@@ -37,7 +36,7 @@ card "Pandemic Dragon" {
         mandatory
         trigger: destroyed
         resolve {
-            destroy target
+            modify_atk (all, card, either controls, from monster_zone, where is_face_up) - 1000 until while_face_up
         }
     }
 }

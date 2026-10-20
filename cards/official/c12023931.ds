@@ -16,8 +16,10 @@ card "Booster Dragon" {
         speed: 1
         once_per_turn: soft
         mandatory
+        target (1, card, either controls, from monster_zone, except self, where is_face_up)
         resolve {
-            special_summon target
+            modify_atk target + 500 until while_face_up
+            modify_def target + 500 until while_face_up
         }
     }
 
