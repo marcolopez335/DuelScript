@@ -26,8 +26,9 @@ card "Obliterate!!!" {
         timing: if
         trigger: custom "chain_end"
         condition: previous_location == spell_trap_zone
+        target (1, card, you control, from gy, where (archetype == "Forbidden One" and is_monster) or archetype == "Exodia")
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }

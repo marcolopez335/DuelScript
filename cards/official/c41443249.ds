@@ -26,7 +26,9 @@ card "Rescue-ACE Preventer" {
     effect "Effect 2" {
         speed: 2
         once_per_turn: soft
+        target (1, card, opponent controls, from monster_zone, where is_face_up and is_effect)
         resolve {
+            change_position target to face_down_defense
         }
     }
 
@@ -35,8 +37,9 @@ card "Rescue-ACE Preventer" {
         once_per_turn: soft
         timing: if
         trigger: custom "chain_end"
+        target (1, card, you control, from banished, where is_face_up and archetype == "Rescue-ACE" and not level == 8)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
         }
     }
 }

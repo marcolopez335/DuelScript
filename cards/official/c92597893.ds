@@ -30,8 +30,10 @@ card "Feedran, the Winds of Mischief" {
     effect "Effect 3" {
         speed: 2
         once_per_turn: soft
+        target (1, card, either controls, from monster_zone, except self, where is_face_up)
         resolve {
-            add_to_hand (all, card, either controls)
+            change_position target
+            add_to_hand self
         }
     }
 }

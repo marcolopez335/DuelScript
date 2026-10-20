@@ -15,8 +15,9 @@ card "Shaddoll Core" {
         timing: if
         trigger: custom "chain_end"
         condition: reason == effect
+        target (1, card, you control, from gy, where archetype == "Shaddoll" and (is_spell or is_trap) and not name == "Shaddoll Core")
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }

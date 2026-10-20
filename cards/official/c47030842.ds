@@ -12,8 +12,9 @@ card "Geargiaccelerator" {
         timing: when
         trigger: custom "chain_end"
         condition: previous_location == field
+        target (1, card, you control, from gy, where archetype == "Geargia" and not name == "Geargiaccelerator" and is_monster)
         resolve {
-            return (all, card, either controls) to hand
+            add_to_hand target
         }
     }
 }

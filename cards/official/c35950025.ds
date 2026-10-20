@@ -15,8 +15,10 @@ card "Galaxy Knight" {
         speed: 1
         mandatory
         trigger: summoned
+        target (1, card, you control, from gy, where name == "Galaxy-Eyes Photon Dragon")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
+            modify_atk self - 1000 until end_of_turn
         }
     }
 }

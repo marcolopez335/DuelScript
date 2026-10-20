@@ -19,8 +19,10 @@ card "Centur-Ion Phalanx" {
         cost {
             banish self
         }
+        target (1, card, you control, from gy, where archetype == "Centur-Ion" and is_synchro)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
+            modify_atk target - 1500 until while_face_up
         }
     }
 }

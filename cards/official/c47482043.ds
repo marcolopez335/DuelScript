@@ -11,8 +11,10 @@ card "Ancient Gear Reborn" {
     effect "Effect 2" {
         speed: 2
         once_per_turn: soft
+        target (1, card, you control, from gy, where archetype == "Ancient Gear")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
+            modify_atk target + 200 until while_face_up
         }
     }
 }

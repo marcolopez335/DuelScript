@@ -29,8 +29,10 @@ card "Aquarium Stage" {
         speed: 1
         timing: if
         trigger: custom "chain_end"
+        target (1, card, you control, from gy, where race == Aqua)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
+            restrict you cannot_special_summon except (race == Aqua) end_of_turn
         }
     }
 }

@@ -21,8 +21,9 @@ card "Deskbot 005" {
         speed: 1
         timing: if
         trigger: summoned
+        target (1, card, either controls, from field, where is_spell or is_trap)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 
@@ -30,8 +31,9 @@ card "Deskbot 005" {
         speed: 1
         timing: if
         trigger: summoned by special
+        target (1, card, either controls, from field, where is_spell or is_trap)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 
@@ -40,8 +42,9 @@ card "Deskbot 005" {
         once_per_turn: hard
         timing: if
         trigger: destroyed
+        target (1, card, you control, from gy, where archetype == "Deskbot")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
         }
     }
 }

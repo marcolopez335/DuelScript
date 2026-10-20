@@ -12,8 +12,9 @@ card "Fabled Krus" {
         mandatory
         trigger: custom "chain_end"
         condition: previous_location == hand and reason includes discard
+        target (1, card, you control, from gy, except self, where level <= 4 and archetype == "Fabled" and is_monster)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
         }
     }
 }

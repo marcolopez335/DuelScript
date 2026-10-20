@@ -12,8 +12,9 @@ card "Chow Sai the Ghost Stopper" {
         timing: if
         trigger: custom "chain_end"
         condition: previous_location == field
+        target (1, card, opponent controls, from gy, where is_spell or is_trap)
         resolve {
-            banish (all, card, either controls)
+            banish target
         }
     }
 }

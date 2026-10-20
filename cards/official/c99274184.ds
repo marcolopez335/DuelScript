@@ -5,8 +5,10 @@ card "Crystron Impact" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        target (1, card, you control, from banished, where is_face_up and archetype == "Crystron")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
+            set_def (all, card, opponent controls, from monster_zone, where is_face_up) 0 until while_face_up
         }
     }
 

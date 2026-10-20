@@ -15,8 +15,10 @@ card "Red-Eyes Alternative Black Dragon" {
         speed: 1
         timing: if
         trigger: destroyed
+        target (1, card, you control, from gy, where archetype == "Red-Eyes" and level <= 7 and not name == "Red-Eyes Alternative Black Dragon")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
+            set_atk target target.base_atk * 2 until while_face_up
         }
     }
 }

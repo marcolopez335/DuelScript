@@ -11,8 +11,9 @@ card "Neo Flamvell Hedgehog" {
         speed: 1
         mandatory
         trigger: battle_damage
+        target (1, card, opponent controls, from gy)
         resolve {
-            banish (all, card, either controls)
+            banish target
         }
     }
 
@@ -20,8 +21,9 @@ card "Neo Flamvell Hedgehog" {
         speed: 1
         mandatory
         trigger: destroyed
+        target (1, card, you control, from gy, where attribute == FIRE and def <= 200 and not name == "Neo Flamvell Hedgehog")
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }

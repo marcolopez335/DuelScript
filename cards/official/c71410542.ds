@@ -12,8 +12,9 @@ card "WAKE CUP! Macchia" {
         once_per_turn: soft
         timing: when
         trigger: end_phase
+        target (1, card, either controls, from field, where is_face_down)
         resolve {
-            send (all, card, either controls) to gy
+            send target to gy
         }
     }
 
@@ -31,7 +32,9 @@ card "WAKE CUP! Macchia" {
         once_per_turn: soft
         mandatory
         trigger: custom "chain_active"
+        target (1, card, either controls, from monster_zone, in defense_position, where is_face_down)
         resolve {
+            change_position target to attack_position
         }
     }
 }

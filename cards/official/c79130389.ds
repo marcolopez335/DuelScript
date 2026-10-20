@@ -16,8 +16,10 @@ card "Marincess Coral Anemone" {
         speed: 1
         once_per_turn: hard
         mandatory
+        target (1, card, you control, from gy, where attribute == WATER and atk <= 1500)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
+            restrict you cannot_special_summon except (attribute == WATER) end_of_turn
         }
     }
 
@@ -27,8 +29,9 @@ card "Marincess Coral Anemone" {
         timing: if
         trigger: custom "chain_end"
         condition: previous_location == field
+        target (1, card, you control, from gy, where archetype == "Marincess" and not name == "Marincess Coral Anemone")
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }

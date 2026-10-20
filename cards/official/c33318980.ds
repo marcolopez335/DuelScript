@@ -27,7 +27,10 @@ card "Soldier Gaia the Fierce Knight" {
         once_per_turn: soft
         timing: if
         trigger: summoned by special
-        resolve { }
+        target (1, card, either controls, from monster_zone, in attack_position)
+        resolve {
+            change_position target to defense_position
+        }
     }
 
     effect "Effect 3" {

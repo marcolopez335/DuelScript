@@ -18,8 +18,10 @@ card "Mist Valley Thunder Lord" {
     effect "Effect 1" {
         speed: 2
         once_per_turn: soft
+        target (1, card, you control, from field, except self)
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
+            modify_atk self + 500 until end_of_turn
         }
     }
 }

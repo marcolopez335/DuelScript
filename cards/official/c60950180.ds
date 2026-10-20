@@ -11,7 +11,9 @@ card "Raidraptor - Sharp Lanius" {
         speed: 1
         once_per_turn: soft
         mandatory
+        target (1, card, either controls, from monster_zone, in attack_position, where is_face_up)
         resolve {
+            change_position target to defense_position
         }
     }
 
@@ -19,8 +21,9 @@ card "Raidraptor - Sharp Lanius" {
         speed: 1
         once_per_turn: hard
         mandatory
+        target (1, card, you control, from gy, where archetype == "Raidraptor")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
         }
     }
 }

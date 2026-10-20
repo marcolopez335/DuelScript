@@ -15,8 +15,9 @@ card "Call of the Forgotten" {
         once_per_turn: soft
         timing: if
         trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        target (1, card, opponent controls, from monster_zone)
         resolve {
-            send (all, card, either controls) to gy
+            send target to gy
         }
     }
 }

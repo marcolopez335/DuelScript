@@ -6,8 +6,10 @@ card "Ayers Rock Sunrise" {
         speed: 1
         once_per_turn: hard
         mandatory
+        target (1, card, you control, from gy, where race == Beast)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
+            modify_atk (all, card, opponent controls, from monster_zone, where is_face_up) - 200 * count((all, card, you control, from gy, where race == Beast or race == Plant or race == Winged Beast)) until end_of_turn
         }
     }
 }

@@ -11,16 +11,18 @@ card "Medusa, Watcher of the Evil Eye" {
         speed: 1
         timing: when
         trigger: summoned
+        target (1, card, you control, from gy, where archetype == "Evil Eye" and not name == "Medusa, Watcher of the Evil Eye")
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 
     effect "Effect 2" {
         speed: 2
         once_per_turn: hard
+        target (1, card, opponent controls, from gy, where is_monster)
         resolve {
-            banish (all, card, either controls)
+            banish target
         }
     }
 

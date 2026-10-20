@@ -12,8 +12,10 @@ card "Black Mamba" {
         once_per_turn: soft
         timing: if
         trigger: summoned
+        target (1, card, opponent controls, from monster_zone)
         resolve {
-            send (all, card, either controls) to gy
+            send (1, card, you control, from deck, where race == Reptile) to gy
+            change_position target
         }
     }
 
@@ -22,8 +24,10 @@ card "Black Mamba" {
         once_per_turn: soft
         timing: if
         trigger: summoned by special
+        target (1, card, opponent controls, from monster_zone)
         resolve {
-            send (all, card, either controls) to gy
+            send (1, card, you control, from deck, where race == Reptile) to gy
+            change_position target
         }
     }
 }

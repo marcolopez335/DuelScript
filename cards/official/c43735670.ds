@@ -19,8 +19,10 @@ card "Marincess Blue Slug" {
         speed: 1
         timing: if
         trigger: summoned by special
+        target (1, card, you control, from gy, where archetype == "Marincess" and is_monster and not name == "Marincess Blue Slug")
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
+            restrict you cannot_special_summon except (attribute == WATER) end_of_turn
         }
     }
 }

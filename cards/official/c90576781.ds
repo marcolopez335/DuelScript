@@ -5,6 +5,10 @@ card "Reptilianne Poison" {
     effect "Effect 1" {
         speed: 1
         mandatory
-        resolve { }
+        target (1, card, opponent controls, from monster_zone, in defense_position)
+        resolve {
+            change_position target to attack_position
+            set_atk target 0 until while_face_up
+        }
     }
 }

@@ -11,8 +11,10 @@ card "Returned of the Tistina" {
         speed: 1
         once_per_turn: hard
         mandatory
+        target (1, card, you control, from monster_zone, where is_face_up and is_monster and not is_xyz and not is_link and archetype == "Tistina" and not name == "Returned of the Tistina")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon self
+            set_level self target.level until while_face_up
         }
     }
 

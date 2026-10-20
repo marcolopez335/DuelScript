@@ -17,8 +17,10 @@ card "'Infernoble Arms - Durendal'" {
         once_per_turn: hard
         timing: if
         trigger: custom "chain_end"
+        target (1, card, you control, from gy, where level <= 5 and race == Warrior and attribute == FIRE)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
+            restrict you cannot_special_summon except (race == Warrior) end_of_turn
         }
     }
 

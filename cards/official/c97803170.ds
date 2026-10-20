@@ -14,7 +14,10 @@ card "Call of the Archfiend" {
     effect "Effect 2" {
         speed: 2
         once_per_turn: hard
+        target (1, card, you control, from gy, where race == Fiend and level >= 5)
         resolve {
+            discard (1, card, you control, from hand, where race == Fiend)
+            special_summon target
         }
     }
 }

@@ -16,8 +16,10 @@ card "Fairy Archer Ingunar" {
         once_per_turn: hard
         timing: if
         trigger: summoned by special
+        target (1, card, you control, from gy, where race == Plant and level >= 6)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
+            restrict you cannot_special_summon except (race == Plant) end_of_turn
         }
     }
 }
