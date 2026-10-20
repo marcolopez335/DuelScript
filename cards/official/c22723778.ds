@@ -32,8 +32,10 @@ card "Clorless, Chaos King of Dark World" {
     effect "Effect 3" {
         speed: 2
         once_per_turn: soft
+        target (1, card, you control, from field, where is_face_up)
         resolve {
-            discard (all, card, either controls)
+            discard (1, card, you control, from hand)
+            grant target cannot_be_targeted until end_of_turn
         }
     }
 }

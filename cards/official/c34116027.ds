@@ -20,8 +20,9 @@ card "Dragunity Knight - Gae Dearg" {
         once_per_turn: soft
         mandatory
         resolve {
-            add_to_hand (all, card, either controls)
-            discard (all, card, either controls)
+            add_to_hand (1, card, you control, from deck, where level <= 4 and (race == Dragon or race == Winged Beast))
+            shuffle_hand yours
+            discard (1, card, you control, from hand, where race == Dragon or race == Winged Beast)
         }
     }
 }
