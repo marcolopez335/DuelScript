@@ -591,8 +591,10 @@ impl SelectorSpec {
 ///     c14001430 Madolche Chateau, c1045143 Geargiano Mk-II)
 /// `…AsCost` variants ride with their base predicate (cost handlers
 /// walk the same bodies). Everything else — summonability of a
-/// different procedure, `IsCanBeEffectTarget`, `IsForbidden`,
-/// `IsPublic`, `IsSpecialSummoned` — stays unmapped.
+/// different procedure, `IsForbidden`, `IsPublic`, `IsSpecialSummoned`
+/// — stays unmapped. [`TARGETING_PRED`] (`IsCanBeEffectTarget`) is no
+/// ACTION's legality: it is the targeting legality itself and only a
+/// target DECLARATION implies it ([`extract_target_decl_refined`]).
 fn implied_by_action(method: &str, pred: &str) -> bool {
     if pred == "aux.NecroValleyFilter" {
         return !method.is_empty();
@@ -1720,12 +1722,26 @@ fn group_compound(atom: &str) -> String {
     if atom.contains(" or ") || atom.contains(" and ") { format!("({})", atom) } else { atom.to_string() }
 }
 
+/// The targeting legality predicate (T39 S9): `c:IsCanBeEffectTarget(e)`
+/// in a `SelectTarget` filter is ocgcore's "can this card be targeted
+/// by this effect" pre-check — the `target (…)` declaration's own
+/// runtime semantics, so every target declaration implies it, and no
+/// action does. Evidence (the printed text names only the targeting):
+/// c10065487 Branded Loss (`IsCanBeEffectTarget(e) and IsAbleToDeck()`
+/// — "Target 1 monster … and 1 Fusion Monster"), c10424147 Super Quantal
+/// Mech Ship Magnacarrier (`spfilter2`: set + Xyz + the predicate —
+/// "target 3 … Xyz Monsters"), c10612222 Yosenjus' Sword Sting (face-up
+/// + to-hand + the predicate — "target the same number of face-up
+/// cards").
+const TARGETING_PRED: &str = "IsCanBeEffectTarget";
+
 /// Names of the ruleset legality predicates [`implied_by_action`]
-/// recognises for SOME action; the atom mapper classifies them as
-/// implied instead of residual. `…AsCost` variants ride along.
+/// recognises for SOME action, plus [`TARGETING_PRED`]; the atom mapper
+/// classifies them as implied instead of residual. `…AsCost` variants
+/// ride along.
 fn is_legality_pred(name: &str) -> bool {
     let base = name.strip_suffix("AsCost").unwrap_or(name);
-    matches!(
+    base == TARGETING_PRED || matches!(
         base,
         "IsAbleToHand" | "IsAbleToGrave" | "IsAbleToRemove" | "IsAbleToDeck" | "IsAbleToExtra"
         | "IsCanBeSpecialSummoned" | "IsDestructable" | "IsReleasable" | "IsReleasableByEffect"
@@ -2133,6 +2149,11 @@ const LEGACY_RELEASE: u8 = 2;
 /// `scope: self` + `grant: cannot_activate effects`, regardless of the
 /// chain's type, target range, filter, condition or registration site.
 const LEGACY_PASSIVE_GRANT: u8 = 4;
+/// T39 S9 flip: target declarations resolved their `SelectTarget` filter
+/// through the decl-side literal table + the exact named-filter
+/// projection (no extras binding, no `id` substitution, no battle-
+/// position slot, every legality predicate refused).
+const LEGACY_DECL: u8 = 8;
 
 fn legacy_selector_policy() -> bool {
     LEGACY_POLICY.with(|c| c.get() & LEGACY_SELECTOR != 0)
@@ -2144,6 +2165,10 @@ fn legacy_release_policy() -> bool {
 
 fn legacy_passive_grant_policy() -> bool {
     LEGACY_POLICY.with(|c| c.get() & LEGACY_PASSIVE_GRANT != 0)
+}
+
+fn legacy_decl_policy() -> bool {
+    LEGACY_POLICY.with(|c| c.get() & LEGACY_DECL != 0)
 }
 
 fn with_legacy_policy<R>(bits: u8, f: impl FnOnce() -> R) -> R {
@@ -2177,6 +2202,15 @@ pub fn with_legacy_release_policy<R>(f: impl FnOnce() -> R) -> R {
 /// path never reads them and the fill path never reads this one.
 pub fn with_legacy_passive_grant_policy<R>(f: impl FnOnce() -> R) -> R {
     with_legacy_policy(LEGACY_PASSIVE_GRANT, f)
+}
+
+/// Run `f` with the T39 S9 target-declaration flip reverted:
+/// [`extract_target_decl_refined`] resolves the `SelectTarget` filter
+/// through the pre-S9 decl-side path — the rendering `lua_translate
+/// audit-fills` recognises as a machine-emitted declaration the flip
+/// invalidated. Independent of the other bits.
+pub fn with_legacy_decl_policy<R>(f: impl FnOnce() -> R) -> R {
+    with_legacy_policy(LEGACY_DECL, f)
 }
 
 /// Set the passcode of the card being translated (None clears it).
@@ -4774,37 +4808,53 @@ pub fn extract_target_decl(
     spec_from_matching(args, true, true)
 }
 
-/// [`extract_target_decl`] with the T38 S6 filter widening: custom
-/// `Duel.SelectTarget` filters that map EXACTLY — literal-table filters,
-/// `aux.FaceupFilter(…)` compositions, or named script-local predicates
-/// resolved through the S1 flatten-or-fail machinery — produce a target
+/// [`extract_target_decl`] with the custom-filter widening (T38 S6,
+/// re-routed in T39 S9): a `Duel.SelectTarget` filter resolved through
+/// the SHARED selector mapper ([`resolve_filter`] via [`refine_spec`] —
+/// the same atoms, extras binding, `id` substitution and battle-
+/// position slot every action selector gets) produces a target
 /// declaration carrying the mapped where-clause.
 ///
 /// Target declarations are legality surfaces, not pick-from-superset
 /// action selectors: a decl matching a SUPERSET of the lua filter would
-/// let the effect target cards the script rejects. So unmappable
-/// filters and unexpressible exception args still return None, and Pass
-/// E keeps using the stricter Phase 8 form — this widening is consumed
-/// only by the S6 bare-target fill gate, where the decl is co-emitted
-/// with a resolve that references it.
+/// let the effect target cards the script rejects. So any residual atom
+/// and any unexpressible exception arg refuses (`Err` names it), and
+/// Pass E keeps using the stricter Phase 8 form — this widening is
+/// consumed only by the bare-target fill gate, where the decl is
+/// co-emitted with a resolve that references it.
+///
+/// Legality predicates of the filter are transparent exactly when the
+/// decl's own consumers imply them: [`TARGETING_PRED`] always (it IS the
+/// targeting legality), every other one when `consumers` — the `Duel.*`
+/// actions of the owning operation handler that take the declared
+/// target ([`target_consumers`]) — is non-empty and EVERY consumer
+/// implies it ([`implied_by_action`]). A handler whose target feeds two
+/// actions (Mezuki-style discard-then-summon) must imply the predicate
+/// on both sides; a handler with no action consumer (a chain receiver,
+/// a counter op) implies nothing beyond the targeting check.
 pub fn extract_target_decl_refined(
     target_handler: &str,
     functions: &BTreeMap<String, FunctionBody>,
-) -> Option<SelectorSpec> {
+    consumers: &[String],
+) -> Result<SelectorSpec, String> {
     if let Some(spec) = extract_target_decl(target_handler, functions) {
-        return Some(spec);
+        return Ok(spec);
     }
-    let body = functions.get(target_handler.trim())?;
-    let call = body.calls.iter().find(|c| c.method == "Duel.SelectTarget")?;
+    let handler = target_handler.trim();
+    let body = functions.get(handler).ok_or_else(|| format!("{}: no body", handler))?;
+    let call = body.calls.iter().find(|c| c.method == "Duel.SelectTarget")
+        .ok_or_else(|| format!("{}: no Duel.SelectTarget", handler))?;
     let args = &call.args;
-    if args.len() < 7 { return None; }
+    if args.len() < 7 {
+        return Err(format!("{}: Duel.SelectTarget with {} args", handler, args.len()));
+    }
     // An exception arg the selector can't render (anything but nil /
     // the handler card) would target excluded cards — skip outright.
     if matches!(
         classify_exception(args.get(7).map(String::as_str)),
         ExceptionArg::Unexpressible
     ) {
-        return None;
+        return Err(format!("{}: exception {}", handler, args[7].trim()));
     }
     // Legality-surface gates on the widened path (T38 S6 review fix):
     //   - min must equal max — `quantity_from` renders 1..2 as "1+",
@@ -4816,14 +4866,43 @@ pub fn extract_target_decl_refined(
     // (Phase 8's nil-filter path above keeps its existing behavior —
     // this only constrains the custom-filter widening.)
     if args.get(5).map(|s| s.trim()) != args.get(6).map(|s| s.trim()) {
-        return None;
+        return Err(format!("{}: count {}..{}", handler, args[5].trim(), args[6].trim()));
     }
     let (my_locs, opp_locs) = (args[3].trim(), args[4].trim());
     if my_locs != "0" && opp_locs != "0" && my_locs != opp_locs {
-        return None;
+        return Err(format!("{}: asymmetric locations {} / {}", handler, my_locs, opp_locs));
     }
-    let mut spec = spec_from_matching(args, true, true)?;
-    let filter = args[1].trim();
+    let spec = spec_from_matching(args, true, true)
+        .ok_or_else(|| format!("{}: selector frame undecodable", handler))?;
+    if legacy_decl_policy() {
+        return legacy_refined_decl(spec, args[1].trim(), functions)
+            .ok_or_else(|| format!("{}: legacy decl path refused", handler));
+    }
+    let spec = refine_spec(&spec, functions).unwrap_or(spec);
+    if let Some(r) = spec.filter_residual.first() {
+        return Err(format!("{}: {}", handler, r));
+    }
+    let transparent = |p: &str| {
+        p.strip_suffix("AsCost").unwrap_or(p) == TARGETING_PRED
+            || (!consumers.is_empty() && consumers.iter().all(|m| implied_by_action(m, p)))
+    };
+    if let Some(p) = spec.filter_implied.iter().find(|p| !transparent(p)) {
+        let by = if consumers.is_empty() { "no action consumer".to_string() } else { consumers.join("+") };
+        return Err(format!("{}: {} not implied by {}", handler, p, by));
+    }
+    Ok(spec)
+}
+
+/// The pre-S9 decl-side filter resolution — audit instrument ONLY
+/// (`lua_translate audit-fills` renders each shipped declaration under
+/// it to recognise the machine emissions the S9 flip re-renders). The
+/// literal table ([`map_group_filter`]) or the exact named-filter
+/// projection ([`named_filter_to_where`]); never a translation path.
+fn legacy_refined_decl(
+    mut spec: SelectorSpec,
+    filter: &str,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<SelectorSpec> {
     let (kind, where_clause) = match map_group_filter(filter) {
         Some(mapped) => mapped,
         None => ("card", Some(named_filter_to_where(filter, functions)?)),
@@ -4832,6 +4911,36 @@ pub fn extract_target_decl_refined(
     spec.where_clause = where_clause;
     spec.filter_mapped = true;
     Some(spec)
+}
+
+/// The `Duel.*` actions of an operation handler that consume the
+/// effect's DECLARED target (T39 S9): every call the body walk renders
+/// (an action or an untranslated-action TODO — the pure UI / query
+/// calls are not consumers) with at least one argument of declared-
+/// target provenance — `Duel.GetFirstTarget()` / `Duel.GetTargetCards`
+/// inline or through a single-assigned local, or `<g>:GetFirst()` over
+/// such a group. Source order, deduplicated.
+pub fn target_consumers(body: &FunctionBody) -> Vec<String> {
+    let mut out: Vec<String> = Vec::new();
+    for call in &body.calls {
+        if translate_call(call, body).is_none() { continue; }
+        let first_of_targets = |expr: &str| {
+            expr.trim()
+                .strip_suffix(":GetFirst()")
+                .and_then(|g| body.value_bindings.get(g))
+                .is_some_and(|rhs| rhs.starts_with("Duel.GetTargetCards("))
+        };
+        let consumes = call.args.iter().any(|a| {
+            let a = a.trim();
+            is_declared_target(a, body)
+                || first_of_targets(a)
+                || body.value_bindings.get(a).is_some_and(|rhs| first_of_targets(rhs))
+        });
+        if consumes && !out.contains(&call.method) {
+            out.push(call.method.clone());
+        }
+    }
+    out
 }
 
 // ── Phase 6: condition expression extraction ─────────────────────────────
@@ -23484,7 +23593,7 @@ end
 "#;
         let parsed = full_moon::parse(minmax).expect("parse");
         let report = walk(&parsed);
-        assert!(extract_target_decl_refined("s.tg", &report.functions).is_none());
+        assert!(extract_target_decl_refined("s.tg", &report.functions, &[]).is_err());
 
         let asym = r#"
 function s.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -23493,7 +23602,7 @@ end
 "#;
         let parsed = full_moon::parse(asym).expect("parse");
         let report = walk(&parsed);
-        assert!(extract_target_decl_refined("s.tg", &report.functions).is_none());
+        assert!(extract_target_decl_refined("s.tg", &report.functions, &[]).is_err());
 
         let sym = r#"
 function s.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
@@ -23502,11 +23611,102 @@ end
 "#;
         let parsed = full_moon::parse(sym).expect("parse");
         let report = walk(&parsed);
-        let spec = extract_target_decl_refined("s.tg", &report.functions).expect("symmetric maps");
+        let spec = extract_target_decl_refined("s.tg", &report.functions, &[]).expect("symmetric maps");
         assert_eq!(
             spec.to_dsl(),
             "(1, card, either controls, from monster_zone, where is_face_up and race == Warrior)",
         );
+    }
+
+    // ── T39 S9: target declarations through the shared filter mapper ──
+
+    fn s9_report(target_filter: &str, op_call: &str) -> LuaReport {
+        let src = format!(
+            r#"
+function s.filter(c)
+    return {target_filter}
+end
+function s.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil)
+end
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    {op_call}
+end
+"#
+        );
+        let parsed = full_moon::parse(&src).expect("parse");
+        walk(&parsed)
+    }
+
+    #[test]
+    fn s9_target_consumers_are_the_declared_target_actions() {
+        let r = s9_report("c:IsCanChangePosition()", "Duel.HintSelection(tc)\n    Duel.ChangePosition(tc,POS_FACEUP_DEFENSE)");
+        assert_eq!(target_consumers(&r.functions["s.op"]), vec!["Duel.ChangePosition".to_string()]);
+        // `tc = g:GetFirst()` over the declared-target group counts; a
+        // select-bound local does not.
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetTargetCards(e)
+    local tc=g:GetFirst()
+    local sc=Duel.SelectMatchingCard(tp,nil,tp,LOCATION_HAND,0,1,1,nil):GetFirst()
+    Duel.Destroy(sc,REASON_EFFECT)
+    Duel.SendtoHand(tc,nil,REASON_EFFECT)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let r = walk(&parsed);
+        assert_eq!(target_consumers(&r.functions["s.op"]), vec!["Duel.SendtoHand".to_string()]);
+    }
+
+    #[test]
+    fn s9_decl_legality_transparent_under_the_owning_action() {
+        // `IsCanChangePosition` in the SetTarget filter is the
+        // ChangePosition action's own legality: transparent under a
+        // ChangePosition owner (Blackwing - Elphin the Raven c11613567),
+        // refused under a Destroy owner.
+        let r = s9_report("c:IsCanChangePosition()", "Duel.ChangePosition(tc,POS_FACEUP_DEFENSE)");
+        let consumers = target_consumers(&r.functions["s.op"]);
+        let spec = extract_target_decl_refined("s.tg", &r.functions, &consumers).expect("decodes");
+        assert_eq!(spec.to_dsl(), "(1, card, you control, from monster_zone)");
+        let err = extract_target_decl_refined("s.tg", &r.functions, &["Duel.Destroy".to_string()])
+            .expect_err("Destroy does not imply IsCanChangePosition");
+        assert_eq!(err, "s.tg: IsCanChangePosition not implied by Duel.Destroy");
+        // Several consumers: EVERY one must imply it.
+        let both = ["Duel.ChangePosition".to_string(), "Duel.Destroy".to_string()];
+        assert!(extract_target_decl_refined("s.tg", &r.functions, &both).is_err());
+        // No action consumer at all: nothing beyond the targeting check.
+        let err = extract_target_decl_refined("s.tg", &r.functions, &[]).expect_err("no consumer");
+        assert_eq!(err, "s.tg: IsCanChangePosition not implied by no action consumer");
+    }
+
+    #[test]
+    fn s9_decl_targeting_pred_transparent_everywhere() {
+        // `IsCanBeEffectTarget(e)` is the declaration's own legality —
+        // transparent with no consumer at all (Branded Loss c10065487).
+        let r = s9_report("c:IsSetCard(SET_LAVAL) and c:IsCanBeEffectTarget(e)", "Duel.Destroy(tc,REASON_EFFECT)");
+        let spec = extract_target_decl_refined("s.tg", &r.functions, &[]).expect("decodes");
+        assert_eq!(spec.to_dsl(), "(1, card, you control, from monster_zone, where archetype == \"Laval\")");
+        // …but no ACTION selector implies it.
+        assert!(!implied_by_action("Duel.Destroy", TARGETING_PRED));
+        assert!(!implied_by_action("Duel.SendtoHand", TARGETING_PRED));
+    }
+
+    #[test]
+    fn s9_decl_residual_atom_still_refuses() {
+        // A non-legality atom with no DSL rendering refuses regardless of
+        // the owner; a battle-position atom rides the position slot.
+        let r = s9_report("c:IsCanChangePosition() and c:IsSummonLocation(LOCATION_EXTRA)", "Duel.ChangePosition(tc,POS_FACEUP_DEFENSE)");
+        let consumers = target_consumers(&r.functions["s.op"]);
+        let err = extract_target_decl_refined("s.tg", &r.functions, &consumers).expect_err("residual");
+        assert_eq!(err, "s.tg: IsSummonLocation(LOCATION_EXTRA)");
+        let r = s9_report("c:IsAttackPos() and c:IsCanChangePosition()", "Duel.ChangePosition(tc,POS_FACEUP_DEFENSE)");
+        let consumers = target_consumers(&r.functions["s.op"]);
+        let spec = extract_target_decl_refined("s.tg", &r.functions, &consumers).expect("position slot");
+        assert_eq!(spec.to_dsl(), "(1, card, you control, from monster_zone, in attack_position)");
+        // The legacy (pre-S9) decl path refuses both the implied
+        // predicate and the position slot — the audit instrument.
+        assert!(with_legacy_decl_policy(|| extract_target_decl_refined("s.tg", &r.functions, &consumers)).is_err());
     }
 
     #[test]
