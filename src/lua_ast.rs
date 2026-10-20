@@ -124,6 +124,11 @@ pub struct FunctionBody {
     /// recorded so `body_drops_chains` can reject fills that would
     /// silently omit one arm of the runtime choice.
     pub method_ops_poisoned: bool,
+    /// The FIRST statement / expression that poisoned the method-op
+    /// family, verbatim lua text (T39 explain). None whenever
+    /// `method_ops_poisoned` is false. Diagnostic only — no emit path
+    /// reads it.
+    pub method_poison_source: Option<String>,
     /// True when the body assigns a `*.CheckAdditional` hook
     /// (`Synchro.CheckAdditional = s.syncheck` — an extra material-
     /// legality constraint threaded around a summon call, T38 S7
@@ -562,7 +567,7 @@ const RITUAL_ADD_PROC_LEVEL_PARAMS: &[&str] = &[
 
 impl EffectSkeleton {
     /// First arg passed to `<binding>:<method>(...)`, or None if not called.
-    fn first_arg_of(&self, method: &str) -> Option<&str> {
+    pub fn first_arg_of(&self, method: &str) -> Option<&str> {
         self.set_calls.iter().find(|(m, _)| m == method)
             .and_then(|(_, args)| args.first().map(String::as_str))
     }
@@ -642,11 +647,22 @@ impl EffectSkeleton {
     /// params have no DSL equivalent — the resolve stays empty rather
     /// than mis-emitting an over-permissive bare line.
     pub fn summon_helper_line(&self) -> Option<String> {
+        self.summon_helper_verdict().ok()
+    }
+
+    /// [`summon_helper_line`](Self::summon_helper_line) with the refusal
+    /// named (T39 explain): `Err` carries the first gate that declined —
+    /// `no helper op`, `unresolved params`, `frame: <Set* method>`,
+    /// `tg/op mismatch`, or `params: <names>` when the param decoder
+    /// itself found no DSL equivalent. One decision path, two consumers.
+    pub fn summon_helper_verdict(&self) -> Result<String, String> {
         // Phase 20: the block-alignment gate lives in
         // `block_match::compute_assignments` — a hazard-flagged helper
         // emits its line only when the matcher forces a block for it.
-        let op = self.summon_helper_op.as_ref()?;
-        if op.unresolved { return None; }
+        let Some(op) = self.summon_helper_op.as_ref() else {
+            return Err("no helper op captured".to_string());
+        };
+        if op.unresolved { return Err("unresolved params".to_string()); }
         // T38 S4 — frame-decoration gate for the FACTORY forms (the
         // helper call returned the whole effect): Set* calls on the
         // returned binding beyond the cosmetic trio re-shape the proc —
@@ -661,8 +677,8 @@ impl EffectSkeleton {
             // dialog) with no game-rule surface — c6417578's only frame
             // decoration, and its shipped line is exact without it.
             let allowed = ["SetCountLimit", "SetDescription", "SetCategory", "SetHintTiming"];
-            if self.set_calls.iter().any(|(m, _)| !allowed.contains(&m.as_str())) {
-                return None;
+            if let Some((m, _)) = self.set_calls.iter().find(|(m, _)| !allowed.contains(&m.as_str())) {
+                return Err(format!("frame: {}", m));
             }
         } else if op.kind == SummonHelperKind::FusionSummonEffOp {
             // T38 S5 review (c1498449) — Variant-B TG/OP pairing gate:
@@ -679,14 +695,18 @@ impl EffectSkeleton {
                     .and_then(|o| o.trim().strip_prefix("Fusion.SummonEffOP"));
                 match (t_args, o_args) {
                     (Some(ta), Some(oa)) if ta.trim() == oa.trim() => {}
-                    _ => return None,
+                    _ => return Err("tg/op mismatch".to_string()),
                 }
             }
         }
-        match op.kind {
+        let line = match op.kind {
             SummonHelperKind::FusionSummonEffOp => fusion_helper_line(op),
             SummonHelperKind::RitualOperation => ritual_helper_line(&op.params),
-        }
+        };
+        line.ok_or_else(|| {
+            let names: Vec<&str> = op.params.iter().map(|(k, _)| k.as_str()).collect();
+            format!("params: {}", if names.is_empty() { "(none)".to_string() } else { names.join(",") })
+        })
     }
 
     /// True when this skeleton is backed by any fusion/ritual summon
@@ -1899,7 +1919,8 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             let return_expr = extract_return_expr(body_block);
             let guarded_return = extract_guarded_return(body_block);
             let (counter_ops, counter_ops_poisoned) = extract_counter_ops(body_block);
-            let (method_ops, method_ops_poisoned) = extract_method_ops(body_block);
+            let (method_ops, method_poison_source) = extract_method_ops(body_block);
+            let method_ops_poisoned = method_poison_source.is_some();
             let summon_check_additional = block_assigns_check_additional(body_block);
             let (inline_options, choice_arms) = extract_choice_arms(body_block);
             let helper_calls = extract_helper_calls(body_block);
@@ -1941,6 +1962,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                     params,
                     method_ops,
                     method_ops_poisoned,
+                    method_poison_source,
                     summon_check_additional,
                     staleness_guard,
                     staleness_guard_flag,
@@ -4584,16 +4606,25 @@ const CARD_METHOD_POISON: &[&str] = &[
 ///     foreign library helper registration (`aux.DelayedOperation`),
 ///     an effect registration the chain walk didn't build. The curated
 ///     benign set lives in `statement_call_is_benign`.
-fn extract_method_ops(block: &Block) -> (Vec<CardMethodOp>, bool) {
+fn extract_method_ops(block: &Block) -> (Vec<CardMethodOp>, Option<String>) {
     let mut chain_bindings: BTreeSet<String> = BTreeSet::new();
     collect_chain_binding_names(block, &mut chain_bindings);
     let mut out = Vec::new();
-    let mut poisoned = false;
+    let mut poisoned: Option<String> = None;
     collect_method_ops(block, None, false, &chain_bindings, &mut out, &mut poisoned);
-    if poisoned {
-        return (Vec::new(), true);
+    if poisoned.is_some() {
+        return (Vec::new(), poisoned);
     }
-    (out, false)
+    (out, None)
+}
+
+/// Record the first poisoning site of the method-op family (T39
+/// explain): later sites never overwrite it, so the recorded text is
+/// the FIRST statement in walk order the gate refused.
+fn mark_poisoned(slot: &mut Option<String>, what: impl FnOnce() -> String) {
+    if slot.is_none() {
+        *slot = Some(what().split_whitespace().collect::<Vec<_>>().join(" "));
+    }
 }
 
 /// Names of the Effect chain bindings a block creates — `local eN =
@@ -4757,7 +4788,7 @@ fn collect_method_ops(
     in_alt_arm: bool,
     chain_bindings: &BTreeSet<String>,
     out: &mut Vec<CardMethodOp>,
-    poisoned: &mut bool,
+    poisoned: &mut Option<String>,
 ) {
     // Per-block Return scan (T38 S6 review fix): lua allows `return`
     // only as a block's last statement, so `if guard then return
@@ -4765,14 +4796,14 @@ fn collect_method_ops(
     // last_stmt — a top-level-only scan missed it.
     if let Some(LastStmt::Return(ret)) = block.last_stmt() {
         for e in ret.returns() {
-            if expr_has_method_op(e) { *poisoned = true; }
+            if expr_has_method_op(e) { mark_poisoned(poisoned, || e.to_string()); }
         }
     }
     for stmt in block.stmts() {
         match stmt {
             Stmt::FunctionCall(fc) => {
                 if let Some(op) = method_op_from_fc(fc, loop_ctx) {
-                    if in_alt_arm { *poisoned = true; }
+                    if in_alt_arm { mark_poisoned(poisoned, || format!("alt-arm: {}", fc)); }
                     out.push(op);
                 } else {
                     // A known mutator nested inside another call's
@@ -4788,15 +4819,15 @@ fn collect_method_ops(
                         .any(|m| text.contains(&format!(":{}(", m)))
                         || !statement_call_is_benign(fc, chain_bindings)
                     {
-                        *poisoned = true;
+                        mark_poisoned(poisoned, || text.clone());
                     }
                 }
             }
             Stmt::If(if_stmt) => {
-                if expr_has_method_op(if_stmt.condition()) { *poisoned = true; }
+                if expr_has_method_op(if_stmt.condition()) { mark_poisoned(poisoned, || if_stmt.condition().to_string()); }
                 collect_method_ops(if_stmt.block(), loop_ctx, in_alt_arm, chain_bindings, out, poisoned);
                 for ei in if_stmt.else_if().into_iter().flatten() {
-                    if expr_has_method_op(ei.condition()) { *poisoned = true; }
+                    if expr_has_method_op(ei.condition()) { mark_poisoned(poisoned, || ei.condition().to_string()); }
                     collect_method_ops(ei.block(), loop_ctx, true, chain_bindings, out, poisoned);
                 }
                 if let Some(else_block) = if_stmt.else_block() {
@@ -4807,12 +4838,12 @@ fn collect_method_ops(
             // group — mark ops inside them multi-target with an empty
             // group so the emit path skips them (Phase 13 parity).
             Stmt::While(w) => {
-                if expr_has_method_op(w.condition()) { *poisoned = true; }
+                if expr_has_method_op(w.condition()) { mark_poisoned(poisoned, || w.condition().to_string()); }
                 collect_method_ops(
                     w.block(), Some(CounterLoopCtx { group: "", var: "" }), in_alt_arm, chain_bindings, out, poisoned);
             }
             Stmt::Repeat(r) => {
-                if expr_has_method_op(r.until()) { *poisoned = true; }
+                if expr_has_method_op(r.until()) { mark_poisoned(poisoned, || r.until().to_string()); }
                 collect_method_ops(
                     r.block(), Some(CounterLoopCtx { group: "", var: "" }), in_alt_arm, chain_bindings, out, poisoned);
             }
@@ -4831,12 +4862,12 @@ fn collect_method_ops(
             Stmt::Do(d) => collect_method_ops(d.block(), loop_ctx, in_alt_arm, chain_bindings, out, poisoned),
             Stmt::LocalAssignment(la) => {
                 for e in la.expressions() {
-                    if expr_has_method_op(e) { *poisoned = true; }
+                    if expr_has_method_op(e) { mark_poisoned(poisoned, || e.to_string()); }
                 }
             }
             Stmt::Assignment(a) => {
                 for e in a.expressions() {
-                    if expr_has_method_op(e) { *poisoned = true; }
+                    if expr_has_method_op(e) { mark_poisoned(poisoned, || e.to_string()); }
                 }
             }
             _ => {}
@@ -6061,8 +6092,133 @@ pub fn body_drops_chains(
     body: &FunctionBody,
     functions: &BTreeMap<String, FunctionBody>,
 ) -> bool {
+    body_drop_reason(body, functions).is_some()
+}
+
+/// The first dropped element [`body_drops_chains`] finds, in the
+/// gate's own check order, with the datum `lua_translate explain`
+/// prints (T39). `body_drops_chains` is `body_drop_reason(..).is_some()`
+/// — one decision path, two consumers.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum BodyDrop {
+    /// `FunctionBody::method_ops_poisoned` — the T38 S2b general
+    /// statement gate / S6 either-or poison. Carries the first
+    /// poisoning statement's lua text.
+    MethodPoison(String),
+    /// `FunctionBody::counter_ops_poisoned` — an expression-position or
+    /// either-or counter placement the statement walk can't collect.
+    CounterPoison,
+    /// Method ops coexist with a Duel.*-derived line, helper call or
+    /// counter op (the mixed-action class the S6 emit path refuses).
+    /// Carries the first method op as `recv:Method(args)`.
+    MixedMethodOps(String),
+    /// A method op `translate_method_op` can't lower (non-literal
+    /// amount, unmapped reset, foreign receiver, …).
+    MethodOpUnlowered(String),
+    /// A counter op `translate_counter_op` can't lower (unknown
+    /// counter, computed count, foreign receiver).
+    CounterOpUnlowered(String),
+    /// A script-local helper statement with no lowering (only the
+    /// Phase 17 select-then-equip wrapper lowers today).
+    HelperUnlowered(String),
+    /// A `RegisterEffect` chain `translate_register_chain` can't lower.
+    /// Carries `code=… type=… reset=… reg=…` plus the `choice-arm` /
+    /// `conflicting-sets` / `with-op` / `with-cond` markers.
+    ChainUnlowered(String),
+    /// A line the Phase 10 stat-write interference guard would drop at
+    /// emit time (reads a stat an earlier line wrote).
+    Interference(String),
+}
+
+impl BodyDrop {
+    /// Stable kebab-case reason code.
+    pub fn code(&self) -> &'static str {
+        match self {
+            BodyDrop::MethodPoison(_) => "method-poison",
+            BodyDrop::CounterPoison => "counter-poison",
+            BodyDrop::MixedMethodOps(_) => "mixed-method-ops",
+            BodyDrop::MethodOpUnlowered(_) => "method-op-unlowered",
+            BodyDrop::CounterOpUnlowered(_) => "counter-op-unlowered",
+            BodyDrop::HelperUnlowered(_) => "helper-unlowered",
+            BodyDrop::ChainUnlowered(_) => "chain-unlowered",
+            BodyDrop::Interference(_) => "interference",
+        }
+    }
+
+    /// The gate's own datum (lua text / op / chain summary).
+    pub fn detail(&self) -> &str {
+        match self {
+            BodyDrop::CounterPoison => "",
+            BodyDrop::MethodPoison(s)
+            | BodyDrop::MixedMethodOps(s)
+            | BodyDrop::MethodOpUnlowered(s)
+            | BodyDrop::CounterOpUnlowered(s)
+            | BodyDrop::HelperUnlowered(s)
+            | BodyDrop::ChainUnlowered(s)
+            | BodyDrop::Interference(s) => s,
+        }
+    }
+}
+
+fn method_op_summary(op: &CardMethodOp) -> String {
+    format!("{}:{}({})", op.receiver, op.method, op.args.join(","))
+}
+
+fn counter_op_summary(op: &CounterOp) -> String {
+    let name = if op.add { "AddCounter" } else { "RemoveCounter" };
+    format!("{}:{}({},{})", op.receiver, name, op.counter_arg, op.count_arg)
+}
+
+/// `code=… type=… reset=… reg=… value=…` plus the slot markers the
+/// single-type families refuse on (`chain_has_unmodeled_slots`:
+/// `with-cond` / `with-op` / `with-target` / `with-range` / `forced` /
+/// `duel-reg` / `choice-arm`) and `conflicting-sets` — the datum
+/// behind a `chain-unlowered` verdict. A chain with NO marker was
+/// refused by its family's own value / receiver / reset decode.
+pub fn chain_summary(chain: &RegisterEffectChain) -> String {
+    let mut s = format!(
+        "code={} type={} reset={} reg={} value={}",
+        chain.code.as_deref().unwrap_or("-"),
+        chain.effect_type.as_deref().unwrap_or("-"),
+        chain.reset.as_deref().unwrap_or("-"),
+        chain.register_target,
+        chain.value.as_deref().map(|v| v.split_whitespace().collect::<String>()).unwrap_or_else(|| "-".to_string()),
+    );
+    if chain.in_choice_arm { s.push_str(" choice-arm"); }
+    if chain.conflicting_sets { s.push_str(" conflicting-sets"); }
+    if chain.operation.is_some() { s.push_str(" with-op"); }
+    if chain.condition.is_some() { s.push_str(" with-cond"); }
+    if chain.set_target.is_some() { s.push_str(" with-target"); }
+    if chain.target_range.is_some() { s.push_str(" with-range"); }
+    if chain.forced { s.push_str(" forced"); }
+    if chain.duel_registered { s.push_str(" duel-reg"); }
+    if chain.multi_target { s.push_str(" multi"); }
+    s.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// See [`BodyDrop`]. Check order is the gate's order; the first drop
+/// wins.
+pub fn body_drop_reason(
+    body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<BodyDrop> {
+    body_drop_reasons(body, functions).into_iter().next()
+}
+
+/// EVERY drop [`body_drops_chains`] would find, in check order — the
+/// whole-body poisons (`MethodPoison`, `CounterPoison`,
+/// `MixedMethodOps`) stand alone since they hide the rest; after them
+/// each unlowered op / helper / chain is listed so `explain` can tell
+/// a block with ONE blocker from one with several. The interference
+/// replay mirrors the emit loop's `continue` (a dropped line never
+/// records its stat write).
+pub fn body_drop_reasons(
+    body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Vec<BodyDrop> {
     let refined = refine_group_bindings(body, functions);
     let body = refined.as_ref().unwrap_or(body);
+    let mut drops: Vec<BodyDrop> = Vec::new();
     // Method-op completeness (T38 S6). An elseif/else-poisoned family,
     // an impure body (the emit path suppresses ALL method ops when any
     // Duel.*-derived line, helper call, or counter op coexists), and
@@ -6070,13 +6226,15 @@ pub fn body_drops_chains(
     // lines seed the interference replay below — the chain loop sees
     // their stat writes exactly as `translate_body_with_functions` does.
     if body.method_ops_poisoned {
-        return true;
+        return vec![BodyDrop::MethodPoison(
+            body.method_poison_source.clone().unwrap_or_default(),
+        )];
     }
     // Counter-family poison (T38 S6 review fix): an emptied-and-flagged
     // family means a placement the statement walk couldn't collect
     // (expression position) or an either/or dispatch — dropped content.
     if body.counter_ops_poisoned {
-        return true;
+        return vec![BodyDrop::CounterPoison];
     }
     let mut stat_writes: Vec<(String, String)> = Vec::new();
     if !body.method_ops.is_empty() {
@@ -6087,7 +6245,7 @@ pub fn body_drops_chains(
             || !body.counter_ops.is_empty()
             || !body.helper_calls.is_empty();
         if impure {
-            return true;
+            return vec![BodyDrop::MixedMethodOps(method_op_summary(&body.method_ops[0]))];
         }
         for op in &body.method_ops {
             match translate_method_op(op, body) {
@@ -6095,13 +6253,15 @@ pub fn body_drops_chains(
                     if stat_writes.iter().any(|(sel, stat)| {
                         text.contains(&format!("{}.{}", sel, stat))
                     }) {
-                        return true; // emit loop would drop this line
+                        // emit loop would drop this line
+                        drops.push(BodyDrop::Interference(text));
+                        continue;
                     }
                     if let Some(write) = stat_write_of(&text) {
                         stat_writes.push(write);
                     }
                 }
-                _ => return true,
+                _ => drops.push(BodyDrop::MethodOpUnlowered(method_op_summary(op))),
             }
         }
     }
@@ -6111,7 +6271,7 @@ pub fn body_drops_chains(
     // — that under-states the handler the same way a dropped chain does.
     for op in &body.counter_ops {
         if translate_counter_op(op, body).is_none() {
-            return true;
+            drops.push(BodyDrop::CounterOpUnlowered(counter_op_summary(op)));
         }
     }
     // Helper-call completeness (T38 S2b general gate): every collected
@@ -6121,7 +6281,7 @@ pub fn body_drops_chains(
     // translatable siblings would fill an under-stated resolve.
     for (name, args) in &body.helper_calls {
         if translate_equip_helper_call(name, args, body, functions).is_none() {
-            return true;
+            drops.push(BodyDrop::HelperUnlowered(format!("{}({})", name, args.join(","))));
         }
     }
     // T38 S3 — mirror the emit loop's paired-negation fold: a covered
@@ -6134,14 +6294,16 @@ pub fn body_drops_chains(
         }
         let lines = translate_register_chain(chain, body, functions);
         if lines.is_empty() {
-            return true;
+            drops.push(BodyDrop::ChainUnlowered(chain_summary(chain)));
         }
         for line in lines {
             if let DslLine::Action(text) = &line {
                 if stat_writes.iter().any(|(sel, stat)| {
                     text.contains(&format!("{}.{}", sel, stat))
                 }) {
-                    return true; // emit loop would drop this line
+                    // emit loop would drop this line
+                    drops.push(BodyDrop::Interference(text.clone()));
+                    continue;
                 }
                 if let Some(write) = stat_write_of(text) {
                     stat_writes.push(write);
@@ -6149,7 +6311,7 @@ pub fn body_drops_chains(
             }
         }
     }
-    false
+    drops
 }
 
 /// Phase 16 — a fully-translated SelectOption choose block: one
@@ -9849,6 +10011,100 @@ fn duel_remove_counter_parts(args: &[String]) -> Option<(&'static str, &'static 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // ── T39 — drop census + poison provenance ────────────────────
+
+    fn walk_src(src: &str) -> LuaReport {
+        walk(&full_moon::parse(src).expect("parse"))
+    }
+
+    #[test]
+    fn body_drop_reasons_lists_every_unlowered_chain_in_order() {
+        // Two chains the single-type families refuse (label-valued
+        // SetValue): both are listed, first one first; the bool gate
+        // and the first-reason accessor agree.
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local e1=Effect.CreateEffect(c)
+	e1:SetType(EFFECT_TYPE_SINGLE)
+	e1:SetCode(EFFECT_UPDATE_ATTACK)
+	e1:SetValue(e:GetLabel())
+	e1:SetReset(RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_END)
+	c:RegisterEffect(e1)
+	local e2=e1:Clone()
+	e2:SetCode(EFFECT_UPDATE_DEFENSE)
+	c:RegisterEffect(e2)
+end
+"#;
+        let report = walk_src(src);
+        let body = report.functions.get("s.op").expect("walked");
+        let drops = body_drop_reasons(body, &report.functions);
+        assert_eq!(drops.len(), 2, "{:?}", drops);
+        assert!(matches!(&drops[0], BodyDrop::ChainUnlowered(d) if d.contains("code=EFFECT_UPDATE_ATTACK")), "{:?}", drops);
+        assert!(matches!(&drops[1], BodyDrop::ChainUnlowered(d) if d.contains("code=EFFECT_UPDATE_DEFENSE")), "{:?}", drops);
+        assert_eq!(body_drop_reason(body, &report.functions).as_ref(), Some(&drops[0]));
+        assert!(body_drops_chains(body, &report.functions));
+        assert_eq!(drops[0].code(), "chain-unlowered");
+    }
+
+    #[test]
+    fn body_drop_reasons_empty_when_nothing_drops() {
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Draw(tp,1,REASON_EFFECT)
+end
+"#;
+        let report = walk_src(src);
+        let body = report.functions.get("s.op").expect("walked");
+        assert!(body_drop_reasons(body, &report.functions).is_empty());
+        assert!(!body_drops_chains(body, &report.functions));
+    }
+
+    #[test]
+    fn method_poison_source_records_first_refused_statement() {
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	Duel.Draw(tp,1,REASON_EFFECT)
+	c:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD,0,1)
+	c:CancelToGrave()
+end
+"#;
+        let report = walk_src(src);
+        let body = report.functions.get("s.op").expect("walked");
+        assert!(body.method_ops_poisoned);
+        assert_eq!(
+            body.method_poison_source.as_deref(),
+            Some("c:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD,0,1)"),
+        );
+        assert_eq!(
+            body_drop_reason(body, &report.functions),
+            Some(BodyDrop::MethodPoison("c:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD,0,1)".to_string())),
+        );
+        // Unpoisoned bodies carry no source.
+        let clean = walk_src("function s.op(e,tp)\n\tDuel.Draw(tp,1,REASON_EFFECT)\nend\n");
+        let body = clean.functions.get("s.op").expect("walked");
+        assert!(!body.method_ops_poisoned);
+        assert_eq!(body.method_poison_source, None);
+    }
+
+    #[test]
+    fn summon_helper_verdict_names_the_frame_gate() {
+        // Factory form decorated with a SetCondition: the frame gate
+        // refuses and names the Set* method; the Option view is None.
+        let src = r#"
+function s.initial_effect(c)
+	local e1=Ritual.CreateProc(c,RITPROC_GREATER,nil,nil,aux.Stringid(id,1))
+	e1:SetCondition(s.cond)
+	c:RegisterEffect(e1)
+end
+"#;
+        let report = walk_src(src);
+        let eff = &report.effects[0];
+        assert_eq!(eff.summon_helper_verdict(), Err("frame: SetCondition".to_string()));
+        assert_eq!(eff.summon_helper_line(), None);
+    }
 
     #[test]
     fn translate_duel_damage() {

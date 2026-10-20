@@ -28,7 +28,7 @@ use duelscript::stub_refine;
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
-        eprintln!("usage: lua_translate <dump|translate|apply|audit-fills|audit-owners> <path>");
+        eprintln!("usage: lua_translate <dump|translate|apply|audit-fills|audit-owners|explain> <path>");
         process::exit(2);
     }
     let mode = args[1].as_str();
@@ -172,6 +172,26 @@ fn main() {
             let cdb = args.get(4).map(String::as_str).filter(|a| *a != "--stub");
             load_card_names(cdb, lua_dir);
             audit_owners(corpus, lua_dir, stub);
+        }
+        "explain" => {
+            // T39 — per-block fill verdicts for the empty-resolve error
+            // class. For every effect block whose resolve is empty (or
+            // that has neither resolve nor choose), print ONE tab-
+            // separated line naming the FIRST Pass A gate that refuses
+            // the fill — the same `plan_fill` apply consumes — and
+            // the gate's own datum:
+            //
+            //   card  block  owner|unassigned  reason  detail  type  stmts
+            //
+            //   lua_translate explain <corpus_dir> <lua_dir> [cards.cdb]
+            if args.len() < 4 {
+                eprintln!("usage: lua_translate explain <corpus_dir> <lua_dir> [cards.cdb]");
+                process::exit(2);
+            }
+            let corpus = &args[2];
+            let lua_dir = &args[3];
+            load_card_names(args.get(4).map(String::as_str), lua_dir);
+            explain(corpus, lua_dir);
         }
         _ => {
             eprintln!("unknown mode: {}", mode);
@@ -421,31 +441,127 @@ fn card_desc(card_id: Option<u32>) -> Option<&'static str> {
     CARD_DESCS.get()?.get(&card_id?).map(String::as_str)
 }
 
+/// Why Pass A declines to fill one effect's resolve: the FIRST gate
+/// along the pass's decision path that refuses. Closed set — every
+/// variant maps to exactly one `ApplyReport` skip counter through
+/// [`FillReason::count`]. `apply` and `explain` consume the same
+/// [`plan_fill`], so a code printed by `explain` IS the reason the
+/// corpus block is empty, not a diagnostic approximation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum FillReason {
+    /// The chain has no `SetOperation` and is no summon helper — a pure
+    /// passive with no effect block in the .ds. Counted `no map`.
+    NoHandler,
+    /// `EFFECT_*_REPLACE` chain: the op body belongs to the generated
+    /// `replacement` block (T38 S4). Counted `incomplete`.
+    ReplacementChain,
+    /// No block assignment (Phase 20 / T38 S9): a hazard-flagged chain
+    /// the matcher couldn't force, or a card whose binding order and
+    /// source order disagree. Counted `align`.
+    Unassigned,
+    /// Summon helper (fusion/ritual factory, SummonEffOP / Operation)
+    /// whose params don't decode to a line — detail names the helper
+    /// gate (`unresolved params`, `frame: SetX`, `tg/op mismatch`,
+    /// `params: …`). Counted `no map`.
+    SummonHelperUndecodable,
+    /// The `SetOperation` handler has no walked body — a library
+    /// function (`aux.*`, `Cost.*`) or a body the walk collected
+    /// nothing from. Counted `no map`.
+    NoBody,
+    /// `lua_ast::body_drop_reason` — a chain / method op / counter op /
+    /// helper the translation would silently omit (T38 S1/S2b/S6).
+    /// Counted `incomplete`.
+    Drop(lua_ast::BodyDrop),
+    /// Translation yielded no line at all — every collected Duel.*
+    /// call is a UI / query / bookkeeping skip, or the walk collected
+    /// nothing. Counted `todo`.
+    NoLines,
+    /// Translation yielded only TODO lines — every Duel.* statement is
+    /// unmapped. Counted `todo`.
+    TodoOnly,
+    /// Mixed action + TODO lines — a sibling statement is unmapped
+    /// (T38 S1 skip-not-mis-emit). Counted `incomplete`.
+    Incomplete,
+    /// The assigned block index is beyond the .ds's effect blocks.
+    /// Not counted (apply's silent `continue`).
+    NoBlock,
+    /// The block's `cost { … }` doesn't re-derive from the lua cost
+    /// handler (T38 S6 review, skip class 10). Counted `incomplete`.
+    CostHeaderMismatch,
+    /// Summon-helper fill onto a header that models no condition /
+    /// cost frame the lua chain carries (T38 S5 review). Counted
+    /// `incomplete`.
+    HelperFrameMismatch,
+    /// The fill references `target` and the block has no declaration
+    /// the refined SetTarget extraction can co-emit (T38 S6). Counted
+    /// `incomplete`.
+    TargetDeclUndecodable,
+}
+
+impl FillReason {
+    /// Stable kebab-case reason code — the `explain` column.
+    fn code(&self) -> &'static str {
+        match self {
+            FillReason::NoHandler => "no-handler",
+            FillReason::ReplacementChain => "replacement-chain",
+            FillReason::Unassigned => "unassigned",
+            FillReason::SummonHelperUndecodable => "summon-helper-undecodable",
+            FillReason::NoBody => "no-body",
+            FillReason::Drop(d) => d.code(),
+            FillReason::NoLines => "no-lines",
+            FillReason::TodoOnly => "todo-only",
+            FillReason::Incomplete => "incomplete",
+            FillReason::NoBlock => "no-block",
+            FillReason::CostHeaderMismatch => "cost-header-mismatch",
+            FillReason::HelperFrameMismatch => "helper-frame-mismatch",
+            FillReason::TargetDeclUndecodable => "target-decl-undecodable",
+        }
+    }
+
+    /// Bump the `ApplyReport` counter Pass A historically charged this
+    /// skip to.
+    fn count(&self, r: &mut ApplyReport) {
+        match self {
+            FillReason::NoHandler
+            | FillReason::SummonHelperUndecodable
+            | FillReason::NoBody => r.effects_no_handler += 1,
+            FillReason::ReplacementChain
+            | FillReason::Drop(_)
+            | FillReason::Incomplete
+            | FillReason::CostHeaderMismatch
+            | FillReason::HelperFrameMismatch
+            | FillReason::TargetDeclUndecodable => r.effects_incomplete += 1,
+            FillReason::Unassigned => r.effects_alignment_hazard += 1,
+            FillReason::NoLines | FillReason::TodoOnly => r.effects_todo_only += 1,
+            FillReason::NoBlock => {}
+        }
+    }
+}
+
 /// Why Pass A would (not) fill an effect's resolve — ONE decision path
 /// shared by Pass A (empty resolves), Pass A2 (blocks without a
-/// resolve) and Pass S (lone category stubs, T38), so the stub
-/// refinement can never admit a fill the empty-resolve path refuses.
+/// resolve), Pass S (lone category stubs, T38) and `explain` (T39), so
+/// the stub refinement can never admit a fill the empty-resolve path
+/// refuses and the diagnostic can never name a gate the passes don't
+/// apply. Refusals carry the closed [`FillReason`] vocabulary.
+#[derive(Debug)]
 enum FillPlan {
-    /// Pure passive, undecodable helper, or unknown handler body —
-    /// nothing to emit (`effects_no_handler`).
-    NoHandler,
-    /// Replacement chain, dropped chain, TODO-mixed body, or a header
-    /// parity / bare-target gate failure (`effects_incomplete`).
-    Incomplete,
-    /// No unambiguous block for this effect (`effects_alignment_hazard`).
-    Hazard,
-    /// Translator emitted no action line (`effects_todo_only`).
-    TodoOnly,
-    /// The assigned block index doesn't exist in the text.
-    NoBlock,
-    /// Phase 16 — a `choose { … }` block replaces the resolve.
+    /// Phase 16 — a rendered `choose { … }` block replaces the resolve.
     Choose(String),
     /// A complete fill: the action lines plus, when they reference
     /// `target` and the block has no declaration, the co-emitted
     /// target selector.
     Fill { lines: Vec<lua_ast::DslLine>, co_target: Option<String> },
+    /// Declined. `choose_why` is set when the effect is choose-shaped
+    /// (a SelectOption / label dispatch is present) but the Phase 16
+    /// extraction refused — the pass then fell through to the plain
+    /// path, whose gate `reason` names.
+    Skip { reason: FillReason, detail: String, choose_why: Option<String> },
 }
 
+/// The gate sequence for one walk effect, in the order Pass A
+/// evaluates them. `txt` is the CURRENT corpus text (earlier fills in
+/// the same file shift block offsets; indices are stable).
 fn plan_fill(
     eff_i: usize,
     eff: &lua_ast::EffectSkeleton,
@@ -454,8 +570,11 @@ fn plan_fill(
     txt: &str,
     card_id: Option<u32>,
 ) -> FillPlan {
+    let skip = |reason: FillReason, detail: String| FillPlan::Skip {
+        reason, detail: normalize_ws(&detail), choose_why: None,
+    };
     if !eff.is_summon_helper() && eff.operation_handler.is_none() {
-        return FillPlan::NoHandler; // pure-passive — no effect block in .ds
+        return skip(FillReason::NoHandler, eff.binding.clone()); // pure-passive — no effect block in .ds
     }
     // T38 S4 — replacement-code chains (EFFECT_*_REPLACE): the op body
     // belongs to the corpus-generated `replacement` block; filling an
@@ -463,7 +582,8 @@ fn plan_fill(
     // wrong surface (c39996157's shipped `banish self`). Consume the
     // index, decline the fill.
     if eff.is_replacement_chain() {
-        return FillPlan::Incomplete;
+        let code = eff.first_arg_of("SetCode").unwrap_or("").to_string();
+        return skip(FillReason::ReplacementChain, code);
     }
     let Some(block_idx) = assign.by_effect[eff_i] else {
         // Hazard-gated and not rescued: a clone / bare-activate chain
@@ -471,71 +591,99 @@ fn plan_fill(
         // consumed an index without owning a block — T38 S9) and the
         // block signatures don't force a unique home — filling would
         // risk landing in the wrong block.
-        return FillPlan::Hazard;
+        let why = if eff.block_alignment_hazard { "hazard unrescued" } else { "order-inconsistent" };
+        return skip(FillReason::Unassigned, why.to_string());
     };
     // Phase 16 — SelectOption label-branch dispatch. When the target
     // handler picked an option (`Duel.SelectOption` + `e:SetLabel`)
     // and the operation handler splits on `e:GetLabel()` with one
     // fully-translatable arm per option, a `choose { option … }` block
-    // REPLACES the empty resolve (the validator accepts either, never
-    // both). Falls through to the normal fill when the shape or a
-    // label doesn't resolve.
+    // REPLACES the empty resolve. Falls through to the normal fill
+    // when the shape or a label doesn't resolve.
+    let mut choose_why: Option<String> = None;
     if !eff.is_summon_helper() {
-        let choose_text = eff.operation_handler.as_deref().and_then(|oh| {
-            let ob = walk.functions.get(oh.trim())?;
+        let oh = eff.operation_handler.as_deref().unwrap_or_default().trim();
+        if let Some(ob) = walk.functions.get(oh) {
             let tb = eff.target_handler.as_deref()
                 .and_then(|th| walk.functions.get(th.trim()));
-            let spec = lua_ast::extract_choose_spec(tb, ob, &walk.functions)?;
-            render_choose_block(&spec, card_id?)
-        });
-        if let Some(choose_text) = choose_text {
-            return FillPlan::Choose(choose_text);
+            match lua_ast::extract_choose_spec(tb, ob, &walk.functions) {
+                Some(spec) => match card_id.and_then(|id| render_choose_block(&spec, id)) {
+                    Some(text) => return FillPlan::Choose(text),
+                    None => choose_why = Some("option label lookup failed".to_string()),
+                },
+                None => choose_why = choose_failure_detail(ob, tb),
+            }
         }
     }
+    let with_choose = |v: FillPlan| match v {
+        FillPlan::Skip { reason, detail, .. } => FillPlan::Skip { reason, detail, choose_why },
+        other => other,
+    };
     // Special case: skeletons backed by a fusion/ritual summon helper —
     // the plain factories (Fusion.CreateSummonEff / Ritual.AddProc* /
     // Ritual.CreateProc, fixed line) and the parameterized SetOperation
     // forms (Fusion.SummonEffOP / Ritual.Operation, Phase 12). The
     // helper owns the UI / op pipeline, so a summon line replaces the
-    // handler walk. Parameterized forms whose params don't decode
-    // return None and fall through to the no-handler skip.
-    let helper_line = eff.summon_helper_line();
-    let is_helper_fill = helper_line.is_some();
-    let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
-        vec![lua_ast::DslLine::Action(text)]
-    } else if eff.is_summon_helper() {
-        // Helper params undecodable — the activation block exists in
-        // the .ds but its resolve stays an empty stub (skip-not-mis-emit).
-        return FillPlan::NoHandler;
+    // handler walk. Parameterized forms whose params don't decode skip
+    // (the activation block exists in the .ds but its resolve stays an
+    // empty stub — skip-not-mis-emit).
+    let is_helper_fill = eff.is_summon_helper();
+    let mut body: Option<&lua_ast::FunctionBody> = None;
+    let lines: Vec<lua_ast::DslLine> = if is_helper_fill {
+        match eff.summon_helper_verdict() {
+            Ok(text) => vec![lua_ast::DslLine::Action(text)],
+            Err(why) => return skip(FillReason::SummonHelperUndecodable, why),
+        }
     } else {
         // Consumer without a helper spec has an operation handler
         // (checked at the top).
-        let handler = eff.operation_handler.as_deref().unwrap_or_default();
-        match walk.functions.get(handler.trim()) {
-            Some(body) => {
+        let handler = eff.operation_handler.as_deref().unwrap_or_default().trim();
+        match walk.functions.get(handler) {
+            Some(b) => {
                 // T38 S1 — completeness gate: a handler whose
                 // translation drops a RegisterEffect chain would fill
                 // an under-stated resolve. Skip the whole fill; the
                 // dropped chain is the S1b/S8 backlog.
-                if lua_ast::body_drops_chains(body, &walk.functions) {
-                    return FillPlan::Incomplete;
+                let mut drops = lua_ast::body_drop_reasons(b, &walk.functions);
+                if !drops.is_empty() {
+                    let first = drops.remove(0);
+                    // Remaining-blocker census (T39): the other drops
+                    // plus the TODO lines the body walk would still
+                    // emit — `+0 drops, 0 todo` means this ONE gate is
+                    // the whole blocker.
+                    let todo = lua_ast::translate_body_with_functions(b, &walk.functions)
+                        .iter().filter(|l| !l.is_action()).count();
+                    let detail = format!(
+                        "{} | +{} drops, {} todo", first.detail(), drops.len(), todo
+                    );
+                    return with_choose(skip(FillReason::Drop(first), detail));
                 }
-                lua_ast::translate_body_with_functions(body, &walk.functions)
+                body = Some(b);
+                lua_ast::translate_body_with_functions(b, &walk.functions)
             }
-            None => return FillPlan::NoHandler, // block exists, body unknown
+            None => return skip(FillReason::NoBody, handler.to_string()), // block exists, body unknown
         }
     };
-    if !lines.iter().any(|l| l.is_action()) {
-        return FillPlan::TodoOnly;
+    let n_actions = lines.iter().filter(|l| l.is_action()).count();
+    if n_actions == 0 {
+        if lines.is_empty() {
+            let calls: Vec<&str> = body.map(|b| b.calls.iter().map(|c| c.method.as_str()).collect())
+                .unwrap_or_default();
+            let detail = if calls.is_empty() { "empty walk".to_string() }
+                else { format!("calls: {}", calls.join(", ")) };
+            return with_choose(skip(FillReason::NoLines, detail));
+        }
+        return with_choose(skip(FillReason::TodoOnly, todo_summary(&lines)));
     }
     // T38 S1 — a TODO line marks an untranslated Duel.* call in the
     // same handler; filling only the translated remainder silently
     // drops it. Skip-not-mis-emit.
-    if lines.iter().any(|l| !l.is_action()) {
-        return FillPlan::Incomplete;
+    if n_actions < lines.len() {
+        let detail = format!("{}/{} actions; {}", n_actions, lines.len(), todo_summary(&lines));
+        return with_choose(skip(FillReason::Incomplete, detail));
     }
     let Some((block_lo, block_hi)) = nth_effect_block(txt, block_idx) else {
-        return FillPlan::NoBlock;
+        return skip(FillReason::NoBlock, format!("block {}", block_idx));
     };
     let block = &txt[block_lo..block_hi];
     // T38 S6 review — cost-header parity: filling a resolve makes the
@@ -543,27 +691,41 @@ fn plan_fill(
     // from the lua cost handler (skip class 10 — c9798352's `banish
     // self` header contradicts the lua's banish-a-Trap-from-Deck cost).
     if !cost_header_matches(block, eff, &walk.functions) {
-        return FillPlan::Incomplete;
+        let detail = format!(
+            "block {} vs lua cost {}",
+            block_cost_text(block).map(|c| normalize_ws(&c)).unwrap_or_default(),
+            eff.cost_handler.as_deref().unwrap_or("(none)").trim(),
+        );
+        return skip(FillReason::CostHeaderMismatch, detail);
     }
     // T38 S5 review — frame parity for summon-helper fills.
     if is_helper_fill && !helper_frame_matches(block, eff) {
-        return FillPlan::Incomplete;
+        let detail = format!(
+            "cond={} cost={}",
+            eff.condition_handler.as_deref().unwrap_or("-").trim(),
+            eff.cost_handler.as_deref().unwrap_or("-").trim(),
+        );
+        return skip(FillReason::HelperFrameMismatch, detail);
     }
-    // T38 S6 — bare-target gate: a fill referencing `target` only lands
-    // together with a target declaration; otherwise the validator's
-    // bare-target check trades the empty-resolve error for a new one.
-    // Blocks without one get the decl CO-EMITTED from the SetTarget
-    // selector (refined extraction — exactly-mapped filters only);
-    // when that fails, the whole fill skips.
+    // T38 S6 — bare-target gate: a fill referencing `target` only
+    // lands together with a target declaration; otherwise the
+    // validator's bare-target check trades the empty-resolve error for
+    // a new one. Blocks without one get the decl CO-EMITTED from the
+    // SetTarget selector (refined extraction — exactly-mapped filters
+    // only); when that fails, the whole fill skips.
     let mut co_target: Option<String> = None;
     if lines_reference_target(&lines) && !block_has_target_decl(block) {
         match target_decl_selector(eff, &walk.functions) {
             Some(sel) => co_target = Some(sel),
-            None => return FillPlan::Incomplete,
+            None => {
+                let detail = eff.target_handler.as_deref().unwrap_or("(no SetTarget)").trim().to_string();
+                return skip(FillReason::TargetDeclUndecodable, detail);
+            }
         }
     }
     FillPlan::Fill { lines, co_target }
 }
+
 
 /// The text that replaces an empty / stub `resolve { }` slot: the
 /// rendered body, preceded by the co-emitted target declaration when
@@ -684,11 +846,7 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         // with Pass A2 and Pass S.
         for (eff_i, eff) in walk.effects.iter().enumerate() {
             let (lines, co_target) = match plan_fill(eff_i, eff, &walk, &assign, &new_txt, card_id) {
-                FillPlan::NoHandler => { r.effects_no_handler += 1; continue; }
-                FillPlan::Incomplete => { r.effects_incomplete += 1; continue; }
-                FillPlan::Hazard => { r.effects_alignment_hazard += 1; continue; }
-                FillPlan::TodoOnly => { r.effects_todo_only += 1; continue; }
-                FillPlan::NoBlock => continue,
+                FillPlan::Skip { reason, .. } => { reason.count(&mut r); continue; }
                 FillPlan::Choose(choose_text) => {
                     let Some(block_idx) = assign.by_effect[eff_i] else { continue };
                     if let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) {
@@ -1063,6 +1221,178 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
     r
 }
 
+// ── T39 — explain ─────────────────────────────────────────────
+
+/// Why the Phase 16 choose extraction refused a choose-SHAPED effect
+/// (one whose op or target handler carries a SelectOption, or whose
+/// op dispatches on `e:GetLabel()`). None for effects that aren't
+/// choose-shaped at all.
+fn choose_failure_detail(
+    ob: &lua_ast::FunctionBody,
+    tb: Option<&lua_ast::FunctionBody>,
+) -> Option<String> {
+    let sel = ob.select_option.as_ref().or_else(|| tb.and_then(|t| t.select_option.as_ref()));
+    match sel {
+        None if ob.choice_arms.is_empty() => None,
+        None => Some("dynamic option list (no static SelectOption)".to_string()),
+        Some(_) if ob.choice_arms.is_empty() => Some("no label dispatch arms".to_string()),
+        Some(sel) if ob.choice_arms.len() != sel.string_ids.len() => Some(format!(
+            "{} options vs {} arms", sel.string_ids.len(), ob.choice_arms.len()
+        )),
+        Some(_) => Some("an arm fails full-coverage translation".to_string()),
+    }
+}
+
+/// The method name of a TODO line — `Duel.X(args) — why` → `Duel.X`.
+fn todo_method(todo: &str) -> &str {
+    todo.split('(').next().unwrap_or(todo).trim()
+}
+
+/// `todo: Duel.A, Duel.B | first: Duel.A(args) — why` — the distinct
+/// unmapped methods in line order plus the first TODO verbatim.
+fn todo_summary(lines: &[lua_ast::DslLine]) -> String {
+    let todos: Vec<&str> = lines.iter().filter_map(|l| match l {
+        lua_ast::DslLine::Todo(t) => Some(t.as_str()),
+        lua_ast::DslLine::Action(_) => None,
+    }).collect();
+    let mut methods: Vec<&str> = Vec::new();
+    for t in &todos {
+        let m = todo_method(t);
+        if !methods.contains(&m) { methods.push(m); }
+    }
+    format!("todo: {} | first: {}", methods.join(", "), todos.first().copied().unwrap_or(""))
+}
+
+/// Card types whose activation effect the validator exempts from the
+/// empty-resolve error (a Continuous / Field / Equip card's activation
+/// just places it; the real work is in `passive` blocks) — when the
+/// block carries no trigger line and no cost.
+fn is_permanent_passive_card(txt: &str) -> bool {
+    let line = txt.lines().map(str::trim_start).find(|l| l.starts_with("type:")).unwrap_or("");
+    ["Continuous Spell", "Field Spell", "Equip Spell", "Continuous Trap"]
+        .iter().any(|t| line.contains(t))
+}
+
+/// Effect blocks the validator flags as "must have a resolve or choose
+/// block": no `choose`, and either no `resolve` or an empty one.
+/// Returns `(flagged block indices, exempt count)` — exempt blocks are
+/// the permanent-passive activation shells the validator skips.
+fn problem_blocks(txt: &str) -> (Vec<usize>, usize) {
+    let passive_card = is_permanent_passive_card(txt);
+    let mut out = Vec::new();
+    let mut exempt = 0usize;
+    for (idx, (lo, hi)) in block_match::effect_block_ranges(txt).into_iter().enumerate() {
+        let block = &txt[lo..hi];
+        if block.contains("choose {") { continue; }
+        let empty = match block_match::resolve_inner_span(txt, lo, hi) {
+            Some((a, b)) => txt[a..b].trim().is_empty(),
+            None => true,
+        };
+        if !empty { continue; }
+        if passive_card {
+            let sig = &block_match::parse_block_sigs(&txt[lo..hi])[0];
+            if !sig.trigger_line && !sig.has_cost {
+                exempt += 1;
+                continue;
+            }
+        }
+        out.push(idx);
+    }
+    (out, exempt)
+}
+
+/// One `explain` line per flagged block of one card. `lua_src` is the
+/// card's script when it exists. Lines are tab-separated:
+/// `card  block  owner|unassigned  reason  detail  type  stmts`.
+fn explain_card(stem: &str, txt: &str, lua_src: Option<&str>) -> (Vec<String>, usize) {
+    let (problems, exempt) = problem_blocks(txt);
+    if problems.is_empty() { return (Vec::new(), exempt); }
+    let line = |b: usize, owner: &str, code: &str, detail: &str, etype: &str, stmts: &str| {
+        format!("{}\t{}\t{}\t{}\t{}\t{}\t{}", stem, b, owner, code, normalize_ws(detail), etype, stmts)
+    };
+    let every = |code: &str, detail: &str| -> Vec<String> {
+        problems.iter().map(|&b| line(b, "unassigned", code, detail, "-", "-")).collect()
+    };
+    let Some(lua_src) = lua_src else { return (every("unassigned", "no-lua"), exempt) };
+    let Ok(parsed) = full_moon::parse(lua_src) else { return (every("unassigned", "lua-parse-error"), exempt) };
+    let walk = lua_ast::walk(&parsed);
+    if walk.effects.is_empty() { return (every("unassigned", "no-lua-effects"), exempt); }
+    let assign = block_match::compute_assignments(&walk, txt);
+    let n_blocks = block_match::effect_block_ranges(txt).len();
+    let mut owner: Vec<Option<usize>> = vec![None; n_blocks];
+    for (eff_i, b) in assign.by_effect.iter().enumerate() {
+        if let Some(b) = b { if *b < n_blocks { owner[*b] = Some(eff_i); } }
+    }
+    let card_id: Option<u32> = stem.strip_prefix('c').and_then(|s| s.parse().ok());
+    let consumers: Vec<&lua_ast::EffectSkeleton> = walk.effects.iter()
+        .filter(|e| e.is_summon_helper() || e.operation_handler.is_some()).collect();
+    let any_hazard = walk.effects.iter().any(|e| e.block_alignment_hazard);
+    let unassigned: Vec<&str> = walk.effects.iter().enumerate()
+        .filter(|(i, e)| (e.is_summon_helper() || e.operation_handler.is_some()) && assign.by_effect[*i].is_none())
+        .map(|(_, e)| e.binding.as_str()).collect();
+    let mut out = Vec::new();
+    for &b in &problems {
+        let Some(eff_i) = owner[b] else {
+            let detail = if !consumers.is_empty() && assign.by_effect.iter().all(Option::is_none) && !any_hazard {
+                format!("order-inconsistent ({} consumers, {} blocks)", consumers.len(), n_blocks)
+            } else if !unassigned.is_empty() {
+                format!("hazard unrescued; unassigned consumers: {}", unassigned.join(","))
+            } else {
+                format!("no consumer for block index ({} consumers, {} blocks)", consumers.len(), n_blocks)
+            };
+            out.push(line(b, "unassigned", "unassigned", &detail, "-", "-"));
+            continue;
+        };
+        let eff = &walk.effects[eff_i];
+        let etype = eff.first_arg_of("SetType").unwrap_or("-");
+        let stmts = eff.operation_handler.as_deref()
+            .and_then(|h| walk.functions.get(h.trim()))
+            .map(|b| (b.calls.len() + b.helper_calls.len() + b.counter_ops.len()
+                      + b.method_ops.len() + b.register_chains.len()).to_string())
+            .unwrap_or_else(|| "-".to_string());
+        let (code, detail) = match plan_fill(eff_i, eff, &walk, &assign, txt, card_id) {
+            FillPlan::Choose(_) => ("ok".to_string(), "choose would fill".to_string()),
+            FillPlan::Fill { lines, .. } => (
+                "ok".to_string(),
+                format!("would fill: {}", lines.into_iter().map(|l| l.into_string("")).collect::<Vec<_>>().join("; ")),
+            ),
+            FillPlan::Skip { reason, detail, choose_why: Some(why) } => (
+                "choose-undecodable".to_string(),
+                format!("{}; then {}: {}", why, reason.code(), detail),
+            ),
+            FillPlan::Skip { reason, detail, choose_why: None } => (reason.code().to_string(), detail),
+        };
+        out.push(line(b, &eff.binding, &code, &detail, etype, &stmts));
+    }
+    (out, exempt)
+}
+
+/// See the `explain` mode arm. Prints one line per flagged block to
+/// stdout and a summary to stderr.
+fn explain(corpus_dir: &str, lua_dir: &str) {
+    let mut paths: Vec<std::path::PathBuf> = match fs::read_dir(corpus_dir) {
+        Ok(e) => e.flatten().map(|e| e.path())
+            .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("ds"))
+            .collect(),
+        Err(e) => { eprintln!("cannot read {}: {}", corpus_dir, e); return; }
+    };
+    paths.sort();
+    let (mut blocks, mut cards, mut exempt_total) = (0usize, 0usize, 0usize);
+    for path in paths {
+        let Ok(txt) = fs::read_to_string(&path) else { continue };
+        let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
+        let lua_src = fs::read_to_string(Path::new(lua_dir).join(format!("{}.lua", stem))).ok();
+        let (lines, exempt) = explain_card(&stem, &txt, lua_src.as_deref());
+        exempt_total += exempt;
+        if lines.is_empty() { continue; }
+        cards += 1;
+        blocks += lines.len();
+        for l in lines { println!("{}", l); }
+    }
+    eprintln!("=== explain: {} blocks across {} cards ({} permanent-passive activation shells exempt) ===",
+        blocks, cards, exempt_total);
+}
+
 /// Locate the closing brace of the top-level `card "<name>" { … }` block.
 /// We assume one card per file (true for cards/official/) and find the
 /// matching `}` by walking from the start counting `{`/`}` depth.
@@ -1425,4 +1755,299 @@ fn render_resolve_body(lines: &[lua_ast::DslLine]) -> String {
         out.push('\n');
     }
     out
+}
+
+// ── T39 — fill-verdict tests ──────────────────────────────────────
+//
+// Every Pass A skip path on a minimal synthetic lua + .ds pair, plus
+// the `explain` line format. Run with
+// `cargo test --features lua_ast,cdb --bin lua_translate`.
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn walk_src(src: &str) -> lua_ast::LuaReport {
+        lua_ast::walk(&full_moon::parse(src).expect("parse"))
+    }
+
+    /// A one-card .ds with `n` effect blocks; `extra` is injected into
+    /// every block header (e.g. a `cost { … }`), and `resolve` picks
+    /// between an empty resolve slot and none at all.
+    fn ds(n: usize, extra: &str, resolve: bool, type_line: &str) -> String {
+        let mut out = format!("card \"T\" {{\n    id: 1\n    type: {}\n", type_line);
+        for i in 0..n {
+            out.push_str(&format!("\n    effect \"Effect {}\" {{\n        speed: 1\n", i + 1));
+            if !extra.is_empty() { out.push_str(&format!("        {}\n", extra)); }
+            if resolve { out.push_str("        resolve { }\n"); }
+            out.push_str("    }\n");
+        }
+        out.push_str("}\n");
+        out
+    }
+
+    fn verdict(src: &str, ds_txt: &str, eff_i: usize) -> FillPlan {
+        let walk = walk_src(src);
+        let assign = block_match::compute_assignments(&walk, ds_txt);
+        plan_fill(eff_i, &walk.effects[eff_i], &walk, &assign, ds_txt, Some(1))
+    }
+
+    fn skip_of(v: FillPlan) -> (FillReason, String, Option<String>) {
+        match v {
+            FillPlan::Skip { reason, detail, choose_why } => (reason, detail, choose_why),
+            other => panic!("expected Skip, got {:?}", other),
+        }
+    }
+
+    /// `s.initial_effect` with one ignition chain on `s.op` plus the
+    /// handler body.
+    fn ignition(op_body: &str) -> String {
+        format!(
+            "function s.initial_effect(c)\n\tlocal e1=Effect.CreateEffect(c)\n\te1:SetType(EFFECT_TYPE_IGNITION)\n\te1:SetOperation(s.op)\n\tc:RegisterEffect(e1)\nend\nfunction s.op(e,tp,eg,ep,ev,re,r,rp)\n{}\nend\n",
+            op_body
+        )
+    }
+
+    #[test]
+    fn verdict_no_handler_for_pure_passive() {
+        let src = "function s.initial_effect(c)\n\tlocal e1=Effect.CreateEffect(c)\n\te1:SetType(EFFECT_TYPE_SINGLE)\n\te1:SetCode(EFFECT_UPDATE_ATTACK)\n\te1:SetValue(500)\n\tc:RegisterEffect(e1)\nend\n";
+        let (reason, detail, _) = skip_of(verdict(src, &ds(1, "", true, "Effect Monster"), 0));
+        assert_eq!(reason, FillReason::NoHandler);
+        assert_eq!(detail, "e1");
+        assert_eq!(reason.code(), "no-handler");
+    }
+
+    #[test]
+    fn verdict_replacement_chain() {
+        let src = "function s.initial_effect(c)\n\tlocal e1=Effect.CreateEffect(c)\n\te1:SetType(EFFECT_TYPE_CONTINUOUS+EFFECT_TYPE_SINGLE)\n\te1:SetCode(EFFECT_DESTROY_REPLACE)\n\te1:SetTarget(s.reptg)\n\te1:SetOperation(s.repop)\n\tc:RegisterEffect(e1)\nend\nfunction s.repop(e,tp,eg,ep,ev,re,r,rp)\n\tDuel.Draw(tp,1,REASON_EFFECT)\nend\n";
+        let (reason, detail, _) = skip_of(verdict(src, &ds(1, "", true, "Effect Monster"), 0));
+        assert_eq!(reason, FillReason::ReplacementChain);
+        assert_eq!(detail, "EFFECT_DESTROY_REPLACE");
+    }
+
+    #[test]
+    fn verdict_unassigned_order_inconsistent() {
+        // Binding order (e1, e2) disagrees with source order (e2, e1):
+        // the matcher refuses every assignment.
+        let src = "function s.initial_effect(c)\n\tlocal e2=Effect.CreateEffect(c)\n\te2:SetType(EFFECT_TYPE_IGNITION)\n\te2:SetOperation(s.op2)\n\tc:RegisterEffect(e2)\n\tlocal e1=Effect.CreateEffect(c)\n\te1:SetType(EFFECT_TYPE_IGNITION)\n\te1:SetOperation(s.op1)\n\tc:RegisterEffect(e1)\nend\nfunction s.op1(e,tp,eg,ep,ev,re,r,rp)\n\tDuel.Draw(tp,1,REASON_EFFECT)\nend\nfunction s.op2(e,tp,eg,ep,ev,re,r,rp)\n\tDuel.Draw(tp,2,REASON_EFFECT)\nend\n";
+        let txt = ds(2, "", true, "Effect Monster");
+        let (reason, detail, _) = skip_of(verdict(src, &txt, 0));
+        assert_eq!(reason, FillReason::Unassigned);
+        assert_eq!(detail, "order-inconsistent");
+    }
+
+    #[test]
+    fn verdict_summon_helper_undecodable() {
+        // Own-level EQUAL ritual proc: inexpressible without a
+        // summon_level atom — the helper decoder refuses.
+        let src = "function s.initial_effect(c)\n\tlocal e1=Ritual.AddProcEqual{handler=c,filter=aux.FilterBoolFunction(Card.IsSetCard,SET_SHADDOLL)}\nend\n";
+        let (reason, detail, _) = skip_of(verdict(src, &ds(1, "", true, "Ritual Spell"), 0));
+        assert_eq!(reason, FillReason::SummonHelperUndecodable);
+        assert!(detail.starts_with("params:"), "{}", detail);
+    }
+
+    #[test]
+    fn verdict_no_body_for_library_handler() {
+        let src = "function s.initial_effect(c)\n\tlocal e1=Effect.CreateEffect(c)\n\te1:SetType(EFFECT_TYPE_IGNITION)\n\te1:SetOperation(aux.NoOperation)\n\tc:RegisterEffect(e1)\nend\n";
+        let (reason, detail, _) = skip_of(verdict(src, &ds(1, "", true, "Effect Monster"), 0));
+        assert_eq!(reason, FillReason::NoBody);
+        assert_eq!(detail, "aux.NoOperation");
+    }
+
+    #[test]
+    fn verdict_method_poison_names_the_statement() {
+        let src = ignition("\tlocal c=e:GetHandler()\n\tc:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD,0,1)");
+        let (reason, detail, _) = skip_of(verdict(&src, &ds(1, "", true, "Effect Monster"), 0));
+        assert!(matches!(reason, FillReason::Drop(lua_ast::BodyDrop::MethodPoison(_))), "{:?}", reason);
+        assert_eq!(reason.code(), "method-poison");
+        assert!(detail.starts_with("c:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD,0,1) | +0 drops, 0 todo"), "{}", detail);
+    }
+
+    #[test]
+    fn verdict_chain_unlowered_with_census() {
+        let src = ignition("\tlocal c=e:GetHandler()\n\tlocal e1=Effect.CreateEffect(c)\n\te1:SetType(EFFECT_TYPE_SINGLE)\n\te1:SetCode(EFFECT_UPDATE_ATTACK)\n\te1:SetValue(e:GetLabel())\n\te1:SetReset(RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_END)\n\tc:RegisterEffect(e1)");
+        let (reason, detail, _) = skip_of(verdict(&src, &ds(1, "", true, "Effect Monster"), 0));
+        assert!(matches!(reason, FillReason::Drop(lua_ast::BodyDrop::ChainUnlowered(_))), "{:?}", reason);
+        assert_eq!(reason.code(), "chain-unlowered");
+        assert!(detail.contains("code=EFFECT_UPDATE_ATTACK type=EFFECT_TYPE_SINGLE"), "{}", detail);
+        assert!(detail.contains("value=e:GetLabel()"), "{}", detail);
+        assert!(detail.ends_with("| +0 drops, 0 todo"), "{}", detail);
+    }
+
+    #[test]
+    fn verdict_no_lines_lists_skipped_calls() {
+        let src = ignition("\tDuel.Hint(HINT_CARD,0,id)");
+        let (reason, detail, _) = skip_of(verdict(&src, &ds(1, "", true, "Effect Monster"), 0));
+        assert_eq!(reason, FillReason::NoLines);
+        assert_eq!(detail, "calls: Duel.Hint");
+    }
+
+    #[test]
+    fn verdict_todo_only_names_first_unmapped_call() {
+        let src = ignition("\tDuel.SwapSequence(a,b)");
+        let (reason, detail, _) = skip_of(verdict(&src, &ds(1, "", true, "Effect Monster"), 0));
+        assert_eq!(reason, FillReason::TodoOnly);
+        assert_eq!(detail, "todo: Duel.SwapSequence | first: Duel.SwapSequence(a, b)");
+    }
+
+    #[test]
+    fn verdict_incomplete_counts_actions() {
+        let src = ignition("\tDuel.Draw(tp,1,REASON_EFFECT)\n\tDuel.SwapSequence(a,b)");
+        let (reason, detail, _) = skip_of(verdict(&src, &ds(1, "", true, "Effect Monster"), 0));
+        assert_eq!(reason, FillReason::Incomplete);
+        assert_eq!(detail, "1/2 actions; todo: Duel.SwapSequence | first: Duel.SwapSequence(a, b)");
+    }
+
+    #[test]
+    fn verdict_no_block_beyond_ds_blocks() {
+        let src = "function s.initial_effect(c)\n\tlocal e1=Effect.CreateEffect(c)\n\te1:SetType(EFFECT_TYPE_IGNITION)\n\te1:SetOperation(s.op)\n\tc:RegisterEffect(e1)\n\tlocal e2=Effect.CreateEffect(c)\n\te2:SetType(EFFECT_TYPE_IGNITION)\n\te2:SetOperation(s.op)\n\tc:RegisterEffect(e2)\nend\nfunction s.op(e,tp,eg,ep,ev,re,r,rp)\n\tDuel.Draw(tp,1,REASON_EFFECT)\nend\n";
+        let txt = ds(1, "", true, "Effect Monster");
+        assert!(matches!(verdict(src, &txt, 0), FillPlan::Fill { .. }));
+        let (reason, detail, _) = skip_of(verdict(src, &txt, 1));
+        assert_eq!(reason, FillReason::NoBlock);
+        assert_eq!(detail, "block 1");
+    }
+
+    #[test]
+    fn verdict_cost_header_mismatch() {
+        let src = ignition("\tDuel.Draw(tp,1,REASON_EFFECT)");
+        let txt = ds(1, "cost { banish self }", true, "Effect Monster");
+        let (reason, detail, _) = skip_of(verdict(&src, &txt, 0));
+        assert_eq!(reason, FillReason::CostHeaderMismatch);
+        assert_eq!(detail, "block cost { banish self } vs lua cost (none)");
+    }
+
+    #[test]
+    fn verdict_helper_frame_mismatch() {
+        // Variant-B fusion frame with a SetCondition the bare block
+        // header (speed only) models nothing of.
+        let src = "function s.initial_effect(c)\n\tlocal e1=Effect.CreateEffect(c)\n\te1:SetType(EFFECT_TYPE_ACTIVATE)\n\te1:SetCode(EVENT_FREE_CHAIN)\n\te1:SetCondition(s.cond)\n\te1:SetTarget(Fusion.SummonEffTG())\n\te1:SetOperation(Fusion.SummonEffOP())\n\tc:RegisterEffect(e1)\nend\n";
+        let txt = ds(1, "", true, "Normal Spell");
+        let (reason, detail, _) = skip_of(verdict(src, &txt, 0));
+        assert_eq!(reason, FillReason::HelperFrameMismatch);
+        assert_eq!(detail, "cond=s.cond cost=-");
+    }
+
+    #[test]
+    fn verdict_target_decl_undecodable() {
+        let src = ignition("\tlocal tc=Duel.GetFirstTarget()\n\tDuel.Destroy(tc,REASON_EFFECT)");
+        let txt = ds(1, "", true, "Effect Monster");
+        let (reason, detail, _) = skip_of(verdict(&src, &txt, 0));
+        assert_eq!(reason, FillReason::TargetDeclUndecodable);
+        assert_eq!(detail, "(no SetTarget)");
+    }
+
+    #[test]
+    fn verdict_lines_when_every_gate_passes() {
+        let src = ignition("\tDuel.Draw(tp,1,REASON_EFFECT)");
+        match verdict(&src, &ds(1, "", true, "Effect Monster"), 0) {
+            FillPlan::Fill { lines, co_target } => {
+                assert_eq!(co_target, None);
+                assert_eq!(lines.len(), 1);
+                assert_eq!(lines[0].clone().into_string(""), "draw 1");
+            }
+            other => panic!("expected Fill, got {:?}", other),
+        }
+    }
+
+    #[test]
+    fn reason_counters_match_pass_a_history() {
+        let mut r = ApplyReport::default();
+        FillReason::NoHandler.count(&mut r);
+        FillReason::SummonHelperUndecodable.count(&mut r);
+        FillReason::NoBody.count(&mut r);
+        assert_eq!(r.effects_no_handler, 3);
+        FillReason::ReplacementChain.count(&mut r);
+        FillReason::Drop(lua_ast::BodyDrop::CounterPoison).count(&mut r);
+        FillReason::Incomplete.count(&mut r);
+        FillReason::CostHeaderMismatch.count(&mut r);
+        FillReason::HelperFrameMismatch.count(&mut r);
+        FillReason::TargetDeclUndecodable.count(&mut r);
+        assert_eq!(r.effects_incomplete, 6);
+        FillReason::Unassigned.count(&mut r);
+        assert_eq!(r.effects_alignment_hazard, 1);
+        FillReason::NoLines.count(&mut r);
+        FillReason::TodoOnly.count(&mut r);
+        assert_eq!(r.effects_todo_only, 2);
+        FillReason::NoBlock.count(&mut r);
+        assert_eq!(
+            r.effects_no_handler + r.effects_incomplete + r.effects_alignment_hazard + r.effects_todo_only,
+            12,
+        );
+    }
+
+    #[test]
+    fn choose_failure_detail_classifies_shapes() {
+        let plain = lua_ast::FunctionBody::default();
+        assert_eq!(choose_failure_detail(&plain, None), None);
+        let arms_no_sel = lua_ast::FunctionBody {
+            choice_arms: vec![lua_ast::FunctionBody::default(), lua_ast::FunctionBody::default()],
+            ..Default::default()
+        };
+        assert_eq!(
+            choose_failure_detail(&arms_no_sel, None).as_deref(),
+            Some("dynamic option list (no static SelectOption)"),
+        );
+        let sel = lua_ast::SelectOptionSpec { string_ids: vec![0, 1, 2] };
+        let sel_no_arms = lua_ast::FunctionBody { select_option: Some(sel.clone()), ..Default::default() };
+        assert_eq!(choose_failure_detail(&sel_no_arms, None).as_deref(), Some("no label dispatch arms"));
+        let mismatch = lua_ast::FunctionBody {
+            select_option: Some(sel),
+            choice_arms: vec![lua_ast::FunctionBody::default(), lua_ast::FunctionBody::default()],
+            ..Default::default()
+        };
+        assert_eq!(choose_failure_detail(&mismatch, None).as_deref(), Some("3 options vs 2 arms"));
+    }
+
+    #[test]
+    fn explain_card_line_format() {
+        let src = ignition("\tDuel.SwapSequence(a,b)");
+        let txt = ds(1, "", true, "Effect Monster");
+        let (lines, exempt) = explain_card("c1", &txt, Some(&src));
+        assert_eq!(exempt, 0);
+        assert_eq!(
+            lines,
+            vec!["c1\t0\te1\ttodo-only\ttodo: Duel.SwapSequence | first: Duel.SwapSequence(a, b)\tEFFECT_TYPE_IGNITION\t1".to_string()],
+        );
+    }
+
+    #[test]
+    fn explain_card_no_resolve_block_and_no_lua() {
+        let txt = ds(1, "", false, "Effect Monster");
+        let (lines, _) = explain_card("c1", &txt, None);
+        assert_eq!(lines, vec!["c1\t0\tunassigned\tunassigned\tno-lua\t-\t-".to_string()]);
+    }
+
+    #[test]
+    fn explain_card_unassigned_no_consumer_detail() {
+        // Two .ds blocks, one lua consumer: block 1 has no owner.
+        let src = ignition("\tDuel.Draw(tp,1,REASON_EFFECT)");
+        let txt = ds(2, "", true, "Effect Monster");
+        let (lines, _) = explain_card("c1", &txt, Some(&src));
+        assert_eq!(lines.len(), 2);
+        assert!(lines[0].starts_with("c1\t0\te1\tok\twould fill: draw 1\t"), "{}", lines[0]);
+        assert_eq!(lines[1], "c1\t1\tunassigned\tunassigned\tno consumer for block index (1 consumers, 2 blocks)\t-\t-");
+    }
+
+    #[test]
+    fn explain_card_exempts_permanent_passive_activation() {
+        let src = ignition("\tDuel.SwapSequence(a,b)");
+        let txt = ds(1, "", true, "Continuous Spell");
+        let (lines, exempt) = explain_card("c1", &txt, Some(&src));
+        assert!(lines.is_empty());
+        assert_eq!(exempt, 1);
+        // A trigger line makes the block a real effect again.
+        let txt = ds(1, "trigger: when summoned", true, "Continuous Spell");
+        let (lines, exempt) = explain_card("c1", &txt, Some(&src));
+        assert_eq!(lines.len(), 1);
+        assert_eq!(exempt, 0);
+    }
+
+    #[test]
+    fn explain_card_skips_filled_blocks() {
+        let src = ignition("\tDuel.SwapSequence(a,b)");
+        let txt = ds(1, "", true, "Effect Monster").replace("resolve { }", "resolve {\n            draw 1\n        }");
+        let (lines, exempt) = explain_card("c1", &txt, Some(&src));
+        assert!(lines.is_empty());
+        assert_eq!(exempt, 0);
+    }
 }
