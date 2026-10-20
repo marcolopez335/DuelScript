@@ -53,10 +53,21 @@ use crate::lua_ast::{EffectSkeleton, LuaReport};
 /// Each range is `(start_of_effect_keyword, position_after_closing_brace)`.
 /// Brace-balanced — handles nested `resolve { ... }` / `cost { ... }` etc.
 pub fn effect_block_ranges(txt: &str) -> Vec<(usize, usize)> {
+    block_ranges(txt, "effect \"")
+}
+
+/// Byte ranges of every `passive "..." { ... }` block in `txt`, in
+/// order (T39 S8 `audit-passives` / Pass B dedup). Same scanner as
+/// [`effect_block_ranges`].
+pub fn passive_block_ranges(txt: &str) -> Vec<(usize, usize)> {
+    block_ranges(txt, "passive \"")
+}
+
+fn block_ranges(txt: &str, marker: &str) -> Vec<(usize, usize)> {
     let mut out = Vec::new();
     let mut search = 0usize;
     let bytes = txt.as_bytes();
-    while let Some(rel) = txt[search..].find("effect \"") {
+    while let Some(rel) = txt[search..].find(marker) {
         let abs_eff = search + rel;
         let Some(open_rel) = txt[abs_eff..].find('{') else { break };
         let abs_open = abs_eff + open_rel;

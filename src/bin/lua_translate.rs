@@ -28,7 +28,7 @@ use duelscript::stub_refine;
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
-        eprintln!("usage: lua_translate <dump|translate|apply|audit-fills|audit-owners|audit-orphans|explain> <path>");
+        eprintln!("usage: lua_translate <dump|translate|apply|audit-fills|audit-owners|audit-orphans|audit-passives|explain> <path>");
         process::exit(2);
     }
     let mode = args[1].as_str();
@@ -212,6 +212,35 @@ fn main() {
             let cdb = args.get(4).map(String::as_str).filter(|a| *a != "--remove");
             load_card_names(cdb, lua_dir);
             audit_orphans(corpus, lua_dir, remove);
+        }
+        "audit-passives" => {
+            // T39 S8 — the Phase 5d-era passive retrofit. The v1
+            // generator rendered every `SetCode(EFFECT_DISABLE*)` /
+            // `EFFECT_CANNOT_ACTIVATE` / `EFFECT_CANNOT_TRIGGER` chain
+            // in a script — resolve-time or continuous, card- or
+            // player-scoped — as `scope: self` + `grant: cannot_activate
+            // effects`, which lowers to EFFECT_CANNOT_TRIGGER on the
+            // card ITSELF. Every `initial_effect` chain on the three
+            // codes is re-derived under the current emitter
+            // (`passive_floodgate_verdict`, one CHAIN line each:
+            // RENDER <body> | SKIP <gate>); every `passive` block whose
+            // body is the legacy rendering is a machine emission the
+            // flip invalidated — `--stub` rewrites it in place with the
+            // current rendering owed to the card (name kept) or removes
+            // it, and `apply` Pass B injects any surplus rendering
+            // under the same body key (byte-idempotent fixed point).
+            //
+            //   lua_translate audit-passives <corpus_dir> <lua_dir> [cards.cdb] [--stub]
+            if args.len() < 4 {
+                eprintln!("usage: lua_translate audit-passives <corpus_dir> <lua_dir> [cards.cdb] [--stub]");
+                process::exit(2);
+            }
+            let corpus = &args[2];
+            let lua_dir = &args[3];
+            let stub = args.iter().any(|a| a == "--stub");
+            let cdb = args.get(4).map(String::as_str).filter(|a| *a != "--stub");
+            load_card_names(cdb, lua_dir);
+            audit_passives(corpus, lua_dir, stub);
         }
         "explain" => {
             // T39 — per-block fill verdicts for the empty-resolve error
@@ -571,6 +600,189 @@ fn audit_orphans(corpus_dir: &str, lua_dir: &str, remove: bool) {
     let classes: Vec<String> = by_class.iter().map(|(k, v)| format!("{} {}", v, k)).collect();
     println!("=== audit-orphans: {} blocks / {} cards — {}; {} removed ===",
         total, cards.len(), classes.join(", "), removed);
+}
+
+/// Every `passive` block of a .ds: `(byte range, name, item lines)`.
+/// Item lines are trimmed and blank-free, so two blocks compare equal
+/// on content regardless of name or indentation.
+fn passive_blocks(txt: &str) -> Vec<((usize, usize), String, Vec<String>)> {
+    block_match::passive_block_ranges(txt).into_iter().map(|(lo, hi)| {
+        let block = &txt[lo..hi];
+        let name = block.split('"').nth(1).unwrap_or("").to_string();
+        let open = block.find('{').map_or(block.len(), |i| i + 1);
+        let close = block.rfind('}').unwrap_or(block.len());
+        let body: Vec<String> = block[open..close.max(open)].lines()
+            .map(str::trim).filter(|l| !l.is_empty()).map(str::to_string).collect();
+        ((lo, hi), name, body)
+    }).collect()
+}
+
+/// True when some `passive` block in `txt` carries exactly `body`.
+fn passive_body_present(txt: &str, body: &[String]) -> bool {
+    passive_blocks(txt).iter().any(|(_, _, b)| b == body)
+}
+
+/// Verdict for one shipped `passive` block whose body is the Phase
+/// 5d-era rendering (T39 S8 `audit-passives`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum PassiveRetrofit {
+    /// A current rendering exists for one of the card's chains and no
+    /// block carries it yet — rewritten in place (name kept).
+    Rewrite(Vec<String>),
+    /// No current rendering is owed to this block — removed.
+    Remove,
+    /// Legacy body on a card whose lua carries none of the three codes
+    /// (no machine provenance) — report-only.
+    Review,
+}
+
+/// One card's `audit-passives` plan: the per-chain verdicts (every
+/// `initial_effect` chain on the three codes, rendered or refused) and
+/// the per-block retrofit of each legacy-bodied `passive` block, plus
+/// the text `--stub` writes. Pure — the mode arm does the I/O.
+///
+/// Pairing: legacy blocks are matched to the card's current renderings
+/// in source order; renderings already carried by a non-legacy block
+/// are not owed. Surplus renderings (more chains than legacy blocks)
+/// are left for `apply` Pass B, which injects with the same body key —
+/// so stub → apply → stub → apply is a fixed point.
+fn plan_passive_retrofit(
+    txt: &str,
+    walk: &lua_ast::LuaReport,
+    lua_src: &str,
+) -> (Vec<(String, Result<Vec<String>, String>)>, Vec<(usize, String, PassiveRetrofit)>, String) {
+    // The Phase 5d-era body — what every chain on the three codes
+    // renders to under `with_legacy_passive_grant_policy` (pinned by
+    // `legacy_passive_grant_policy_renders_phase_5d_block`), so one
+    // constant stands for the whole legacy class.
+    let legacy_body = lua_ast::PassiveFloodgateSpec::legacy().body_lines();
+    let verdicts: Vec<(String, Result<Vec<String>, String>)> = walk.effects.iter()
+        .filter(|e| e.first_arg_of("SetCode").is_some_and(|c| {
+            matches!(c, "EFFECT_DISABLE" | "EFFECT_CANNOT_ACTIVATE" | "EFFECT_CANNOT_TRIGGER")
+        }))
+        .map(|e| (e.binding.clone(), e.passive_floodgate_verdict(walk).map(|s| s.body_lines())))
+        .collect();
+    // The v1 generator keyed on the code NAMES as substrings:
+    // `EFFECT_DISABLE_FIELD` (Ojama King's unusable zones) produced the
+    // same block as `EFFECT_DISABLE`.
+    let provenance = ["EFFECT_DISABLE", "EFFECT_CANNOT_ACTIVATE", "EFFECT_CANNOT_TRIGGER"]
+        .iter().any(|c| lua_src.contains(c));
+    let blocks = passive_blocks(txt);
+    let mut owed: Vec<Vec<String>> = Vec::new();
+    for (_, v) in &verdicts {
+        if let Ok(body) = v {
+            let carried = blocks.iter().any(|(_, _, b)| b != &legacy_body && b == body);
+            if !carried && !owed.contains(body) { owed.push(body.clone()); }
+        }
+    }
+    let mut owed = owed.into_iter();
+    let mut plan: Vec<(usize, String, PassiveRetrofit)> = Vec::new();
+    for (i, (_, name, body)) in blocks.iter().enumerate() {
+        if body != &legacy_body { continue; }
+        let verdict = if !provenance {
+            PassiveRetrofit::Review
+        } else if let Some(b) = owed.next() {
+            PassiveRetrofit::Rewrite(b)
+        } else {
+            PassiveRetrofit::Remove
+        };
+        plan.push((i, name.clone(), verdict));
+    }
+    // Edits applied highest block first so earlier spans stay valid.
+    let mut new_txt = txt.to_string();
+    for (i, name, verdict) in plan.iter().rev() {
+        let ((lo, hi), _, _) = &blocks[*i];
+        match verdict {
+            PassiveRetrofit::Rewrite(body) => {
+                let line_start = new_txt[..*lo].rfind('\n').map_or(0, |p| p + 1);
+                let indent = new_txt[line_start..*lo].to_string();
+                let spec_txt = render_passive_block(name, body, &indent);
+                new_txt = format!("{}{}{}", &new_txt[..line_start], spec_txt, &new_txt[*hi..]);
+            }
+            PassiveRetrofit::Remove => {
+                new_txt = block_match::remove_block(&new_txt, *lo, *hi);
+            }
+            PassiveRetrofit::Review => {}
+        }
+    }
+    (verdicts, plan, new_txt)
+}
+
+/// `passive "<name>" { … }` from item lines — the layout
+/// `PassiveFloodgateSpec::to_dsl_block` / Pass B emit.
+fn render_passive_block(name: &str, body: &[String], indent: &str) -> String {
+    let items: String = body.iter().map(|l| format!("{indent}    {l}\n")).collect();
+    format!("{indent}passive \"{name}\" {{\n{items}{indent}}}")
+}
+
+/// See the `audit-passives` mode arm.
+fn audit_passives(corpus_dir: &str, lua_dir: &str, stub: bool) {
+    let mut paths: Vec<std::path::PathBuf> = match fs::read_dir(corpus_dir) {
+        Ok(e) => e.flatten().map(|e| e.path())
+            .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("ds"))
+            .collect(),
+        Err(e) => { eprintln!("cannot read {}: {}", corpus_dir, e); return; }
+    };
+    paths.sort();
+    let (mut rendered, mut refused, mut rewrites, mut removes, mut reviews) =
+        (0usize, 0usize, 0usize, 0usize, 0usize);
+    let mut refusals: std::collections::BTreeMap<String, usize> = Default::default();
+    let mut cards = std::collections::BTreeSet::new();
+    for path in paths {
+        let Ok(txt) = fs::read_to_string(&path) else { continue };
+        let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
+        set_current_card_from_stem(&stem);
+        let lua_path = Path::new(lua_dir).join(format!("{}.lua", stem));
+        let Ok(lua_src) = fs::read_to_string(&lua_path) else { continue };
+        let Ok(parsed) = full_moon::parse(&lua_src) else { continue };
+        let walk = lua_ast::walk(&parsed);
+        let (verdicts, plan, new_txt) = plan_passive_retrofit(&txt, &walk, &lua_src);
+        for (binding, v) in &verdicts {
+            let eff = walk.effects.iter().find(|e| &e.binding == binding);
+            let code = eff.and_then(|e| e.first_arg_of("SetCode")).unwrap_or("-");
+            let etype = eff.and_then(|e| e.first_arg_of("SetType")).unwrap_or("-");
+            let range = eff.and_then(|e| e.args_of("SetTargetRange")).map(|a| a.join(",")).unwrap_or_else(|| "-".to_string());
+            match v {
+                Ok(body) => {
+                    rendered += 1;
+                    println!("CHAIN  {} {} code={} type={} range={} RENDER {}", stem, binding, code, etype, range, body.join(" | "));
+                }
+                Err(reason) => {
+                    refused += 1;
+                    let key = reason.split(':').next().unwrap_or(reason).to_string();
+                    *refusals.entry(key).or_default() += 1;
+                    println!("CHAIN  {} {} code={} type={} range={} SKIP {}", stem, binding, code, etype, range, reason);
+                }
+            }
+        }
+        if plan.is_empty() { continue; }
+        cards.insert(stem.clone());
+        for (block, name, verdict) in &plan {
+            match verdict {
+                PassiveRetrofit::Rewrite(body) => {
+                    rewrites += 1;
+                    println!("REWRITE {} block={} name={:?} -> {}", stem, block, name, body.join(" | "));
+                }
+                PassiveRetrofit::Remove => {
+                    removes += 1;
+                    println!("REMOVE  {} block={} name={:?}", stem, block, name);
+                }
+                PassiveRetrofit::Review => {
+                    reviews += 1;
+                    println!("REVIEW  {} block={} name={:?} (legacy body, no lua provenance)", stem, block, name);
+                }
+            }
+        }
+        if stub && new_txt != txt {
+            if let Err(e) = fs::write(&path, &new_txt) {
+                eprintln!("cannot write {}: {}", path.display(), e);
+            }
+        }
+    }
+    let by_reason: Vec<String> = refusals.iter().map(|(k, v)| format!("{} {}", v, k)).collect();
+    println!("=== audit-passives: {} chains rendered, {} refused ({}); {} legacy blocks / {} cards — {} rewrite, {} remove, {} review{} ===",
+        rendered, refused, by_reason.join(", "), rewrites + removes + reviews, cards.len(),
+        rewrites, removes, reviews, if stub { " (stubbed)" } else { "" });
 }
 
 /// Populate the lua_ast passcode → card-name table used by the
@@ -1302,6 +1514,24 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
                 break;
             }
         }
+        // T39 S8 — negate / cannot-trigger passives (EFFECT_DISABLE /
+        // EFFECT_CANNOT_TRIGGER chains). Dedup key: the block's item
+        // lines — a `passive` block anywhere in the file with the same
+        // body (any name, any indent) counts as present, so a block
+        // `audit-passives --stub` rewrote in place is never re-injected.
+        for eff in &walk.effects {
+            let Some(spec) = eff.passive_floodgate_spec(&walk) else { continue };
+            if passive_body_present(&new_txt, &spec.body_lines()) { continue; }
+            let name = format!("Passive {}", passive_idx);
+            let block = spec.to_dsl_block(&name, "    ");
+            if let Some(pos) = card_close_brace(&new_txt) {
+                new_txt = format!("{}\n\n{}\n{}", &new_txt[..pos], block, &new_txt[pos..]);
+                passives_added += 1;
+                passive_idx += 1;
+            } else {
+                break;
+            }
+        }
 
         // Pass C — Phase 6 condition injection. For each active effect (with an
         // operation handler) that also has a translatable condition handler, inject
@@ -2022,6 +2252,88 @@ mod tests {
 
     fn walk_src(src: &str) -> lua_ast::LuaReport {
         lua_ast::walk(&full_moon::parse(src).expect("parse"))
+    }
+
+    // ── T39 S8 — audit-passives ────────────────────────────────
+
+    /// Skill Drain's lua, minus comments.
+    const S8_LUA: &str = "function s.initial_effect(c)\n\tlocal e1=Effect.CreateEffect(c)\n\te1:SetType(EFFECT_TYPE_ACTIVATE)\n\te1:SetCode(EVENT_FREE_CHAIN)\n\tc:RegisterEffect(e1)\n\tlocal e2=Effect.CreateEffect(c)\n\te2:SetType(EFFECT_TYPE_FIELD)\n\te2:SetRange(LOCATION_SZONE)\n\te2:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)\n\te2:SetTarget(s.disable)\n\te2:SetCode(EFFECT_DISABLE)\n\tc:RegisterEffect(e2)\nend\nfunction s.disable(e,c)\n\treturn c:IsType(TYPE_EFFECT) or (c:GetOriginalType()&TYPE_EFFECT)==TYPE_EFFECT\nend\n";
+    const S8_LEGACY: &str = "    passive \"Disable Monster Effects\" {\n        scope: self\n        grant: cannot_activate effects\n    }\n";
+    const S8_CURRENT: &str = "    passive \"Disable Monster Effects\" {\n        scope: field\n        target: (all, card, either controls, from monster_zone, where is_effect)\n        negate_effects\n    }\n";
+
+    fn s8_ds(blocks: &[&str]) -> String {
+        format!("card \"Skill Drain\" {{\n    id: 82732705\n    type: Continuous Trap\n\n{}}}\n", blocks.join("\n"))
+    }
+
+    #[test]
+    fn audit_passives_rewrites_legacy_block_in_place_and_removes_surplus() {
+        // Two legacy blocks, one chain that renders: the first is
+        // rewritten (name kept), the second removed; the activation
+        // shell sees no CHAIN verdict (not on the three codes).
+        let txt = s8_ds(&[S8_LEGACY, &S8_LEGACY.replace("Disable Monster Effects", "Effect 2")]);
+        let walk = walk_src(S8_LUA);
+        let (verdicts, plan, new_txt) = plan_passive_retrofit(&txt, &walk, S8_LUA);
+        assert_eq!(verdicts.len(), 1);
+        assert_eq!(verdicts[0].0, "e2");
+        assert!(verdicts[0].1.is_ok());
+        assert_eq!(plan.len(), 2);
+        assert!(matches!(plan[0].2, PassiveRetrofit::Rewrite(_)));
+        assert_eq!(plan[0].1, "Disable Monster Effects");
+        assert_eq!(plan[1].2, PassiveRetrofit::Remove);
+        assert_eq!(new_txt, s8_ds(&[S8_CURRENT]));
+        // Fixed point: the rewritten file has no legacy block and Pass
+        // B's dedup sees the rendering as present.
+        let (_, plan2, txt2) = plan_passive_retrofit(&new_txt, &walk, S8_LUA);
+        assert!(plan2.is_empty());
+        assert_eq!(txt2, new_txt);
+        let body = walk.effects[1].passive_floodgate_spec(&walk).unwrap().body_lines();
+        assert!(passive_body_present(&new_txt, &body));
+        assert!(!passive_body_present(&txt, &body));
+    }
+
+    #[test]
+    fn audit_passives_removes_legacy_block_when_no_chain_renders() {
+        // Shell Knight class: the generator's block came from a chain
+        // inside an operation handler — nothing in initial_effect
+        // renders, the block is removed and the file keeps one blank
+        // line between the survivors.
+        let lua = "function s.initial_effect(c)\n\tlocal e1=Effect.CreateEffect(c)\n\te1:SetType(EFFECT_TYPE_IGNITION)\n\te1:SetOperation(s.op)\n\tc:RegisterEffect(e1)\nend\nfunction s.op(e,tp,eg,ep,ev,re,r,rp)\n\tlocal e1=Effect.CreateEffect(e:GetHandler())\n\te1:SetType(EFFECT_TYPE_FIELD)\n\te1:SetCode(EFFECT_CANNOT_ACTIVATE)\n\te1:SetTargetRange(1,0)\n\te1:SetValue(1)\n\te1:SetReset(RESET_PHASE|PHASE_END)\n\tDuel.RegisterEffect(e1,tp)\nend\n";
+        let effect = "    effect \"Effect 1\" {\n        speed: 1\n        resolve { }\n    }\n";
+        let txt = s8_ds(&[&S8_LEGACY.replace("Disable Monster Effects", "Effect 2"), effect]);
+        let walk = walk_src(lua);
+        let (verdicts, plan, new_txt) = plan_passive_retrofit(&txt, &walk, lua);
+        assert!(verdicts.is_empty());
+        assert_eq!(plan.len(), 1);
+        assert_eq!(plan[0].2, PassiveRetrofit::Remove);
+        assert_eq!(new_txt, s8_ds(&[effect]));
+    }
+
+    #[test]
+    fn audit_passives_keeps_hand_content_and_reviews_unprovenanced_legacy_bodies() {
+        // A hand-written passive with another body is never a hit; a
+        // legacy body on a card whose lua names none of the codes is
+        // REVIEW (report-only, text untouched).
+        let hand = "    passive \"Hand\" {\n        scope: self\n        grant: cannot_attack\n    }\n";
+        let lua = "function s.initial_effect(c)\n\tlocal e1=Effect.CreateEffect(c)\n\te1:SetType(EFFECT_TYPE_SINGLE)\n\te1:SetCode(EFFECT_CANNOT_ATTACK)\n\tc:RegisterEffect(e1)\nend\n";
+        let txt = s8_ds(&[hand, S8_LEGACY]);
+        let walk = walk_src(lua);
+        let (_, plan, new_txt) = plan_passive_retrofit(&txt, &walk, lua);
+        assert_eq!(plan.len(), 1);
+        assert_eq!(plan[0].2, PassiveRetrofit::Review);
+        assert_eq!(new_txt, txt);
+    }
+
+    #[test]
+    fn audit_passives_does_not_owe_a_rendering_a_non_legacy_block_already_carries() {
+        // The current rendering already sits beside a legacy block (a
+        // half-done hand retrofit): the legacy block is removed, not
+        // rewritten into a duplicate.
+        let txt = s8_ds(&[S8_CURRENT, &S8_LEGACY.replace("Disable Monster Effects", "Effect 2")]);
+        let walk = walk_src(S8_LUA);
+        let (_, plan, new_txt) = plan_passive_retrofit(&txt, &walk, S8_LUA);
+        assert_eq!(plan.len(), 1);
+        assert_eq!(plan[0].2, PassiveRetrofit::Remove);
+        assert_eq!(new_txt, s8_ds(&[S8_CURRENT]));
     }
 
     /// A one-card .ds with `n` effect blocks; `extra` is injected into
