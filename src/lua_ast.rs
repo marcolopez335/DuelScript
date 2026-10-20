@@ -2154,6 +2154,20 @@ const LEGACY_PASSIVE_GRANT: u8 = 4;
 /// projection (no extras binding, no `id` substitution, no battle-
 /// position slot, every legality predicate refused).
 const LEGACY_DECL: u8 = 8;
+/// T39 S10 (1): Pass E target declarations emitted before the T38 S1
+/// exception fix dropped the `except self` clause the lua exception
+/// arg (`c` / `e:GetHandler()`) demands.
+const LEGACY_DECL_EXC: u8 = 16;
+/// T39 S10 (2): `Duel.SpecialSummon[Step]` rendered a bare
+/// `special_summon <sel>` whatever its position arg — the runtime
+/// summons bare lines face-up attack, so a `POS_FACEUP_DEFENSE` /
+/// `POS_FACEDOWN_DEFENSE` / `POS_FACEUP_ATTACK` literal was lost.
+const LEGACY_SUMMON_POS: u8 = 32;
+/// T39 S10 (3): `Duel.SendtoHand` rendered `add_to_hand` whatever its
+/// destination-player arg and the selector's controller / zone — an
+/// opponent-side bounce (`nil` with cards from the opponent's zones,
+/// `1-tp`) read as a search into YOUR hand.
+const LEGACY_TO_HAND: u8 = 64;
 
 fn legacy_selector_policy() -> bool {
     LEGACY_POLICY.with(|c| c.get() & LEGACY_SELECTOR != 0)
@@ -2171,6 +2185,18 @@ fn legacy_decl_policy() -> bool {
     LEGACY_POLICY.with(|c| c.get() & LEGACY_DECL != 0)
 }
 
+fn legacy_decl_exc_policy() -> bool {
+    LEGACY_POLICY.with(|c| c.get() & LEGACY_DECL_EXC != 0)
+}
+
+fn legacy_summon_pos_policy() -> bool {
+    LEGACY_POLICY.with(|c| c.get() & LEGACY_SUMMON_POS != 0)
+}
+
+fn legacy_to_hand_policy() -> bool {
+    LEGACY_POLICY.with(|c| c.get() & LEGACY_TO_HAND != 0)
+}
+
 fn with_legacy_policy<R>(bits: u8, f: impl FnOnce() -> R) -> R {
     let prev = LEGACY_POLICY.with(|c| c.replace(bits));
     let r = f();
@@ -2178,12 +2204,30 @@ fn with_legacy_policy<R>(bits: u8, f: impl FnOnce() -> R) -> R {
     r
 }
 
-/// Run `f` under EVERY pre-T39 policy at once (the S3 selector
-/// widening, the S4 discard line and the S5 Release refusal all
-/// reverted) — the rendering a block shipped before T39 S3 carried.
-/// See [`LEGACY_POLICY`].
+/// Run `f` under EVERY pre-T39 body policy at once (the S3 selector
+/// widening, the S4 discard line, the S5 Release refusal, the S10 bare
+/// summon position and the S10 to-hand verb all reverted) — the
+/// rendering a block shipped before T39 S3 carried. See
+/// [`LEGACY_POLICY`].
 pub fn with_legacy_selector_policy<R>(f: impl FnOnce() -> R) -> R {
-    with_legacy_policy(LEGACY_SELECTOR | LEGACY_RELEASE, f)
+    with_legacy_policy(LEGACY_SELECTOR | LEGACY_RELEASE | LEGACY_SUMMON_POS | LEGACY_TO_HAND, f)
+}
+
+/// Run `f` with only the T39 S10 summon-position flip reverted
+/// (`Duel.SpecialSummon[Step]` → bare `special_summon <sel>`, every
+/// other policy current) — the rendering a block refilled between S3
+/// and S10 carried. Audit instrument (`audit-fills --shape
+/// special_summon`).
+pub fn with_legacy_summon_pos_policy<R>(f: impl FnOnce() -> R) -> R {
+    with_legacy_policy(LEGACY_SUMMON_POS, f)
+}
+
+/// Run `f` with only the T39 S10 to-hand flip reverted (`Duel.SendtoHand`
+/// → `add_to_hand <sel>` whatever its destination) — the rendering a
+/// block refilled between S3 and S10 carried. Audit instrument
+/// (`audit-fills --shape add_to_hand`).
+pub fn with_legacy_to_hand_policy<R>(f: impl FnOnce() -> R) -> R {
+    with_legacy_policy(LEGACY_TO_HAND, f)
 }
 
 /// Run `f` with only the T39 S5 Release refusal reverted (`Duel.Release`
@@ -2211,6 +2255,26 @@ pub fn with_legacy_passive_grant_policy<R>(f: impl FnOnce() -> R) -> R {
 /// invalidated. Independent of the other bits.
 pub fn with_legacy_decl_policy<R>(f: impl FnOnce() -> R) -> R {
     with_legacy_policy(LEGACY_DECL, f)
+}
+
+/// Run `f` with the T38 S1 decl exception fix reverted: every target
+/// declaration renders WITHOUT the `except self` clause its lua
+/// exception arg demands — the rendering Pass E shipped before that
+/// fix (T39 S10 audit instrument; `lua_translate audit-fills`
+/// recognises a shipped decl equal to it as a machine emission and
+/// rewrites it in place). Independent of the other bits.
+pub fn with_legacy_decl_exc_policy<R>(f: impl FnOnce() -> R) -> R {
+    with_legacy_policy(LEGACY_DECL_EXC, f)
+}
+
+/// Apply the [`LEGACY_DECL_EXC`] instrument to a rendered declaration
+/// frame: the pre-T38 S1 Pass E dropped the exception arg, so its
+/// decls carry no `except self`.
+fn decl_exception_policy(mut spec: SelectorSpec) -> SelectorSpec {
+    if legacy_decl_exc_policy() {
+        spec.except_self = false;
+    }
+    spec
 }
 
 /// Set the passcode of the card being translated (None clears it).
@@ -4805,7 +4869,7 @@ pub fn extract_target_decl(
     if filter != "nil" && filter != "aux.TRUE" { return None; }
 
     // Reuse the existing resolve-context extractor (same arg layout).
-    spec_from_matching(args, true, true)
+    spec_from_matching(args, true, true).map(decl_exception_policy)
 }
 
 /// [`extract_target_decl`] with the custom-filter widening (T38 S6,
@@ -4873,6 +4937,7 @@ pub fn extract_target_decl_refined(
         return Err(format!("{}: asymmetric locations {} / {}", handler, my_locs, opp_locs));
     }
     let spec = spec_from_matching(args, true, true)
+        .map(decl_exception_policy)
         .ok_or_else(|| format!("{}: selector frame undecodable", handler))?;
     if legacy_decl_policy() {
         return legacy_refined_decl(spec, args[1].trim(), functions)
@@ -11391,8 +11456,10 @@ fn translate_call(c: &DuelCall, body: &FunctionBody) -> Option<DslLine> {
         // Duel.SendtoGrave(target, reason)
         "Duel.SendtoGrave" => Some(gated_action(m, a, body, |t| format!("send {} to gy", t))),
 
-        // Duel.SendtoHand(target, player, reason)
-        "Duel.SendtoHand" => Some(gated_action(m, a, body, |t| format!("add_to_hand {}", t))),
+        // Duel.SendtoHand(target, player, reason) — T39 S10: the verb
+        // follows the destination player × the selector's controller /
+        // zone (`to_hand_verb`).
+        "Duel.SendtoHand" => Some(action_send_to_hand(m, a, body)),
 
         // Duel.SendtoDeck(target, player, sequence, reason)
         "Duel.SendtoDeck" => Some(gated_action(m, a, body, |t| format!("send {} to deck", t))),
@@ -11416,8 +11483,9 @@ fn translate_call(c: &DuelCall, body: &FunctionBody) -> Option<DslLine> {
         ))),
 
         // Duel.SpecialSummon(target, sumtype, p1, p2, nocheck, nolimit, pos)
-        "Duel.SpecialSummon" => Some(gated_action(m, a, body, |t| format!("special_summon {}", t))),
-        "Duel.SpecialSummonStep" => Some(gated_action(m, a, body, |t| format!("special_summon {}", t))),
+        // — T39 S10: the position arg renders as the grammar's
+        // `in <battle_position>` clause (`summon_position_clause`).
+        "Duel.SpecialSummon" | "Duel.SpecialSummonStep" => Some(action_special_summon(m, a, body)),
         "Duel.SpecialSummonComplete" => None, // boundary marker
 
         // Duel.ChangePosition(target, position) — change face-up/down
@@ -11887,6 +11955,186 @@ fn gated_action_at(
             "{}({}) — target provenance unknown",
             method,
             args.join(", ")
+        )),
+    }
+}
+
+/// `Duel.SpecialSummon[Step](target, sumtype, p1, p2, nocheck, nolimit,
+/// pos)` → `special_summon <sel>[ in <battle_position>]` (T39 S10).
+fn action_special_summon(method: &str, args: &[String], body: &FunctionBody) -> DslLine {
+    if legacy_summon_pos_policy() {
+        return gated_action(method, args, body, |t| format!("special_summon {}", t));
+    }
+    match summon_position_clause(args.get(6).map(String::as_str)) {
+        Ok(pos) => gated_action(method, args, body, |t| match pos {
+            Some(p) => format!("special_summon {} {}", t, p),
+            None => format!("special_summon {}", t),
+        }),
+        Err(reason) => DslLine::Todo(format!(
+            "{}({}) — summon position {}",
+            method,
+            args.join(", "),
+            reason
+        )),
+    }
+}
+
+/// EDOPro position bits of one `POS_*` literal.
+fn pos_literal_bits(tok: &str) -> Option<u32> {
+    Some(match tok.trim() {
+        "POS_FACEUP_ATTACK" => 0x1,
+        "POS_FACEDOWN_ATTACK" => 0x2,
+        "POS_FACEUP_DEFENSE" => 0x4,
+        "POS_FACEDOWN_DEFENSE" => 0x8,
+        "POS_FACEUP" => 0x5,
+        "POS_FACEDOWN" => 0xA,
+        "POS_ATTACK" => 0x3,
+        "POS_DEFENSE" => 0xC,
+        _ => return None,
+    })
+}
+
+/// The grammar's `in <battle_position>` clause for a `Duel.SpecialSummon`
+/// position arg (T39 S10). The runtime summons a bare `special_summon`
+/// face-up attack (v2 `compile`: `None => POS_FACEUP_ATTACK`), so:
+///   - a single statable literal renders — `POS_FACEUP_ATTACK` →
+///     `in attack_position` (explicit: the card text says "in Attack
+///     Position"), `POS_FACEUP_DEFENSE` → `in defense_position`,
+///     `POS_FACEDOWN_DEFENSE` → `in face_down_defense`;
+///   - a mask that CONTAINS face-up attack (`POS_FACEUP`, the player's
+///     choice of face-up position; `POS_FACEUP_ATTACK|POS_FACEDOWN_
+///     DEFENSE`, …) stays bare — the runtime default is a legal member
+///     of the mask, only the player's choice is lost (documented, the
+///     grammar has no position-set form);
+///   - a mask that EXCLUDES face-up attack (`POS_DEFENSE`, `POS_
+///     FACEDOWN`, `POS_FACEDOWN_ATTACK`, `POS_FACEUP_DEFENSE|POS_
+///     FACEDOWN_DEFENSE`) refuses — bare would summon in a position the
+///     lua forbids;
+///   - a missing or non-literal arg (`pos`, `sump`,
+///     `tc:GetPreviousPosition()`) refuses.
+fn summon_position_clause(arg: Option<&str>) -> Result<Option<&'static str>, String> {
+    let raw = arg.map(str::trim).filter(|s| !s.is_empty()).ok_or_else(|| "arg missing".to_string())?;
+    let mut bits = 0u32;
+    for tok in raw.split('|') {
+        bits |= pos_literal_bits(tok).ok_or_else(|| format!("`{}` is not a POS_* literal", raw))?;
+    }
+    Ok(match bits {
+        0x1 => Some("in attack_position"),
+        0x4 => Some("in defense_position"),
+        0x8 => Some("in face_down_defense"),
+        b if b & 0x1 != 0 => None,
+        _ => return Err(format!("`{}` excludes face-up attack, the bare line's position", raw)),
+    })
+}
+
+/// Which DSL verb a `Duel.SendtoHand` call takes (T39 S10).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ToHandVerb {
+    /// `add_to_hand <sel>` — YOUR hand, from your own deck / GY /
+    /// banished / Extra Deck (where controller == owner == you).
+    Add,
+    /// `return <sel> to hand` — the card's OWNER's hand: a field bounce
+    /// (either side), or the opponent's / either player's pile cards.
+    Return,
+}
+
+/// Where a `Duel.SendtoHand` card argument comes from, as far as the
+/// body walk can see it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ToHandSource<'a> {
+    /// `self` / declared-`target` provenance — the card's zone is not
+    /// visible to the body walk (the chain's `SetRange` / the target
+    /// handler's `SelectTarget` live outside it).
+    Card,
+    /// A tracked group selector: its controller phrase (None = `you
+    /// control`) and `from <zone>` clause (None = a compound / variable
+    /// LOCATION mask the spec could not split — source unknown).
+    Group { controller: Option<&'a str>, zone: Option<&'a str> },
+}
+
+/// The to-hand verb for a destination-player arg × source (T39 S10).
+///
+/// `dest` is the lua player arg: `nil` = the card's owner, `tp` = you,
+/// `1-tp` = the opponent; any other player expression refuses.
+///   - `Card`: `nil` / `tp` keep `add_to_hand` (a self-return or a
+///     declared target reaching its owner's hand — the pre-S10 line;
+///     zone-aware verb selection for these needs the effect context in
+///     the body walk, backlog); `1-tp` refuses.
+///   - `Group` from your own pile (`you control` + deck / gy / banished
+///     / extra_deck): `nil` or `tp` → `Add` (owner == you); `1-tp`
+///     refuses (your card into the opponent's hand).
+///   - `Group` on the field (any controller) or from the opponent's /
+///     either player's pile: `nil` → `Return` (owner's hand); `tp`
+///     refuses (an opponent-owned card into YOUR hand); `1-tp` →
+///     `Return` only for `opponent controls` pile cards (owner ==
+///     opponent == destination).
+///   - `from hand` refuses (hand-to-hand is not a DSL motion).
+fn to_hand_verb(dest: &str, source: ToHandSource) -> Result<ToHandVerb, String> {
+    let dest = dest.trim();
+    if !matches!(dest, "nil" | "tp" | "1-tp") {
+        return Err(format!("destination player `{}`", dest));
+    }
+    let (controller, zone) = match source {
+        ToHandSource::Card => {
+            return if dest == "1-tp" {
+                Err("self/target into the opponent's hand".to_string())
+            } else {
+                Ok(ToHandVerb::Add)
+            };
+        }
+        // A zone-less spec comes from a compound / variable LOCATION
+        // mask (`LOCATION_DECK|LOCATION_GRAVE` — El Shaddoll Apkallone),
+        // which `zone_from_locations` could not split; the DSL would
+        // read it as on-field, so the source is unknown here.
+        ToHandSource::Group { zone: None, .. } => {
+            return Err("source zone unknown (compound location mask)".to_string());
+        }
+        ToHandSource::Group { controller, zone: Some(zone) } => (
+            controller.unwrap_or("you control"),
+            zone.strip_prefix("from ").unwrap_or(zone),
+        ),
+    };
+    let own_pile = matches!(zone, "deck" | "gy" | "banished" | "extra_deck");
+    let on_field = matches!(
+        zone,
+        "field" | "monster_zone" | "spell_trap_zone" | "field_zone" | "pendulum_zone" | "extra_monster_zone"
+    );
+    if !own_pile && !on_field {
+        return Err(format!("source zone `{}`", zone));
+    }
+    match (dest, controller, own_pile) {
+        ("nil" | "tp", "you control", true) => Ok(ToHandVerb::Add),
+        ("nil", _, _) => Ok(ToHandVerb::Return),
+        ("1-tp", "opponent controls", true) => Ok(ToHandVerb::Return),
+        ("tp", _, _) => Err(format!("`{}` {} card into your hand", controller, zone)),
+        (d, _, _) => Err(format!("`{}` {} card to player `{}`", controller, zone, d)),
+    }
+}
+
+/// `Duel.SendtoHand(target, player, reason)` → `add_to_hand <sel>` or
+/// `return <sel> to hand` per [`to_hand_verb`] (T39 S10).
+fn action_send_to_hand(method: &str, args: &[String], body: &FunctionBody) -> DslLine {
+    if legacy_to_hand_policy() {
+        return gated_action(method, args, body, |t| format!("add_to_hand {}", t));
+    }
+    let raw = args.first().map(|s| s.trim()).unwrap_or("");
+    let base = raw.split([':', '.']).next().unwrap_or(raw);
+    let source = match body.group_bindings.get(base) {
+        Some(spec) => ToHandSource::Group {
+            controller: spec.controller.as_deref(),
+            zone: spec.zone.as_deref(),
+        },
+        None => ToHandSource::Card,
+    };
+    let dest = args.get(1).map(String::as_str).unwrap_or("nil");
+    match to_hand_verb(dest, source) {
+        Ok(ToHandVerb::Add) => gated_action(method, args, body, |t| format!("add_to_hand {}", t)),
+        Ok(ToHandVerb::Return) => gated_action(method, args, body, |t| format!("return {} to hand", t)),
+        Err(reason) => DslLine::Todo(format!(
+            "{}({}) — to-hand verb unstatable: {}",
+            method,
+            args.join(", "),
+            reason
         )),
     }
 }
@@ -24804,5 +25052,248 @@ end
         let report = walk(&parsed);
         let ob = report.functions.get("s.operation").unwrap();
         assert!(extract_choose_spec(report.functions.get("s.target"), ob, &report.functions).is_none());
+    }
+
+    // ── T39 S10 — decl except-self instrument, summon position, to-hand verb ──
+
+    fn s10_report(src: &str) -> LuaReport {
+        let parsed = full_moon::parse(src).expect("parse");
+        walk(&parsed)
+    }
+
+    #[test]
+    fn s10_legacy_decl_exc_policy_drops_except_self_on_both_decl_paths() {
+        // Phase 8 nil-filter path.
+        let r = s10_report(r#"
+function s.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    Duel.SelectTarget(tp,nil,tp,LOCATION_ONFIELD,LOCATION_ONFIELD,1,1,e:GetHandler())
+end
+"#);
+        let cur = extract_target_decl("s.tg", &r.functions).expect("decl");
+        assert_eq!(cur.to_dsl(), "(1, card, either controls, from field, except self)");
+        let old = with_legacy_decl_exc_policy(|| extract_target_decl("s.tg", &r.functions)).expect("decl");
+        assert_eq!(old.to_dsl(), "(1, card, either controls, from field)");
+        // Refined (custom filter) path.
+        let r = s10_report(r#"
+function s.filter(c)
+    return c:IsFaceup()
+end
+function s.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    Duel.SelectTarget(tp,s.filter,tp,LOCATION_MZONE,0,1,1,c)
+end
+"#);
+        let cur = extract_target_decl_refined("s.tg", &r.functions, &[]).expect("decl");
+        assert_eq!(cur.to_dsl(), "(1, card, you control, from monster_zone, except self, where is_face_up)");
+        let old = with_legacy_decl_exc_policy(|| extract_target_decl_refined("s.tg", &r.functions, &[])).expect("decl");
+        assert_eq!(old.to_dsl(), "(1, card, you control, from monster_zone, where is_face_up)");
+        // A nil exception renders identically under both policies.
+        let r = s10_report(r#"
+function s.tg(e,tp,eg,ep,ev,re,r,rp,chk,chkc)
+    Duel.SelectTarget(tp,nil,tp,LOCATION_MZONE,0,1,1,nil)
+end
+"#);
+        let cur = extract_target_decl("s.tg", &r.functions).expect("decl");
+        let old = with_legacy_decl_exc_policy(|| extract_target_decl("s.tg", &r.functions)).expect("decl");
+        assert_eq!(cur, old);
+    }
+
+    #[test]
+    fn s10_summon_position_clause_matrix() {
+        assert_eq!(summon_position_clause(Some("POS_FACEUP_ATTACK")), Ok(Some("in attack_position")));
+        assert_eq!(summon_position_clause(Some("POS_FACEUP_DEFENSE")), Ok(Some("in defense_position")));
+        assert_eq!(summon_position_clause(Some("POS_FACEDOWN_DEFENSE")), Ok(Some("in face_down_defense")));
+        // Masks containing face-up attack stay bare (the runtime default is a member).
+        assert_eq!(summon_position_clause(Some("POS_FACEUP")), Ok(None));
+        assert_eq!(summon_position_clause(Some("POS_FACEUP_ATTACK|POS_FACEDOWN_DEFENSE")), Ok(None));
+        assert_eq!(summon_position_clause(Some("POS_FACEUP|POS_FACEDOWN_DEFENSE")), Ok(None));
+        assert_eq!(summon_position_clause(Some("POS_ATTACK")), Ok(None));
+        // Masks excluding face-up attack refuse.
+        assert!(summon_position_clause(Some("POS_DEFENSE")).is_err());
+        assert!(summon_position_clause(Some("POS_FACEDOWN")).is_err());
+        assert!(summon_position_clause(Some("POS_FACEDOWN_ATTACK")).is_err());
+        assert!(summon_position_clause(Some("POS_FACEUP_DEFENSE|POS_FACEDOWN_DEFENSE")).is_err());
+        // Non-literal / missing args refuse.
+        assert!(summon_position_clause(Some("pos")).is_err());
+        assert!(summon_position_clause(Some("tc:GetPreviousPosition()")).is_err());
+        assert!(summon_position_clause(None).is_err());
+        assert!(summon_position_clause(Some("")).is_err());
+    }
+
+    fn s10_ss(pos: &str) -> String {
+        format!(r#"
+function s.filter(c)
+    return c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+end
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_GRAVE,0,1,1,nil)
+    if #g>0 then
+        Duel.SpecialSummon(g,0,tp,tp,false,false,{pos})
+    end
+end
+"#)
+    }
+
+    #[test]
+    fn s10_special_summon_renders_the_literal_position() {
+        assert_eq!(
+            p11_actions(&s10_ss("POS_FACEUP_DEFENSE"), "s.op"),
+            vec!["special_summon (1, card, you control, from gy) in defense_position"]
+        );
+        assert_eq!(
+            p11_actions(&s10_ss("POS_FACEDOWN_DEFENSE"), "s.op"),
+            vec!["special_summon (1, card, you control, from gy) in face_down_defense"]
+        );
+        assert_eq!(
+            p11_actions(&s10_ss("POS_FACEUP_ATTACK"), "s.op"),
+            vec!["special_summon (1, card, you control, from gy) in attack_position"]
+        );
+        // POS_FACEUP (either face-up position) stays bare.
+        assert_eq!(
+            p11_actions(&s10_ss("POS_FACEUP"), "s.op"),
+            vec!["special_summon (1, card, you control, from gy)"]
+        );
+        // SpecialSummonStep shares the arg layout.
+        let step = s10_ss("POS_FACEUP_DEFENSE").replace("Duel.SpecialSummon(", "Duel.SpecialSummonStep(");
+        assert_eq!(
+            p11_actions(&step, "s.op"),
+            vec!["special_summon (1, card, you control, from gy) in defense_position"]
+        );
+    }
+
+    #[test]
+    fn s10_special_summon_unstatable_position_is_a_todo() {
+        for pos in ["POS_DEFENSE", "pos", "POS_FACEUP_DEFENSE|POS_FACEDOWN_DEFENSE"] {
+            let r = s10_report(&s10_ss(pos));
+            let lines = translate_body_with_functions(&r.functions["s.op"], &r.functions);
+            assert_eq!(lines.len(), 1, "{}", pos);
+            match &lines[0] {
+                DslLine::Todo(t) => assert!(t.contains("summon position"), "{}", t),
+                other => panic!("{}: expected a TODO, got {:?}", pos, other),
+            }
+        }
+    }
+
+    #[test]
+    fn s10_legacy_summon_pos_policy_renders_bare() {
+        let src = s10_ss("POS_FACEUP_DEFENSE");
+        assert_eq!(
+            with_legacy_summon_pos_policy(|| p11_actions(&src, "s.op")),
+            vec!["special_summon (1, card, you control, from gy)"]
+        );
+        // The refused shape renders bare under the legacy bit too.
+        let src = s10_ss("POS_DEFENSE");
+        assert_eq!(
+            with_legacy_summon_pos_policy(|| p11_actions(&src, "s.op")),
+            vec!["special_summon (1, card, you control, from gy)"]
+        );
+        // The all-flips policy carries the bit.
+        let src = s10_ss("POS_FACEUP_DEFENSE");
+        assert_eq!(
+            with_legacy_selector_policy(|| p11_actions(&src, "s.op")),
+            vec!["special_summon (1, card, you control, from gy)"]
+        );
+    }
+
+    #[test]
+    fn s10_to_hand_verb_matrix() {
+        let group = |controller: Option<&'static str>, zone: Option<&'static str>| ToHandSource::Group { controller, zone };
+        // Your own pile → add_to_hand for nil / tp.
+        assert_eq!(to_hand_verb("nil", group(Some("you control"), Some("from deck"))), Ok(ToHandVerb::Add));
+        assert_eq!(to_hand_verb("tp", group(Some("you control"), Some("from gy"))), Ok(ToHandVerb::Add));
+        assert_eq!(to_hand_verb("nil", group(None, Some("from banished"))), Ok(ToHandVerb::Add));
+        assert_eq!(to_hand_verb("tp", group(Some("you control"), Some("from extra_deck"))), Ok(ToHandVerb::Add));
+        // Field bounce to the owner → return … to hand, any controller.
+        assert_eq!(to_hand_verb("nil", group(Some("either controls"), Some("from field"))), Ok(ToHandVerb::Return));
+        assert_eq!(to_hand_verb("nil", group(Some("opponent controls"), Some("from monster_zone"))), Ok(ToHandVerb::Return));
+        assert_eq!(to_hand_verb("nil", group(Some("you control"), Some("from spell_trap_zone"))), Ok(ToHandVerb::Return));
+        // A zone-less spec (compound LOCATION mask) has an unknown source.
+        assert!(to_hand_verb("nil", group(Some("you control"), None)).is_err());
+        // The opponent's / either player's pile cards to their owner.
+        assert_eq!(to_hand_verb("nil", group(Some("opponent controls"), Some("from gy"))), Ok(ToHandVerb::Return));
+        assert_eq!(to_hand_verb("nil", group(Some("either controls"), Some("from gy"))), Ok(ToHandVerb::Return));
+        assert_eq!(to_hand_verb("1-tp", group(Some("opponent controls"), Some("from deck"))), Ok(ToHandVerb::Return));
+        // Unstatable: an opponent-owned card into YOUR hand, your card into theirs, hand-to-hand, other players.
+        assert!(to_hand_verb("tp", group(Some("opponent controls"), Some("from monster_zone"))).is_err());
+        assert!(to_hand_verb("tp", group(Some("either controls"), Some("from field"))).is_err());
+        assert!(to_hand_verb("tp", group(Some("you control"), Some("from field"))).is_err());
+        assert!(to_hand_verb("1-tp", group(Some("you control"), Some("from deck"))).is_err());
+        assert!(to_hand_verb("1-tp", group(Some("opponent controls"), Some("from field"))).is_err());
+        assert!(to_hand_verb("nil", group(Some("you control"), Some("from hand"))).is_err());
+        assert!(to_hand_verb("p", group(Some("you control"), Some("from deck"))).is_err());
+        // self / target provenance: zone invisible → add_to_hand for nil / tp, refuse 1-tp.
+        assert_eq!(to_hand_verb("nil", ToHandSource::Card), Ok(ToHandVerb::Add));
+        assert_eq!(to_hand_verb("tp", ToHandSource::Card), Ok(ToHandVerb::Add));
+        assert!(to_hand_verb("1-tp", ToHandSource::Card).is_err());
+    }
+
+    fn s10_sh(locs: &str, dest: &str) -> String {
+        format!(r#"
+function s.filter(c)
+    return c:IsAbleToHand()
+end
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,s.filter,tp,{locs},1,1,nil)
+    if #g>0 then
+        Duel.SendtoHand(g,{dest},REASON_EFFECT)
+    end
+end
+"#)
+    }
+
+    #[test]
+    fn s10_send_to_hand_verb_follows_destination_and_source() {
+        assert_eq!(
+            p11_actions(&s10_sh("LOCATION_DECK,0", "nil"), "s.op"),
+            vec!["add_to_hand (1, card, you control, from deck)"]
+        );
+        assert_eq!(
+            p11_actions(&s10_sh("0,LOCATION_MZONE", "nil"), "s.op"),
+            vec!["return (1, card, opponent controls, from monster_zone) to hand"]
+        );
+        assert_eq!(
+            p11_actions(&s10_sh("LOCATION_ONFIELD,LOCATION_ONFIELD", "nil"), "s.op"),
+            vec!["return (1, card, either controls, from field) to hand"]
+        );
+        assert_eq!(
+            p11_actions(&s10_sh("0,LOCATION_GRAVE", "1-tp"), "s.op"),
+            vec!["return (1, card, opponent controls, from gy) to hand"]
+        );
+        // An opponent-controlled field card into YOUR hand is unstatable.
+        let r = s10_report(&s10_sh("0,LOCATION_MZONE", "tp"));
+        let lines = translate_body_with_functions(&r.functions["s.op"], &r.functions);
+        assert_eq!(lines.len(), 1);
+        match &lines[0] {
+            DslLine::Todo(t) => assert!(t.contains("to-hand verb unstatable"), "{}", t),
+            other => panic!("expected a TODO, got {:?}", other),
+        }
+        // self / declared target keep the pre-S10 line for nil.
+        let r = s10_report(r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    Duel.SendtoHand(tc,nil,REASON_EFFECT)
+    Duel.SendtoHand(e:GetHandler(),nil,REASON_EFFECT)
+end
+"#);
+        let lines: Vec<String> = translate_body_with_functions(&r.functions["s.op"], &r.functions)
+            .into_iter().filter_map(|l| match l { DslLine::Action(s) => Some(s), _ => None }).collect();
+        assert_eq!(lines, vec!["add_to_hand target", "add_to_hand self"]);
+    }
+
+    #[test]
+    fn s10_legacy_to_hand_policy_renders_add_to_hand() {
+        let src = s10_sh("0,LOCATION_MZONE", "nil");
+        assert_eq!(
+            with_legacy_to_hand_policy(|| p11_actions(&src, "s.op")),
+            vec!["add_to_hand (1, card, opponent controls, from monster_zone)"]
+        );
+        let src = s10_sh("0,LOCATION_MZONE", "tp");
+        assert_eq!(
+            with_legacy_to_hand_policy(|| p11_actions(&src, "s.op")),
+            vec!["add_to_hand (1, card, opponent controls, from monster_zone)"]
+        );
+        assert_eq!(
+            with_legacy_selector_policy(|| p11_actions(&src, "s.op")),
+            vec!["add_to_hand (1, card, opponent controls, from monster_zone)"]
+        );
     }
 }
