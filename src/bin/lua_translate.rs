@@ -273,23 +273,30 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
             let drop = lua_ast::body_drop_reason(body, &walk.functions);
             if shipped == rendered && drop.is_none() { continue; } // healthy fill
             // `--shape <action>` RESHAPE class (T39 S2 ChangePosition
-            // retrofit): an accepted body whose `<action>` lines moved.
-            if drop.is_none() {
-                if let Some(action) = shape {
-                    if shape_lines_differ(&shipped, &rendered, action) {
-                        reshapes += 1;
-                        println!("RESHAPE {} block={} handler={} shape={}", stem, block_idx, handler, action);
-                        for l in &shipped  { println!("    shipped:  {}", l); }
-                        for l in &rendered { println!("    rendered: {}", l); }
-                        for l in lines.iter().filter(|l| !l.is_action()) {
-                            println!("    todo:     {}", l.clone().into_string("").trim());
-                        }
-                        if stub {
-                            new_txt = format!("{}\n        {}", &new_txt[..inner_lo], &new_txt[inner_hi..]);
-                            changed = true;
-                        }
-                        continue;
+            // retrofit): a body whose `<action>` lines moved. The drop
+            // verdict is reported, not consulted (T39 S4): a shipped
+            // `<action>` line the current decoder would not write is
+            // wrong whether or not the rest of the body lowers — a
+            // `drop=` hit is stubbed and stays empty (apply refuses the
+            // body), the skip-not-mis-emit outcome.
+            if let Some(action) = shape {
+                if shape_lines_differ(&shipped, &rendered, action) {
+                    reshapes += 1;
+                    println!(
+                        "RESHAPE {} block={} handler={} shape={} drop={}",
+                        stem, block_idx, handler, action,
+                        drop.as_ref().map(|d| d.code()).unwrap_or("-")
+                    );
+                    for l in &shipped  { println!("    shipped:  {}", l); }
+                    for l in &rendered { println!("    rendered: {}", l); }
+                    for l in lines.iter().filter(|l| !l.is_action()) {
+                        println!("    todo:     {}", l.clone().into_string("").trim());
                     }
+                    if stub {
+                        new_txt = format!("{}\n        {}", &new_txt[..inner_lo], &new_txt[inner_hi..]);
+                        changed = true;
+                    }
+                    continue;
                 }
             }
             // T39 S3 — the pre-gate rendering: selector filters resolved

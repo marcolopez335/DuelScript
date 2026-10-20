@@ -570,6 +570,10 @@ impl SelectorSpec {
 ///   - `Duel.GetControl`     ← IsControlerCanBeChanged /
 ///     IsAbleToChangeControler (c27096833 Borreload Liberator Dragon,
 ///     c36898537 Metaphys Horus, c43932352 Creature Swap)
+///   - `Duel.DiscardHand`    ← IsDiscardable / IsAbleToGrave (T39 S4;
+///     c11449436 Glacier Aqua Madoor, c29599813 Purrely Pretty
+///     Memory, c47778083 Bone Temple Block — "discard 1 card", the
+///     predicate is ocgcore's discard legality pre-check)
 ///   - every action          ← the `aux.NecroValleyFilter` wrapper (a
 ///     Necrovalley floodgate check; c10808715 Masked HERO Dusk Crow,
 ///     c14001430 Madolche Chateau, c1045143 Geargiano Mk-II)
@@ -594,6 +598,7 @@ fn implied_by_action(method: &str, pred: &str) -> bool {
         "Duel.Summon" => &["IsSummonable"],
         "Duel.ChangePosition" => &["IsCanChangePosition", "IsCanTurnSet"],
         "Duel.GetControl" => &["IsControlerCanBeChanged", "IsAbleToChangeControler"],
+        "Duel.DiscardHand" => &["IsDiscardable", "IsAbleToGrave"],
         _ => &[],
     };
     implied.contains(&base)
@@ -1563,7 +1568,7 @@ fn is_legality_pred(name: &str) -> bool {
         "IsAbleToHand" | "IsAbleToGrave" | "IsAbleToRemove" | "IsAbleToDeck" | "IsAbleToExtra"
         | "IsCanBeSpecialSummoned" | "IsDestructable" | "IsReleasable" | "IsReleasableByEffect"
         | "IsSSetable" | "IsSummonable" | "IsCanChangePosition" | "IsCanTurnSet"
-        | "IsControlerCanBeChanged" | "IsAbleToChangeControler"
+        | "IsControlerCanBeChanged" | "IsAbleToChangeControler" | "IsDiscardable"
     )
 }
 
@@ -1901,23 +1906,7 @@ fn refine_selector_filters(
     }
     let mut upgrades: Vec<(String, SelectorSpec)> = Vec::new();
     for (name, spec) in &body.group_bindings {
-        if spec.filter_mapped { continue; }
-        let Some(raw) = spec.raw_filter.as_deref() else { continue };
-        let m = resolve_filter(raw, &spec.filter_extra, functions);
-        let mut up = spec.clone();
-        up.where_clause = m.where_clause();
-        up.filter_implied = m.implied;
-        up.filter_residual = m.residual;
-        up.position = None;
-        if let Some(p) = m.position {
-            if spec.except_self {
-                up.filter_residual.push(format!("{} shares the except-self slot", p));
-            } else {
-                up.position = Some(p);
-            }
-        }
-        up.filter_mapped = up.filter_residual.is_empty() && up.filter_implied.is_empty();
-        if up != *spec {
+        if let Some(up) = refine_spec(spec, functions) {
             upgrades.push((name.clone(), up));
         }
     }
@@ -1927,6 +1916,33 @@ fn refine_selector_filters(
         out.group_bindings.insert(name, up);
     }
     Some(out)
+}
+
+/// One spec's [`refine_selector_filters`] step: resolve its raw lua
+/// filter through [`resolve_filter`] and carry the atoms / implied
+/// predicates / residual onto a copy. None when the spec is already
+/// mapped, has no raw filter, or nothing changes.
+fn refine_spec(
+    spec: &SelectorSpec,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<SelectorSpec> {
+    if spec.filter_mapped { return None; }
+    let raw = spec.raw_filter.as_deref()?;
+    let m = resolve_filter(raw, &spec.filter_extra, functions);
+    let mut up = spec.clone();
+    up.where_clause = m.where_clause();
+    up.filter_implied = m.implied;
+    up.filter_residual = m.residual;
+    up.position = None;
+    if let Some(p) = m.position {
+        if spec.except_self {
+            up.filter_residual.push(format!("{} shares the except-self slot", p));
+        } else {
+            up.position = Some(p);
+        }
+    }
+    up.filter_mapped = up.filter_residual.is_empty() && up.filter_implied.is_empty();
+    if up != *spec { Some(up) } else { None }
 }
 
 thread_local! {
@@ -4261,13 +4277,7 @@ fn extract_cost_from_body(body: &FunctionBody) -> Option<CostBlockSpec> {
                 let max_s  = a.get(3).map(String::as_str).unwrap_or("1").trim();
                 if player != "tp" { return None; }
                 if !is_generic_discard_filter(filter) { return None; }
-                let qty = if min_s == max_s {
-                    let n: u32 = min_s.parse().ok()?;
-                    n.to_string()
-                } else {
-                    let mn: u32 = min_s.parse().ok()?;
-                    format!("{}+", mn)
-                };
+                let qty = discard_quantity(min_s, max_s).ok()?;
                 actions.push(CostAction::Discard(
                     format!("({}, card, you control, from hand)", qty)
                 ));
@@ -4859,6 +4869,90 @@ fn spec_from_get_matching(args: &[String]) -> Option<SelectorSpec> {
         filter_residual: f.filter_residual,
         select_provenance: false,
     })
+}
+
+/// `Duel.DiscardHand` count args → DSL quantity (T39 S4). Literal
+/// `min == max` is the exact `N`; the open-ended `(N, 60)` idiom (any
+/// number, bounded only by the hand) is the grammar's at-least `N+`
+/// — the same reading [`quantity_from`] gives a `SelectMatchingCard`
+/// range. A bounded literal range (`1, 2`) has no grammar form and a
+/// computed count (`ct`, `lv`) no static value: both refuse.
+fn discard_quantity(min_s: &str, max_s: &str) -> Result<String, String> {
+    let (min_s, max_s) = (min_s.trim(), max_s.trim());
+    let (Ok(mn), Ok(mx)) = (min_s.parse::<u32>(), max_s.parse::<u32>()) else {
+        return Err(format!("non-literal count {}..{}", min_s, max_s));
+    };
+    if mn == 0 {
+        return Err(format!("count {}..{} starts at zero", mn, mx));
+    }
+    if mn == mx {
+        return Ok(mn.to_string());
+    }
+    if mn < mx && mx >= HAND_UNBOUNDED_COUNT {
+        return Ok(format!("{}+", mn));
+    }
+    Err(format!("bounded range {}..{} has no DSL quantity", mn, mx))
+}
+
+/// The lua idiom for "any number of cards": a max no hand can reach.
+const HAND_UNBOUNDED_COUNT: u32 = 60;
+
+/// `Duel.DiscardHand(player, filter, min, max, reason[, ex, …extras])`
+/// → the DSL `discard` selector (T39 S4). The filter rides the shared
+/// predicate mapper ([`refine_spec`] → [`resolve_filter`]): legality
+/// atoms `Duel.DiscardHand` implies are transparent, any other
+/// residual refuses through [`SelectorSpec::action_dsl`]. The `ex`
+/// arg follows [`classify_exception`] (`c` → `except self`, anything
+/// else non-nil refuses). Err carries the refusal.
+fn discard_hand_spec(
+    args: &[String],
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Result<SelectorSpec, String> {
+    let arg = |i: usize| args.get(i).map(|s| s.trim()).unwrap_or("");
+    let controller = match arg(0) {
+        "tp" => "you control",
+        "1-tp" => "opponent controls",
+        p => return Err(format!("player {} is not tp / 1-tp", p)),
+    };
+    if args.len() < 4 {
+        return Err("count args missing".to_string());
+    }
+    let quantity = discard_quantity(arg(2), arg(3))?;
+    let f = selector_filter_fields(arg(1), args.get(5).map(String::as_str));
+    let spec = SelectorSpec {
+        quantity,
+        kind: f.kind.to_string(),
+        controller: Some(controller.to_string()),
+        zone: Some("from hand".to_string()),
+        where_clause: f.where_clause,
+        filter_mapped: f.filter_mapped,
+        from_resolve_select: false,
+        raw_filter: f.raw_filter,
+        except_self: f.except_self,
+        filter_extra: args.get(6..).unwrap_or_default().to_vec(),
+        position: None,
+        filter_implied: Vec::new(),
+        filter_residual: f.filter_residual,
+        select_provenance: false,
+    };
+    Ok(refine_spec(&spec, functions).unwrap_or(spec))
+}
+
+/// Pre-T39 S4 `Duel.DiscardHand` rendering — every call, whatever its
+/// player / filter / count, became this line. Audit instrument only
+/// (`with_legacy_selector_policy`).
+const LEGACY_DISCARD_HAND_LINE: &str = "discard (1+, card, you control, from hand)";
+
+/// `Duel.DiscardHand(…)` → `discard <selector>` (T39 S4), or a TODO
+/// naming the refusal.
+fn action_discard_hand(args: &[String], functions: &BTreeMap<String, FunctionBody>) -> DslLine {
+    if legacy_selector_policy() {
+        return DslLine::Action(LEGACY_DISCARD_HAND_LINE.to_string());
+    }
+    match discard_hand_spec(args, functions).and_then(|s| s.action_dsl("Duel.DiscardHand")) {
+        Ok(sel) => DslLine::Action(format!("discard {}", sel)),
+        Err(r) => DslLine::Todo(format!("Duel.DiscardHand({}) — {}", args.join(", "), r)),
+    }
 }
 
 fn quantity_from(min_s: &str, max_s: &str) -> Option<String> {
@@ -7110,6 +7204,19 @@ pub fn body_drop_reasons(
                 drops.push(BodyDrop::SelectorFilterUnmapped(format!(
                     "{}({}): {}", c.method, c.args.get(idx).map(String::as_str).unwrap_or(""), r
                 )));
+            }
+        }
+        // `Duel.DiscardHand` carries its filter inline (T39 S4): a
+        // spec that builds but whose filter refuses is the same class.
+        // Player / count refusals are plain TODO lines (the fill's
+        // mixed-TODO gate catches those).
+        if c.method == "Duel.DiscardHand" && !legacy_selector_policy() {
+            if let Ok(spec) = discard_hand_spec(&c.args, functions) {
+                if let Err(r) = spec.action_dsl(&c.method) {
+                    drops.push(BodyDrop::SelectorFilterUnmapped(format!(
+                        "{}({}): {}", c.method, c.args.get(1).map(String::as_str).unwrap_or(""), r
+                    )));
+                }
             }
         }
     }
@@ -10301,6 +10408,9 @@ fn translate_call_with_functions(
             body,
             functions,
         )),
+        // Duel.DiscardHand(player, filter, min, max, reason[, ex, …])
+        // — the filter needs the function table (T39 S4).
+        "Duel.DiscardHand" => Some(action_discard_hand(&c.args, functions)),
         _ => translate_call(c, body),
     }
 }
@@ -10537,11 +10647,6 @@ fn translate_call(c: &DuelCall, body: &FunctionBody) -> Option<DslLine> {
         "Duel.SpecialSummon" => Some(gated_action(m, a, body, |t| format!("special_summon {}", t))),
         "Duel.SpecialSummonStep" => Some(gated_action(m, a, body, |t| format!("special_summon {}", t))),
         "Duel.SpecialSummonComplete" => None, // boundary marker
-
-        // Duel.DiscardHand(player, filter, min, max, reason)
-        "Duel.DiscardHand" => Some(DslLine::Action(
-            "discard (1+, card, you control, from hand)".to_string()
-        )),
 
         // Duel.ChangePosition(target, position) — change face-up/down
         // attack/defense. We can't always extract position from args, but
@@ -14330,6 +14435,27 @@ end
     }
 
     #[test]
+    fn t39s4_cost_discard_open_range_is_at_least_bounded_range_skips() {
+        // `(1, 60)` is the "any number" idiom → `1+`; `(1, 2)` has no
+        // grammar form → the cost block skips.
+        let open = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.IsDiscardable(e:GetHandler()) end
+    Duel.DiscardHand(tp,Card.IsDiscardable,1,60,REASON_COST|REASON_DISCARD)
+end
+"#;
+        let spec = cost_block_from_lua(open, "s.cost").expect("cost block");
+        assert_eq!(spec.actions[0], CostAction::Discard("(1+, card, you control, from hand)".to_string()));
+        let bounded = r#"
+function s.cost(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return Duel.IsDiscardable(e:GetHandler()) end
+    Duel.DiscardHand(tp,Card.IsDiscardable,1,2,REASON_COST|REASON_DISCARD)
+end
+"#;
+        assert_eq!(cost_block_from_lua(bounded, "s.cost"), None);
+    }
+
+    #[test]
     fn phase7_discard_custom_filter_skipped() {
         // Custom filter (s.cfilter) → cannot derive generic selector → skip.
         let src = r#"
@@ -14699,6 +14825,127 @@ end
                 _ => None,
             })
             .collect()
+    }
+
+    // ── T39 S4 — Duel.DiscardHand exact min/max + shared filter mapper ──
+
+    fn t39s4_lines(call: &str) -> Vec<DslLine> {
+        let src = format!(
+            "function s.filter(c)\n    return c:IsMonster()\nend\n\
+             function s.mfilter(c)\n    return c:IsSetCard(0x1234)\nend\n\
+             function s.op(e,tp,eg,ep,ev,re,r,rp)\n    {}\nend\n",
+            call
+        );
+        let parsed = full_moon::parse(&src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.op").expect("handler body");
+        translate_body_with_functions(body, &report.functions)
+    }
+
+    fn t39s4_action(call: &str) -> Option<String> {
+        match t39s4_lines(call).as_slice() {
+            [DslLine::Action(s)] => Some(s.clone()),
+            _ => None,
+        }
+    }
+
+    fn t39s4_todo(call: &str) -> String {
+        match t39s4_lines(call).as_slice() {
+            [DslLine::Todo(s)] => s.clone(),
+            other => panic!("expected one TODO, got {:?}", other),
+        }
+    }
+
+    #[test]
+    fn t39s4_discard_hand_exact_min_max() {
+        assert_eq!(
+            t39s4_action("Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_EFFECT|REASON_DISCARD)").as_deref(),
+            Some("discard (1, card, you control, from hand)")
+        );
+        assert_eq!(
+            t39s4_action("Duel.DiscardHand(tp,nil,2,2,REASON_EFFECT|REASON_DISCARD)").as_deref(),
+            Some("discard (2, card, you control, from hand)")
+        );
+        // `Card.IsDiscardable(c, REASON_EFFECT)` — the trailing extra
+        // is the predicate's reason arg; still transparent.
+        assert_eq!(
+            t39s4_action("Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_EFFECT|REASON_DISCARD,nil,REASON_EFFECT)").as_deref(),
+            Some("discard (1, card, you control, from hand)")
+        );
+    }
+
+    #[test]
+    fn t39s4_discard_hand_open_range_is_at_least() {
+        assert_eq!(
+            t39s4_action("Duel.DiscardHand(tp,aux.TRUE,1,60,REASON_EFFECT|REASON_DISCARD)").as_deref(),
+            Some("discard (1+, card, you control, from hand)")
+        );
+    }
+
+    #[test]
+    fn t39s4_discard_hand_refuses_bounded_and_computed_counts() {
+        assert!(t39s4_todo("Duel.DiscardHand(tp,nil,1,2,REASON_EFFECT|REASON_DISCARD)")
+            .contains("bounded range 1..2"));
+        assert!(t39s4_todo("Duel.DiscardHand(tp,nil,ct,ct,REASON_EFFECT|REASON_DISCARD)")
+            .contains("non-literal count ct..ct"));
+        assert!(t39s4_todo("Duel.DiscardHand(tp,nil,1,ac,REASON_DISCARD|REASON_EFFECT)")
+            .contains("non-literal count 1..ac"));
+    }
+
+    #[test]
+    fn t39s4_discard_hand_player() {
+        assert_eq!(
+            t39s4_action("Duel.DiscardHand(1-tp,nil,1,1,REASON_EFFECT|REASON_DISCARD)").as_deref(),
+            Some("discard (1, card, opponent controls, from hand)")
+        );
+        assert!(t39s4_todo("Duel.DiscardHand(p,nil,1,1,REASON_EFFECT|REASON_DISCARD)")
+            .contains("player p"));
+    }
+
+    #[test]
+    fn t39s4_discard_hand_exception_arg() {
+        assert_eq!(
+            t39s4_action("Duel.DiscardHand(tp,Card.IsDiscardable,1,1,REASON_COST|REASON_DISCARD,e:GetHandler())").as_deref(),
+            Some("discard (1, card, you control, from hand, except self)")
+        );
+        assert!(t39s4_todo("Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT|REASON_DISCARD,tc)")
+            .contains("exception tc"));
+    }
+
+    #[test]
+    fn t39s4_discard_hand_filter_through_shared_mapper() {
+        // Inline kind predicate → kind slot; named pure filter → where.
+        assert_eq!(
+            t39s4_action("Duel.DiscardHand(tp,Card.IsMonster,1,1,REASON_EFFECT|REASON_DISCARD)").as_deref(),
+            Some("discard (1, monster, you control, from hand)")
+        );
+        assert_eq!(
+            t39s4_action("Duel.DiscardHand(tp,s.filter,1,1,REASON_EFFECT|REASON_DISCARD)").as_deref(),
+            Some("discard (1, card, you control, from hand, where is_monster)")
+        );
+        // Unmapped residual (unregistered setcode) → TODO + the fill
+        // gate's selector-filter-unmapped drop.
+        let todo = t39s4_todo("Duel.DiscardHand(tp,s.mfilter,1,1,REASON_EFFECT|REASON_DISCARD)");
+        assert!(todo.starts_with("Duel.DiscardHand("), "{todo}");
+        let src = "function s.mfilter(c)\n    return c:IsSetCard(0x1234)\nend\n\
+                   function s.op(e,tp,eg,ep,ev,re,r,rp)\n    Duel.DiscardHand(tp,s.mfilter,1,1,REASON_EFFECT|REASON_DISCARD)\nend\n";
+        let report = walk(&full_moon::parse(src).expect("parse"));
+        let body = report.functions.get("s.op").expect("body");
+        let drops = body_drop_reasons(body, &report.functions);
+        assert_eq!(drops.len(), 1);
+        assert_eq!(drops[0].code(), "selector-filter-unmapped");
+        assert!(drops[0].detail().starts_with("Duel.DiscardHand(s.mfilter):"), "{}", drops[0].detail());
+        // An exact fill has no drop.
+        let clean = t39s4_lines("Duel.DiscardHand(tp,s.filter,1,1,REASON_EFFECT|REASON_DISCARD)");
+        assert!(clean.iter().all(|l| l.is_action()));
+    }
+
+    #[test]
+    fn t39s4_discard_hand_legacy_policy_renders_the_pre_s4_line() {
+        let legacy = with_legacy_selector_policy(|| {
+            t39s4_action("Duel.DiscardHand(1-tp,s.mfilter,ct,ct,REASON_EFFECT|REASON_DISCARD)")
+        });
+        assert_eq!(legacy.as_deref(), Some("discard (1+, card, you control, from hand)"));
     }
 
     #[test]
