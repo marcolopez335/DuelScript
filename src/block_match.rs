@@ -641,6 +641,189 @@ pub fn compute_assignments(walk: &LuaReport, ds_txt: &str) -> Assignments {
     a
 }
 
+// ── Owner audit (T38 S9 backlog (b)) ─────────────────────────
+//
+// A shipped resolve that byte-matches what the translator renders for
+// a consumer OTHER than the block's assigned owner is positional
+// residue from the Phase-2/3a era: effect X's body sitting in effect
+// Y's block. It validates, so `duelscript check` never flags it, and
+// `apply` never rewrites a non-empty resolve — only this sweep can see
+// it. The classifier is deliberately mechanical; the hand-verification
+// that precedes any stub lives in the PR, not here.
+
+/// Byte span of the first `resolve { … }` body inside `[lo, hi)` —
+/// brace-matched (install_watcher action lines carry `{ }` pairs),
+/// string-aware. Returns `(after_open_brace, at_close_brace)`.
+pub fn resolve_inner_span(txt: &str, lo: usize, hi: usize) -> Option<(usize, usize)> {
+    let rel = txt[lo..hi].find("resolve {")?;
+    let open = lo + rel + "resolve ".len(); // index of '{'
+    let mut depth = 0i32;
+    let mut in_string = false;
+    for (i, c) in txt[open..hi].char_indices() {
+        match c {
+            '"' => in_string = !in_string,
+            '{' if !in_string => depth += 1,
+            '}' if !in_string => {
+                depth -= 1;
+                if depth == 0 {
+                    return Some((open + c.len_utf8(), open + i));
+                }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+/// The action lines the translator renders for one walk effect today,
+/// normalized the way `audit-fills` compares them (trimmed, no indent,
+/// TODO lines dropped). `None` for non-consumers; `Some(vec![])` for a
+/// consumer whose body renders nothing (helper params undecodable,
+/// unknown handler, TODO-only).
+pub fn render_consumer(walk: &LuaReport, eff_i: usize) -> Option<Vec<String>> {
+    let eff = &walk.effects[eff_i];
+    if !is_consumer(eff) { return None; }
+    if eff.is_summon_helper() {
+        return Some(eff.summon_helper_line().into_iter().collect());
+    }
+    let handler = eff.operation_handler.as_deref()?.trim();
+    let Some(body) = walk.functions.get(handler) else { return Some(Vec::new()) };
+    let lines = crate::lua_ast::translate_body_with_functions(body, &walk.functions);
+    Some(lines.into_iter().filter(|l| l.is_action())
+        .map(|l| l.into_string("").trim().to_string())
+        .filter(|l| !l.is_empty())
+        .collect())
+}
+
+/// Mechanical verdict for a block whose shipped resolve byte-matches a
+/// non-owner consumer's rendering.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ForeignFillClass {
+    /// The owner renders the same lines (clone pairs, sibling effects
+    /// with the same body) — the shipped content is right for the owner
+    /// too. Never touch.
+    Coincidental,
+    /// No consumer is assigned to this block (hazard-gated, or the
+    /// generator emitted more blocks than the walk has consumers).
+    /// Report-only: nothing proves the block's own chain can't produce
+    /// those lines.
+    OwnerUnassigned,
+    /// The owner renders a different, non-empty body — the shipped
+    /// lines belong to another effect.
+    MisplacedOwnerDiffers,
+    /// The owner renders nothing today (undecodable / unknown handler /
+    /// TODO-only) — the shipped lines still belong to another effect,
+    /// but a refill is not available yet.
+    MisplacedOwnerEmpty,
+    /// The body says misplaced, but the ASSIGNMENT is what's suspect:
+    /// the block header contradicts the owner's signature (a veto or a
+    /// negative score — the header is the block's anchor, so an owner
+    /// it disagrees with may simply be the wrong owner), or the card
+    /// has more / fewer effect blocks than walk consumers (an orphan
+    /// index — an `EFFECT_SPSUMMON_PROC` consumer or a block-less
+    /// ritual helper — shifts every later owner one block). Both shapes
+    /// showed up as right-content-wrong-owner in the T38 S9 sweep
+    /// (Blue-Eyes Shining Dragon, All-Eyes Phantom Dragon, Prayers of
+    /// the Voiceless Voice). Report-only.
+    AlignmentSuspect,
+}
+
+/// Classify a non-owner match. `owner` is the owner's rendering, or
+/// `None` when the block has no assigned owner; `alignment_trusted` is
+/// false when the header or the block census contradicts the owner.
+pub fn classify_foreign_fill(
+    owner: Option<&[String]>,
+    shipped: &[String],
+    alignment_trusted: bool,
+) -> ForeignFillClass {
+    match owner {
+        None => ForeignFillClass::OwnerUnassigned,
+        Some(o) if o == shipped => ForeignFillClass::Coincidental,
+        _ if !alignment_trusted => ForeignFillClass::AlignmentSuspect,
+        Some(o) if o.is_empty() => ForeignFillClass::MisplacedOwnerEmpty,
+        Some(_) => ForeignFillClass::MisplacedOwnerDiffers,
+    }
+}
+
+impl ForeignFillClass {
+    /// The classes `audit-owners --stub` empties.
+    pub fn is_misplaced(self) -> bool {
+        matches!(self, ForeignFillClass::MisplacedOwnerDiffers | ForeignFillClass::MisplacedOwnerEmpty)
+    }
+}
+
+/// One block whose shipped resolve equals a non-owner's rendering.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ForeignFill {
+    /// Index into `effect_block_ranges`.
+    pub block: usize,
+    /// Normalized shipped lines.
+    pub shipped: Vec<String>,
+    /// Walk-effect indices (not the owner) whose rendering equals `shipped`.
+    pub matches: Vec<usize>,
+    /// The assigned owner, if any, and its rendering.
+    pub owner: Option<usize>,
+    pub owner_rendering: Vec<String>,
+    /// Header anchor: the matcher's immutable-feature score of the owner's
+    /// signature against this block's header, and whether the header
+    /// demands a sub-structure (cost / target / condition) the owner's
+    /// chain lacks. A positive score with no veto means the block header
+    /// itself vouches for the owner — the body is the only thing that
+    /// disagrees. `None` when there is no owner.
+    pub owner_header_score: Option<i64>,
+    pub owner_header_veto: bool,
+    pub class: ForeignFillClass,
+}
+
+/// Sweep every effect block of one card. A block participates when its
+/// resolve is non-empty and the block carries no `choose` (the first
+/// `resolve` inside a choose block is an option body, not the block's).
+/// Replacement chains are never the owner for fill purposes but their
+/// bodies DO count as foreign renderings — c75524092's DESTROY_REPLACE
+/// op body in a sibling block was the S9 flagship of that class.
+pub fn foreign_fills(walk: &LuaReport, assign: &Assignments, ds_txt: &str) -> Vec<ForeignFill> {
+    let renderings: Vec<Option<Vec<String>>> =
+        (0..walk.effects.len()).map(|i| render_consumer(walk, i)).collect();
+    let kind = card_kind_from_ds(ds_txt);
+    let block_sigs = parse_block_sigs(ds_txt);
+    let ranges = effect_block_ranges(ds_txt);
+    let n_consumers = walk.effects.iter().filter(|e| is_consumer(e)).count();
+    let census_ok = ranges.len() == n_consumers;
+    let mut out = Vec::new();
+    for (block, (lo, hi)) in ranges.into_iter().enumerate() {
+        if ds_txt[lo..hi].contains("choose {") { continue; }
+        let Some((ilo, ihi)) = resolve_inner_span(ds_txt, lo, hi) else { continue };
+        let shipped: Vec<String> = ds_txt[ilo..ihi].lines()
+            .map(str::trim).filter(|l| !l.is_empty()).map(str::to_string).collect();
+        if shipped.is_empty() { continue; }
+        let owner = assign.by_effect.iter().position(|b| *b == Some(block));
+        let matches: Vec<usize> = renderings.iter().enumerate()
+            .filter(|(i, r)| Some(*i) != owner
+                && r.as_ref().is_some_and(|r| !r.is_empty() && *r == shipped))
+            .map(|(i, _)| i)
+            .collect();
+        if matches.is_empty() { continue; }
+        let owner_rendering = owner
+            .and_then(|o| renderings[o].clone())
+            .unwrap_or_default();
+        let (owner_header_score, owner_header_veto) = match (owner, block_sigs.get(block)) {
+            (Some(o), Some(b)) => {
+                let e = entity_sig(&walk.effects[o], kind);
+                (Some(pair_score(&e, b)), veto(&e, b))
+            }
+            _ => (None, false),
+        };
+        let header_ok = !owner_header_veto && owner_header_score.is_some_and(|s| s >= 0);
+        let class = classify_foreign_fill(
+            owner.map(|_| owner_rendering.as_slice()), &shipped, header_ok && census_ok);
+        out.push(ForeignFill {
+            block, shipped, matches, owner, owner_rendering,
+            owner_header_score, owner_header_veto, class,
+        });
+    }
+    out
+}
+
 // ── Tests ────────────────────────────────────────────────────
 
 #[cfg(test)]
@@ -1421,5 +1604,255 @@ end
             has_condition: false,
         });
         assert_eq!(card_kind_from_ds(ds), CardKind::Trap);
+    }
+
+    // ── Owner audit (T38 S9 backlog (b)) ─────────────────────
+
+    fn lines(v: &[&str]) -> Vec<String> { v.iter().map(|s| s.to_string()).collect() }
+
+    #[test]
+    fn classify_coincidental_when_owner_renders_the_same() {
+        let shipped = lines(&["draw 1"]);
+        assert_eq!(classify_foreign_fill(Some(&shipped), &shipped, true),
+            ForeignFillClass::Coincidental);
+        // Coincidental outranks a suspect alignment — nothing to do either way.
+        assert_eq!(classify_foreign_fill(Some(&shipped), &shipped, false),
+            ForeignFillClass::Coincidental);
+    }
+
+    #[test]
+    fn classify_unassigned_is_report_only() {
+        assert_eq!(classify_foreign_fill(None, &lines(&["draw 1"]), true),
+            ForeignFillClass::OwnerUnassigned);
+        assert_eq!(classify_foreign_fill(None, &lines(&["draw 1"]), false),
+            ForeignFillClass::OwnerUnassigned);
+    }
+
+    #[test]
+    fn classify_misplaced_splits_on_owner_rendering() {
+        let shipped = lines(&["draw 1"]);
+        assert_eq!(classify_foreign_fill(Some(&lines(&["damage opponent 1000"])), &shipped, true),
+            ForeignFillClass::MisplacedOwnerDiffers);
+        assert_eq!(classify_foreign_fill(Some(&[]), &shipped, true),
+            ForeignFillClass::MisplacedOwnerEmpty);
+        assert!(ForeignFillClass::MisplacedOwnerDiffers.is_misplaced());
+        assert!(ForeignFillClass::MisplacedOwnerEmpty.is_misplaced());
+    }
+
+    #[test]
+    fn classify_suspect_alignment_never_stubs() {
+        let shipped = lines(&["draw 1"]);
+        assert_eq!(classify_foreign_fill(Some(&lines(&["damage opponent 1000"])), &shipped, false),
+            ForeignFillClass::AlignmentSuspect);
+        assert_eq!(classify_foreign_fill(Some(&[]), &shipped, false),
+            ForeignFillClass::AlignmentSuspect);
+        assert!(!ForeignFillClass::AlignmentSuspect.is_misplaced());
+        assert!(!ForeignFillClass::Coincidental.is_misplaced());
+        assert!(!ForeignFillClass::OwnerUnassigned.is_misplaced());
+    }
+
+    /// Two ignitions: e1 draws, e2 burns. Block 0 is e1's by position.
+    const OWNER_LUA: &str = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_IGNITION)
+    e1:SetRange(LOCATION_MZONE)
+    e1:SetOperation(s.drawop)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_IGNITION)
+    e2:SetRange(LOCATION_MZONE)
+    e2:SetOperation(s.damop)
+    c:RegisterEffect(e2)
+end
+function s.drawop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Draw(tp,1,REASON_EFFECT)
+end
+function s.damop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Damage(1-tp,1000,REASON_EFFECT)
+end
+"#;
+
+    fn two_block_ds(first: &str, second: &str) -> String {
+        format!(r#"card "X" {{
+    id: 1
+    type: Effect Monster
+
+    effect "Effect 1" {{
+        speed: 1
+        resolve {{
+            {first}
+        }}
+    }}
+
+    effect "Effect 2" {{
+        speed: 1
+        resolve {{
+            {second}
+        }}
+    }}
+}}
+"#)
+    }
+
+    #[test]
+    fn render_consumer_is_action_lines_only() {
+        let walk = walk_of(OWNER_LUA);
+        assert_eq!(render_consumer(&walk, 0), Some(lines(&["draw 1"])));
+        assert_eq!(render_consumer(&walk, 1), Some(lines(&["damage opponent 1000"])));
+    }
+
+    #[test]
+    fn foreign_fill_flags_sibling_body_in_wrong_block() {
+        // Block 0 (e1's) carries e2's burn; block 1 (e2's) is a stub.
+        let walk = walk_of(OWNER_LUA);
+        let ds = two_block_ds("damage opponent 1000", "");
+        let a = compute_assignments(&walk, &ds);
+        let hits = foreign_fills(&walk, &a, &ds);
+        assert_eq!(hits.len(), 1);
+        let h = &hits[0];
+        assert_eq!((h.block, h.owner, h.matches.as_slice()), (0, Some(0), &[1][..]));
+        assert_eq!(h.shipped, lines(&["damage opponent 1000"]));
+        assert_eq!(h.owner_rendering, lines(&["draw 1"]));
+        assert_eq!(h.class, ForeignFillClass::MisplacedOwnerDiffers);
+        assert!(h.owner_header_score.is_some_and(|s| s >= 0));
+        assert!(!h.owner_header_veto);
+    }
+
+    #[test]
+    fn foreign_fill_ignores_blocks_the_owner_renders_identically() {
+        // Both blocks hold their own owner's body — no hit, even though
+        // the same text in the OTHER block would have matched.
+        let walk = walk_of(OWNER_LUA);
+        let ds = two_block_ds("draw 1", "damage opponent 1000");
+        let a = compute_assignments(&walk, &ds);
+        assert!(foreign_fills(&walk, &a, &ds).is_empty());
+    }
+
+    #[test]
+    fn foreign_fill_header_veto_is_alignment_suspect() {
+        // Block 0 demands a cost e1 doesn't have: the header contradicts
+        // the positional owner, so the body mismatch is report-only.
+        let walk = walk_of(OWNER_LUA);
+        let ds = r#"card "X" {
+    id: 1
+    type: Effect Monster
+
+    effect "Effect 1" {
+        speed: 1
+        cost {
+            discard 1
+        }
+        resolve {
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        resolve { }
+    }
+}
+"#;
+        let a = compute_assignments(&walk, ds);
+        let hits = foreign_fills(&walk, &a, ds);
+        assert_eq!(hits.len(), 1);
+        assert!(hits[0].owner_header_veto);
+        assert_eq!(hits[0].class, ForeignFillClass::AlignmentSuspect);
+    }
+
+    #[test]
+    fn foreign_fill_block_census_mismatch_is_alignment_suspect() {
+        // Three blocks for two consumers: an orphan index somewhere has
+        // shifted the owners, so nothing here may be stubbed.
+        let walk = walk_of(OWNER_LUA);
+        let ds = r#"card "X" {
+    id: 1
+    type: Effect Monster
+
+    effect "Effect 1" {
+        speed: 1
+        resolve {
+            damage opponent 1000
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        resolve { }
+    }
+
+    effect "Effect 3" {
+        speed: 1
+        resolve { }
+    }
+}
+"#;
+        let a = compute_assignments(&walk, ds);
+        let hits = foreign_fills(&walk, &a, ds);
+        assert_eq!(hits.len(), 1);
+        assert_eq!(hits[0].class, ForeignFillClass::AlignmentSuspect);
+    }
+
+    #[test]
+    fn foreign_fill_unassigned_block_is_report_only() {
+        // Only e2 is a consumer here; block 0 has no owner but carries
+        // e2's body.
+        let src = r#"
+function s.initial_effect(c)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_IGNITION)
+    e2:SetRange(LOCATION_MZONE)
+    e2:SetOperation(s.damop)
+    c:RegisterEffect(e2)
+end
+function s.damop(e,tp,eg,ep,ev,re,r,rp)
+    Duel.Damage(1-tp,1000,REASON_EFFECT)
+end
+"#;
+        let walk = walk_of(src);
+        let ds = two_block_ds("", "damage opponent 1000");
+        let a = compute_assignments(&walk, &ds);
+        // e2 → block 0 positionally; block 1 is unowned.
+        assert_eq!(a.by_effect, vec![Some(0)]);
+        let hits = foreign_fills(&walk, &a, &ds);
+        assert_eq!(hits.len(), 1);
+        assert_eq!((hits[0].block, hits[0].owner), (1, None));
+        assert_eq!(hits[0].class, ForeignFillClass::OwnerUnassigned);
+    }
+
+    #[test]
+    fn foreign_fill_skips_choose_blocks_and_empty_resolves() {
+        let walk = walk_of(OWNER_LUA);
+        let ds = r#"card "X" {
+    id: 1
+    type: Effect Monster
+
+    effect "Effect 1" {
+        speed: 1
+        choose {
+            option "a" {
+                resolve {
+                    damage opponent 1000
+                }
+            }
+        }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        resolve { }
+    }
+}
+"#;
+        let a = compute_assignments(&walk, ds);
+        assert!(foreign_fills(&walk, &a, ds).is_empty());
+    }
+
+    #[test]
+    fn resolve_inner_span_is_brace_matched() {
+        let txt = "effect \"E\" {\n    resolve {\n        install_watcher { x }\n    }\n}\n";
+        let (lo, hi) = resolve_inner_span(txt, 0, txt.len()).unwrap();
+        assert_eq!(txt[lo..hi].trim(), "install_watcher { x }");
     }
 }

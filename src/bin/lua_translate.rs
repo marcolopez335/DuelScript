@@ -27,7 +27,7 @@ use duelscript::lua_ast;
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
-        eprintln!("usage: lua_translate <dump|translate|apply|audit-fills> <path>");
+        eprintln!("usage: lua_translate <dump|translate|apply|audit-fills|audit-owners> <path>");
         process::exit(2);
     }
     let mode = args[1].as_str();
@@ -137,35 +137,36 @@ fn main() {
             load_card_names(cdb, lua_dir);
             audit_fills(corpus, lua_dir, stub);
         }
+        "audit-owners" => {
+            // T38 S9 backlog (b) — Phase-2-era positional residue: a
+            // shipped resolve that byte-matches what the translator
+            // renders for a consumer OTHER than the block's assigned
+            // owner (`block_match::compute_assignments`). Classified
+            // mechanically (`block_match::classify_foreign_fill`):
+            // coincidental equality (owner renders the same — clone /
+            // sibling pairs) is never touched; owner-unassigned blocks
+            // are report-only; true misplacements (owner renders a
+            // different or empty body) are emptied by `--stub` so that
+            // `apply` can refill the right owner's lines where its gate
+            // allows. Hand-verify the misplaced set before stubbing.
+            //
+            //   lua_translate audit-owners <corpus_dir> <lua_dir> [cards.cdb] [--stub]
+            if args.len() < 4 {
+                eprintln!("usage: lua_translate audit-owners <corpus_dir> <lua_dir> [cards.cdb] [--stub]");
+                process::exit(2);
+            }
+            let corpus = &args[2];
+            let lua_dir = &args[3];
+            let stub = args.iter().any(|a| a == "--stub");
+            let cdb = args.get(4).map(String::as_str).filter(|a| *a != "--stub");
+            load_card_names(cdb, lua_dir);
+            audit_owners(corpus, lua_dir, stub);
+        }
         _ => {
             eprintln!("unknown mode: {}", mode);
             process::exit(2);
         }
     }
-}
-
-/// Byte span of a `resolve { … }` body inside `[lo, hi)` — brace-matched
-/// (install_watcher action lines carry `{ }` pairs), string-aware.
-/// Returns `(after_open_brace, at_close_brace)`.
-fn resolve_inner_span(txt: &str, lo: usize, hi: usize) -> Option<(usize, usize)> {
-    let rel = txt[lo..hi].find("resolve {")?;
-    let open = lo + rel + "resolve ".len(); // index of '{'
-    let mut depth = 0i32;
-    let mut in_string = false;
-    for (i, c) in txt[open..hi].char_indices() {
-        match c {
-            '"' => in_string = !in_string,
-            '{' if !in_string => depth += 1,
-            '}' if !in_string => {
-                depth -= 1;
-                if depth == 0 {
-                    return Some((open + c.len_utf8(), open + i));
-                }
-            }
-            _ => {}
-        }
-    }
-    None
 }
 
 /// See the `audit-fills` mode arm. Walks handler-derived effect blocks
@@ -201,7 +202,7 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool) {
             // Offsets recomputed against new_txt — a stub earlier in this
             // file shifts every later block.
             let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else { continue };
-            let Some((inner_lo, inner_hi)) = resolve_inner_span(&new_txt, block_lo, block_hi) else { continue };
+            let Some((inner_lo, inner_hi)) = block_match::resolve_inner_span(&new_txt, block_lo, block_hi) else { continue };
             let shipped: Vec<String> = new_txt[inner_lo..inner_hi].lines()
                 .map(str::trim).filter(|l| !l.is_empty()).map(str::to_string).collect();
             if shipped.is_empty() { continue; } // already a stub
@@ -234,6 +235,101 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool) {
         }
     }
     println!("=== audit-fills: {} stub, {} review ===", stubs, reviews);
+}
+
+/// See the `audit-owners` mode arm. Walks every effect block with a
+/// non-empty resolve; the classification and the per-consumer rendering
+/// live in `block_match` so the verdicts are unit-testable.
+fn audit_owners(corpus_dir: &str, lua_dir: &str, stub: bool) {
+    use block_match::ForeignFillClass as C;
+    let mut paths: Vec<std::path::PathBuf> = match fs::read_dir(corpus_dir) {
+        Ok(e) => e.flatten().map(|e| e.path())
+            .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("ds"))
+            .collect(),
+        Err(e) => { eprintln!("cannot read {}: {}", corpus_dir, e); return; }
+    };
+    paths.sort();
+    let (mut coincidental, mut unassigned, mut suspect, mut differs, mut empty) =
+        (0usize, 0usize, 0usize, 0usize, 0usize);
+    let mut cards = std::collections::BTreeSet::new();
+    let mut stubbed = 0usize;
+    for path in paths {
+        let Ok(txt) = fs::read_to_string(&path) else { continue };
+        let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
+        let lua_path = Path::new(lua_dir).join(format!("{}.lua", stem));
+        let Ok(lua_src) = fs::read_to_string(&lua_path) else { continue };
+        let Ok(parsed) = full_moon::parse(&lua_src) else { continue };
+        let walk = lua_ast::walk(&parsed);
+        if walk.effects.is_empty() { continue; }
+        let assign = block_match::compute_assignments(&walk, &txt);
+        let hits = block_match::foreign_fills(&walk, &assign, &txt);
+        if hits.is_empty() { continue; }
+        let n_blocks = block_match::effect_block_ranges(&txt).len();
+        let n_consumers = walk.effects.iter()
+            .filter(|e| e.is_summon_helper() || e.operation_handler.is_some()).count();
+        cards.insert(stem.clone());
+        let mut new_txt = txt.clone();
+        let mut changed = false;
+        for h in &hits {
+            let tag = match h.class {
+                C::Coincidental => { coincidental += 1; "KEEP   " }
+                C::OwnerUnassigned => { unassigned += 1; "NOOWNER" }
+                C::MisplacedOwnerDiffers => { differs += 1; "MISPLACED-DIFFERS" }
+                C::MisplacedOwnerEmpty => { empty += 1; "MISPLACED-EMPTY" }
+                C::AlignmentSuspect => { suspect += 1; "SUSPECT" }
+            };
+            let matched: Vec<String> = h.matches.iter()
+                .map(|&i| walk.effects[i].binding.clone()).collect();
+            let owner = h.owner.map(|o| walk.effects[o].binding.as_str()).unwrap_or("-");
+            let owner_handler = h.owner
+                .and_then(|o| walk.effects[o].operation_handler.as_deref())
+                .map(str::trim)
+                .map(|h| if h.starts_with("function") { "<closure>" } else { h })
+                .unwrap_or("-");
+            let header = match (h.owner_header_score, h.owner_header_veto) {
+                (None, _) => "-".to_string(),
+                (Some(_), true) => "veto".to_string(),
+                (Some(sc), false) => sc.to_string(),
+            };
+            println!("{} {} block={} owner={} handler={} header={} blocks={} consumers={} matches={}",
+                tag, stem, h.block, owner, owner_handler, header, n_blocks, n_consumers, matched.join(","));
+            for l in &h.shipped { println!("    shipped: {}", l); }
+            if let Some(o) = h.owner {
+                if h.owner_rendering.is_empty() {
+                    println!("    owner:   (renders nothing)");
+                }
+                for l in &h.owner_rendering { println!("    owner:   {}", l); }
+                // The owner's untranslated remainder — the hand-verifier's
+                // view of what else its handler does.
+                if let Some(body) = walk.effects[o].operation_handler.as_deref()
+                    .and_then(|hn| walk.functions.get(hn.trim()))
+                {
+                    for l in lua_ast::translate_body_with_functions(body, &walk.functions) {
+                        if !l.is_action() { println!("    owner-todo: {}", l.into_string("").trim()); }
+                    }
+                }
+            } else {
+                println!("    owner:   (unassigned)");
+            }
+            if stub && h.class.is_misplaced() {
+                // Offsets recomputed against new_txt — a stub earlier in
+                // this file shifts every later block.
+                let Some((lo, hi)) = block_match::effect_block_ranges(&new_txt).into_iter().nth(h.block) else { continue };
+                let Some((ilo, ihi)) = block_match::resolve_inner_span(&new_txt, lo, hi) else { continue };
+                new_txt = format!("{}\n        {}", &new_txt[..ilo], &new_txt[ihi..]);
+                changed = true;
+                stubbed += 1;
+            }
+        }
+        if changed {
+            if let Err(e) = fs::write(&path, &new_txt) {
+                eprintln!("cannot write {}: {}", path.display(), e);
+            }
+        }
+    }
+    println!("=== audit-owners: {} blocks / {} cards — {} coincidental (keep), {} owner-unassigned (report), {} alignment-suspect (report), {} misplaced/owner-differs, {} misplaced/owner-empty; {} stubbed ===",
+        coincidental + unassigned + suspect + differs + empty, cards.len(),
+        coincidental, unassigned, suspect, differs, empty, stubbed);
 }
 
 /// Populate the lua_ast passcode → card-name table used by the
