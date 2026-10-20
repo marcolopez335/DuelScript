@@ -412,8 +412,24 @@ step can use it even if the ATK has changed by then.
 
 ### Delayed Effects
 
-- `register_delayed(phase, card_id)` — Schedule `card_id`'s effect to fire at game
-  phase `phase` (engine-defined phase constant, e.g., end-of-turn). Default: no-op.
+T38 S8c: a `delayed` wrapper body is a first-class payload. The compiler never
+runs the body at arming; it compiles every wrapper into an indexed sub-program on
+the owning `CompiledEffectV2` (`delayed_bodies`) and hands the engine a
+`DelayedBodyRef` — the index, the binding environment snapshotted at arming
+(`DelayedEnv`: the outer chain `target`, an S8b `sp` binding, … by card id) and
+the sub-program itself. At fire time the engine runs ONLY that body:
+`body.fire(rt)` or `CompiledEffectV2::execute_delayed_body(rt, index, &env)`,
+with `effect_card_id` = the registering card and `effect_player` = `env.player`.
+Never re-run the arming operation (it would re-arm the wrapper on every firing).
+
+- `register_delayed(phase, card_id, body)` — Schedule `body` to run once at game
+  phase `phase` (`PHASE_*` constant) of the current turn — the
+  `delayed until <phase> { … }` form. Default: no-op (the body never runs).
+
+- `register_delayed_trigger(event, card_id, duration, body)` — Arm `body` on every
+  occurrence of `event` (`EVENT_*` code; phase events as `EVENT_PHASE | PHASE_*`)
+  until `duration` resets it — the `delayed on <event> (until <duration>)? { … }`
+  form; an absent `until` defaults to `EndOfTurn`. Default: no-op.
 
 ### Chain / Phase Queries
 
