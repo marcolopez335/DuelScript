@@ -29,6 +29,9 @@ card "Raidraptor - Satellite Cannon Falcon" {
         cost {
             detach 1 from self
         }
-        resolve { }
+        target (1, card, opponent controls, from monster_zone, where is_face_up)
+        resolve {
+            modify_atk target - count((all, card, you control, from gy, where archetype == "Raidraptor" and is_monster)) * 800 until while_face_up
+        }
     }
 }

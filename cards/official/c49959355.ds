@@ -11,8 +11,10 @@ card "Uni-Zombie" {
         speed: 1
         once_per_turn: hard
         mandatory
+        target (1, card, either controls, from monster_zone, where is_face_up and is_monster and not is_xyz and not is_link and level != 0)
         resolve {
-            discard (all, card, either controls)
+            discard (1+, card, you control, from hand)
+            modify_level target + 1 until while_face_up
         }
     }
 

@@ -21,7 +21,9 @@ card "Performapal Partnaga" {
         speed: 1
         once_per_turn: soft
         mandatory
+        target (1, card, you control, from monster_zone, where is_face_up)
         resolve {
+            modify_atk target + count((all, card, you control, from field, where is_face_up and archetype == "Performapal")) * 300 until end_of_turn
         }
     }
 
@@ -29,7 +31,9 @@ card "Performapal Partnaga" {
         speed: 1
         timing: if
         trigger: summoned
+        target (1, card, you control, from monster_zone, where is_face_up)
         resolve {
+            modify_atk target + count((all, card, you control, from monster_zone, where is_face_up and archetype == "Performapal")) * 300 until while_face_up
         }
     }
 
@@ -37,7 +41,9 @@ card "Performapal Partnaga" {
         speed: 1
         timing: if
         trigger: summoned by special
+        target (1, card, you control, from monster_zone, where is_face_up)
         resolve {
+            modify_atk target + count((all, card, you control, from monster_zone, where is_face_up and archetype == "Performapal")) * 300 until while_face_up
         }
     }
 }

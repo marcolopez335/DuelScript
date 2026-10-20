@@ -10,7 +10,11 @@ card "Eternal Sunshine" {
     effect "Effect 3" {
         speed: 2
         once_per_turn: soft
+        target (1, card, opponent controls, from monster_zone, where is_face_up)
         resolve {
+            negate_effects target end_of_turn
+            set_atk target (target.atk + 1) / 2 until end_of_turn
+            set_def target (target.def + 1) / 2 until end_of_turn
         }
     }
 }
