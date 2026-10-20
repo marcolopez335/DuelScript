@@ -58,6 +58,7 @@ fn main() {
                 Ok(a) => a,
                 Err(e) => { eprintln!("parse error: {:?}", e); process::exit(1); }
             };
+            set_current_card_from_stem(Path::new(path).file_stem().and_then(|s| s.to_str()).unwrap_or(""));
             let walk = lua_ast::walk(&parsed);
             for (i, eff) in walk.effects.iter().enumerate() {
                 println!("// effect[{}] binding={}", i, eff.binding);
@@ -241,6 +242,7 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
     for path in paths {
         let Ok(txt) = fs::read_to_string(&path) else { continue };
         let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
+        set_current_card_from_stem(&stem);
         let lua_path = Path::new(lua_dir).join(format!("{}.lua", stem));
         let Ok(lua_src) = fs::read_to_string(&lua_path) else { continue };
         let Ok(parsed) = full_moon::parse(&lua_src) else { continue };
@@ -255,8 +257,6 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
             let handler = handler.trim();
             let Some(block_idx) = assign.by_effect[eff_i] else { continue };
             let Some(body) = walk.functions.get(handler) else { continue };
-            let dropped = lua_ast::body_drops_chains(body, &walk.functions);
-            if !dropped && shape.is_none() { continue; }
             // Offsets recomputed against new_txt — a stub earlier in this
             // file shifts every later block.
             let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else { continue };
@@ -264,29 +264,53 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
             let shipped: Vec<String> = new_txt[inner_lo..inner_hi].lines()
                 .map(str::trim).filter(|l| !l.is_empty()).map(str::to_string).collect();
             if shipped.is_empty() { continue; } // already a stub
+            let action_lines = |lines: &[lua_ast::DslLine]| -> Vec<String> {
+                lines.iter().filter(|l| l.is_action())
+                    .map(|l| l.clone().into_string("").trim().to_string()).collect()
+            };
             let lines = lua_ast::translate_body_with_functions(body, &walk.functions);
-            let rendered: Vec<String> = lines.iter().filter(|l| l.is_action())
-                .map(|l| l.clone().into_string("").trim().to_string()).collect();
-            if !dropped {
-                let Some(action) = shape else { continue };
-                if !shape_lines_differ(&shipped, &rendered, action) { continue; }
-                reshapes += 1;
-                println!("RESHAPE {} block={} handler={} shape={}", stem, block_idx, handler, action);
-                for l in &shipped  { println!("    shipped:  {}", l); }
-                for l in &rendered { println!("    rendered: {}", l); }
-                for l in lines.iter().filter(|l| !l.is_action()) {
-                    println!("    todo:     {}", l.clone().into_string("").trim());
+            let rendered = action_lines(&lines);
+            let drop = lua_ast::body_drop_reason(body, &walk.functions);
+            if shipped == rendered && drop.is_none() { continue; } // healthy fill
+            // `--shape <action>` RESHAPE class (T39 S2 ChangePosition
+            // retrofit): an accepted body whose `<action>` lines moved.
+            if drop.is_none() {
+                if let Some(action) = shape {
+                    if shape_lines_differ(&shipped, &rendered, action) {
+                        reshapes += 1;
+                        println!("RESHAPE {} block={} handler={} shape={}", stem, block_idx, handler, action);
+                        for l in &shipped  { println!("    shipped:  {}", l); }
+                        for l in &rendered { println!("    rendered: {}", l); }
+                        for l in lines.iter().filter(|l| !l.is_action()) {
+                            println!("    todo:     {}", l.clone().into_string("").trim());
+                        }
+                        if stub {
+                            new_txt = format!("{}\n        {}", &new_txt[..inner_lo], &new_txt[inner_hi..]);
+                            changed = true;
+                        }
+                        continue;
+                    }
                 }
-                if stub {
-                    new_txt = format!("{}\n        {}", &new_txt[..inner_lo], &new_txt[inner_hi..]);
-                    changed = true;
-                }
-                continue;
             }
-            let reason = if body.method_ops_poisoned { "method-poison" }
-                else if body.counter_ops_poisoned { "counter-poison" }
-                else { "drop" };
-            if shipped == rendered {
+            // T39 S3 — the pre-gate rendering: selector filters resolved
+            // only by the exact named-filter refinement on group-
+            // provenance specs, unmapped filters rendered as the
+            // superset, no fill gate. A shipped block equal to it is a
+            // machine fill the policy flip invalidated — stubbed so
+            // `apply` refills it under the current policy (tighter
+            // where-clause) or leaves it empty (gate refuses).
+            let legacy = lua_ast::with_legacy_selector_policy(|| {
+                action_lines(&lua_ast::translate_body_with_functions(body, &walk.functions))
+            });
+            // No gate refusal and no policy change on this body: the
+            // mismatch pre-dates both — hand content or an older
+            // translator's line — and is not this audit's business.
+            if drop.is_none() && legacy == rendered { continue; }
+            let reason = match &drop {
+                Some(d) => d.code(),
+                None => "selector-policy",
+            };
+            if shipped == rendered || shipped == legacy {
                 stubs += 1;
                 println!("STUB   {} block={} handler={} reason={} lines={}",
                     stem, block_idx, handler, reason, shipped.len());
@@ -300,6 +324,9 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
                 println!("REVIEW {} block={} handler={} reason={}", stem, block_idx, handler, reason);
                 for l in &shipped  { println!("    shipped:  {}", l); }
                 for l in &rendered { println!("    rendered: {}", l); }
+                if legacy != rendered {
+                    for l in &legacy { println!("    legacy:   {}", l); }
+                }
             }
         }
         if changed {
@@ -336,6 +363,7 @@ fn audit_owners(corpus_dir: &str, lua_dir: &str, stub: bool) {
     for path in paths {
         let Ok(txt) = fs::read_to_string(&path) else { continue };
         let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
+        set_current_card_from_stem(&stem);
         let lua_path = Path::new(lua_dir).join(format!("{}.lua", stem));
         let Ok(lua_src) = fs::read_to_string(&lua_path) else { continue };
         let Ok(parsed) = full_moon::parse(&lua_src) else { continue };
@@ -442,9 +470,51 @@ fn load_card_names(cli_path: Option<&str>, lua_dir: &str) {
             let _ = CARD_DESCS.set(
                 cdb.all_cards().into_iter().map(|c| (c.id as u32, c.desc.clone())).collect(),
             );
+            // T39 S3 — `IsSetCard(SET_X)` / `IsCode(CARD_X)` filter atoms
+            // resolve through the corpus's constant files (siblings of
+            // the official/ script dir) and the cdb member names.
+            load_lua_constants(lua_dir, &cdb);
         }
         Err(e) => eprintln!("note: cannot read {}: {:?} — change_name translation disabled", path.display(), e),
     }
+}
+
+/// Register the `SET_*` → archetype-name and `CARD_*` → passcode
+/// tables from `<lua_dir>/../archetype_setcode_constants.lua` and
+/// `<lua_dir>/../card_counter_constants.lua` (T39 S3). Missing files
+/// are non-fatal: the affected filter atoms stay unmapped.
+fn load_lua_constants(lua_dir: &str, cdb: &duelscript::cdb::CdbReader) {
+    let base = Path::new(lua_dir).join("..");
+    match fs::read_to_string(base.join("archetype_setcode_constants.lua")) {
+        Ok(src) => {
+            let consts = duelscript::setcode_names::parse_setcode_constants(&src);
+            let cards = cdb.all_cards();
+            let rows: Vec<duelscript::setcode_names::CardRow<'_>> = cards
+                .iter()
+                .map(|c| duelscript::setcode_names::CardRow {
+                    setcode: c.setcode,
+                    card_type: c.card_type,
+                    name: c.name.as_str(),
+                })
+                .collect();
+            lua_ast::register_setcode_archetypes(
+                duelscript::setcode_names::derive_archetype_names(&consts, &rows),
+            );
+        }
+        Err(e) => eprintln!("note: no archetype_setcode_constants.lua beside {}: {} — IsSetCard atoms outside the curated table stay unmapped", lua_dir, e),
+    }
+    match fs::read_to_string(base.join("card_counter_constants.lua")) {
+        Ok(src) => lua_ast::register_lua_card_constants(
+            duelscript::setcode_names::parse_card_constants(&src),
+        ),
+        Err(e) => eprintln!("note: no card_counter_constants.lua beside {}: {} — IsCode(CARD_*) atoms stay unmapped", lua_dir, e),
+    }
+}
+
+/// Bind the translator's current card (`IsCode(id)` resolution) from
+/// a corpus file stem (`c44095762`).
+fn set_current_card_from_stem(stem: &str) {
+    lua_ast::set_current_card(stem.strip_prefix('c').and_then(|s| s.parse().ok()));
 }
 
 #[derive(Default)]
@@ -841,6 +911,7 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
 
         // Match to lua via filename stem (cXXXX.ds → cXXXX.lua)
         let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("");
+        set_current_card_from_stem(&stem);
         let lua_path = Path::new(lua_dir).join(format!("{}.lua", stem));
         let lua_src = match fs::read_to_string(&lua_path) {
             Ok(s) => s,
@@ -1430,6 +1501,7 @@ fn explain(corpus_dir: &str, lua_dir: &str) {
     for path in paths {
         let Ok(txt) = fs::read_to_string(&path) else { continue };
         let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
+        set_current_card_from_stem(&stem);
         let lua_src = fs::read_to_string(Path::new(lua_dir).join(format!("{}.lua", stem))).ok();
         let (lines, exempt) = explain_card(&stem, &txt, lua_src.as_deref());
         exempt_total += exempt;
@@ -1902,6 +1974,30 @@ mod tests {
         assert_eq!(detail, "aux.NoOperation");
     }
 
+
+    #[test]
+    fn verdict_selector_filter_unmapped() {
+        // T39 S3 — an action selector whose lua filter carries an
+        // atom the DSL cannot state refuses the fill; the pre-gate
+        // policy rendered the unfiltered superset.
+        let src = format!(
+            "function s.filter(c)\n\treturn c:IsSpecialSummoned()\nend\n{}",
+            ignition("\tlocal g=Duel.GetMatchingGroup(s.filter,tp,0,LOCATION_MZONE,nil)\n\tDuel.Destroy(g,REASON_EFFECT)")
+        );
+        let (reason, detail, _) = skip_of(verdict(&src, &ds(1, "", true, "Effect Monster"), 0));
+        assert!(matches!(reason, FillReason::Drop(lua_ast::BodyDrop::SelectorFilterUnmapped(_))), "{:?}", reason);
+        assert_eq!(reason.code(), "selector-filter-unmapped");
+        assert_eq!(detail, "Duel.Destroy(g): IsSpecialSummoned() | +0 drops, 1 todo");
+        // A mapped position atom fills instead (Mirror Force shape).
+        let ok = src.replace("c:IsSpecialSummoned()", "c:IsAttackPos()");
+        match verdict(&ok, &ds(1, "", true, "Effect Monster"), 0) {
+            FillPlan::Fill { lines, .. } => assert_eq!(
+                lines.into_iter().map(|l| l.into_string("")).collect::<Vec<_>>(),
+                vec!["destroy (all, card, opponent controls, from monster_zone, in attack_position)"],
+            ),
+            other => panic!("expected Fill, got {:?}", other),
+        }
+    }
     #[test]
     fn verdict_method_poison_names_the_statement() {
         let src = ignition("\tlocal c=e:GetHandler()\n\tc:RegisterFlagEffect(id,RESET_EVENT|RESETS_STANDARD,0,1)");
