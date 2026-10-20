@@ -1580,8 +1580,11 @@ pub trait DuelScriptRuntime {
     /// Register a continuous grant effect on `card_id`.
     ///
     /// # Args
-    /// - `grant_code`: Engine-defined code identifying which ability or immunity
-    ///   is granted (e.g., `GRANT_CANNOT_BE_DESTROYED`).
+    /// - `grant_code`: EDOPro `EFFECT_*` code (CardScripts/constant.lua)
+    ///   identifying which ability or immunity is granted — e.g. 42 =
+    ///   `EFFECT_INDESTRUCTABLE_BATTLE`, 73 = `EFFECT_CANNOT_DIRECT_ATTACK`,
+    ///   1 = `EFFECT_IMMUNE_EFFECT`. The compiler's `grant_to_code` table is
+    ///   the single source; the lua `SetValue` payload is not carried.
     /// - `duration`: Phase/event bitmask describing how long the grant lasts.
     ///
     /// # Default

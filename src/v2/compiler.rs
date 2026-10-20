@@ -288,12 +288,15 @@ fn compile_summon(summon: &SummonBlock, card: &Card) -> Vec<CompiledEffectV2> {
         }
     }
 
-    // ARCHITECTURAL: stays all-None because "Cannot Normal Summon" (code 42)
-    // is a pure metadata flag consumed by the summon-path engine logic. The
-    // engine reads this flag to gate normal-summon availability; there is no
+    // ARCHITECTURAL: stays all-None because "Cannot Normal Summon" is a pure
+    // metadata flag consumed by the summon-path engine logic. The engine
+    // reads this flag to gate normal-summon availability; there is no
     // runtime operation to perform when the flag is registered. Emitting an
     // operation here would be incorrect — the engine acts on the flag itself,
     // not on a callback it invokes.
+    //
+    // Code: EFFECT_UNSUMMONABLE_CARD (336) — lua's "cannot be Normal
+    // Summoned/Set" card flag. (The previous 42 was EFFECT_INDESTRUCTABLE_BATTLE.)
     if summon.cannot_normal_summon && is_extra_deck(card) {
         // Extra deck monsters inherently can't be normal summoned
     } else if summon.cannot_normal_summon {
@@ -301,7 +304,7 @@ fn compile_summon(summon: &SummonBlock, card: &Card) -> Vec<CompiledEffectV2> {
             label: "Cannot Normal Summon".into(),
             effect_type: tm::EFFECT_TYPE_SINGLE,
             category: 0,
-            code: 42,
+            code: 336,
             property: 0,
             range: 0,
             count_limit: None,
@@ -334,9 +337,12 @@ fn compile_passive(passive: &Passive, card: &Card) -> CompiledEffectV2 {
     } else if !passive.grants.is_empty() {
         grant_to_code(&passive.grants[0])
     } else if passive.set_atk.is_some() {
-        110 // EFFECT_SET_ATTACK
+        // EFFECT_SET_ATTACK — the code `lua_ast::set_stat_action` decodes
+        // to `set_atk`. (110 is EFFECT_SWAP_BASE_AD.)
+        101
     } else if passive.set_def.is_some() {
-        114 // EFFECT_SET_DEFENSE
+        // EFFECT_SET_DEFENSE. (114 is EFFECT_CHANGE_CODE.)
+        105
     } else {
         0
     };
@@ -365,38 +371,62 @@ fn compile_passive(passive: &Passive, card: &Card) -> CompiledEffectV2 {
     }
 }
 
+/// Lower a DSL `grant` ability to the EDOPro `EFFECT_*` code the engine's
+/// continuous layer keys on (values from `CardScripts/constant.lua`).
+///
+/// Invariant: the round trip lua code → translator keyword → this table
+/// must be the identity for every code the translator decodes
+/// (`lua_ast::grant_ability_for` / `field_grant_ability_for` /
+/// `translate_immune_chain` / `translate_extra_attack_chain`).
+///
+/// Where the DSL keyword is coarser than the lua vocabulary the choice is
+/// documented on the arm. Lua `SetValue` payloads (the immunity filter,
+/// the extra-attack count, the material-reason mask) are NOT carried —
+/// `register_grant` has no value channel; the ability enum variant is the
+/// only place the qualifier survives.
 fn grant_to_code(grant: &GrantAbility) -> u32 {
-    // EDOPro EFFECT_* codes per grammar/edopro_constants.lua. All values
-    // cross-checked during task #29 seam audit; prior table had ~12 wrong
-    // values that silently never matched engine-side handlers.
     match grant {
-        GrantAbility::CannotBeDestroyed(Some(DestroyBy::Battle))      => 42, // EFFECT_INDESTRUCTABLE_BATTLE
-        GrantAbility::CannotBeDestroyed(Some(DestroyBy::Effect))       => 41, // EFFECT_INDESTRUCTABLE_EFFECT
+        GrantAbility::CannotBeDestroyed(Some(DestroyBy::Battle))      => 42,  // EFFECT_INDESTRUCTABLE_BATTLE
+        GrantAbility::CannotBeDestroyed(Some(DestroyBy::Effect))       => 41,  // EFFECT_INDESTRUCTABLE_EFFECT
         GrantAbility::CannotBeDestroyed(Some(DestroyBy::CardEffect))   => 41,
-        GrantAbility::CannotBeDestroyed(None)                          => 40, // EFFECT_INDESTRUCTABLE
-        GrantAbility::CannotBeTargeted(_)                              => 71, // EFFECT_CANNOT_BE_EFFECT_TARGET
-        GrantAbility::CannotAttack                                     => 85, // EFFECT_CANNOT_ATTACK
-        GrantAbility::CannotAttackDirectly                             => 86, // EFFECT_CANNOT_ATTACK_ANNOUNCE
-        GrantAbility::CannotChangePosition                             => 14, // EFFECT_CANNOT_CHANGE_POSITION
-        GrantAbility::CannotBeTributed                                 => 43, // EFFECT_UNRELEASABLE_SUM (closest to "cannot be tributed for summon")
-        GrantAbility::CannotBeUsedAsMaterial                           => 236, // EFFECT_CANNOT_BE_SYNCHRO_MATERIAL
-        GrantAbility::CannotActivate(_)                                => 2,  // EFFECT_DISABLE
-        GrantAbility::CannotNormalSummon                               => 20, // EFFECT_CANNOT_SUMMON
-        GrantAbility::CannotSpecialSummon                              => 22, // EFFECT_CANNOT_SPECIAL_SUMMON
+        GrantAbility::CannotBeDestroyed(None)                          => 40,  // EFFECT_INDESTRUCTABLE
+        GrantAbility::CannotBeTargeted(_)                              => 71,  // EFFECT_CANNOT_BE_EFFECT_TARGET
+        GrantAbility::CannotAttack                                     => 85,  // EFFECT_CANNOT_ATTACK
+        // "cannot attack directly" is EFFECT_CANNOT_DIRECT_ATTACK. 86 is
+        // EFFECT_CANNOT_ATTACK_ANNOUNCE (cannot declare any attack).
+        GrantAbility::CannotAttackDirectly                             => 73,  // EFFECT_CANNOT_DIRECT_ATTACK
+        GrantAbility::CannotChangePosition                             => 14,  // EFFECT_CANNOT_CHANGE_POSITION
+        // Coarse: lua "cannot be Tributed" usually registers both
+        // UNRELEASABLE_SUM (43) and UNRELEASABLE_NONSUM (44); the DSL has
+        // one keyword and the translator does not decode either code.
+        GrantAbility::CannotBeTributed                                 => 43,  // EFFECT_UNRELEASABLE_SUM
+        // Generic "cannot be used as material" — the per-kind codes
+        // (235/236/238/239) are what EFFECT_CANNOT_BE_MATERIAL's value
+        // mask selects between; the keyword carries no kind.
+        GrantAbility::CannotBeUsedAsMaterial                           => 248, // EFFECT_CANNOT_BE_MATERIAL
+        // Card-scoped "cannot activate its effects" is EFFECT_CANNOT_TRIGGER —
+        // the code `lua_ast::grant_ability_for` decodes to `cannot_activate
+        // effects`. Player-scoped activation floodgates are
+        // EFFECT_CANNOT_ACTIVATE (6) and lower through `restrict_player`,
+        // never through this table; negating already-applied effects is
+        // EFFECT_DISABLE (2) and lowers through `negate_effects`.
+        GrantAbility::CannotActivate(_)                                => 7,   // EFFECT_CANNOT_TRIGGER
+        GrantAbility::CannotNormalSummon                               => 20,  // EFFECT_CANNOT_SUMMON
+        GrantAbility::CannotSpecialSummon                              => 22,  // EFFECT_CANNOT_SPECIAL_SUMMON
         GrantAbility::Piercing                                         => 203, // EFFECT_PIERCE
-        GrantAbility::DirectAttack                                     => 74, // EFFECT_DIRECT_ATTACK
-        GrantAbility::DoubleAttack                                     => 194, // EFFECT_EXTRA_ATTACK (edopro doesn't separate double/triple)
-        GrantAbility::TripleAttack                                     => 194, // ditto
+        GrantAbility::DirectAttack                                     => 74,  // EFFECT_DIRECT_ATTACK
+        // EFFECT_EXTRA_ATTACK with SetValue(1) / SetValue(2); the count is
+        // a value payload `register_grant` cannot carry.
+        GrantAbility::DoubleAttack                                     => 194, // EFFECT_EXTRA_ATTACK
+        GrantAbility::TripleAttack                                     => 194, // EFFECT_EXTRA_ATTACK
         GrantAbility::AttackAllMonsters                                => 193, // EFFECT_ATTACK_ALL
         GrantAbility::MustAttack                                       => 191, // EFFECT_MUST_ATTACK
-        GrantAbility::ImmuneToTargeting                                => 71,  // shares EFFECT_CANNOT_BE_EFFECT_TARGET
-        GrantAbility::UnaffectedBy(src) => match src {
-            UnaffectedSource::Spells         => 32,
-            UnaffectedSource::Traps          => 33,
-            UnaffectedSource::Monsters       => 34,
-            UnaffectedSource::Effects        => 35,
-            UnaffectedSource::OpponentEffects => 36,
-        },
+        GrantAbility::ImmuneToTargeting                                => 71,  // EFFECT_CANNOT_BE_EFFECT_TARGET
+        // Every `unaffected_by <src>` is EFFECT_IMMUNE_EFFECT; the source is
+        // lua's SetValue filter predicate (`translate_immune_chain`), not a
+        // distinct code. The old 32–36 were EFFECT_SUMMON_PROC …
+        // EFFECT_SET_PROC — summon-procedure codes, never immunity.
+        GrantAbility::UnaffectedBy(_)                                  => 1,   // EFFECT_IMMUNE_EFFECT
     }
 }
 
@@ -3891,6 +3921,150 @@ card "Damage Rule Compile Test" {
 
     // ── M2a: Passive and Restriction closure tests ─────────────
 
+    /// Pins every `grant` keyword to its EDOPro `EFFECT_*` code
+    /// (CardScripts/constant.lua). Any drift here silently detaches the
+    /// keyword from the engine's continuous-layer dispatch arm.
+    #[test]
+    fn test_grant_to_code_pins_every_keyword_to_constant_lua() {
+        let expected: &[(GrantAbility, u32, &str)] = &[
+            (GrantAbility::CannotBeDestroyed(Some(DestroyBy::Battle)),     42,  "EFFECT_INDESTRUCTABLE_BATTLE"),
+            (GrantAbility::CannotBeDestroyed(Some(DestroyBy::Effect)),     41,  "EFFECT_INDESTRUCTABLE_EFFECT"),
+            (GrantAbility::CannotBeDestroyed(Some(DestroyBy::CardEffect)), 41,  "EFFECT_INDESTRUCTABLE_EFFECT"),
+            (GrantAbility::CannotBeDestroyed(None),                        40,  "EFFECT_INDESTRUCTABLE"),
+            (GrantAbility::CannotBeTargeted(None),                         71,  "EFFECT_CANNOT_BE_EFFECT_TARGET"),
+            (GrantAbility::CannotBeTargeted(Some(TargetedBy::Spells)),     71,  "EFFECT_CANNOT_BE_EFFECT_TARGET"),
+            (GrantAbility::CannotAttack,                                   85,  "EFFECT_CANNOT_ATTACK"),
+            (GrantAbility::CannotAttackDirectly,                           73,  "EFFECT_CANNOT_DIRECT_ATTACK"),
+            (GrantAbility::CannotChangePosition,                           14,  "EFFECT_CANNOT_CHANGE_POSITION"),
+            (GrantAbility::CannotBeTributed,                               43,  "EFFECT_UNRELEASABLE_SUM"),
+            (GrantAbility::CannotBeUsedAsMaterial,                         248, "EFFECT_CANNOT_BE_MATERIAL"),
+            (GrantAbility::CannotActivate(None),                           7,   "EFFECT_CANNOT_TRIGGER"),
+            (GrantAbility::CannotActivate(Some(ActivateWhat::Effects)),    7,   "EFFECT_CANNOT_TRIGGER"),
+            (GrantAbility::CannotActivate(Some(ActivateWhat::Spells)),     7,   "EFFECT_CANNOT_TRIGGER"),
+            (GrantAbility::CannotActivate(Some(ActivateWhat::Traps)),      7,   "EFFECT_CANNOT_TRIGGER"),
+            (GrantAbility::CannotNormalSummon,                             20,  "EFFECT_CANNOT_SUMMON"),
+            (GrantAbility::CannotSpecialSummon,                            22,  "EFFECT_CANNOT_SPECIAL_SUMMON"),
+            (GrantAbility::Piercing,                                       203, "EFFECT_PIERCE"),
+            (GrantAbility::DirectAttack,                                   74,  "EFFECT_DIRECT_ATTACK"),
+            (GrantAbility::DoubleAttack,                                   194, "EFFECT_EXTRA_ATTACK"),
+            (GrantAbility::TripleAttack,                                   194, "EFFECT_EXTRA_ATTACK"),
+            (GrantAbility::AttackAllMonsters,                              193, "EFFECT_ATTACK_ALL"),
+            (GrantAbility::MustAttack,                                     191, "EFFECT_MUST_ATTACK"),
+            (GrantAbility::ImmuneToTargeting,                              71,  "EFFECT_CANNOT_BE_EFFECT_TARGET"),
+            (GrantAbility::UnaffectedBy(UnaffectedSource::Spells),          1,   "EFFECT_IMMUNE_EFFECT"),
+            (GrantAbility::UnaffectedBy(UnaffectedSource::Traps),           1,   "EFFECT_IMMUNE_EFFECT"),
+            (GrantAbility::UnaffectedBy(UnaffectedSource::Monsters),        1,   "EFFECT_IMMUNE_EFFECT"),
+            (GrantAbility::UnaffectedBy(UnaffectedSource::Effects),         1,   "EFFECT_IMMUNE_EFFECT"),
+            (GrantAbility::UnaffectedBy(UnaffectedSource::OpponentEffects), 1,   "EFFECT_IMMUNE_EFFECT"),
+        ];
+        for (ability, code, name) in expected {
+            assert_eq!(grant_to_code(ability), *code,
+                "{:?} must lower to {} ({})", ability, code, name);
+        }
+    }
+
+    /// `grant <sel> cannot_attack_directly` registers EFFECT_CANNOT_DIRECT_ATTACK
+    /// (73 = 0x49), not EFFECT_CANNOT_ATTACK_ANNOUNCE (86).
+    #[test]
+    fn test_grant_cannot_attack_directly_registers_code_73() {
+        use super::super::mock_runtime::MockRuntime;
+        let src = r#"
+card "Direct Attack Lock" {
+    id: 20010
+    type: Normal Spell
+    effect "Lock" {
+        speed: 1
+        resolve {
+            grant self cannot_attack_directly until end_of_turn
+        }
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let eff = compiled.effects.iter().find(|e| e.label == "Lock").unwrap();
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 20010;
+        rt.effect_player = 0;
+        (eff.operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("register_grant", "grant=0x49"),
+            "expected register_grant with EFFECT_CANNOT_DIRECT_ATTACK 0x49 (73); calls: {}", rt.dump_calls());
+        assert!(!rt.was_called_with("register_grant", "grant=0x56"),
+            "must not register EFFECT_CANNOT_ATTACK_ANNOUNCE (86); calls: {}", rt.dump_calls());
+    }
+
+    /// `grant <sel> cannot_activate effects` registers EFFECT_CANNOT_TRIGGER
+    /// (7), not EFFECT_DISABLE (2); `unaffected_by` registers
+    /// EFFECT_IMMUNE_EFFECT (1) for every source.
+    #[test]
+    fn test_grant_cannot_activate_and_unaffected_by_register_lua_codes() {
+        use super::super::mock_runtime::MockRuntime;
+        let src = r#"
+card "Trigger Lock" {
+    id: 20011
+    type: Normal Spell
+    effect "Lock" {
+        speed: 1
+        resolve {
+            grant self cannot_activate effects until end_of_turn
+            grant self unaffected_by spells until end_of_turn
+            grant self unaffected_by opponent_effects until end_of_turn
+        }
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let eff = compiled.effects.iter().find(|e| e.label == "Lock").unwrap();
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 20011;
+        rt.effect_player = 0;
+        (eff.operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("register_grant", "grant=0x7 "),
+            "expected register_grant with EFFECT_CANNOT_TRIGGER 0x7; calls: {}", rt.dump_calls());
+        assert!(!rt.was_called_with("register_grant", "grant=0x2 "),
+            "must not register EFFECT_DISABLE (2); calls: {}", rt.dump_calls());
+        assert_eq!(rt.call_count("register_grant"), 3, "calls: {}", rt.dump_calls());
+        assert!(rt.was_called_with("register_grant", "grant=0x1 "),
+            "unaffected_by must register EFFECT_IMMUNE_EFFECT 0x1; calls: {}", rt.dump_calls());
+        for stale in ["grant=0x20 ", "grant=0x24 "] {
+            assert!(!rt.was_called_with("register_grant", stale),
+                "unaffected_by must not register the old SUMMON_PROC/SET_PROC codes; calls: {}", rt.dump_calls());
+        }
+    }
+
+    /// Passive `set_atk:` / `set_def:` carry EFFECT_SET_ATTACK (101) /
+    /// EFFECT_SET_DEFENSE (105) — the codes `lua_ast::set_stat_action`
+    /// decodes from. (110 / 114 were SWAP_BASE_AD / CHANGE_CODE.)
+    #[test]
+    fn test_passive_set_atk_def_codes_match_constant_lua() {
+        let src = r#"
+card "Fixed Stats" {
+    id: 20012
+    type: Effect Monster
+    attribute: DARK
+    race: Fiend
+    level: 4
+    atk: 1600
+    def: 1000
+    passive "Atk Pin" {
+        scope: self
+        set_atk: 0
+    }
+    passive "Def Pin" {
+        scope: self
+        set_def: 0
+    }
+}
+"#;
+        let file = parse_v2(src).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let atk = compiled.effects.iter().find(|e| e.label == "Atk Pin").unwrap();
+        let def = compiled.effects.iter().find(|e| e.label == "Def Pin").unwrap();
+        assert_eq!(atk.code, 101, "EFFECT_SET_ATTACK");
+        assert_eq!(def.code, 105, "EFFECT_SET_DEFENSE");
+    }
+
     /// A passive with a single grant (piercing) should have operation=Some(_)
     /// that calls register_grant.
     #[test]
@@ -4853,8 +5027,9 @@ card "Test Cannot NS" {
 "#;
         let file = parse_v2(src).unwrap();
         let compiled = compile_card_v2(&file.cards[0]);
-        let cns = compiled.effects.iter().find(|e| e.code == 42 && e.label == "Cannot Normal Summon")
-            .expect("expected 'Cannot Normal Summon' effect with code 42");
+        // EFFECT_UNSUMMONABLE_CARD = 336.
+        let cns = compiled.effects.iter().find(|e| e.code == 336 && e.label == "Cannot Normal Summon")
+            .expect("expected 'Cannot Normal Summon' effect with code 336");
         assert!(cns.operation.is_none(),
             "Cannot Normal Summon is a pure metadata flag — operation must be None");
         assert!(cns.condition.is_none(),
