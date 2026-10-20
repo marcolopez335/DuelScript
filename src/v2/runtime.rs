@@ -320,6 +320,85 @@ pub enum MaterialDestination {
     Deck,
 }
 
+// ── T38 S8c: delayed wrapper body payload ────────────────────
+
+/// Binding environment a `delayed` wrapper body runs in, snapshotted
+/// at ARMING time and restored at FIRE time (T38 S8c).
+///
+/// The compiler scans the body statically for every binding name it
+/// reads — the sentinel names behind the shorthand selectors
+/// (`target` → `__target__`, `searched` → `__searched__`, `negated` →
+/// `__negated__`, `equipped` → `__equipped__`, `linked` → `__linked__`)
+/// and user bindings (`sp` from `special_summon … as sp`, `summoner`
+/// from `by as summoner`) — and resolves each through
+/// `get_binding_card` when the wrapper arms. Names with no binding at
+/// arming are simply absent here: at fire time the body's selector
+/// resolves to nothing and the action no-ops, the same way an unbound
+/// reference behaves inside a plain resolve.
+///
+/// Card ids are the capture unit (the lua `SetLabelObject` plumbing).
+/// Stale-target fizzle is the engine's: a captured card that has left
+/// the field (or turned face-down) by fire time is restored under its
+/// name unchanged, and the targeted action it feeds no-ops at the
+/// action layer exactly as it would at resolution. The lua staleness
+/// guard's "same instance" check (`GetFlagEffectLabel`) is NOT
+/// mirrored — a card id that left and came back is still the binding.
+///
+/// `self` inside a body needs no capture: engines re-enter the body
+/// with `effect_card_id` = the registering card and `effect_player` =
+/// `player`.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct DelayedEnv {
+    /// `effect_player` at arming — the player the body resolves as.
+    pub player: u8,
+    /// `(binding name, card id)` pairs, in capture order.
+    pub bindings: Vec<(String, u32)>,
+}
+
+/// Handle to one compiled `delayed` wrapper body — the registration
+/// payload of `register_delayed` / `register_delayed_trigger` (T38 S8c).
+///
+/// `index` addresses the body on its `CompiledEffectV2`
+/// (`delayed_bodies[index]`, re-entered through
+/// `CompiledEffectV2::execute_delayed_body`). `body` is the same
+/// sub-program as an owned `Arc`, so an engine that does not retain
+/// the compiled effect across the arming resolution (ygobeetle drives
+/// `operation` through a per-resolution adapter and keeps no
+/// `CompiledEffectV2` registry) can still fire it:
+/// `body_ref.fire(rt)` runs ONLY the wrapper body under the captured
+/// `env`. Neither path re-runs the arming resolve — re-entering the
+/// whole operation would re-arm the wrapper on every firing and
+/// compound recurring events geometrically.
+#[derive(Clone)]
+pub struct DelayedBodyRef {
+    /// Position in the owning `CompiledEffectV2::delayed_bodies`.
+    pub index: usize,
+    /// Bindings captured at arming — see [`DelayedEnv`].
+    pub env: DelayedEnv,
+    /// The compiled sub-program (shared with `delayed_bodies[index]`).
+    pub body: std::sync::Arc<super::compiler::DelayedBody>,
+}
+
+impl DelayedBodyRef {
+    /// Run the wrapper body — and nothing else — against `rt` under the
+    /// environment captured at arming. Engines call this at fire time
+    /// after setting the runtime's `effect_card_id` / `effect_player`
+    /// context to the registering card and `env.player`.
+    pub fn fire(&self, rt: &mut dyn DuelScriptRuntime) {
+        self.body.execute(rt, &self.env);
+    }
+}
+
+impl std::fmt::Debug for DelayedBodyRef {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.debug_struct("DelayedBodyRef")
+            .field("index", &self.index)
+            .field("env", &self.env)
+            .field("body", &*self.body)
+            .finish()
+    }
+}
+
 // ── Runtime Abstraction ───────────────────────────────────────
 
 /// Trait that engines implement to expose game state and operations
@@ -1247,16 +1326,28 @@ pub trait DuelScriptRuntime {
 
     // ── Sprint 67: Delayed effect registration ───────────────
 
-    /// Schedule `card_id`'s effect to fire during a future game phase.
+    /// Schedule a `delayed until <phase> { … }` wrapper body to run
+    /// once at `phase` of the current turn.
+    ///
+    /// T38 S8c widen (FF-I seam): the body is now a first-class payload.
+    /// The compiler does NOT execute the wrapper body at arming — it
+    /// compiles it into an indexed sub-program on the owning
+    /// `CompiledEffectV2` (`delayed_bodies`) and hands the engine
+    /// `body`, which carries the index, the binding environment
+    /// snapshotted at arming ([`DelayedEnv`]) and the sub-program
+    /// itself. At `phase` the engine runs ONLY that body:
+    /// `body.fire(rt)` (or `CompiledEffectV2::execute_delayed_body`)
+    /// with `effect_card_id` = `card_id` and `effect_player` =
+    /// `body.env.player`. Never re-run the arming operation.
     ///
     /// # Args
-    /// - `phase`: Phase constant at which the delayed effect should trigger
-    ///   (engine-defined; e.g., end-of-turn phase code).
-    /// - `card_id`: Card whose delayed effect is being registered.
+    /// - `phase`: `PHASE_*` constant at which the body runs.
+    /// - `card_id`: Card whose wrapper is being registered.
+    /// - `body`: the wrapper body payload — see [`DelayedBodyRef`].
     ///
     /// # Default
-    /// No-op.
-    fn register_delayed(&mut self, _phase: u32, _card_id: u32) {}
+    /// No-op (the body never runs — un-mirrored engines drop the wrapper).
+    fn register_delayed(&mut self, _phase: u32, _card_id: u32, _body: DelayedBodyRef) {}
 
     /// Register an event-armed delayed wrapper (T38 S8, the DSL
     /// `delayed on <event> (until <duration>)? { … }` form).
@@ -1270,21 +1361,26 @@ pub trait DuelScriptRuntime {
     /// which is the dominant corpus bucket: "destroy it during the End
     /// Phase").
     ///
-    /// Body delivery follows the `register_delayed` precedent: the
-    /// engine re-enters `card_id`'s compiled effect for the WRAPPER
-    /// BODY ONLY at fire time (the compiled-closure seam carries no
-    /// body payload — same open evolution point as `register_delayed`).
-    /// Fire-time execution must NOT re-run the arming action itself:
-    /// re-entering the whole resolve would re-register the wrapper on
-    /// every firing and compound recurring events geometrically.
-    /// Body references to the outer chain target resolve through the
-    /// engine's stored-target state (lua `SetLabelObject` plumbing)
-    /// with the standard stale-target fizzle: gone/face-down targets
-    /// silently no-op.
+    /// Body delivery (T38 S8c widen, FF-I seam): the wrapper body is a
+    /// first-class payload. The compiler does NOT execute it at arming;
+    /// it compiles the body into an indexed sub-program on the owning
+    /// `CompiledEffectV2` (`delayed_bodies`) and hands the engine
+    /// `body` — the index, the binding environment snapshotted at
+    /// arming ([`DelayedEnv`]: the outer chain `target`, an S8b `sp`
+    /// binding, …) and the sub-program itself. On every firing the
+    /// engine runs ONLY that body: `body.fire(rt)` (or
+    /// `CompiledEffectV2::execute_delayed_body`) with
+    /// `effect_card_id` = `card_id` and `effect_player` =
+    /// `body.env.player`. Fire-time execution must NOT re-run the
+    /// arming operation: re-entering the whole resolve would
+    /// re-register the wrapper on every firing and compound recurring
+    /// events geometrically. Captured bindings restore by card id with
+    /// the standard stale-target fizzle: gone/face-down cards make the
+    /// targeted action silently no-op at the action layer.
     ///
-    /// **ygobeetle mirror obligation:** new trait method — engine-dev
-    /// mirrors on semantics; default no-op means the dep bump compiles
-    /// clean and un-mirrored wrappers silently skip.
+    /// **ygobeetle mirror:** `DelayedTriggers` stores the `DelayedBodyRef`
+    /// on the listener and `process_triggers` fires it through a
+    /// fresh per-firing adapter (ygobeetle PR, T38 S8c).
     ///
     /// # Args
     /// - `event`: EDOPro `EVENT_*` code (phase events arrive as
@@ -1295,10 +1391,12 @@ pub trait DuelScriptRuntime {
     /// - `card_id`: Card whose wrapper body fires on the event.
     /// - `duration`: reset bound; the compiler defaults an absent
     ///   `until` clause to `Duration::EndOfTurn`.
+    /// - `body`: the wrapper body payload — see [`DelayedBodyRef`].
     ///
     /// # Default
-    /// No-op.
-    fn register_delayed_trigger(&mut self, _event: u32, _card_id: u32, _duration: Duration) {}
+    /// No-op (the body never runs — un-mirrored engines drop the wrapper).
+    fn register_delayed_trigger(&mut self, _event: u32, _card_id: u32, _duration: Duration,
+                                _body: DelayedBodyRef) {}
 
     // ── Phase / State Queries ────────────────────────────────
 

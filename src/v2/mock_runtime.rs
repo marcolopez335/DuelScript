@@ -19,7 +19,7 @@
 // ============================================================
 
 use std::collections::HashMap;
-use super::runtime::{CardFilter, DamageRule, DamageType, Duration, ExtraMaterialPool, MaterialDestination, PlayerRestriction, RestrictionQualifier, Stat, TokenSpec, DuelScriptRuntime};
+use super::runtime::{CardFilter, DamageRule, DamageType, DelayedBodyRef, Duration, ExtraMaterialPool, MaterialDestination, PlayerRestriction, RestrictionQualifier, Stat, TokenSpec, DuelScriptRuntime};
 
 // ── Recorded call types ──────────────────────────────────────
 
@@ -227,6 +227,28 @@ pub struct MockRuntime {
     /// Per-card owner table — distinct from controller. Set via
     /// `DuelScenario::card_owner(...)`. Defaults to 0 when unset.
     pub card_owners: std::collections::HashMap<u32, u8>,
+    /// T38 S8c: every `register_delayed` / `register_delayed_trigger`
+    /// call, in arming order, with the body payload the compiler handed
+    /// over. Tests fire one with `fire_delayed(i)`.
+    pub delayed_registrations: Vec<MockDelayedRegistration>,
+}
+
+/// One armed `delayed` wrapper recorded by the mock (T38 S8c).
+#[derive(Debug, Clone)]
+pub struct MockDelayedRegistration {
+    pub arming: MockDelayedArming,
+    pub card_id: u32,
+    pub body: DelayedBodyRef,
+}
+
+/// Which trait method armed a [`MockDelayedRegistration`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MockDelayedArming {
+    /// `register_delayed(phase, …)` — the `delayed until <phase>` form.
+    Phase(u32),
+    /// `register_delayed_trigger(event, …, duration, …)` — the
+    /// `delayed on <event>` form.
+    Event(u32, Duration),
 }
 
 impl MockRuntime {
@@ -245,7 +267,22 @@ impl MockRuntime {
             material_role: 0,
             material_summoner_id: 0,
             card_owners: std::collections::HashMap::new(),
+            delayed_registrations: Vec::new(),
         }
+    }
+
+    /// T38 S8c test helper: fire the `i`-th recorded delayed
+    /// registration the way an engine would — effect context switched
+    /// to the registering card and the captured player, then ONLY the
+    /// wrapper body runs (`DelayedBodyRef::fire`). The registration
+    /// stays recorded, so a recurring listener can be fired again.
+    /// Panics when `i` is out of range.
+    pub fn fire_delayed(&mut self, i: usize) {
+        let reg = self.delayed_registrations[i].clone();
+        self.effect_card_id = reg.card_id;
+        self.effect_player = reg.body.env.player;
+        self.record("fire_delayed", format!("index={} card={}", reg.body.index, reg.card_id));
+        reg.body.fire(self);
     }
 
     /// Convenient builder: 8000 LP, both players empty.
@@ -632,16 +669,28 @@ impl DuelScriptRuntime for MockRuntime {
         self.record("raise_custom_event", format!("name={:?} cards={:?}", name, cards));
     }
 
-    // ── T38 S8: event-armed delayed wrapper ───────────────────
-    fn register_delayed_trigger(&mut self, event: u32, card_id: u32, duration: Duration) {
+    // ── T38 S8 / S8c: delayed wrappers ────────────────────────
+    // Registrations are recorded with their body payload (never
+    // executed here — the compiler no longer runs a body at arming);
+    // tests re-enter a body through `fire_delayed`.
+    fn register_delayed_trigger(&mut self, event: u32, card_id: u32, duration: Duration,
+                                body: DelayedBodyRef) {
         self.record("register_delayed_trigger",
-            format!("event={:#x} card={} dur={:?}", event, card_id, duration));
+            format!("event={:#x} card={} dur={:?} body={} env={:?}",
+                event, card_id, duration, body.index, body.env));
+        self.delayed_registrations.push(MockDelayedRegistration {
+            arming: MockDelayedArming::Event(event, duration), card_id, body,
+        });
     }
 
     // Recorded so tests can pin the pre-S8 until-phase routing too
     // (S8 review: backward-compat path was asserted nowhere).
-    fn register_delayed(&mut self, phase: u32, card_id: u32) {
-        self.record("register_delayed", format!("phase={:#x} card={}", phase, card_id));
+    fn register_delayed(&mut self, phase: u32, card_id: u32, body: DelayedBodyRef) {
+        self.record("register_delayed",
+            format!("phase={:#x} card={} body={} env={:?}", phase, card_id, body.index, body.env));
+        self.delayed_registrations.push(MockDelayedRegistration {
+            arming: MockDelayedArming::Phase(phase), card_id, body,
+        });
     }
 
     // ── Phase 3: confirm ─────────────────────────────────────
