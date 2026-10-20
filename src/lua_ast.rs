@@ -762,7 +762,7 @@ impl EffectSkeleton {
     }
 
     /// All args passed to `<binding>:<method>(...)`, or None if not called.
-    fn args_of(&self, method: &str) -> Option<&[String]> {
+    pub fn args_of(&self, method: &str) -> Option<&[String]> {
         self.set_calls.iter().find(|(m, _)| m == method)
             .map(|(_, args)| args.as_slice())
     }
@@ -824,6 +824,156 @@ impl EffectSkeleton {
             scope: scope_target.scope,
             target: scope_target.target,
         })
+    }
+
+    /// T39 S8 — the non-stat passive on the negate / trigger codes
+    /// ([`passive_floodgate_verdict`](Self::passive_floodgate_verdict)
+    /// with the refusal dropped). `walk` supplies the function table
+    /// (named `s.*` affected-card filters) and the sibling chains (the
+    /// DISABLE_EFFECT pair gate).
+    pub fn passive_floodgate_spec(&self, walk: &LuaReport) -> Option<PassiveFloodgateSpec> {
+        self.passive_floodgate_verdict(walk).ok()
+    }
+
+    /// T39 S8 — `SetCode(EFFECT_DISABLE)` → the passive `negate_effects`
+    /// item; `SetCode(EFFECT_CANNOT_TRIGGER)` → `grant: cannot_activate
+    /// effects`. The receiver maps exactly as the chain's type says:
+    /// `EFFECT_TYPE_EQUIP` → `target: equipped_card`;
+    /// `EFFECT_TYPE_FIELD` → `scope: field` + a `target:` selector
+    /// built from `SetTargetRange` (card LOCATION masks, one zone, no
+    /// OR'd masks) and the `SetTarget` affected-card filter
+    /// ([`passive_field_filter`] — the Phase 15 conjunct table plus the
+    /// `c~=e:GetHandler()` → `except self` conjunct and the
+    /// effect-monster idiom); `EFFECT_TYPE_SINGLE` → the bare item
+    /// (self). The passive `negate_effects` item compiles to the LONE
+    /// `EFFECT_DISABLE` code (v2 `compile_passive`), so a chain with a
+    /// sibling `EFFECT_DISABLE_EFFECT` in `initial_effect` — the T38 S3
+    /// resolve-side pair — is refused rather than under-stated.
+    ///
+    /// `EFFECT_CANNOT_ACTIVATE` is a PLAYER floodgate (`SetTargetRange`
+    /// player flags + `EFFECT_FLAG_PLAYER_TARGET`): its surface is the
+    /// T36 `restrict <scope> <keyword>` family, which exists only as a
+    /// resolve ACTION with a duration — a continuous `initial_effect`
+    /// chain has no DSL block to carry it. The verdict runs the chain's
+    /// `SetValue` activation filter through the SAME decoder the Phase
+    /// 18 restrict path uses ([`classify_activate_filter`]) and reports
+    /// the line it WOULD emit (`restrict …: no passive surface`) or the
+    /// undecodable filter — never a grant: the card-scoped
+    /// `cannot_activate effects` phrase lowers to `EFFECT_CANNOT_TRIGGER`
+    /// (7), a different effect.
+    ///
+    /// `Err` names the first refusing gate (the `audit-passives` census
+    /// datum). Under [`with_legacy_passive_grant_policy`] every chain on
+    /// the three codes renders the Phase 5d-era block instead.
+    pub fn passive_floodgate_verdict(&self, walk: &LuaReport) -> Result<PassiveFloodgateSpec, String> {
+        let code = self.first_arg_of("SetCode").ok_or("no SetCode")?;
+        let item = match code {
+            "EFFECT_DISABLE" => PassiveFloodgateItem::NegateEffects,
+            "EFFECT_CANNOT_TRIGGER" => PassiveFloodgateItem::Grant("cannot_activate effects"),
+            "EFFECT_CANNOT_ACTIVATE" => {
+                if legacy_passive_grant_policy() {
+                    return Ok(PassiveFloodgateSpec::legacy());
+                }
+                return Err(self.restrict_refusal(&walk.functions));
+            }
+            _ => return Err(format!("code: {}", code)),
+        };
+        if legacy_passive_grant_policy() {
+            return Ok(PassiveFloodgateSpec::legacy());
+        }
+        if !self.registered { return Err("unregistered".to_string()); }
+        if let Some(op) = &self.operation_handler {
+            return Err(format!("handler: SetOperation({})", op.trim()));
+        }
+        if let Some(cost) = &self.cost_handler {
+            return Err(format!("handler: SetCost({})", cost.trim()));
+        }
+        if let Some(cond) = &self.condition_handler {
+            return Err(format!("cond: {}", cond.trim()));
+        }
+        if self.first_arg_of("SetProperty").is_some_and(|p| p.contains("EFFECT_FLAG_PLAYER_TARGET")) {
+            return Err("property: EFFECT_FLAG_PLAYER_TARGET".to_string());
+        }
+        // Flag codes: an absent value or the literal flag `1`
+        // (`chain_value_is_flag` on the resolve side); a closure is a
+        // per-activation qualifier the item cannot carry.
+        match self.first_arg_of("SetValue").map(str::trim) {
+            None => {}
+            Some(v) if v.parse::<i64>().is_ok() => {}
+            Some(v) => return Err(format!("value: {}", v)),
+        }
+        // The card's own zone while the passive applies: the v2 compiler
+        // derives it from the card type (monster → MZONE, else SZONE),
+        // so a chain scoped to the Pendulum Zone (a pendulum effect) or
+        // to the hand / GY would compile to the wrong zone.
+        if let Some(range) = self.first_arg_of("SetRange").map(str::trim) {
+            if !matches!(range, "LOCATION_MZONE" | "LOCATION_SZONE" | "LOCATION_FZONE") {
+                return Err(format!("range: {}", range));
+            }
+        }
+        if item == PassiveFloodgateItem::NegateEffects
+            && walk.effects.iter().any(|e| {
+                e.registered && e.first_arg_of("SetCode") == Some("EFFECT_DISABLE_EFFECT")
+            })
+        {
+            return Err("paired: EFFECT_DISABLE_EFFECT sibling".to_string());
+        }
+        let effect_type = self.first_arg_of("SetType").unwrap_or("");
+        let (scope, target) = if effect_type.contains("EFFECT_TYPE_EQUIP") {
+            if let Some(f) = &self.target_handler {
+                return Err(format!("equip: SetTarget({})", f.trim()));
+            }
+            (None, Some("equipped_card".to_string()))
+        } else if effect_type.contains("EFFECT_TYPE_FIELD") {
+            let range = self.args_of("SetTargetRange").ok_or("field: no SetTargetRange")?;
+            if range.len() != 2 {
+                return Err(format!("field: SetTargetRange arity {}", range.len()));
+            }
+            let range = format!("{},{}", range[0].trim(), range[1].trim());
+            let (kind, where_clause, except_self) = match &self.target_handler {
+                None => ("card".to_string(), None, false),
+                Some(f) => passive_field_filter(f, &walk.functions)
+                    .ok_or_else(|| format!("filter: {}", normalize_lua_ws(f)))?,
+            };
+            let sel = passive_field_selector(&range, &kind, where_clause.as_deref(), except_self)
+                .ok_or_else(|| format!("range: {}", range))?;
+            (Some("field"), Some(sel))
+        } else if effect_type.contains("EFFECT_TYPE_SINGLE") {
+            if let Some(f) = &self.target_handler {
+                return Err(format!("single: SetTarget({})", f.trim()));
+            }
+            if self.args_of("SetTargetRange").is_some() {
+                return Err("single: SetTargetRange".to_string());
+            }
+            (None, None)
+        } else {
+            return Err(format!("type: {}", effect_type));
+        };
+        Ok(PassiveFloodgateSpec { scope, target, item })
+    }
+
+    /// The `EFFECT_CANNOT_ACTIVATE` refusal text: what the T36/T38 S2
+    /// decoder makes of the chain (`restrict <scope> <keyword>[ from
+    /// <zone>]`) when the activation filter decodes, so the census can
+    /// size the passive-restrict grammar gap exactly; the filter text
+    /// when it does not.
+    fn restrict_refusal(&self, functions: &BTreeMap<String, FunctionBody>) -> String {
+        let scope = self.args_of("SetTargetRange")
+            .map(|a| a.join(","))
+            .and_then(|r| player_scope_from_range(&r));
+        let value = self.first_arg_of("SetValue").map(str::trim).unwrap_or("");
+        let cond = if self.condition_handler.is_some() { " (with SetCondition)" } else { "" };
+        match (scope, classify_activate_filter(value, functions)) {
+            (Some(scope), Some((kw, zone))) => {
+                let from = zone.map(|z| format!(" from {}", z)).unwrap_or_default();
+                format!("restrict {} {}{}: no passive surface{}", scope, kw, from, cond)
+            }
+            (None, _) => format!(
+                "restrict-nonplayer: TargetRange {}{}",
+                self.args_of("SetTargetRange").map(|a| a.join(",")).unwrap_or_default(), cond
+            ),
+            (Some(_), None) => format!("restrict-undecodable: {}{}", normalize_lua_ws(value), cond),
+        }
     }
 
     /// DSL summon line for skeletons backed by a fusion/ritual helper.
@@ -1977,6 +2127,12 @@ thread_local! {
 const LEGACY_SELECTOR: u8 = 1;
 /// T39 S5 flip: `Duel.Release` renders `send … to gy`.
 const LEGACY_RELEASE: u8 = 2;
+/// T39 S8 flip: the Phase 5d-era passive generator rendered EVERY
+/// `SetCode(EFFECT_DISABLE*)` / `EFFECT_CANNOT_ACTIVATE` /
+/// `EFFECT_CANNOT_TRIGGER` chain as the card-scoped block
+/// `scope: self` + `grant: cannot_activate effects`, regardless of the
+/// chain's type, target range, filter, condition or registration site.
+const LEGACY_PASSIVE_GRANT: u8 = 4;
 
 fn legacy_selector_policy() -> bool {
     LEGACY_POLICY.with(|c| c.get() & LEGACY_SELECTOR != 0)
@@ -1984,6 +2140,10 @@ fn legacy_selector_policy() -> bool {
 
 fn legacy_release_policy() -> bool {
     LEGACY_POLICY.with(|c| c.get() & LEGACY_RELEASE != 0)
+}
+
+fn legacy_passive_grant_policy() -> bool {
+    LEGACY_POLICY.with(|c| c.get() & LEGACY_PASSIVE_GRANT != 0)
 }
 
 fn with_legacy_policy<R>(bits: u8, f: impl FnOnce() -> R) -> R {
@@ -2006,6 +2166,17 @@ pub fn with_legacy_selector_policy<R>(f: impl FnOnce() -> R) -> R {
 /// block refilled between S4 (#171) and S5 carried.
 pub fn with_legacy_release_policy<R>(f: impl FnOnce() -> R) -> R {
     with_legacy_policy(LEGACY_RELEASE, f)
+}
+
+/// Run `f` with the T39 S8 passive-grant flip reverted:
+/// [`EffectSkeleton::passive_floodgate_verdict`] renders the Phase
+/// 5d-era `scope: self` + `grant: cannot_activate effects` block for
+/// every chain on the three codes — the rendering `lua_translate
+/// audit-passives` recognises as a machine emission the flip
+/// invalidated. Independent of the body-translation bits: the passive
+/// path never reads them and the fill path never reads this one.
+pub fn with_legacy_passive_grant_policy<R>(f: impl FnOnce() -> R) -> R {
+    with_legacy_policy(LEGACY_PASSIVE_GRANT, f)
 }
 
 /// Set the passcode of the card being translated (None clears it).
@@ -2298,6 +2469,177 @@ impl PassiveModifierSpec {
         body.push_str(&format!("{indent}    {}\n", self.modifier_line()));
         format!("{indent}passive \"{name}\" {{\n{body}{indent}}}")
     }
+}
+
+/// T39 S8 — the item a non-stat passive block carries.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PassiveFloodgateItem {
+    /// `negate_effects` — the lone `EFFECT_DISABLE` (2) code.
+    NegateEffects,
+    /// `grant: <ability>` — `EFFECT_CANNOT_TRIGGER` (7) is the only
+    /// code routed here today (`cannot_activate effects`).
+    Grant(&'static str),
+}
+
+/// T39 S8 — spec for a negate / cannot-trigger passive extracted from
+/// an `initial_effect` chain by
+/// [`EffectSkeleton::passive_floodgate_verdict`]. Renders to a
+/// `passive "<name>" { … }` block; `body_lines` is the apply tool's
+/// duplicate-injection key and the audit's comparison key (name and
+/// indentation are not part of it).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PassiveFloodgateSpec {
+    pub scope: Option<&'static str>,
+    pub target: Option<String>,
+    pub item: PassiveFloodgateItem,
+}
+
+impl PassiveFloodgateSpec {
+    /// The Phase 5d-era rendering (see [`with_legacy_passive_grant_policy`]).
+    pub fn legacy() -> Self {
+        PassiveFloodgateSpec {
+            scope: Some("self"),
+            target: None,
+            item: PassiveFloodgateItem::Grant("cannot_activate effects"),
+        }
+    }
+
+    /// The block's item lines in grammar order, without indentation.
+    pub fn body_lines(&self) -> Vec<String> {
+        let mut out = Vec::new();
+        if let Some(scope) = self.scope { out.push(format!("scope: {}", scope)); }
+        if let Some(target) = &self.target { out.push(format!("target: {}", target)); }
+        out.push(match self.item {
+            PassiveFloodgateItem::NegateEffects => "negate_effects".to_string(),
+            PassiveFloodgateItem::Grant(ability) => format!("grant: {}", ability),
+        });
+        out
+    }
+
+    /// Render to a DSL `passive "<name>" { … }` block (same layout as
+    /// [`PassiveModifierSpec::to_dsl_block`]).
+    pub fn to_dsl_block(&self, name: &str, indent: &str) -> String {
+        let body: String = self.body_lines().iter()
+            .map(|l| format!("{indent}    {l}\n"))
+            .collect();
+        format!("{indent}passive \"{name}\" {{\n{body}{indent}}}")
+    }
+}
+
+fn normalize_lua_ws(s: &str) -> String {
+    s.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// T39 S8 — a FIELD passive's `SetTarget` affected-card filter →
+/// (selector kind, where-clause, `except self`). The resolve-side
+/// Phase 15 table ([`field_filter_to_kind_where`]) decides every
+/// conjunct; this wrapper adds the three forms the passive census
+/// found on top of it:
+///   - `aux.TargetBoolFunction(Card.IsTrap)` — the zero-arg partial
+///     application (Jinzo / Talisman of Trap Sealing) → the stock
+///     `map_group_filter` kinds;
+///   - the conjunct `c~=e:GetHandler()` (Royal Decree's "all OTHER
+///     Trap effects") → the selector's `except self` position slot;
+///   - the effect-monster idiom `c:IsType(TYPE_EFFECT) or
+///     (c:GetOriginalType()&TYPE_EFFECT)==TYPE_EFFECT` (Skill Drain) /
+///     `… or c:IsOriginalType(TYPE_EFFECT)` → `is_effect`. The DSL's
+///     one effect-monster predicate is coarser than lua's current-vs-
+///     original type split; both lua spellings land on it (the same
+///     "DSL keyword coarser than the lua vocabulary" call
+///     `grant_to_code` documents), and only this exact disjunction is
+///     collapsed — any other `or` still fails the whole filter.
+fn passive_field_filter(
+    filter: &str,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<(String, Option<String>, bool)> {
+    let filter = filter.trim();
+    if let Some(inner) = filter
+        .strip_prefix("aux.TargetBoolFunction(")
+        .and_then(|r| r.strip_suffix(')'))
+    {
+        match inner.split_once(',') {
+            None => {
+                let (kind, w) = map_group_filter(inner.trim())?;
+                return Some((kind.to_string(), w, false));
+            }
+            // `Card.IsType` masks go through the frame-type table
+            // (Fiend Skull Dragon's `TYPE_FLIP`); every other predicate
+            // through the shared two-arg path below.
+            Some((method, mask)) if method.trim() == "Card.IsType" => {
+                return Some(("card".to_string(), Some(type_mask_to_where(mask.trim())?), false));
+            }
+            Some(_) => {}
+        }
+    }
+    let expr = if let Some(e) = field_filter_closure_body(filter) {
+        e
+    } else if let Some(body) = functions.get(filter) {
+        body.return_expr.clone()?
+    } else {
+        let (kind, w) = field_filter_to_kind_where(filter, functions)?;
+        return Some((kind, w, false));
+    };
+    let expr = collapse_effect_monster_idiom(&normalize_lua_ws(&expr));
+    let (expr, except_self) = strip_except_self_conjunct(&expr);
+    if expr.is_empty() {
+        return Some(("card".to_string(), None, except_self));
+    }
+    let (kind, w) = field_filter_expr_to_kind_where(&expr)?;
+    Some((kind, w, except_self))
+}
+
+/// See [`passive_field_filter`]: the two lua spellings of "is, or was
+/// originally, an Effect Monster" → the plain `c:IsType(TYPE_EFFECT)`
+/// atom. Whole-expression match only.
+fn collapse_effect_monster_idiom(expr: &str) -> String {
+    let compact: String = expr.chars().filter(|c| !c.is_whitespace()).collect();
+    const IDIOMS: [&str; 2] = [
+        "c:IsType(TYPE_EFFECT)or(c:GetOriginalType()&TYPE_EFFECT)==TYPE_EFFECT",
+        "c:IsType(TYPE_EFFECT)orc:IsOriginalType(TYPE_EFFECT)",
+    ];
+    if IDIOMS.contains(&compact.as_str()) {
+        "c:IsType(TYPE_EFFECT)".to_string()
+    } else {
+        expr.to_string()
+    }
+}
+
+/// See [`passive_field_filter`]: drop ONE top-level `c~=e:GetHandler()`
+/// conjunct and report it. A conjunction that was only that conjunct
+/// becomes the pass-through filter (`aux.TRUE` shape).
+fn strip_except_self_conjunct(expr: &str) -> (String, bool) {
+    let mut kept = Vec::new();
+    let mut except_self = false;
+    for conjunct in expr.split(" and ") {
+        let compact: String = conjunct.chars().filter(|c| !c.is_whitespace()).collect();
+        if !except_self && compact == "c~=e:GetHandler()" {
+            except_self = true;
+        } else {
+            kept.push(conjunct);
+        }
+    }
+    (kept.join(" and "), except_self)
+}
+
+/// T39 S8 — the FIELD passive's `target:` selector:
+/// [`field_range_selector`] with the `except self` position slot.
+fn passive_field_selector(
+    range: &str,
+    kind: &str,
+    where_clause: Option<&str>,
+    except_self: bool,
+) -> Option<String> {
+    let base = field_range_selector(range, kind, where_clause)?;
+    if !except_self {
+        return Some(base);
+    }
+    // Grammar order: position_filter (`except self`) sits between
+    // zone_filter and where_clause.
+    let inner = base.strip_prefix('(')?.strip_suffix(')')?;
+    Some(match inner.split_once(", where ") {
+        Some((head, w)) => format!("({}, except self, where {})", head, w),
+        None => format!("({}, except self)", inner),
+    })
 }
 
 /// T34 — lower a non-literal `SetValue` arg to a DSL passive value
@@ -12926,6 +13268,280 @@ end
         let values: Vec<_> = body.register_chains.iter()
             .filter_map(|c| c.value.as_deref()).collect();
         assert_eq!(values, vec!["300", "300"]);
+    }
+
+    // ── T39 S8 — negate / cannot-trigger passives ──────────────
+
+    fn floodgate(src: &str, binding: &str) -> Result<PassiveFloodgateSpec, String> {
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let skel = report.effects.iter().find(|s| s.binding == binding).expect("skeleton");
+        skel.passive_floodgate_verdict(&report)
+    }
+
+    const S8_SKILL_DRAIN: &str = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_ACTIVATE)
+    e1:SetCode(EVENT_FREE_CHAIN)
+    e1:SetCost(Cost.PayLP(1000))
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetRange(LOCATION_SZONE)
+    e2:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+    e2:SetTarget(s.disable)
+    e2:SetCode(EFFECT_DISABLE)
+    c:RegisterEffect(e2)
+end
+function s.disable(e,c)
+    return c:IsType(TYPE_EFFECT) or (c:GetOriginalType()&TYPE_EFFECT)==TYPE_EFFECT
+end
+"#;
+
+    #[test]
+    fn s8_field_disable_effect_monster_idiom_renders_negate_passive() {
+        // Skill Drain (c82732705): FIELD DISABLE over both Monster Zones
+        // with the "is, or was originally, an Effect Monster" idiom.
+        let spec = floodgate(S8_SKILL_DRAIN, "e2").expect("spec");
+        assert_eq!(spec.scope, Some("field"));
+        assert_eq!(spec.target.as_deref(),
+            Some("(all, card, either controls, from monster_zone, where is_effect)"));
+        assert_eq!(spec.item, PassiveFloodgateItem::NegateEffects);
+        assert_eq!(
+            spec.to_dsl_block("Disable Monster Effects", "    "),
+            "    passive \"Disable Monster Effects\" {\n\
+             \x20       scope: field\n\
+             \x20       target: (all, card, either controls, from monster_zone, where is_effect)\n\
+             \x20       negate_effects\n\
+             \x20   }"
+        );
+        // The activation shell is not a passive.
+        assert!(floodgate(S8_SKILL_DRAIN, "e1").unwrap_err().starts_with("code:"));
+    }
+
+    #[test]
+    fn s8_equip_disable_and_cannot_trigger_target_equipped_card() {
+        // Orichalcos Sword of Sealing (DISABLE) / Galaxy Zero (CANNOT_TRIGGER).
+        let src = r#"
+function s.initial_effect(c)
+    aux.AddEquipProcedure(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_EQUIP)
+    e1:SetCode(EFFECT_DISABLE)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_EQUIP)
+    e2:SetCode(EFFECT_CANNOT_TRIGGER)
+    c:RegisterEffect(e2)
+end
+"#;
+        let e1 = floodgate(src, "e1").expect("e1");
+        assert_eq!(e1.body_lines(), vec!["target: equipped_card", "negate_effects"]);
+        let e2 = floodgate(src, "e2").expect("e2");
+        assert_eq!(e2.body_lines(), vec!["target: equipped_card", "grant: cannot_activate effects"]);
+    }
+
+    #[test]
+    fn s8_field_filter_except_self_and_zero_arg_target_bool_function() {
+        // Royal Decree (`c~=e:GetHandler() and c:IsTrap()`) and Jinzo
+        // (`aux.TargetBoolFunction(Card.IsTrap)`), both SZONE/SZONE.
+        let src = r#"
+function s.initial_effect(c)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetCode(EFFECT_DISABLE)
+    e2:SetRange(LOCATION_SZONE)
+    e2:SetTargetRange(LOCATION_SZONE,LOCATION_SZONE)
+    e2:SetTarget(s.distarget)
+    c:RegisterEffect(e2)
+    local e3=Effect.CreateEffect(c)
+    e3:SetType(EFFECT_TYPE_FIELD)
+    e3:SetCode(EFFECT_DISABLE)
+    e3:SetRange(LOCATION_MZONE)
+    e3:SetTargetRange(LOCATION_SZONE,LOCATION_SZONE)
+    e3:SetTarget(aux.TargetBoolFunction(Card.IsTrap))
+    c:RegisterEffect(e3)
+    local e4=Effect.CreateEffect(c)
+    e4:SetType(EFFECT_TYPE_FIELD)
+    e4:SetCode(EFFECT_DISABLE)
+    e4:SetRange(LOCATION_MZONE)
+    e4:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+    e4:SetTarget(aux.TargetBoolFunction(Card.IsType,TYPE_FLIP))
+    c:RegisterEffect(e4)
+end
+function s.distarget(e,c)
+    return c~=e:GetHandler() and c:IsTrap()
+end
+"#;
+        assert_eq!(floodgate(src, "e2").expect("e2").target.as_deref(),
+            Some("(all, trap, either controls, from spell_trap_zone, except self)"));
+        assert_eq!(floodgate(src, "e3").expect("e3").target.as_deref(),
+            Some("(all, trap, either controls, from spell_trap_zone)"));
+        assert_eq!(floodgate(src, "e4").expect("e4").target.as_deref(),
+            Some("(all, card, either controls, from monster_zone, where is_flip)"));
+    }
+
+    #[test]
+    fn s8_cannot_activate_routes_through_the_restrict_decoder_and_refuses() {
+        // Majesty's Fiend: a player floodgate whose aclimit decodes to the
+        // T36 keyword — reported, never emitted as a grant. Mind Drain
+        // carries the S2 activation-location scope. A multi-statement
+        // aclimit is the undecodable class.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+    e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+    e1:SetRange(LOCATION_MZONE)
+    e1:SetTargetRange(1,1)
+    e1:SetValue(s.aclimit)
+    c:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetValue(s.handlimit)
+    c:RegisterEffect(e2)
+    local e3=e1:Clone()
+    e3:SetValue(s.oddlimit)
+    e3:SetCondition(s.con)
+    c:RegisterEffect(e3)
+end
+function s.aclimit(e,re,tp)
+    return re:IsMonsterEffect()
+end
+function s.handlimit(e,re,tp)
+    return re:IsMonsterEffect() and re:GetActivateLocation()==LOCATION_HAND
+end
+function s.oddlimit(e,re,tp)
+    local rc=re:GetHandler()
+    return re:IsMonsterEffect() and rc:IsLevelAbove(5)
+end
+function s.con(e)
+    return true
+end
+"#;
+        assert_eq!(floodgate(src, "e1").unwrap_err(),
+            "restrict both_players cannot_activate_monster_effects: no passive surface");
+        assert_eq!(floodgate(src, "e2").unwrap_err(),
+            "restrict both_players cannot_activate_monster_effects from hand: no passive surface");
+        assert_eq!(floodgate(src, "e3").unwrap_err(),
+            "restrict-undecodable: s.oddlimit (with SetCondition)");
+    }
+
+    #[test]
+    fn s8_skip_gates_condition_pendulum_range_or_mask_pair_and_value() {
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_DISABLE)
+    e1:SetRange(LOCATION_MZONE)
+    e1:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+    e1:SetCondition(s.discon)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_FIELD)
+    e2:SetCode(EFFECT_DISABLE)
+    e2:SetRange(LOCATION_PZONE)
+    e2:SetTargetRange(0,LOCATION_PZONE)
+    c:RegisterEffect(e2)
+    local e3=Effect.CreateEffect(c)
+    e3:SetType(EFFECT_TYPE_FIELD)
+    e3:SetCode(EFFECT_CANNOT_TRIGGER)
+    e3:SetRange(LOCATION_MZONE)
+    e3:SetTargetRange(LOCATION_HAND|LOCATION_SZONE,LOCATION_HAND|LOCATION_SZONE)
+    c:RegisterEffect(e3)
+    local e4=Effect.CreateEffect(c)
+    e4:SetType(EFFECT_TYPE_FIELD)
+    e4:SetCode(EFFECT_DISABLE)
+    e4:SetRange(LOCATION_MZONE)
+    e4:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+    e4:SetValue(function() return e1:GetLabel()*-100 end)
+    c:RegisterEffect(e4)
+    local e5=Effect.CreateEffect(c)
+    e5:SetType(EFFECT_TYPE_FIELD)
+    e5:SetCode(EFFECT_DISABLE)
+    e5:SetRange(LOCATION_MZONE)
+    e5:SetTargetRange(LOCATION_MZONE,LOCATION_MZONE)
+    e5:SetTarget(s.other)
+    c:RegisterEffect(e5)
+end
+function s.discon(e)
+    return true
+end
+function s.other(e,c)
+    return c:IsSummonLocation(LOCATION_EXTRA) or c:IsType(TYPE_EFFECT)
+end
+"#;
+        assert_eq!(floodgate(src, "e1").unwrap_err(), "cond: s.discon");
+        assert_eq!(floodgate(src, "e2").unwrap_err(), "range: LOCATION_PZONE");
+        assert_eq!(floodgate(src, "e3").unwrap_err(),
+            "range: LOCATION_HAND|LOCATION_SZONE,LOCATION_HAND|LOCATION_SZONE");
+        assert!(floodgate(src, "e4").unwrap_err().starts_with("value:"));
+        // A non-idiom `or` still fails the whole filter.
+        assert_eq!(floodgate(src, "e5").unwrap_err(), "filter: s.other");
+        // The DISABLE_EFFECT pair gate: the passive item is the lone code.
+        let paired = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_DISABLE)
+    e1:SetRange(LOCATION_MZONE)
+    e1:SetTargetRange(0,LOCATION_MZONE)
+    c:RegisterEffect(e1)
+    local e2=e1:Clone()
+    e2:SetCode(EFFECT_DISABLE_EFFECT)
+    e2:SetValue(RESET_TURN_SET)
+    c:RegisterEffect(e2)
+end
+"#;
+        assert_eq!(floodgate(paired, "e1").unwrap_err(), "paired: EFFECT_DISABLE_EFFECT sibling");
+    }
+
+    #[test]
+    fn legacy_passive_grant_policy_renders_phase_5d_block() {
+        // Under the legacy bit every chain on the three codes — whatever
+        // its shape — renders the v1 generator's block; the bit resets
+        // after the closure and leaves the current rendering untouched.
+        let parsed = full_moon::parse(S8_SKILL_DRAIN).expect("parse");
+        let report = walk(&parsed);
+        let e2 = report.effects.iter().find(|s| s.binding == "e2").unwrap();
+        let legacy = with_legacy_passive_grant_policy(|| e2.passive_floodgate_verdict(&report));
+        assert_eq!(legacy, Ok(PassiveFloodgateSpec::legacy()));
+        assert_eq!(PassiveFloodgateSpec::legacy().body_lines(),
+            vec!["scope: self", "grant: cannot_activate effects"]);
+        assert!(!legacy_passive_grant_policy(), "policy must reset after the closure");
+        assert_eq!(e2.passive_floodgate_verdict(&report).unwrap().item, PassiveFloodgateItem::NegateEffects);
+        // A player floodgate and a conditioned trigger chain too.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetProperty(EFFECT_FLAG_PLAYER_TARGET)
+    e1:SetCode(EFFECT_CANNOT_ACTIVATE)
+    e1:SetTargetRange(0,1)
+    e1:SetValue(1)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_EQUIP)
+    e2:SetCode(EFFECT_CANNOT_TRIGGER)
+    e2:SetCondition(s.con)
+    c:RegisterEffect(e2)
+end
+function s.con(e)
+    return true
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        for b in ["e1", "e2"] {
+            let e = report.effects.iter().find(|s| s.binding == b).unwrap();
+            assert!(e.passive_floodgate_verdict(&report).is_err());
+            assert_eq!(
+                with_legacy_passive_grant_policy(|| e.passive_floodgate_verdict(&report)),
+                Ok(PassiveFloodgateSpec::legacy())
+            );
+        }
     }
 
     #[test]
