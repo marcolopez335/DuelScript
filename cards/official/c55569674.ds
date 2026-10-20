@@ -7,7 +7,9 @@ card "Celestial Sword - Eatos" {
         timing: when
         trigger: custom "chain_end"
         condition: previous_location == field
+        target (1, card, you control, from monster_zone, where is_face_up and name == "Guardian Eatos")
         resolve {
+            modify_atk target + 500 * count((all, card, either controls, from banished, where is_face_up and is_monster)) until while_face_up
         }
     }
 

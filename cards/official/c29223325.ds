@@ -5,8 +5,10 @@ card "Artifact Ignition" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        target (1, card, either controls, from field, except self, where is_spell or is_trap)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
+            set (1, card, you control, from deck, where archetype == "Artifact" and is_monster)
         }
     }
 }

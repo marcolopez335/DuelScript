@@ -6,8 +6,9 @@ card "Time Thief Flyback" {
         speed: 2
         once_per_turn: hard
         mandatory
+        target (1, card, you control, from monster_zone, where is_face_up and is_xyz and archetype == "Time Thief")
         resolve {
-            attach (1, card, you control) to target as_material
+            attach (1, card, you control, where archetype == "Time Thief") to target as_material
         }
     }
 
@@ -18,7 +19,6 @@ card "Time Thief Flyback" {
             banish self
         }
         resolve {
-            attach (1, card, opponent controls, from gy) to target as_material
         }
     }
 }

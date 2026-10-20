@@ -6,7 +6,7 @@ card "Focused Aquamirror" {
         speed: 1
         mandatory
         resolve {
-            add_to_hand (1, card, you control, from deck)
+            add_to_hand (1, card, you control, from deck, where archetype == "Gishki" and is_monster)
         }
     }
 
@@ -19,7 +19,7 @@ card "Focused Aquamirror" {
             banish self
         }
         resolve {
-            set (1, card, you control)
+            set (1, card, you control, where (is_spell or is_trap) and archetype == "Aquamirror" and not name == "Focused Aquamirror")
         }
     }
 }

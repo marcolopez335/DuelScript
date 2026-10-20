@@ -12,6 +12,9 @@ card "Infernalqueen Archfiend" {
         once_per_turn: soft
         mandatory
         trigger: standby_phase
-        resolve { }
+        target (1, card, you control, from monster_zone, where is_face_up and archetype == "Archfiend")
+        resolve {
+            modify_atk target + 1000 until end_of_turn
+        }
     }
 }

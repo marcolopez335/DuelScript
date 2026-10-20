@@ -20,8 +20,9 @@ card "Stray Purrely Street" {
         once_per_turn: soft
         timing: when
         trigger: end_phase
+        target (1, card, either controls, from monster_zone, where is_face_up and archetype == "Purrely" and is_xyz)
         resolve {
-            attach (1, card, you control) to target as_material
+            attach (1, card, you control, where archetype == "Purrely" and is_spell and type == Quick-Play Spell) to target as_material
         }
     }
 }

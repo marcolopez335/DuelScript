@@ -19,5 +19,9 @@ card "Concours de Cuisine (Culinary Confrontation)" {
         cost {
             banish self
         }
+        target (1, card, either controls, from monster_zone, where is_face_up)
+        resolve {
+            modify_atk target + count((all, card, either controls, from gy, where archetype == "Recipe")) * 200 until while_face_up
+        }
     }
 }

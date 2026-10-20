@@ -27,8 +27,9 @@ card "Lord of the Red" {
         once_per_turn: soft
         timing: when
         trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        target (1, card, either controls, from field, where is_spell or is_trap)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 }

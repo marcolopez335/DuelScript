@@ -30,8 +30,9 @@ card "Bujinki Ahashima" {
         once_per_turn: soft
         timing: if
         trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        target (1, card, opponent controls, from field, where is_spell or is_trap)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 }

@@ -19,8 +19,11 @@ card "Superheavy Samurai Fist" {
         speed: 1
         once_per_turn: soft
         mandatory
+        target (1, card, you control, from monster_zone, where is_face_up and level >= 2 and archetype == "Superheavy Samurai" and is_synchro)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon self
+            restrict you cannot_special_summon except (archetype == "Superheavy Samurai") end_of_turn
+            modify_level target - 1 until while_face_up
         }
     }
 }

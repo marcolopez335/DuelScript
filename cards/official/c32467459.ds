@@ -28,7 +28,7 @@ card "El Shaddoll Meshahrail" {
             pay_lp 800
         }
         resolve {
-            add_to_hand (1, card, you control, from deck)
+            add_to_hand (1, card, you control, from deck, where archetype == "Shaddoll" or (archetype == "Void" and (is_spell or is_trap)))
         }
     }
 
@@ -37,7 +37,7 @@ card "El Shaddoll Meshahrail" {
         timing: if
         trigger: custom "chain_end"
         resolve {
-            special_summon (1, card, you control, from gy)
+            special_summon (1, card, you control, from gy, where archetype == "Shaddoll")
         }
     }
 }

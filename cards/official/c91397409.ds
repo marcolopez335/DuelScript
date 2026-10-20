@@ -26,7 +26,7 @@ card "Penguin Brave" {
         timing: if
         trigger: summoned by special
         resolve {
-            special_summon (1, card, you control, from deck)
+            special_summon (1, card, you control, from deck, where archetype == "Penguin")
         }
     }
 
@@ -36,7 +36,7 @@ card "Penguin Brave" {
         timing: when
         trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
         resolve {
-            change_position (1, card, you control, from monster_zone) to defense_position
+            change_position (1, card, you control, from monster_zone, where attribute == WATER and is_face_down) to defense_position
         }
     }
 }
