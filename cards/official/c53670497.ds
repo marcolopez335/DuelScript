@@ -14,15 +14,16 @@ card "Hieratic Seal From the Ashes" {
         speed: 2
         once_per_turn: soft
         resolve {
-            send (1, card, you control, from deck) to gy
+            send (1, card, you control, from deck, where archetype == "Hieratic" and is_monster) to gy
         }
     }
 
     effect "Effect 3" {
         speed: 2
         once_per_turn: soft
+        target (1, card, you control, from banished, where archetype == "Hieratic" and is_monster and is_face_up)
         resolve {
-            send (all, card, either controls) to gy
+            send target to gy
         }
     }
 

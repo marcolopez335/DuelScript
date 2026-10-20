@@ -17,7 +17,6 @@ card "Traptrix Myrmeleo" {
         timing: when
         trigger: summoned
         resolve {
-            add_to_hand (1, card, you control, from deck)
         }
     }
 
@@ -25,8 +24,9 @@ card "Traptrix Myrmeleo" {
         speed: 1
         mandatory
         trigger: summoned by special
+        target (1, card, opponent controls, from field, where is_spell or is_trap)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 }

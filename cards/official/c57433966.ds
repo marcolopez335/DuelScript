@@ -7,7 +7,8 @@ card "Danger! Excitement! Mystery!" {
         once_per_turn: hard
         mandatory
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand (1, card, you control, from deck, where archetype == "Danger" and is_monster and level <= 4)
+            restrict you cannot_special_summon except (archetype == "Danger") end_of_turn
         }
     }
 }

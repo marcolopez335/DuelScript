@@ -14,8 +14,9 @@ card "Graydle Impact" {
         speed: 1
         once_per_turn: hard
         mandatory
+        target (1, card, you control, from field, except self, where is_face_up and archetype == "Graydle")
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 
@@ -25,7 +26,7 @@ card "Graydle Impact" {
         timing: when
         trigger: end_phase
         resolve {
-            add_to_hand (1, card, you control, from deck)
+            add_to_hand (1, card, you control, from deck, where archetype == "Graydle")
         }
     }
 }

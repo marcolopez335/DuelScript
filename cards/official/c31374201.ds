@@ -26,7 +26,8 @@ card "Whitebeard, the Plunder Patroll Helm" {
         timing: if
         trigger: custom "chain_end"
         resolve {
-            special_summon (all, card, either controls)
+            special_summon (1, card, you control, from deck, where archetype == "Plunder Patroll" and not name == "Whitebeard, the Plunder Patroll Helm")
+            restrict you cannot_special_summon except (archetype == "Plunder Patroll") end_of_turn
         }
     }
 }

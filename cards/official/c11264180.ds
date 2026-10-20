@@ -5,8 +5,11 @@ card "TGX1-HL" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        target (1, card, you control, from monster_zone, where is_face_up and archetype == "T.G.")
         resolve {
-            destroy (all, card, either controls)
+            destroy (1, card, either controls, from field, except self, where is_spell or is_trap)
+            set_atk target target.atk / 2 until while_face_up
+            set_def target target.def / 2 until while_face_up
         }
     }
 }

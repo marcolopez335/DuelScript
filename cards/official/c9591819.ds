@@ -20,6 +20,10 @@ card "Gagaga Escape" {
         cost {
             banish self
         }
-        resolve { }
+        resolve {
+            change_position (all, card, you control, from monster_zone, in attack_position, where archetype == "Gagaga" and is_face_up) to defense_position
+            grant (all, card, you control, from monster_zone, where archetype == "Gagaga") cannot_be_destroyed by battle until end_of_turn
+            grant (all, card, you control, from monster_zone, where archetype == "Gagaga") cannot_be_destroyed by effect until end_of_turn
+        }
     }
 }

@@ -6,7 +6,10 @@ card "Spright Gamma Burst" {
         speed: 2
         once_per_turn: hard
         mandatory
-        resolve { }
+        resolve {
+            modify_atk (all, card, either controls, from monster_zone, where is_face_up and (level == 2 or rank == 2 or link == 2)) + 1400 until end_of_turn
+            modify_def (all, card, either controls, from monster_zone, where is_face_up and (level == 2 or rank == 2 or link == 2)) + 1400 until end_of_turn
+        }
     }
 
     effect "Effect 2" {

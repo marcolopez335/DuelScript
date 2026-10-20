@@ -7,7 +7,6 @@ card "Opening of the Spirit Gates" {
         once_per_turn: hard
         mandatory
         resolve {
-            add_to_hand (1, card, you control, from deck)
         }
     }
 
@@ -19,7 +18,7 @@ card "Opening of the Spirit Gates" {
             discard (1, card, you control, from hand)
         }
         resolve {
-            special_summon (1, card, you control, from gy)
+            special_summon (1, card, you control, from gy, where race == Fiend and atk == 0 and def == 0)
         }
     }
 
@@ -28,7 +27,7 @@ card "Opening of the Spirit Gates" {
         once_per_turn: soft
         mandatory
         resolve {
-            add_to_hand (1, card, you control, from gy)
+            add_to_hand (1, card, you control, from gy, where is_spell and (type == Continuous Spell or type == Continuous Trap))
         }
     }
 }

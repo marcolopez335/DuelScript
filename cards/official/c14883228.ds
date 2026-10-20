@@ -5,8 +5,9 @@ card "Typhoon" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        target (1, card, either controls, from field, except self, where is_face_up and (is_spell or is_trap))
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 }

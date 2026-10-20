@@ -22,7 +22,7 @@ card "Lightsworn Dragonling" {
         timing: if
         trigger: summoned by special
         resolve {
-            send (1, card, you control, from deck) to gy
+            send (1, card, you control, from deck, where archetype == "Lightsworn" and not name == "Lightsworn Dragonling") to gy
         }
     }
 
@@ -32,7 +32,7 @@ card "Lightsworn Dragonling" {
         timing: if
         trigger: custom "chain_end"
         resolve {
-            add_to_hand (1, card, you control, from deck)
+            add_to_hand (1, card, you control, from deck, where race == Dragon and atk == 3000 and def == 2600)
         }
     }
 }

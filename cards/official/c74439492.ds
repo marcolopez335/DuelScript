@@ -5,8 +5,10 @@ card "Scrap Sheen" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        target (1, card, you control, from monster_zone, where is_face_up and archetype == "Scrap")
         resolve {
-            destroy (all, card, either controls)
+            destroy target
+            modify_atk (all, card, you control, from monster_zone, where is_face_up and archetype == "Scrap") + 1000 until end_of_turn
         }
     }
 }

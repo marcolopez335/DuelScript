@@ -11,8 +11,10 @@ card "T.G. Gear Zombie" {
         speed: 1
         once_per_turn: hard
         mandatory
+        target (1, card, you control, from monster_zone, where is_face_up and archetype == "T.G.")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon self
+            modify_atk target - 1000 until while_face_up
         }
     }
 }

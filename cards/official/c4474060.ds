@@ -28,7 +28,9 @@ card "SPYRAL GEAR - Drone" {
         cost {
             tribute self
         }
+        target (1, card, you control, from monster_zone, where is_face_up and archetype == "SPYRAL")
         resolve {
+            modify_atk target + count((all, card, opponent controls, from field)) * 500 until while_face_up
         }
     }
 
