@@ -470,6 +470,29 @@ pub struct SelectorSpec {
     /// EXACTLY has to account for them — the where-clause machinery
     /// never sees them. Empty when the call had none.
     pub filter_extra: Vec<String>,
+    /// Grammar `position_filter` slot (`in attack_position` /
+    /// `in defense_position`) from a battle-position atom of the lua
+    /// filter (T39 S3). Shares its slot with `except self`, so the
+    /// filter resolution refuses the pair instead of rendering both.
+    pub position: Option<&'static str>,
+    /// Legality predicates of the lua filter that no where-atom states
+    /// (T39 S3): `IsAbleToHand`, `IsCanBeSpecialSummoned`, the
+    /// `aux.NecroValleyFilter` wrapper, … — ruleset checks the card
+    /// text never spells out. Transparent for the ONE action whose
+    /// runtime legality check implies them ([`implied_by_action`]);
+    /// any other consumer treats them as unmapped.
+    pub filter_implied: Vec<String>,
+    /// Atoms of the lua filter with no DSL rendering at all (T39 S3):
+    /// an unknown method, a non-literal argument, a foreign binding,
+    /// an unexpressible exception arg. Non-empty ⇒ every action
+    /// consumer REFUSES the selector (`selector-filter-unmapped`); the
+    /// pre-T39 policy rendered the superset silently.
+    pub filter_residual: Vec<String>,
+    /// True for `Duel.SelectMatchingCard` / `Duel.SelectTarget`
+    /// provenance (and selections derived from them). The pre-gate
+    /// legacy refinement ([`refine_group_bindings`]) never saw these
+    /// specs' filters; the audit's legacy rendering keeps that scope.
+    pub select_provenance: bool,
 }
 
 impl SelectorSpec {
@@ -478,11 +501,102 @@ impl SelectorSpec {
         if let Some(c) = &self.controller { parts.push(c.clone()); }
         if let Some(z) = &self.zone { parts.push(z.clone()); }
         // Grammar order: position_filter sits between zone_filter and
-        // where_clause in the selector rule.
-        if self.except_self { parts.push("except self".to_string()); }
+        // where_clause in the selector rule — ONE of `except self` /
+        // `in <battle>_position` (the resolution never sets both).
+        if self.except_self {
+            parts.push("except self".to_string());
+        } else if let Some(p) = self.position {
+            parts.push(p.to_string());
+        }
         if let Some(w) = &self.where_clause { parts.push(format!("where {}", w)); }
         format!("({})", parts.join(", "))
     }
+
+    /// Render the selector for an ACTION consumer (T39 S3 gate). Err
+    /// carries the unmapped residual: an atom with no DSL rendering,
+    /// or a legality predicate the action does not imply. `method` is
+    /// the consuming `Duel.*` call (empty for non-action consumers —
+    /// chain receivers, equip helpers — which admit no implied
+    /// predicate at all).
+    pub fn action_dsl(&self, method: &str) -> Result<String, String> {
+        if legacy_selector_policy() {
+            return Ok(self.to_dsl());
+        }
+        if let Some(r) = self.filter_residual.first() {
+            return Err(r.clone());
+        }
+        if let Some(p) = self.filter_implied.iter().find(|p| !implied_by_action(method, p)) {
+            return Err(format!("{} not implied by {}", p, if method.is_empty() { "a non-action consumer" } else { method }));
+        }
+        Ok(self.to_dsl())
+    }
+}
+
+/// Legality predicates the DSL action's own runtime check already
+/// applies — their omission from the selector is not lossy (T39 S3).
+/// Each entry was checked against ≥3 corpus cards whose printed text
+/// states no such condition — the lua predicate is ocgcore's
+/// legality pre-check, the card text just names the action:
+///   - `Duel.SendtoHand`     ← IsAbleToHand (c10024317 Parametalfoes
+///     Melcaster, c10239627 Magical Abductor, c1035143 Darkuriboh)
+///   - `Duel.SendtoGrave`    ← IsAbleToGrave (c10000090 Ra - Immortal
+///     Phoenix, c10019086 Tri-Brigade Arms Bucephalus II, c44716890
+///     Toll Hike [AsCost])
+///   - `Duel.Release`        ← IsReleasable / IsReleasableByEffect /
+///     IsAbleToGrave (c13332685 Ame no Habakiri no Mitsurugi,
+///     c27204311 Nibiru, c29876299 Megalith Anastasis)
+///   - `Duel.Remove`         ← IsAbleToRemove (c10019086 Tri-Brigade
+///     Arms Bucephalus II, c10669138 Five-Headed Link Dragon,
+///     c11961740 Different Dimension Capsule)
+///   - `Duel.SendtoDeck`     ← IsAbleToDeck / IsAbleToExtra (c11911336
+///     Spellbook of the Grand Circle, c12215894 Deskbot Base,
+///     c12948099 Old Entity Cthugua, c25415161 Springans Interluder)
+///   - `Duel.SpecialSummon*` ← IsCanBeSpecialSummoned (c10028593
+///     Reborn Tengu, c10110717 Mecha Bunny, c10802915 Tour Guide From
+///     the Underworld) and the free-zone leaf `ZoneAvailable`
+///     (`Duel.GetLocationCountFromEx(…)>0` — c20007374 Converging
+///     Wishes, c36841733 Elemental HERO Grandmerge, c1412158 Super
+///     Roboyarou)
+///   - `Duel.Destroy`        ← IsDestructable (c11759079 Dual Avatar
+///     Feet - Kokoku, c3486020 Yoko the Graceful Mayakashi,
+///     c56619314 D/D/D Dragon King Pendragon)
+///   - `Duel.SSet`           ← IsSSetable (c10024317 Parametalfoes
+///     Melcaster, c1498449 Dracotail Faimena, c15171722 Evolsaur Lios)
+///   - `Duel.Summon`         ← IsSummonable (c11819473 Arcana Reading,
+///     c13224603 Gizmek Yata, c1487805 Cosmic Slicer Zer'oll)
+///   - `Duel.ChangePosition` ← IsCanChangePosition / IsCanTurnSet
+///     (c12470447 Curse of Fiend, c16947147 Speedroid Menko,
+///     c12923641 Swords of Concealing Light)
+///   - `Duel.GetControl`     ← IsControlerCanBeChanged /
+///     IsAbleToChangeControler (c27096833 Borreload Liberator Dragon,
+///     c36898537 Metaphys Horus, c43932352 Creature Swap)
+///   - every action          ← the `aux.NecroValleyFilter` wrapper (a
+///     Necrovalley floodgate check; c10808715 Masked HERO Dusk Crow,
+///     c14001430 Madolche Chateau, c1045143 Geargiano Mk-II)
+/// `…AsCost` variants ride with their base predicate (cost handlers
+/// walk the same bodies). Everything else — summonability of a
+/// different procedure, `IsCanBeEffectTarget`, `IsForbidden`,
+/// `IsPublic`, `IsSpecialSummoned` — stays unmapped.
+fn implied_by_action(method: &str, pred: &str) -> bool {
+    if pred == "aux.NecroValleyFilter" {
+        return !method.is_empty();
+    }
+    let base = pred.strip_suffix("AsCost").unwrap_or(pred);
+    let implied: &[&str] = match method {
+        "Duel.SendtoHand" => &["IsAbleToHand"],
+        "Duel.SendtoGrave" => &["IsAbleToGrave"],
+        "Duel.Release" => &["IsReleasable", "IsReleasableByEffect", "IsAbleToGrave"],
+        "Duel.Remove" => &["IsAbleToRemove"],
+        "Duel.SendtoDeck" => &["IsAbleToDeck", "IsAbleToExtra"],
+        "Duel.SpecialSummon" | "Duel.SpecialSummonStep" => &["IsCanBeSpecialSummoned", "ZoneAvailable"],
+        "Duel.Destroy" => &["IsDestructable"],
+        "Duel.SSet" => &["IsSSetable"],
+        "Duel.Summon" => &["IsSummonable"],
+        "Duel.ChangePosition" => &["IsCanChangePosition", "IsCanTurnSet"],
+        "Duel.GetControl" => &["IsControlerCanBeChanged", "IsAbleToChangeControler"],
+        _ => &[],
+    };
+    implied.contains(&base)
 }
 
 #[derive(Debug, Default, Clone)]
@@ -982,7 +1096,10 @@ fn filter_predicate_to_where(method: &str, arg: &str) -> Option<String> {
         }
         "Card.IsRace" => {
             let mut parts = Vec::new();
-            for c in arg.split('|').map(str::trim) {
+            // `RACES_BEAST_BWARRIOR_WINGB` is the corpus alias for the
+            // three beast races (constant.lua).
+            let expanded = arg.replace("RACES_BEAST_BWARRIOR_WINGB", "RACE_BEAST|RACE_BEASTWARRIOR|RACE_WINGEDBEAST");
+            for c in expanded.split('|').map(str::trim) {
                 parts.push(format!("race == {}", race_const_to_dsl(c)?));
             }
             join(parts)
@@ -1003,29 +1120,9 @@ fn filter_predicate_to_where(method: &str, arg: &str) -> Option<String> {
 /// with any extra logic (conjunctions, comparisons against other
 /// bindings, …) fail the strict shape checks and return None.
 fn closure_filter_to_where(raw: &str) -> Option<String> {
-    let r = raw.strip_prefix("function")?.trim_start();
-    let r = r.strip_prefix('(')?;
-    let (param, r) = r.split_once(')')?;
-    let param = param.trim();
-    if param.is_empty() || !param.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
-        return None;
-    }
-    let r = r.trim_start().strip_prefix("return")?;
-    let body = r.trim().strip_suffix("end")?.trim();
-    let (recv, rest) = body.split_once(':')?;
-    if recv.trim() != param { return None; }
-    let (method, rest) = rest.split_once('(')?;
-    let arg = rest.strip_suffix(')')?.trim();
-    match method.trim() {
-        "IsSetCard" => filter_predicate_to_where("Card.IsSetCard", arg),
-        "IsRace" => filter_predicate_to_where("Card.IsRace", arg),
-        "IsAttribute" => filter_predicate_to_where("Card.IsAttribute", arg),
-        "IsLevelAbove" => {
-            let n: u32 = arg.parse().ok()?;
-            Some(format!("level >= {n}"))
-        }
-        _ => None,
-    }
+    let (params, expr) = parse_closure_filter(raw)?;
+    let [param] = params.as_slice() else { return None };
+    lua_filter_expr_to_where(&expr, param)
 }
 
 /// True when `s` is one balanced `( … )` group covering the whole string.
@@ -1108,6 +1205,26 @@ fn card_pred_to_where(name: &str, args: &str) -> Option<String> {
         }
         "HasNonZeroAttack"  if args.is_empty() => Some("is_face_up and atk > 0".to_string()),
         "HasNonZeroDefense" if args.is_empty() => Some("is_face_up and def > 0".to_string()),
+        // T39 S3 — exact-stat, name, and sub-type atoms.
+        "IsAttack"  => exact("atk"),
+        "IsDefense" => exact("def"),
+        "IsCode" => code_args_to_where(args),
+        "IsAttributeExcept" => {
+            if args.contains('|') { return None; }
+            Some(format!("not attribute == {}", attribute_const_to_dsl(args.trim())?))
+        }
+        "IsSpellTrap" if args.is_empty() => Some("is_spell or is_trap".to_string()),
+        "IsPendulumMonster" if args.is_empty() => Some("is_monster and is_pendulum".to_string()),
+        "IsTuner" if args.is_empty() => Some("is_tuner".to_string()),
+        "IsNormalSpell"     if args.is_empty() => Some("type == Normal Spell".to_string()),
+        "IsQuickPlaySpell"  if args.is_empty() => Some("type == Quick-Play Spell".to_string()),
+        "IsContinuousSpell" if args.is_empty() => Some("type == Continuous Spell".to_string()),
+        "IsEquipSpell"      if args.is_empty() => Some("type == Equip Spell".to_string()),
+        "IsFieldSpell"      if args.is_empty() => Some("type == Field Spell".to_string()),
+        "IsRitualSpell"     if args.is_empty() => Some("type == Ritual Spell".to_string()),
+        "IsNormalTrap"      if args.is_empty() => Some("type == Normal Trap".to_string()),
+        "IsCounterTrap"     if args.is_empty() => Some("type == Counter Trap".to_string()),
+        "IsContinuousTrap"  if args.is_empty() => Some("type == Continuous Trap".to_string()),
         // Type-bit test: lua `IsType(a|b)` is true when ANY bit matches.
         "IsType" => {
             let mut parts = Vec::new();
@@ -1120,7 +1237,11 @@ fn card_pred_to_where(name: &str, args: &str) -> Option<String> {
     }
 }
 
-/// TYPE_* constant → DSL `is_*` predicate atom (grammar `pred_atom`).
+/// TYPE_* constant → DSL predicate atom (grammar `pred_atom`): the
+/// `is_*` tags for the monster/frame bits, `type == <card_type>` (the
+/// grammar's bare keyword, e.g. `type == Equip Spell`) for the spell/
+/// trap sub-types and monster abilities (T39 S3).
+/// `TYPE_CONTINUOUS` is a spell OR trap bit → an or-chain atom.
 fn type_const_to_pred(c: &str) -> Option<&'static str> {
     Some(match c {
         "TYPE_MONSTER"  => "is_monster",
@@ -1137,6 +1258,15 @@ fn type_const_to_pred(c: &str) -> Option<&'static str> {
         "TYPE_TUNER"    => "is_tuner",
         "TYPE_FLIP"     => "is_flip",
         "TYPE_TOKEN"    => "is_token",
+        "TYPE_EQUIP"      => "type == Equip Spell",
+        "TYPE_FIELD"      => "type == Field Spell",
+        "TYPE_QUICKPLAY"  => "type == Quick-Play Spell",
+        "TYPE_COUNTER"    => "type == Counter Trap",
+        "TYPE_CONTINUOUS" => "type == Continuous Spell or type == Continuous Trap",
+        "TYPE_GEMINI"     => "type == Gemini",
+        "TYPE_UNION"      => "type == Union",
+        "TYPE_SPIRIT"     => "type == Spirit",
+        "TYPE_TOON"       => "type == Toon",
         _ => return None,
     })
 }
@@ -1192,6 +1322,38 @@ fn split_top_level_bool<'a>(expr: &'a str) -> Option<(Vec<&'a str>, &'static str
     Some((parts, op))
 }
 
+/// Split `expr` at every top-level (paren-depth-0) occurrence of the
+/// spaced keyword `needle` (`" or "` / `" and "`). The whole expression
+/// comes back as the only part when it does not occur, or when a cut
+/// would leave an empty operand.
+fn split_top_level_at<'a>(expr: &'a str, needle: &str) -> Vec<&'a str> {
+    let b = expr.as_bytes();
+    let n = needle.as_bytes();
+    let mut depth = 0i32;
+    let mut parts = Vec::new();
+    let mut start = 0usize;
+    let mut i = 0usize;
+    while i < b.len() {
+        match b[i] {
+            b'(' | b'{' => depth += 1,
+            b')' | b'}' => depth -= 1,
+            _ => {}
+        }
+        if depth == 0 && b[i..].starts_with(n) {
+            parts.push(expr[start..i].trim());
+            start = i + n.len();
+            i = start;
+            continue;
+        }
+        i += 1;
+    }
+    parts.push(expr[start..].trim());
+    if parts.iter().any(|p| p.is_empty()) {
+        return vec![expr.trim()];
+    }
+    parts
+}
+
 /// Map a whole lua filter-predicate expression over `param` to a DSL
 /// where-clause (T38 S1). Handles `and`-chains, `or`-chains, redundant
 /// parens, `not`, `<param>:Is*(…)` predicate atoms, and
@@ -1200,39 +1362,16 @@ fn split_top_level_bool<'a>(expr: &'a str) -> Option<(Vec<&'a str>, &'static str
 /// non-literal operand) poisons the WHOLE expression — group-applied
 /// modifiers must match the lua set exactly, never a superset.
 ///
-/// The rendered clause is always a FLAT homogeneous chain: the v2
-/// parser's parenthesized-predicate branch is currently broken (a
-/// `(A and B)` where-group parses as `not A`; or-groups error), so any
-/// mixed `and`/`or` structure that would need grouping returns None
-/// (task_bb225d5f tracks the parser fix; those cards are S1b backlog).
+/// Mixed `and`/`or` structure renders through the v2 parser's
+/// parenthesized `Nested` predicate branch (T39 S3: `(A or B) and C`);
+/// the DSL predicate chain itself is precedence-free, so the parens
+/// are always emitted where lua's precedence implies them.
 fn lua_filter_expr_to_where(expr: &str, param: &str) -> Option<String> {
-    let e = expr.trim();
-    if e.is_empty() { return None; }
-    // Parens only group; strip a full-cover pair and recurse. The
-    // flat-chain homogeneity checks below decide expressibility.
-    if fully_parenthesized(e) {
-        return lua_filter_expr_to_where(&e[1..e.len() - 1], param);
-    }
-    if let Some((parts, op)) = split_top_level_bool(e) {
-        let other = if op == "and" { " or " } else { " and " };
-        let mut mapped = Vec::new();
-        for p in parts {
-            let m = lua_filter_expr_to_where(p, param)?;
-            // Same-connective children flatten into the chain; a child
-            // carrying the OTHER connective would need parens → None.
-            if m.contains(other) { return None; }
-            mapped.push(m);
-        }
-        return Some(mapped.join(&format!(" {} ", op)));
-    }
-    if let Some(rest) = e.strip_prefix("not ") {
-        let m = lua_filter_expr_to_where(rest.trim(), param)?;
-        // `not` binds one atom in the DSL; a compound operand would
-        // need the broken paren branch → None.
-        if m.contains(" and ") || m.contains(" or ") { return None; }
-        return Some(format!("not {}", m));
-    }
-    lua_filter_atom_to_where(e, param)
+    // T39 S3 — the exact projection of the shared mapper: every leaf
+    // a where-atom, no position slot, no dropped legality predicate.
+    let m = lua_filter_expr_to_map(expr, param, &[]);
+    if !m.is_exact() || m.position.is_some() { return None; }
+    m.where_clause()
 }
 
 /// One predicate atom: `<param>:IsX(args)` or `<param>:Get<Stat>() <cmp> <int>`.
@@ -1329,7 +1468,8 @@ fn refine_group_bindings(
 ) -> Option<FunctionBody> {
     let mut upgrades: Vec<(String, String)> = Vec::new();
     for (name, spec) in &body.group_bindings {
-        if spec.filter_mapped { continue; }
+        // Pre-T39 scope: select-provenance specs carried no raw filter.
+        if spec.filter_mapped || spec.select_provenance { continue; }
         let Some(raw) = spec.raw_filter.as_deref() else { continue };
         let Some(wc) = named_filter_to_where(raw, functions) else { continue };
         upgrades.push((name.clone(), wc));
@@ -1345,11 +1485,552 @@ fn refine_group_bindings(
     Some(out)
 }
 
-/// SET_* archetype constant → DSL archetype string. Curated for the
-/// constants that appear as fusion/ritual summon filters in the corpus;
-/// names match the TCG archetype strings the compiler's ArchetypeIs
-/// predicate (and its card-name substring fallback) expects.
-fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
+// ── T39 S3: selector filter fidelity ─────────────────────────────────
+//
+// One shared mapper resolves a lua filter argument — inline `Card.X`,
+// the `aux.*` combinators, a script-local `s.*` function, an inline
+// closure — into a [`FilterMap`]: the where-atoms the grammar can
+// state, a battle-position slot, the legality predicates the consuming
+// action may imply, and the residual the DSL cannot express. Action
+// selectors refuse on any residual (skip-not-mis-emit); the pre-T39
+// policy rendered the unfiltered superset and the engine executed it
+// (Mirror Force destroying every opposing monster, not the attack-
+// position ones).
+
+/// Resolution of one lua filter argument (T39 S3).
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub struct FilterMap {
+    /// And-joined where-atoms. An atom may itself be a flat or-chain
+    /// only when it is the sole atom (the v2 parser's parenthesized
+    /// predicate branch is broken — see `lua_filter_expr_to_where`).
+    pub atoms: Vec<String>,
+    pub position: Option<&'static str>,
+    pub implied: Vec<String>,
+    pub residual: Vec<String>,
+}
+
+impl FilterMap {
+    fn atom(a: String) -> Self { FilterMap { atoms: vec![a], ..Default::default() } }
+    fn implied(p: String) -> Self { FilterMap { implied: vec![p], ..Default::default() } }
+    fn residual(r: String) -> Self { FilterMap { residual: vec![r], ..Default::default() } }
+
+    /// Conjoin another map into this one (lua `and`). A second,
+    /// different battle position is unsatisfiable → residual.
+    fn and(&mut self, other: FilterMap) {
+        self.atoms.extend(other.atoms);
+        self.implied.extend(other.implied);
+        self.residual.extend(other.residual);
+        match (self.position, other.position) {
+            (None, p) => self.position = p,
+            (Some(a), Some(b)) if a != b => self.residual.push("conflicting battle positions".to_string()),
+            _ => {}
+        }
+    }
+
+    /// True when every atom of the filter has a DSL rendering and no
+    /// legality predicate was dropped — the exact member set.
+    pub fn is_exact(&self) -> bool { self.residual.is_empty() && self.implied.is_empty() }
+
+    /// The where-clause text: the atoms and-joined, an or-chain atom
+    /// parenthesized when it stands beside another atom (the v2
+    /// parser's `Nested` predicate branch).
+    pub fn where_clause(&self) -> Option<String> {
+        if self.atoms.is_empty() { return None; }
+        if self.atoms.len() == 1 { return Some(self.atoms[0].clone()); }
+        Some(self.atoms.iter().map(|a| group_or(a)).collect::<Vec<_>>().join(" and "))
+    }
+}
+
+/// Parenthesize a flat or-chain atom so it can sit inside an and-chain.
+fn group_or(atom: &str) -> String {
+    if atom.contains(" or ") { format!("({})", atom) } else { atom.to_string() }
+}
+
+/// Parenthesize any compound atom (an or-chain, or a multi-atom
+/// expansion such as `HasLevel`'s `is_monster and not is_xyz and not
+/// is_link`) so it can sit under `not` or inside an or-chain.
+fn group_compound(atom: &str) -> String {
+    if atom.contains(" or ") || atom.contains(" and ") { format!("({})", atom) } else { atom.to_string() }
+}
+
+/// Names of the ruleset legality predicates [`implied_by_action`]
+/// recognises for SOME action; the atom mapper classifies them as
+/// implied instead of residual. `…AsCost` variants ride along.
+fn is_legality_pred(name: &str) -> bool {
+    let base = name.strip_suffix("AsCost").unwrap_or(name);
+    matches!(
+        base,
+        "IsAbleToHand" | "IsAbleToGrave" | "IsAbleToRemove" | "IsAbleToDeck" | "IsAbleToExtra"
+        | "IsCanBeSpecialSummoned" | "IsDestructable" | "IsReleasable" | "IsReleasableByEffect"
+        | "IsSSetable" | "IsSummonable" | "IsCanChangePosition" | "IsCanTurnSet"
+        | "IsControlerCanBeChanged" | "IsAbleToChangeControler"
+    )
+}
+
+/// Resolve a lua filter ARGUMENT (the text of the `filter` slot of a
+/// `Duel.GetMatchingGroup` / `SelectMatchingCard` / … call) against
+/// the DSL. `extras` are the call's trailing filter args (bound
+/// positionally to the filter's later params); `functions` resolves
+/// script-local names.
+fn resolve_filter(
+    raw: &str,
+    extras: &[String],
+    functions: &BTreeMap<String, FunctionBody>,
+) -> FilterMap {
+    let raw = raw.trim();
+    match raw {
+        "nil" | "aux.TRUE" => return FilterMap::default(),
+        _ => {}
+    }
+    if let Some(name) = raw.strip_prefix("Card.") {
+        // A bare method ref is called as `Card.X(c, <extras>)`: the
+        // call's trailing filter args are the predicate's args. Lua
+        // ignores surplus args, so a zero-arg predicate maps whatever
+        // the call threads through (`aux.AND(Card.IsMonster, …)` with
+        // `e, tp` extras).
+        if name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+            let m = atom_map(name, &subst_script_id(&extras.join(",")));
+            if !m.residual.is_empty() {
+                let bare = atom_map(name, "");
+                if bare.residual.is_empty() { return bare; }
+            }
+            return m;
+        }
+        return FilterMap::residual(raw.to_string());
+    }
+    if let Some(rest) = raw.strip_prefix("aux.") {
+        let Some((combinator, args)) = rest.split_once('(') else {
+            return FilterMap::residual(raw.to_string());
+        };
+        let Some(inner) = args.strip_suffix(')') else {
+            return FilterMap::residual(raw.to_string());
+        };
+        let Some(parts) = split_top_level_commas(inner) else {
+            return FilterMap::residual(raw.to_string());
+        };
+        let parts: Vec<String> = parts.into_iter().filter(|p| !p.is_empty()).collect();
+        let Some(first) = parts.first() else {
+            return FilterMap::residual(raw.to_string());
+        };
+        return match combinator {
+            // FilterBoolFunction(f, a, b) → f(c, a, b): the bound args
+            // REPLACE the call's extras.
+            "FilterBoolFunction" => resolve_filter(first, &parts[1..], functions),
+            // FaceupFilter(f, a, b) → c:IsFaceup() and f(c, a, b): like
+            // FilterBoolFunction, the bound args replace the call's
+            // extras (utility.lua ignores the varargs).
+            "FaceupFilter" => {
+                let mut m = FilterMap::atom("is_face_up".to_string());
+                m.and(resolve_filter(first, &parts[1..], functions));
+                m
+            }
+            // NecroValleyFilter(f) → f(c, …) and not under Necrovalley
+            // — a floodgate legality check every action implies.
+            "NecroValleyFilter" if parts.len() == 1 => {
+                let mut m = FilterMap::implied("aux.NecroValleyFilter".to_string());
+                m.and(resolve_filter(first, extras, functions));
+                m
+            }
+            "AND" => {
+                let mut m = FilterMap::default();
+                for p in &parts {
+                    m.and(resolve_filter(p, extras, functions));
+                }
+                m
+            }
+            "NOT" if parts.len() == 1 => negate_map(resolve_filter(first, extras, functions)),
+            _ => FilterMap::residual(raw.to_string()),
+        };
+    }
+    if raw.starts_with("s.") {
+        let Some(fb) = functions.get(raw) else {
+            return FilterMap::residual(raw.to_string());
+        };
+        let (Some(expr), Some(param)) = (fb.return_expr.as_deref(), fb.params.first()) else {
+            return FilterMap::residual(format!("{} (not a pure single-return filter)", raw));
+        };
+        return filter_fn_map(expr, param, &fb.params[1..], extras);
+    }
+    if let Some((params, expr)) = parse_closure_filter(raw) {
+        let Some(param) = params.first() else {
+            return FilterMap::residual(raw.to_string());
+        };
+        return filter_fn_map(&expr, param, &params[1..], extras);
+    }
+    FilterMap::residual(raw.to_string())
+}
+
+/// `not` over a resolved map: a single where-atom negates (an or-
+/// chain atom in parens — the DSL `not` binds one atom); a map with
+/// several atoms, a position, or a dropped predicate has no rendering.
+fn negate_map(m: FilterMap) -> FilterMap {
+    if m.is_exact() && m.position.is_none() && m.atoms.len() == 1 {
+        return FilterMap::atom(format!("not {}", group_compound(&m.atoms[0])));
+    }
+    FilterMap::residual(format!("not ({})", m.atoms.iter().chain(m.implied.iter()).chain(m.residual.iter()).cloned().collect::<Vec<_>>().join(" and ")))
+}
+
+/// Map a filter function body: `expr` over `param`, with the later
+/// params bound positionally to the call's extra args and the script
+/// `id` bound to the current card (see [`set_current_card`]).
+fn filter_fn_map(
+    expr: &str,
+    param: &str,
+    later_params: &[String],
+    extras: &[String],
+) -> FilterMap {
+    let mut subst: Vec<(String, String)> = later_params
+        .iter()
+        .zip(extras.iter())
+        .map(|(p, v)| (p.clone(), v.trim().to_string()))
+        .collect();
+    if !later_params.iter().any(|p| p == "id") {
+        if let Some(id) = current_card() {
+            subst.push(("id".to_string(), id.to_string()));
+        }
+    }
+    lua_filter_expr_to_map(expr, param, &subst)
+}
+
+/// Replace the script-global `id` token (`local s,id=GetID()`) in
+/// inline predicate args with the current card's passcode.
+fn subst_script_id(args: &str) -> String {
+    match current_card() {
+        Some(id) => subst_tokens(args, &[("id".to_string(), id.to_string())]),
+        None => args.to_string(),
+    }
+}
+
+/// `function(c, a, b) return EXPR end` → (params, EXPR).
+fn parse_closure_filter(raw: &str) -> Option<(Vec<String>, String)> {
+    let r = raw.strip_prefix("function")?.trim_start();
+    let r = r.strip_prefix('(')?;
+    let (params, r) = r.split_once(')')?;
+    let params: Vec<String> = params.split(',').map(|p| p.trim().to_string()).filter(|p| !p.is_empty()).collect();
+    if params.iter().any(|p| !p.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')) {
+        return None;
+    }
+    let r = r.trim_start().strip_prefix("return")?;
+    let body = r.trim().strip_suffix("end")?.trim();
+    if body.is_empty() || body.contains(" return ") { return None; }
+    Some((params, body.to_string()))
+}
+
+/// Replace whole identifier tokens of `s` per `subst`.
+fn subst_tokens(s: &str, subst: &[(String, String)]) -> String {
+    if subst.is_empty() { return s.to_string(); }
+    let mut out = String::with_capacity(s.len());
+    let mut token = String::new();
+    let flush = |token: &mut String, out: &mut String| {
+        if token.is_empty() { return; }
+        match subst.iter().find(|(p, _)| p == token) {
+            Some((_, v)) => out.push_str(v),
+            None => out.push_str(token),
+        }
+        token.clear();
+    };
+    let mut prev_dot = false;
+    for ch in s.chars() {
+        if ch.is_ascii_alphanumeric() || ch == '_' {
+            token.push(ch);
+        } else {
+            // A field access (`x.id`) is not the bare identifier.
+            if prev_dot { out.push_str(&token); token.clear(); } else { flush(&mut token, &mut out); }
+            out.push(ch);
+            prev_dot = ch == '.';
+            continue;
+        }
+    }
+    if prev_dot { out.push_str(&token); } else { flush(&mut token, &mut out); }
+    out
+}
+
+/// The shared expression mapper (T39 S3): [`lua_filter_expr_to_where`]
+/// is its exact projection. Handles `and`/`or` chains, redundant
+/// parens, `not`, `<param>:Is*(…)` atoms, `<param>:Get<Stat>() <cmp>
+/// <int>` compares, battle-position atoms (→ `position`), and the
+/// legality predicates (→ `implied`); every other leaf lands in
+/// `residual` with its (substituted) text.
+fn lua_filter_expr_to_map(expr: &str, param: &str, subst: &[(String, String)]) -> FilterMap {
+    let e = expr.trim();
+    if e.is_empty() { return FilterMap::residual("(empty)".to_string()); }
+    if fully_parenthesized(e) {
+        return lua_filter_expr_to_map(&e[1..e.len() - 1], param, subst);
+    }
+    // Lua precedence: `or` binds loosest, so a mixed chain splits at
+    // `or` first and each alternative splits at `and`.
+    let or_parts = split_top_level_at(e, " or ");
+    if or_parts.len() == 1 {
+        let and_parts = split_top_level_at(e, " and ");
+        if and_parts.len() > 1 {
+            let mut m = FilterMap::default();
+            for p in and_parts {
+                m.and(lua_filter_expr_to_map(p, param, subst));
+            }
+            return m;
+        }
+    } else {
+        // or-chain: every operand must map exactly to where-atoms (an
+        // and-group operand is parenthesized; a dropped legality
+        // predicate or a position slot inside an alternative has no
+        // rendering).
+        let mut alts = Vec::new();
+        for p in or_parts {
+            let m = lua_filter_expr_to_map(p, param, subst);
+            if !m.is_exact() || m.position.is_some() || m.atoms.is_empty() {
+                return FilterMap::residual(format!("or-chain operand: {}", p.trim()));
+            }
+            match m.where_clause() {
+                Some(w) if m.atoms.len() > 1 => alts.push(format!("({})", w)),
+                // A single atom that is itself an and-expansion
+                // (`HasLevel`) needs the parens too.
+                Some(w) => alts.push(if w.contains(" and ") { format!("({})", w) } else { w }),
+                None => return FilterMap::residual(format!("or-chain operand: {}", p.trim())),
+            }
+        }
+        return FilterMap::atom(alts.join(" or "));
+    }
+    if let Some(rest) = e.strip_prefix("not ") {
+        return negate_map(lua_filter_expr_to_map(rest.trim(), param, subst));
+    }
+    let a = subst_tokens(e, subst);
+    if let Some(w) = lua_filter_atom_to_where(&a, param) {
+        return FilterMap::atom(w);
+    }
+    if let Some(w) = code_compare_to_where(&a, param) {
+        return FilterMap::atom(w);
+    }
+    if is_zone_availability_check(&a) {
+        return FilterMap::implied("ZoneAvailable".to_string());
+    }
+    let Some(rest) = a.strip_prefix(param).and_then(|r| r.strip_prefix(':')) else {
+        return FilterMap::residual(a);
+    };
+    let Some((name, argrest)) = rest.split_once('(') else {
+        return FilterMap::residual(a);
+    };
+    let Some(args) = argrest.strip_suffix(')') else {
+        return FilterMap::residual(a);
+    };
+    atom_map(name.trim(), args.trim())
+}
+
+/// `<param>:GetCode() == N` / `~= N` → `name == "…"` / `not name == "…"`.
+fn code_compare_to_where(atom: &str, param: &str) -> Option<String> {
+    for (lua_op, negate) in [("~=", true), ("==", false)] {
+        let Some(pos) = find_top_level(atom, lua_op) else { continue };
+        let lhs = atom[..pos].trim();
+        let rhs = atom[pos + lua_op.len()..].trim();
+        if lhs != format!("{}:GetCode()", param) { return None; }
+        let w = code_args_to_where(rhs)?;
+        return Some(if negate { format!("not {}", group_or(&w)) } else { w });
+    }
+    None
+}
+
+/// `Duel.GetLocationCountFromEx(…) > 0` / `Duel.GetMZoneCount(…) > 0`
+/// / `Duel.GetLocationCount(p, LOCATION_MZONE) > 0` — the "a monster
+/// zone is free for this summon" legality leaf, implied by the
+/// special-summon action's own zone check.
+fn is_zone_availability_check(atom: &str) -> bool {
+    let Some(pos) = find_top_level(atom, ">") else { return false };
+    let lhs = atom[..pos].trim();
+    let rhs = atom[pos + 1..].trim();
+    rhs == "0"
+        && (lhs.starts_with("Duel.GetLocationCountFromEx(")
+            || lhs.starts_with("Duel.GetMZoneCount(")
+            || lhs.starts_with("Duel.GetLocationCount("))
+        && lhs.ends_with(')')
+}
+
+/// One `<param>:Name(args)` leaf → map. Where-atoms come from
+/// [`card_pred_to_where`]; battle-position predicates fill the
+/// position slot; legality predicates are implied (args irrelevant —
+/// the action's own check is what the DSL states); the rest is
+/// residual.
+fn atom_map(name: &str, args: &str) -> FilterMap {
+    if let Some(w) = card_pred_to_where(name, args) {
+        return FilterMap::atom(w);
+    }
+    match (name, args) {
+        ("IsAttackPos", "") => return FilterMap { position: Some("in attack_position"), ..Default::default() },
+        ("IsDefensePos", "") => return FilterMap { position: Some("in defense_position"), ..Default::default() },
+        ("IsPosition", pos) => {
+            let (position, face) = match pos {
+                "POS_FACEUP_ATTACK" => (Some("in attack_position"), Some("is_face_up")),
+                "POS_FACEUP_DEFENSE" => (Some("in defense_position"), Some("is_face_up")),
+                "POS_FACEDOWN_DEFENSE" => (Some("in defense_position"), Some("is_face_down")),
+                "POS_FACEDOWN_ATTACK" => (Some("in attack_position"), Some("is_face_down")),
+                "POS_ATTACK" => (Some("in attack_position"), None),
+                "POS_DEFENSE" => (Some("in defense_position"), None),
+                "POS_FACEUP" => (None, Some("is_face_up")),
+                "POS_FACEDOWN" => (None, Some("is_face_down")),
+                _ => (None, None),
+            };
+            if position.is_some() || face.is_some() {
+                return FilterMap {
+                    atoms: face.map(|f| vec![f.to_string()]).unwrap_or_default(),
+                    position,
+                    ..Default::default()
+                };
+            }
+        }
+        _ => {}
+    }
+    if is_legality_pred(name) {
+        return FilterMap::implied(name.to_string());
+    }
+    FilterMap::residual(format!("{}({})", name, args))
+}
+
+/// T39 S3 — emit-time resolution of every unmapped group binding
+/// through [`resolve_filter`]: exact maps flip `filter_mapped` (the
+/// Phase 10 group-modifier gate passes with the exact member set);
+/// implied-only maps keep the where-clause and record the legality
+/// predicates for the consuming action's [`implied_by_action`] check;
+/// anything else carries its residual into [`SelectorSpec::action_dsl`].
+/// Under the legacy selector policy (audit instrument) the pre-gate
+/// [`refine_group_bindings`] runs instead. Returns None when nothing
+/// changes (callers keep the borrowed original).
+fn refine_selector_filters(
+    body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<FunctionBody> {
+    if legacy_selector_policy() {
+        return refine_group_bindings(body, functions);
+    }
+    let mut upgrades: Vec<(String, SelectorSpec)> = Vec::new();
+    for (name, spec) in &body.group_bindings {
+        if spec.filter_mapped { continue; }
+        let Some(raw) = spec.raw_filter.as_deref() else { continue };
+        let m = resolve_filter(raw, &spec.filter_extra, functions);
+        let mut up = spec.clone();
+        up.where_clause = m.where_clause();
+        up.filter_implied = m.implied;
+        up.filter_residual = m.residual;
+        up.position = None;
+        if let Some(p) = m.position {
+            if spec.except_self {
+                up.filter_residual.push(format!("{} shares the except-self slot", p));
+            } else {
+                up.position = Some(p);
+            }
+        }
+        up.filter_mapped = up.filter_residual.is_empty() && up.filter_implied.is_empty();
+        if up != *spec {
+            upgrades.push((name.clone(), up));
+        }
+    }
+    if upgrades.is_empty() { return None; }
+    let mut out = body.clone();
+    for (name, up) in upgrades {
+        out.group_bindings.insert(name, up);
+    }
+    Some(out)
+}
+
+thread_local! {
+    /// Pre-T39 selector policy switch — audit instrument ONLY
+    /// (`lua_translate audit-fills` renders each shipped block under
+    /// both policies to recognise machine fills the gate or the
+    /// widening invalidated). Never set on a translation path.
+    static LEGACY_SELECTOR_POLICY: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+    /// The card whose script is being translated — resolves the
+    /// script-global `id` in `IsCode(id)` filters.
+    static CURRENT_CARD: std::cell::Cell<Option<u32>> = const { std::cell::Cell::new(None) };
+}
+
+fn legacy_selector_policy() -> bool {
+    LEGACY_SELECTOR_POLICY.with(|c| c.get())
+}
+
+/// Run `f` under the pre-T39 selector policy: named filters refine
+/// only on group-provenance specs (exact matches), action selectors
+/// render the unfiltered superset, no fill gate. See
+/// [`LEGACY_SELECTOR_POLICY`].
+pub fn with_legacy_selector_policy<R>(f: impl FnOnce() -> R) -> R {
+    LEGACY_SELECTOR_POLICY.with(|c| c.set(true));
+    let r = f();
+    LEGACY_SELECTOR_POLICY.with(|c| c.set(false));
+    r
+}
+
+/// Set the passcode of the card being translated (None clears it).
+pub fn set_current_card(id: Option<u32>) {
+    CURRENT_CARD.with(|c| c.set(id));
+}
+
+fn current_card() -> Option<u32> {
+    CURRENT_CARD.with(|c| c.get())
+}
+
+/// `CARD_*` passcode constants from the corpus's
+/// `card_counter_constants.lua` (`IsCode(CARD_POLYMERIZATION)`).
+static LUA_CARD_CONSTANTS: OnceLock<Mutex<BTreeMap<String, u32>>> = OnceLock::new();
+
+/// Register `CARD_*` constant → passcode pairs (additive).
+pub fn register_lua_card_constants<I: IntoIterator<Item = (String, u32)>>(pairs: I) {
+    let table = LUA_CARD_CONSTANTS.get_or_init(|| Mutex::new(BTreeMap::new()));
+    if let Ok(mut map) = table.lock() {
+        map.extend(pairs);
+    }
+}
+
+fn lookup_lua_card_constant(name: &str) -> Option<u32> {
+    LUA_CARD_CONSTANTS.get()?.lock().ok()?.get(name).copied()
+}
+
+/// `SET_*` constant → archetype name pairs derived from the cdb
+/// (`setcode_names::derive_archetype_names`), consulted after the
+/// curated table in [`setcode_const_to_archetype`].
+static SETCODE_ARCHETYPES: OnceLock<Mutex<BTreeMap<String, String>>> = OnceLock::new();
+
+/// Register `SET_*` constant → archetype-name pairs (additive).
+pub fn register_setcode_archetypes<I: IntoIterator<Item = (String, String)>>(pairs: I) {
+    let table = SETCODE_ARCHETYPES.get_or_init(|| Mutex::new(BTreeMap::new()));
+    if let Ok(mut map) = table.lock() {
+        map.extend(pairs);
+    }
+}
+
+fn lookup_setcode_archetype(name: &str) -> Option<String> {
+    SETCODE_ARCHETYPES.get()?.lock().ok()?.get(name).cloned()
+}
+
+/// `IsCode(a, b, …)` args → `name == "…"` or-chain. Literal
+/// passcodes resolve through the registered card-name table, `CARD_*`
+/// through the lua constant table; the script `id` was substituted
+/// by the caller. Unknown ids, or names a DSL string can't hold,
+/// return None (the atom becomes residual).
+fn code_args_to_where(args: &str) -> Option<String> {
+    let mut parts = Vec::new();
+    for a in args.split(',') {
+        let a = a.trim();
+        let id: u32 = match a.parse() {
+            Ok(n) => n,
+            Err(_) => lookup_lua_card_constant(a)?,
+        };
+        let name = lookup_card_name(id)?;
+        if name.contains('"') { return None; }
+        parts.push(format!("name == \"{}\"", name));
+    }
+    if parts.is_empty() { None } else { Some(parts.join(" or ")) }
+}
+
+/// SET_* archetype constant → DSL archetype string. The curated table
+/// covers the constants that appeared as fusion/ritual summon and
+/// stat-chip filters; names match the TCG archetype strings the
+/// compiler's ArchetypeIs predicate (and its card-name substring
+/// fallback) expects. Constants outside it resolve through the cdb-
+/// derived registry (T39 S3, [`register_setcode_archetypes`]).
+fn setcode_const_to_archetype(c: &str) -> Option<String> {
+    if let Some(name) = curated_setcode_archetype(c) {
+        return Some(name.to_string());
+    }
+    lookup_setcode_archetype(c)
+}
+
+fn curated_setcode_archetype(c: &str) -> Option<&'static str> {
     Some(match c {
         "SET_AMAZONESS"    => "Amazoness",
         "SET_ANCIENT_GEAR" => "Ancient Gear",
@@ -4022,36 +4703,71 @@ fn spec_from_matching(args: &[String], _has_opp_locs: bool, has_minmax: bool) ->
     let qty = quantity_from(min_s, max_s)?;
     let controller = controller_from_scope(scope_p, my_locs, opp_locs)?;
     let zone = zone_from_locations(my_locs, opp_locs);
-    // This spec renders NO where-clause, so a filter that maps WITH a
-    // predicate must not claim `filter_mapped` — the Phase 10 group-
-    // modifier gate would then apply the modifier to the unfiltered
-    // superset (T38 S1 review fix: latent since Card.IsFaceup, made
-    // reachable by the aux.FaceupFilter widening). Only predicate-free
-    // mappings (nil / aux.TRUE / kind-only filters) count as mapped.
-    let filter_free = matches!(
-        map_group_filter(args.get(1).map(String::as_str).unwrap_or("")),
-        Some((_, None))
+    let f = selector_filter_fields(
+        args.get(1).map(String::as_str).unwrap_or(""),
+        args.get(exception_idx).map(String::as_str),
     );
-    let (except_self, exception_ok) =
-        match classify_exception(args.get(exception_idx).map(String::as_str)) {
-            ExceptionArg::None => (false, true),
-            ExceptionArg::ExceptSelf => (true, true),
-            ExceptionArg::Unexpressible => (false, false),
-        };
     Some(SelectorSpec {
         quantity: qty,
-        kind: "card".to_string(),
+        kind: f.kind.to_string(),
         controller: Some(controller),
         zone,
-        where_clause: None,
-        filter_mapped: filter_free && exception_ok,
+        where_clause: f.where_clause,
+        filter_mapped: f.filter_mapped,
         from_resolve_select: false,
-        raw_filter: None,
-        except_self,
+        raw_filter: f.raw_filter,
+        except_self: f.except_self,
         filter_extra: args.get(exception_idx + 1..)
             .unwrap_or_default()
             .to_vec(),
+        position: None,
+        filter_implied: Vec::new(),
+        filter_residual: f.filter_residual,
+        select_provenance: true,
     })
+}
+
+/// The filter-derived fields of a selector spec, shared by the
+/// select- and group-provenance constructors (T39 S3). The walk-time
+/// literal table ([`map_group_filter`]) maps kind-only and face-
+/// position filters directly; every other filter is recorded raw with
+/// a placeholder residual that the emit-time refinement
+/// ([`refine_selector_filters`]) replaces. An unexpressible exception
+/// arg (T38 S1 review fix) is a residual of its own and clears
+/// `raw_filter` so no refinement can resurrect the dropped exclusion.
+struct SelectorFilterFields {
+    kind: &'static str,
+    where_clause: Option<String>,
+    filter_mapped: bool,
+    raw_filter: Option<String>,
+    except_self: bool,
+    filter_residual: Vec<String>,
+}
+
+fn selector_filter_fields(filter: &str, exception: Option<&str>) -> SelectorFilterFields {
+    let mapped = map_group_filter(filter);
+    let filter_mapped = mapped.is_some();
+    let (kind, where_clause) = mapped.unwrap_or(("card", None));
+    let (except_self, exception_ok) = match classify_exception(exception) {
+        ExceptionArg::None => (false, true),
+        ExceptionArg::ExceptSelf => (true, true),
+        ExceptionArg::Unexpressible => (false, false),
+    };
+    let filter_residual = if !exception_ok {
+        vec![format!("exception {}", exception.unwrap_or("").trim())]
+    } else if filter_mapped {
+        Vec::new()
+    } else {
+        vec![filter.trim().to_string()]
+    };
+    SelectorFilterFields {
+        kind,
+        where_clause,
+        filter_mapped: filter_mapped && exception_ok,
+        raw_filter: if exception_ok { Some(filter.to_string()) } else { None },
+        except_self,
+        filter_residual,
+    }
 }
 
 /// Map a lua filter predicate to a DSL `(kind, where-predicate)` pair.
@@ -4089,12 +4805,7 @@ fn map_group_filter(filter: &str) -> Option<(&'static str, Option<String>)> {
                 // Zero-arg form: aux.FaceupFilter(Card.IsMonster) etc.
                 None => lua_pred_method_to_where(inner.trim(), "")?,
             };
-            // An or-carrying predicate under the face-up conjunction
-            // would need a paren group — the v2 parser's nested-
-            // predicate branch is broken (see lua_filter_expr_to_where),
-            // so skip instead.
-            if pred.contains(" or ") { return None; }
-            return Some(("card", Some(format!("is_face_up and {}", pred))));
+            return Some(("card", Some(format!("is_face_up and {}", group_or(&pred)))));
         }
     })
 }
@@ -4128,34 +4839,25 @@ fn spec_from_get_matching(args: &[String]) -> Option<SelectorSpec> {
     let controller = controller_from_scope(scope_p, my_locs, opp_locs)?;
     let zone = zone_from_locations(my_locs, opp_locs);
     // Filters with a direct DSL equivalent refine the selector (Phase 10);
-    // everything else keeps the lenient `card` kind established by earlier
-    // phases but is flagged unmapped so group-applied paths can skip.
-    let mapped = map_group_filter(args[0].as_str());
-    let filter_mapped = mapped.is_some();
-    let (kind, where_clause) = mapped.unwrap_or(("card", None));
-    // Exception arg (T38 S1 review fix): `nil` → no exclusion; the
-    // handler card → `except self` (the canonical "OTHER monsters you
-    // control gain X" shape); anything else is unexpressible — drop
-    // `filter_mapped` so group modifiers skip, AND `raw_filter` so the
-    // named-filter refinement can't flip the spec back to mapped and
-    // resurrect the dropped exclusion.
-    let (except_self, exception_ok) =
-        match classify_exception(args.get(4).map(String::as_str)) {
-            ExceptionArg::None => (false, true),
-            ExceptionArg::ExceptSelf => (true, true),
-            ExceptionArg::Unexpressible => (false, false),
-        };
+    // everything else keeps the lenient `card` kind but is flagged
+    // unmapped (with the raw filter for the emit-time resolution) so
+    // group-applied paths skip and action paths resolve or refuse.
+    let f = selector_filter_fields(args[0].as_str(), args.get(4).map(String::as_str));
     Some(SelectorSpec {
         quantity: "all".to_string(),
-        kind: kind.to_string(),
+        kind: f.kind.to_string(),
         controller: Some(controller),
         zone,
-        where_clause,
-        filter_mapped: filter_mapped && exception_ok,
+        where_clause: f.where_clause,
+        filter_mapped: f.filter_mapped,
         from_resolve_select: false,
-        raw_filter: if exception_ok { Some(args[0].clone()) } else { None },
-        except_self,
+        raw_filter: f.raw_filter,
+        except_self: f.except_self,
         filter_extra: args.get(5..).unwrap_or_default().to_vec(),
+        position: None,
+        filter_implied: Vec::new(),
+        filter_residual: f.filter_residual,
+        select_provenance: false,
     })
 }
 
@@ -6056,11 +6758,11 @@ pub fn translate_body_with_functions(
     body: &FunctionBody,
     functions: &BTreeMap<String, FunctionBody>,
 ) -> Vec<DslLine> {
-    // T38 S1 — upgrade group bindings whose named script-local filter
-    // (`s.filter`) resolves to an exact where-clause. Walk time froze
-    // the spec before the filter fn's body was visible; the refinement
-    // needs the function table, so it lives here.
-    let refined = refine_group_bindings(body, functions);
+    // T38 S1 / T39 S3 — resolve every group binding's lua filter
+    // against the DSL. Walk time froze the spec before the filter
+    // fn's body was visible; the resolution needs the function table,
+    // so it lives here.
+    let refined = refine_selector_filters(body, functions);
     let body = refined.as_ref().unwrap_or(body);
     let mut out = Vec::new();
     // T38 S8b — when a delayed wrapper chain stores the just-summoned
@@ -6234,6 +6936,11 @@ pub enum BodyDrop {
     /// A line the Phase 10 stat-write interference guard would drop at
     /// emit time (reads a stat an earlier line wrote).
     Interference(String),
+    /// An action's selector argument carries a lua filter residual the
+    /// DSL cannot state (T39 S3 — `SelectorSpec::action_dsl`). Carries
+    /// `Duel.X(arg): <residual>`; the pre-T39 policy rendered the
+    /// unfiltered superset.
+    SelectorFilterUnmapped(String),
 }
 
 impl BodyDrop {
@@ -6248,6 +6955,7 @@ impl BodyDrop {
             BodyDrop::HelperUnlowered(_) => "helper-unlowered",
             BodyDrop::ChainUnlowered(_) => "chain-unlowered",
             BodyDrop::Interference(_) => "interference",
+            BodyDrop::SelectorFilterUnmapped(_) => "selector-filter-unmapped",
         }
     }
 
@@ -6261,7 +6969,8 @@ impl BodyDrop {
             | BodyDrop::CounterOpUnlowered(s)
             | BodyDrop::HelperUnlowered(s)
             | BodyDrop::ChainUnlowered(s)
-            | BodyDrop::Interference(s) => s,
+            | BodyDrop::Interference(s)
+            | BodyDrop::SelectorFilterUnmapped(s) => s,
         }
     }
 }
@@ -6322,7 +7031,7 @@ pub fn body_drop_reasons(
     body: &FunctionBody,
     functions: &BTreeMap<String, FunctionBody>,
 ) -> Vec<BodyDrop> {
-    let refined = refine_group_bindings(body, functions);
+    let refined = refine_selector_filters(body, functions);
     let body = refined.as_ref().unwrap_or(body);
     let mut drops: Vec<BodyDrop> = Vec::new();
     // Method-op completeness (T38 S6). An elseif/else-poisoned family,
@@ -6388,6 +7097,20 @@ pub fn body_drop_reasons(
     for (name, args) in &body.helper_calls {
         if translate_equip_helper_call(name, args, body, functions).is_none() {
             drops.push(BodyDrop::HelperUnlowered(format!("{}({})", name, args.join(","))));
+        }
+    }
+    // T39 S3 — selector filter gate: an action whose card/group
+    // argument is a tracked selection with an unmapped filter residual
+    // (or a legality predicate this action does not imply) must not
+    // render the superset. The emit path turns the line into a TODO;
+    // this is the fill gate's view of the same decision.
+    for c in &body.calls {
+        for &idx in action_group_arg_indices(&c.method) {
+            if let Err(GroupArgErr::FilterUnmapped(r)) = group_arg(&c.args, idx, body, &c.method) {
+                drops.push(BodyDrop::SelectorFilterUnmapped(format!(
+                    "{}({}): {}", c.method, c.args.get(idx).map(String::as_str).unwrap_or(""), r
+                )));
+            }
         }
     }
     // T38 S3 — mirror the emit loop's paired-negation fold: a covered
@@ -6459,6 +7182,10 @@ fn translate_choice_arm(
     functions: &BTreeMap<String, FunctionBody>,
 ) -> Option<Vec<DslLine>> {
     let mut out = Vec::new();
+    // T39 S3 — arms resolve their selector filters like the flat body
+    // walk; an arm whose selector refuses yields a TODO → None below.
+    let refined = refine_selector_filters(arm, functions);
+    let arm = refined.as_ref().unwrap_or(arm);
     // T38 S8b review — the arm loop is a THIRD emitter beside the flat
     // body walk and `body_drops_chains`: without the same pairing, an
     // arm chain reaching the summoned-card labelobj decode would emit
@@ -7368,7 +8095,9 @@ fn resolve_body_selector(
                 && spec.quantity == "1"
                 && selection_consumers(body, sel_base) == 1
             {
-                return Some(spec.to_dsl());
+                // T39 S3 — a chain receiver implies no legality
+                // predicate; the selection must map exactly.
+                return spec.action_dsl("").ok();
             }
         }
         None
@@ -9365,6 +10094,10 @@ fn count_call_to_count_expr(
         raw_filter: None,
         except_self,
         filter_extra: Vec::new(),
+        position: None,
+        filter_implied: Vec::new(),
+        filter_residual: Vec::new(),
+        select_provenance: false,
     };
     Some(format!("count({})", spec.to_dsl()))
 }
@@ -9538,7 +10271,7 @@ fn translate_equip_helper_call(
     let sel = body.group_bindings.get(target)?;
     if !sel.from_resolve_select || sel.quantity != "1" { return None; }
     if selection_consumers(body, target) != 1 { return None; }
-    Some(DslLine::Action(format!("equip {} to self", sel.to_dsl())))
+    Some(DslLine::Action(format!("equip {} to self", sel.action_dsl("").ok()?)))
 }
 
 /// [`translate_call`] with the walked function table in scope — the
@@ -10123,16 +10856,28 @@ fn selector_position_set(selector: &str) -> PositionSet {
 ///     render as `self`.
 fn action_change_position(args: &[String], body: &FunctionBody) -> DslLine {
     let raw = args.first().map(|s| s.trim()).unwrap_or("");
-    let target = if raw.starts_with("c:") || raw.starts_with("c.") {
-        None
+    // A host-derived receiver (`c:GetEquipTarget()`) would render as
+    // `self` through `group_arg` — it is a different card (T39 S3).
+    let resolved = if raw.starts_with("c:") || raw.starts_with("c.") {
+        Err(GroupArgErr::Unknown)
     } else {
-        group_arg(args, 0, body)
+        group_arg(args, 0, body, "Duel.ChangePosition")
     };
-    let Some(target) = target else {
-        return DslLine::Todo(format!(
-            "Duel.ChangePosition({}) — target provenance unknown",
-            args.join(", ")
-        ));
+    let target = match resolved {
+        Ok(t) => t,
+        Err(GroupArgErr::FilterUnmapped(r)) => {
+            return DslLine::Todo(format!(
+                "Duel.ChangePosition({}) — selector filter unmapped: {}",
+                args.join(", "),
+                r
+            ));
+        }
+        Err(GroupArgErr::Unknown) => {
+            return DslLine::Todo(format!(
+                "Duel.ChangePosition({}) — target provenance unknown",
+                args.join(", ")
+            ));
+        }
     };
     if args.len() < 2 {
         return DslLine::Todo(format!(
@@ -10253,9 +10998,15 @@ fn gated_action_at(
     body: &FunctionBody,
     render: impl FnOnce(&str) -> String,
 ) -> DslLine {
-    match group_arg(args, idx, body) {
-        Some(sel) => DslLine::Action(render(&sel)),
-        None => DslLine::Todo(format!(
+    match group_arg(args, idx, body, method) {
+        Ok(sel) => DslLine::Action(render(&sel)),
+        Err(GroupArgErr::FilterUnmapped(r)) => DslLine::Todo(format!(
+            "{}({}) — selector filter unmapped: {}",
+            method,
+            args.join(", "),
+            r
+        )),
+        Err(GroupArgErr::Unknown) => DslLine::Todo(format!(
             "{}({}) — target provenance unknown",
             method,
             args.join(", ")
@@ -10263,33 +11014,67 @@ fn gated_action_at(
     }
 }
 
+/// Why [`group_arg`] declined.
+#[derive(Debug, Clone, PartialEq, Eq)]
+enum GroupArgErr {
+    /// No selection provenance (event groups, GetFieldCard bindings,
+    /// helper params, …).
+    Unknown,
+    /// A tracked selection whose lua filter has a residual the DSL
+    /// cannot state for this action (T39 S3 gate).
+    FilterUnmapped(String),
+}
+
+/// Argument positions of the card/group operand for the action calls
+/// that render a selector — the table the fill gate and the emit
+/// path share (T39 S3). `Duel.SynchroSummon` / `XyzSummon` run their
+/// own exact decode (`action_extra_summon`) and are not listed.
+fn action_group_arg_indices(method: &str) -> &'static [usize] {
+    match method {
+        "Duel.Destroy" | "Duel.SendtoGrave" | "Duel.SendtoHand" | "Duel.SendtoDeck"
+        | "Duel.Remove" | "Duel.Release" | "Duel.SpecialSummon" | "Duel.SpecialSummonStep"
+        | "Duel.ChangePosition" | "Duel.GetControl" => &[0],
+        "Duel.Overlay" => &[0, 1],
+        "Duel.SSet" | "Duel.LinkSummon" | "Duel.FusionSummon" | "Duel.RitualSummon"
+        | "Duel.Summon" => &[1],
+        "Duel.Equip" => &[2],
+        _ => &[],
+    }
+}
+
 /// Resolve action argument N to a DSL selector expression. If the
-/// argument names a known group binding, substitute the captured
-/// SelectorSpec. The bare `target` placeholder is only emitted when the
-/// argument demonstrably holds the effect's DECLARED targets —
-/// `Duel.GetFirstTarget` / `Duel.GetTargetCards` provenance, inline or
-/// via a single-assigned local (same gate as `resolve_body_selector`,
-/// Phase 13b). Anything else (event groups, GetFieldCard bindings,
-/// GetMatchingGroup locals that lost their spec, helper params, …) is a
-/// different card entirely — returns None so callers emit a TODO.
-fn group_arg(args: &[String], idx: usize, body: &FunctionBody) -> Option<String> {
-    let raw = args.get(idx)?.trim();
-    // Strip common ":GetFirst()" or ":Filter(...)" suffix to get base name.
+/// argument names a known group binding, render the captured
+/// SelectorSpec for `method` ([`SelectorSpec::action_dsl`] — an
+/// unmapped filter residual refuses). The bare `target` placeholder is
+/// only emitted when the argument demonstrably holds the effect's
+/// DECLARED targets — `Duel.GetFirstTarget` / `Duel.GetTargetCards`
+/// provenance, inline or via a single-assigned local (same gate as
+/// `resolve_body_selector`, Phase 13b). Anything else (event groups,
+/// GetFieldCard bindings, GetMatchingGroup locals that lost their
+/// spec, helper params, …) is a different card entirely — Unknown, so
+/// callers emit a TODO. A `:Filter(…)` / `:Match(…)` suffix narrows
+/// the group by a second predicate the spec never saw → refused.
+fn group_arg(args: &[String], idx: usize, body: &FunctionBody, method: &str) -> Result<String, GroupArgErr> {
+    let raw = args.get(idx).map(|s| s.trim()).ok_or(GroupArgErr::Unknown)?;
     let base = raw.split(|c| c == ':' || c == '.').next().unwrap_or(raw);
     // Special: `c` and `e:GetHandler()` reliably refer to the host card.
     // Emit `self` so actions like `Duel.SendtoGrave(c, ...)` translate to
     // `send self to gy`.
     if base == "c" || raw == "e:GetHandler()" {
-        return Some("self".to_string());
+        return Ok("self".to_string());
     }
     if let Some(spec) = body.group_bindings.get(base) {
-        return Some(spec.to_dsl());
+        let suffix = &raw[base.len()..];
+        if !legacy_selector_policy() && !suffix.is_empty() && suffix != ":GetFirst()" {
+            return Err(GroupArgErr::FilterUnmapped(format!("group narrowed by {}", suffix)));
+        }
+        return spec.action_dsl(method).map_err(GroupArgErr::FilterUnmapped);
     }
     // Declared-target fetch, inline or via a single-assigned local.
     if is_declared_target(raw, body) {
-        return Some("target".to_string());
+        return Ok("target".to_string());
     }
-    None
+    Err(GroupArgErr::Unknown)
 }
 
 /// True when the argument (or the single-assigned local it names)
@@ -10349,7 +11134,7 @@ fn xyz_arg_to_dsl(
         return Some("self".to_string());
     }
     if let Some(spec) = bindings.get(base) {
-        return Some(spec.to_dsl());
+        return spec.action_dsl("Duel.Overlay").ok();
     }
     if is_declared_target(raw, body) {
         return Some("target".to_string());
@@ -10386,7 +11171,12 @@ fn action_equip(
         let tar_base = tar.split([':', '.']).next().unwrap_or(tar).trim();
         if let Some(spec) = bindings.get(tar_base) {
             if spec.quantity == "1" {
-                return DslLine::Action(format!("equip self to {}", spec.to_dsl()));
+                return match spec.action_dsl("Duel.Equip") {
+                    Ok(sel) => DslLine::Action(format!("equip self to {}", sel)),
+                    Err(r) => DslLine::Todo(format!(
+                        "Duel.Equip(eq={}, tar={}) — selector filter unmapped: {}", eq, tar, r
+                    )),
+                };
             }
         } else if is_declared_target(tar, body) {
             return DslLine::Action("equip self to target".to_string());
@@ -10409,8 +11199,11 @@ fn action_get_control(args: &[String], bindings: &BTreeMap<String, SelectorSpec>
         ));
     }
     let base = raw.split([':', '.']).next().unwrap_or(raw).trim();
-    match bindings.get(base) {
-        Some(spec) => DslLine::Action(format!("take_control {}", spec.to_dsl())),
+    match bindings.get(base).map(|spec| spec.action_dsl("Duel.GetControl")) {
+        Some(Ok(sel)) => DslLine::Action(format!("take_control {}", sel)),
+        Some(Err(r)) => DslLine::Todo(format!(
+            "Duel.GetControl(targets={}, player=tp) — selector filter unmapped: {}", raw, r
+        )),
         None => DslLine::Todo(format!(
             "Duel.GetControl(targets={}, player=tp) — unresolvable selector", raw
         )),
@@ -10528,7 +11321,6 @@ fn duel_remove_counter_parts(args: &[String]) -> Option<(&'static str, &'static 
     let name = counter_arg_to_name(countertype)?;
     Some((name, controller))
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -11367,11 +12159,11 @@ end
     }
 
     #[test]
-    fn p10_group_with_unmappable_filter_skipped() {
-        // Group built with a custom predicate (`aux.FaceupFilter(
-        // Card.IsAttributeExcept, …)`): the DSL selector would match a
-        // superset of the lua group, and a group-applied modifier would
-        // alter cards the lua never touched. Skip the chain.
+    fn p10_group_with_negated_attribute_filter_maps_exactly() {
+        // Group built with `aux.FaceupFilter(Card.IsAttributeExcept, …)`:
+        // T39 S3 maps the negated attribute atom, so the group-applied
+        // modifier states the EXACT member set (pre-T39 this filter
+        // was unmappable and the chain skipped).
         let src = r#"
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsAttributeExcept,ATTRIBUTE_EARTH),tp,LOCATION_MZONE,LOCATION_MZONE,nil)
@@ -11388,10 +12180,11 @@ end
         let parsed = full_moon::parse(src).expect("parse");
         let report = walk(&parsed);
         let body = report.functions.get("s.activate").expect("activate body");
-        let lines = translate_body(body);
-        assert!(
-            !lines.iter().any(|l| matches!(l, DslLine::Action(s) if s.starts_with("modify_atk"))),
-            "unmappable group filter must not emit, got: {:?}", lines
+        let lines: Vec<String> = translate_body(body).into_iter()
+            .filter(|l| l.is_action()).map(|l| l.into_string("")).collect();
+        assert_eq!(
+            lines,
+            vec!["modify_atk (all, card, either controls, from monster_zone, where is_face_up and not attribute == EARTH) - 500 until end_of_turn"],
         );
     }
 
@@ -14491,8 +15284,9 @@ end
     }
 
     #[test]
-    fn p12_skip_compound_closure() {
-        // Closure with extra logic beyond a single predicate.
+    fn p12_compound_closure_maps() {
+        // Closure with an and-chain of predicates — the shared
+        // expression mapper (T39 S3) renders every atom.
         let src = r#"
 function s.initial_effect(c)
     local e1=Effect.CreateEffect(c)
@@ -14500,7 +15294,7 @@ function s.initial_effect(c)
     c:RegisterEffect(e1)
 end
 "#;
-        assert_eq!(p12_line(src, 0), None);
+        assert_eq!(p12_line(src, 0).as_deref(), Some("fusion_summon (1, fusion monster, where archetype == \"Ninja\" and level >= 4)"));
     }
 
     #[test]
@@ -15771,12 +16565,12 @@ end
         // selector aims the chain at the freshly picked card.
         let actions = p11_actions(
             &p13b_src(
-                "local tc=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_MZONE,0,1,1,nil):GetFirst()",
+                "local tc=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,LOCATION_MZONE,0,1,1,nil):GetFirst()",
                 "tc"),
             "s.activate");
         assert_eq!(
             actions,
-            vec!["modify_atk (1, card, you control, from monster_zone) + 500 until end_of_turn"],
+            vec!["modify_atk (1, card, you control, from monster_zone, where is_face_up) + 500 until end_of_turn"],
         );
     }
 
@@ -17833,7 +18627,7 @@ end
 "#, cond_filter);
         assert_eq!(
             p11_actions(&base("s.thfilter"), "s.activate"),
-            vec!["delayed on end_phase until end_of_turn { add_to_hand (1, card, you control, from deck) }"],
+            vec!["delayed on end_phase until end_of_turn { add_to_hand (1, card, you control, from deck, where archetype == \"Metalfoes\" and is_monster) }"],
         );
         let mismatched = p11_actions(&base("s.otherfilter"), "s.activate");
         assert!(
@@ -17998,7 +18792,7 @@ end
         assert_eq!(
             p11_actions(&src, "s.spop"),
             vec![
-                "special_summon (1, card, you control, from gy) as sp",
+                "special_summon (1, monster, you control, from gy) as sp",
                 "delayed on end_phase until end_of_turn { destroy sp }",
             ],
         );
@@ -18027,7 +18821,7 @@ end
             assert_eq!(
                 p11_actions(&src, "s.spop"),
                 vec![
-                    "special_summon (1, card, you control, from gy) as sp".to_string(),
+                    "special_summon (1, monster, you control, from gy) as sp".to_string(),
                     expected.to_string(),
                 ],
                 "op variant failed: {}", op_stmt,
@@ -18345,7 +19139,7 @@ end
         assert_eq!(
             p11_actions(src, "s.spop"),
             vec![
-                "special_summon (1, card, you control, from gy) as sp",
+                "special_summon (1, monster, you control, from gy) as sp",
                 "delayed on end_phase until end_of_turn { destroy sp }",
             ],
         );
@@ -18470,7 +19264,7 @@ end
             .expect("choose spec — the arm shape must stay extractable or this pin is dead");
         assert_eq!(p16_options(&spec), vec![
             (0, vec![
-                "special_summon (1, card, you control, from gy) as sp".to_string(),
+                "special_summon (1, monster, you control, from gy) as sp".to_string(),
                 "delayed on end_phase until end_of_turn { destroy sp }".to_string(),
             ]),
             (1, vec!["draw 1".to_string()]),
@@ -19587,7 +20381,7 @@ end
 "#;
         assert_eq!(
             p11_actions(src, "s.activate"),
-            vec!["destroy (1, card, you control, from monster_zone)"],
+            vec!["destroy (1, card, you control, from monster_zone, where is_face_up)"],
         );
     }
 
@@ -19728,7 +20522,7 @@ end
 "#;
         assert_eq!(
             p11_actions(src, "s.activate"),
-            vec!["special_summon (1, card, you control, from gy)"],
+            vec!["special_summon (1, monster, you control, from gy)"],
         );
     }
 
@@ -19778,7 +20572,7 @@ end
 "#;
         assert_eq!(
             p11_actions(src, "s.activate"),
-            vec!["change_position (1, card, you control, from monster_zone) to defense_position"],
+            vec!["change_position (1, card, you control, from monster_zone, where is_face_up) to defense_position"],
         );
     }
 
@@ -19787,7 +20581,7 @@ end
 function s.activate(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
     Duel.Hint(HINT_SELECTMSG,tp,HINTMSG_EQUIP)
-    local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_GRAVE,0,1,1,nil)
+    local g=Duel.SelectMatchingCard(tp,aux.TRUE,tp,LOCATION_GRAVE,0,1,1,nil)
     local tc=g:GetFirst()
     if tc then
         {}
@@ -19882,7 +20676,7 @@ end
 "#;
         assert_eq!(
             p11_actions(src, "s.activate"),
-            vec!["equip self to (1, card, you control, from monster_zone)"],
+            vec!["equip self to (1, card, you control, from monster_zone, where is_face_up)"],
         );
     }
 
@@ -20024,11 +20818,11 @@ end
     }
 
     #[test]
-    fn s1_or_group_under_conjunction_skips() {
+    fn s1_or_group_under_conjunction_groups() {
         // c9999961 shape: `RACE_BEAST|RACE_WINGEDBEAST` expands to an
-        // or-join under the face-up conjunction — needs a parenthesized
-        // predicate the v2 parser can't parse yet (task_bb225d5f), so the
-        // whole filter must poison.
+        // or-join under the face-up conjunction — rendered as a
+        // parenthesized Nested group (T39 S3; the v2 parser's branch
+        // landed with task_bb225d5f).
         let src = r#"
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
     local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsRace,RACE_BEAST|RACE_WINGEDBEAST),tp,LOCATION_MZONE,0,nil)
@@ -20042,7 +20836,10 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
     end
 end
 "#;
-        assert!(p11_actions(src, "s.operation").is_empty());
+        assert_eq!(
+            p11_actions(src, "s.operation"),
+            vec!["modify_atk (all, card, you control, from monster_zone, where is_face_up and (race == Beast or race == Winged Beast)) + 200 until end_of_turn"],
+        );
     }
 
     #[test]
@@ -20162,26 +20959,31 @@ end
             w("c:IsLevel(3) or c:IsRank(3)").as_deref(),
             Some("level == 3 or rank == 3"),
         );
-        // …but mixed and/or (even lua-parenthesized) is not, until the
-        // parser's nested-predicate branch is fixed.
-        assert_eq!(w("c:IsFaceup() and (c:IsLevel(3) or c:IsRank(3))"), None);
+        // …and mixed and/or renders the lua parens as a Nested group.
+        assert_eq!(
+            w("c:IsFaceup() and (c:IsLevel(3) or c:IsRank(3))").as_deref(),
+            Some("is_face_up and (level == 3 or rank == 3)"),
+        );
         // `not` binds one atom; not-of-compound would need parens.
         assert_eq!(w("not c:IsLevel(4)").as_deref(), Some("not level == 4"));
         assert_eq!(w("not (c:IsFaceup() and c:IsLevel(4))"), None);
-        // Multi-value IsLevel is an or-join — fine alone, poison in a chain.
+        // Multi-value IsLevel is an or-join — grouped inside a chain.
         assert_eq!(w("c:IsLevel(3,4)").as_deref(), Some("level == 3 or level == 4"));
-        assert_eq!(w("c:IsFaceup() and c:IsLevel(3,4)"), None);
+        assert_eq!(
+            w("c:IsFaceup() and c:IsLevel(3,4)").as_deref(),
+            Some("is_face_up and (level == 3 or level == 4)"),
+        );
         // Non-literal compare operand → None; literal `~=` maps to `!=`.
         assert_eq!(w("c:GetAttack()~=atk"), None);
         assert_eq!(w("c:GetLevel()~=4").as_deref(), Some("level != 4"));
     }
 
     #[test]
-    fn s1_select_provenance_filtered_group_skips() {
-        // Review fix (MAJOR 1): a select-provenance loop whose lua filter
-        // maps WITH a where-clause must NOT pass the Phase 10 group-
-        // modifier gate — spec_from_matching renders no where, so
-        // claiming filter_mapped would buff a superset selection.
+    fn s1_select_provenance_filtered_group_folds_where() {
+        // Review fix (MAJOR 1) inverted by T39 S3: a select-provenance
+        // spec now renders its mapped where-clause, so the group-
+        // modifier gate passes with the EXACT selection (pre-T39 the
+        // spec rendered no where and had to skip).
         let src = r#"
 function s.operation(e,tp,eg,ep,ev,re,r,rp)
     local c=e:GetHandler()
@@ -20196,10 +20998,11 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
     end
 end
 "#;
-        assert!(p11_actions(src, "s.operation").is_empty());
+        let want = vec!["modify_atk (1, card, you control, from monster_zone, where is_face_up and attribute == WATER) + 500 until end_of_turn"];
+        assert_eq!(p11_actions(src, "s.operation"), want);
         // Same for the declared-target pick variant.
         let src2 = src.replace("Duel.SelectMatchingCard", "Duel.SelectTarget");
-        assert!(p11_actions(&src2, "s.operation").is_empty());
+        assert_eq!(p11_actions(&src2, "s.operation"), want);
         // Predicate-free filters (nil) keep the historical behavior.
         let src3 = src.replace("aux.FaceupFilter(Card.IsAttribute,ATTRIBUTE_WATER)", "nil");
         assert_eq!(
@@ -20460,9 +21263,12 @@ end
             p11_actions(src, "s.lvop"),
             vec!["set_level (all, card, you control, from monster_zone, where is_face_up and is_monster and not is_xyz and not is_link and not level == 8) 8 until end_of_turn"],
         );
-        // `not c:HasLevel()` would need a paren group around the
-        // three-atom expansion — the flat chain can't carry it.
-        assert!(lua_filter_expr_to_where("not c:HasLevel()", "c").is_none());
+        // `not c:HasLevel()` parenthesizes the three-atom expansion
+        // (T39 S3: the v2 parser's Nested branch carries the group).
+        assert_eq!(
+            lua_filter_expr_to_where("not c:HasLevel()", "c").as_deref(),
+            Some("not (is_monster and not is_xyz and not is_link)"),
+        );
     }
 
     #[test]
@@ -21725,5 +22531,388 @@ card "S6 Emit Forms" {
         let reparsed = crate::v2::parser::parse_v2(&formatted)
             .unwrap_or_else(|e| panic!("roundtrip failed:\n{}\n{}", formatted, e));
         assert_eq!(crate::v2::fmt::format_file(&reparsed), formatted);
+    }
+
+    // ── T39 S3 — selector filter fidelity ─────────────────────────────
+
+    /// Mirror Force (c44095762): the attack-position filter lands in the
+    /// grammar's position slot; the pre-T39 policy destroyed every
+    /// opposing monster.
+    const T39_MIRROR_FORCE: &str = r#"
+function s.filter(c)
+    return c:IsAttackPos()
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.filter,tp,0,LOCATION_MZONE,nil)
+    Duel.Destroy(g,REASON_EFFECT)
+end
+"#;
+
+    #[test]
+    fn t39_position_atom_fills_the_position_slot() {
+        assert_eq!(
+            p11_actions(T39_MIRROR_FORCE, "s.activate"),
+            vec!["destroy (all, card, opponent controls, from monster_zone, in attack_position)"],
+        );
+        let src = T39_MIRROR_FORCE.replace("c:IsAttackPos()", "c:IsPosition(POS_FACEUP_DEFENSE)");
+        assert_eq!(
+            p11_actions(&src, "s.activate"),
+            vec!["destroy (all, card, opponent controls, from monster_zone, in defense_position, where is_face_up)"],
+        );
+    }
+
+    #[test]
+    fn t39_legacy_policy_renders_the_pre_gate_superset() {
+        // The audit instrument reproduces the shipped over-approximation.
+        let legacy = with_legacy_selector_policy(|| p11_actions(T39_MIRROR_FORCE, "s.activate"));
+        assert_eq!(legacy, vec!["destroy (all, card, opponent controls, from monster_zone)"]);
+        assert!(!legacy_selector_policy(), "policy must reset after the closure");
+    }
+
+    #[test]
+    fn t39_position_and_except_self_share_one_slot() {
+        let src = T39_MIRROR_FORCE.replace(
+            "Duel.GetMatchingGroup(s.filter,tp,0,LOCATION_MZONE,nil)",
+            "Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,e:GetHandler())",
+        );
+        let parsed = full_moon::parse(&src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").unwrap();
+        let drops = body_drop_reasons(body, &report.functions);
+        assert!(
+            matches!(&drops[..], [BodyDrop::SelectorFilterUnmapped(d)] if d.contains("shares the except-self slot")),
+            "{:?}", drops
+        );
+        assert!(p11_actions(&src, "s.activate").is_empty());
+    }
+
+    #[test]
+    fn t39_atom_widening() {
+        let w = |e: &str| lua_filter_expr_to_where(e, "c");
+        assert_eq!(w("c:IsAttack(1000)").as_deref(), Some("atk == 1000"));
+        assert_eq!(w("c:IsDefense(0,100)").as_deref(), Some("def == 0 or def == 100"));
+        assert_eq!(w("c:IsSpellTrap()").as_deref(), Some("is_spell or is_trap"));
+        assert_eq!(w("c:IsAttributeExcept(ATTRIBUTE_EARTH)").as_deref(), Some("not attribute == EARTH"));
+        assert_eq!(w("c:IsEquipSpell()").as_deref(), Some("type == Equip Spell"));
+        assert_eq!(w("c:IsType(TYPE_UNION)").as_deref(), Some("type == Union"));
+        assert_eq!(
+            w("c:IsType(TYPE_CONTINUOUS)").as_deref(),
+            Some("type == Continuous Spell or type == Continuous Trap"),
+        );
+        assert_eq!(w("c:IsTuner()").as_deref(), Some("is_tuner"));
+        assert_eq!(w("c:IsPendulumMonster()").as_deref(), Some("is_monster and is_pendulum"));
+        assert_eq!(
+            w("c:IsRace(RACES_BEAST_BWARRIOR_WINGB)").as_deref(),
+            Some("race == Beast or race == Beast-Warrior or race == Winged Beast"),
+        );
+        // Or-chain atoms group inside a conjunction (Nested predicate).
+        assert_eq!(
+            w("c:IsSpellTrap() and c:IsSetCard(SET_AMAZONESS)").as_deref(),
+            Some("(is_spell or is_trap) and archetype == \"Amazoness\""),
+        );
+        // An and-group inside an or-chain is parenthesized too.
+        assert_eq!(
+            w("c:IsFaceup() and c:IsLevel(4) or c:IsRank(4)").as_deref(),
+            Some("(is_face_up and level == 4) or rank == 4"),
+        );
+        assert_eq!(w("not c:IsLevel(3,4)").as_deref(), Some("not (level == 3 or level == 4)"));
+        // Legality predicates are NOT where-atoms: the exact projection refuses.
+        assert_eq!(w("c:IsLevel(4) and c:IsAbleToHand()"), None);
+        // A battle position is not a where-atom either.
+        assert_eq!(w("c:IsAttackPos()"), None);
+    }
+
+    #[test]
+    fn t39_code_atoms_resolve_through_the_name_table() {
+        register_card_names([(90001u32, "T39 Alpha".to_string()), (90002u32, "T39 \"Quoted\"".to_string())]);
+        register_lua_card_constants([("CARD_T39_ALPHA".to_string(), 90001u32)]);
+        let w = |e: &str| lua_filter_expr_to_where(e, "c");
+        assert_eq!(w("c:IsCode(90001)").as_deref(), Some("name == \"T39 Alpha\""));
+        assert_eq!(w("c:IsCode(CARD_T39_ALPHA)").as_deref(), Some("name == \"T39 Alpha\""));
+        assert_eq!(w("c:GetCode()==90001").as_deref(), Some("name == \"T39 Alpha\""));
+        assert_eq!(w("c:GetCode()~=90001").as_deref(), Some("not name == \"T39 Alpha\""));
+        assert_eq!(w("not c:IsCode(90001)").as_deref(), Some("not name == \"T39 Alpha\""));
+        // A DSL string can't hold a quote; an unknown passcode has no name.
+        assert_eq!(w("c:IsCode(90002)"), None);
+        assert_eq!(w("c:IsCode(90003)"), None);
+        // The script id binds to the current card (and only then).
+        let src = r#"
+function s.filter(c)
+    return c:IsCode(id) and c:IsAbleToHand()
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil)
+    Duel.SendtoHand(g,nil,REASON_EFFECT)
+end
+"#;
+        set_current_card(Some(90001));
+        assert_eq!(
+            p11_actions(src, "s.thop"),
+            vec!["add_to_hand (1, card, you control, from deck, where name == \"T39 Alpha\")"],
+        );
+        set_current_card(None);
+        assert!(p11_actions(src, "s.thop").is_empty());
+        // Inline `Card.IsCode` takes the call's extra args as its own.
+        let inline = r#"
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,Card.IsCode,tp,LOCATION_DECK,0,1,1,nil,90001)
+    Duel.SendtoHand(g,nil,REASON_EFFECT)
+end
+"#;
+        assert_eq!(
+            p11_actions(inline, "s.thop"),
+            vec!["add_to_hand (1, card, you control, from deck, where name == \"T39 Alpha\")"],
+        );
+    }
+
+    #[test]
+    fn t39_transparent_predicates_are_implied_by_their_action_only() {
+        let src = r#"
+function s.filter(c)
+    return c:IsSetCard(SET_AMAZONESS) and c:IsAbleToHand()
+end
+function s.thop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil)
+    Duel.SendtoHand(g,nil,REASON_EFFECT)
+end
+function s.desop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil)
+    Duel.Destroy(g,REASON_EFFECT)
+end
+"#;
+        // SendtoHand implies IsAbleToHand: the where-clause states the rest.
+        assert_eq!(
+            p11_actions(src, "s.thop"),
+            vec!["add_to_hand (1, card, you control, from deck, where archetype == \"Amazoness\")"],
+        );
+        // Destroy does not: the selector refuses and the fill gate names it.
+        assert!(p11_actions(src, "s.desop").is_empty());
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.desop").unwrap();
+        let drop = body_drop_reason(body, &report.functions).expect("drop");
+        assert_eq!(drop.code(), "selector-filter-unmapped");
+        assert_eq!(drop.detail(), "Duel.Destroy(g): IsAbleToHand not implied by Duel.Destroy");
+        // The chain-receiver consumer (no action) admits no implied atom.
+        let spec = body.group_bindings.get("g").unwrap();
+        let refined = refine_selector_filters(body, &report.functions).unwrap();
+        let g = refined.group_bindings.get("g").unwrap();
+        assert!(!spec.filter_mapped && !g.filter_mapped);
+        assert_eq!(g.filter_implied, vec!["IsAbleToHand".to_string()]);
+        assert!(g.action_dsl("").is_err());
+        assert!(g.action_dsl("Duel.SendtoHand").is_ok());
+    }
+
+    #[test]
+    fn t39_unmapped_residual_refuses_the_fill() {
+        let src = r#"
+function s.filter(c)
+    return c:IsSpecialSummoned() and c:IsFaceup()
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil)
+    Duel.Destroy(g,REASON_EFFECT)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").unwrap();
+        let lines = translate_body_with_functions(body, &report.functions);
+        assert!(
+            matches!(&lines[..], [DslLine::Todo(t)] if t.contains("selector filter unmapped: IsSpecialSummoned()")),
+            "{:?}", lines
+        );
+        let drops = body_drop_reasons(body, &report.functions);
+        assert_eq!(drops.len(), 1);
+        assert_eq!(drops[0].code(), "selector-filter-unmapped");
+        assert!(drops[0].detail().starts_with("Duel.Destroy(g): IsSpecialSummoned()"), "{}", drops[0].detail());
+        // The mapped sibling atom is kept on the spec for diagnostics.
+        let refined = refine_selector_filters(body, &report.functions).unwrap();
+        let g = refined.group_bindings.get("g").unwrap();
+        assert_eq!(g.where_clause.as_deref(), Some("is_face_up"));
+        assert_eq!(g.filter_residual, vec!["IsSpecialSummoned()".to_string()]);
+    }
+
+    #[test]
+    fn t39_impure_named_filter_and_foreign_leaves_refuse() {
+        let multi = r#"
+function s.filter(c)
+    if c:IsFaceup() then return true end
+    return false
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil)
+    Duel.Destroy(g,REASON_EFFECT)
+end
+"#;
+        assert!(p11_actions(multi, "s.activate").is_empty());
+        let foreign = multi.replace(
+            "if c:IsFaceup() then return true end\n    return false",
+            "return c:IsFaceup() and tc:IsLevel(4)",
+        );
+        assert!(p11_actions(&foreign, "s.activate").is_empty());
+        let unknown = multi.replace("s.filter,tp", "s.missing,tp");
+        assert!(p11_actions(&unknown, "s.activate").is_empty());
+    }
+
+    #[test]
+    fn t39_aux_combinators() {
+        register_card_names([(90001u32, "T39 Alpha".to_string())]);
+        let base = |filter: &str, call: &str| format!(r#"
+function s.spfilter(c,e,tp)
+    return c:IsSetCard(SET_AMAZONESS) and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+end
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,{filter},tp,LOCATION_GRAVE,0,1,1,nil,e,tp)
+    {call}
+end
+"#, filter = filter, call = call);
+        assert_eq!(
+            p11_actions(&base("aux.NecroValleyFilter(s.spfilter)", "Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)"), "s.op"),
+            vec!["special_summon (1, card, you control, from gy, where archetype == \"Amazoness\")"],
+        );
+        // The wrapper is a floodgate legality check: fine for an action,
+        // never for a chain receiver.
+        assert_eq!(
+            p11_actions(&base("aux.FilterBoolFunction(Card.IsCode,90001)", "Duel.SendtoHand(g,nil,REASON_EFFECT)"), "s.op"),
+            vec!["add_to_hand (1, card, you control, from gy, where name == \"T39 Alpha\")"],
+        );
+        assert_eq!(
+            p11_actions(&base("aux.AND(Card.IsMonster,Card.IsAbleToGrave)", "Duel.SendtoGrave(g,REASON_EFFECT)"), "s.op"),
+            vec!["send (1, card, you control, from gy, where is_monster) to gy"],
+        );
+        assert_eq!(
+            p11_actions(&base("aux.NOT(Card.IsFaceup)", "Duel.Destroy(g,REASON_EFFECT)"), "s.op"),
+            vec!["destroy (1, card, you control, from gy, where not is_face_up)"],
+        );
+        // FaceupFilter binds its own args; the call's extras are ignored.
+        assert_eq!(
+            p11_actions(&base("aux.FaceupFilter(Card.IsSetCard,SET_AMAZONESS)", "Duel.Destroy(g,REASON_EFFECT)"), "s.op"),
+            vec!["destroy (1, card, you control, from gy, where is_face_up and archetype == \"Amazoness\")"],
+        );
+        // An unknown combinator is a residual.
+        assert!(p11_actions(&base("aux.Tuner(Card.IsMonster)", "Duel.Destroy(g,REASON_EFFECT)"), "s.op").is_empty());
+    }
+
+    #[test]
+    fn t39_named_filter_later_params_bind_the_call_extras() {
+        let src = r#"
+function s.filter(c,lv,att)
+    return c:IsLevel(lv) and c:IsAttribute(att)
+end
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil,4,ATTRIBUTE_WATER)
+    Duel.SendtoHand(g,nil,REASON_EFFECT)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.op"),
+            vec!["add_to_hand (1, card, you control, from deck, where level == 4 and attribute == WATER)"],
+        );
+        // A param bound to a non-literal (or unbound) stays a residual.
+        let unbound = src.replace(",nil,4,ATTRIBUTE_WATER)", ",nil,e:GetLabel(),ATTRIBUTE_WATER)");
+        assert!(p11_actions(&unbound, "s.op").is_empty());
+    }
+
+    #[test]
+    fn t39_zone_availability_leaf_is_implied_by_special_summon() {
+        let src = r#"
+function s.spfilter(c,e,tp)
+    return c:IsSetCard(SET_AMAZONESS) and Duel.GetLocationCountFromEx(tp,tp,nil,c)>0 and c:IsCanBeSpecialSummoned(e,0,tp,false,false)
+end
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,s.spfilter,tp,LOCATION_EXTRA,0,1,1,nil,e,tp)
+    Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.op"),
+            vec!["special_summon (1, card, you control, from extra_deck, where archetype == \"Amazoness\")"],
+        );
+        let to_hand = src.replace("Duel.SpecialSummon(g,0,tp,tp,false,false,POS_FACEUP)", "Duel.SendtoHand(g,nil,REASON_EFFECT)");
+        assert!(p11_actions(&to_hand, "s.op").is_empty());
+    }
+
+    #[test]
+    fn t39_exception_arg_and_filter_suffix_refuse() {
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local g=Duel.GetMatchingGroup(Card.IsMonster,tp,LOCATION_MZONE,0,tc)
+    Duel.Destroy(g,REASON_EFFECT)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").unwrap();
+        let drop = body_drop_reason(body, &report.functions).expect("drop");
+        assert_eq!(drop.detail(), "Duel.Destroy(g): exception tc");
+        let narrowed = src
+            .replace(",0,tc)", ",0,nil)")
+            .replace("Duel.Destroy(g,REASON_EFFECT)", "Duel.Destroy(g:Filter(Card.IsFaceup,nil),REASON_EFFECT)");
+        let parsed = full_moon::parse(&narrowed).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get("s.activate").unwrap();
+        let drop = body_drop_reason(body, &report.functions).expect("drop");
+        assert_eq!(drop.detail(), "Duel.Destroy(g:Filter(Card.IsFaceup,nil)): group narrowed by :Filter(Card.IsFaceup,nil)");
+        assert!(p11_actions(&narrowed, "s.activate").is_empty());
+    }
+
+    #[test]
+    fn t39_select_spec_kind_only_filter_maps_kind_and_where() {
+        // Pre-T39 `spec_from_matching` rendered every select as `card`
+        // and claimed `filter_mapped` for kind-only filters.
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.SelectMatchingCard(tp,Card.IsSpell,tp,LOCATION_GRAVE,0,1,1,nil)
+    Duel.SendtoHand(g,nil,REASON_EFFECT)
+end
+"#;
+        assert_eq!(p11_actions(src, "s.op"), vec!["add_to_hand (1, spell, you control, from gy)"]);
+        let faceup = src.replace("Card.IsSpell", "Card.IsFacedown");
+        assert_eq!(p11_actions(&faceup, "s.op"), vec!["add_to_hand (1, card, you control, from gy, where is_face_down)"]);
+    }
+
+    #[test]
+    fn t39_choose_arms_resolve_selector_filters() {
+        // c9999962-style label dispatch: the arm's named filter maps,
+        // so the choose still renders — with the exact selector.
+        let src = r#"
+function s.filter(c)
+    return c:IsSetCard(SET_AMAZONESS) and c:IsAbleToHand()
+end
+function s.target(e,tp,eg,ep,ev,re,r,rp,chk)
+    if chk==0 then return true end
+    local op=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))
+    e:SetLabel(op)
+end
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local sel=e:GetLabel()
+    if sel==0 then
+        local g=Duel.SelectMatchingCard(tp,s.filter,tp,LOCATION_DECK,0,1,1,nil)
+        Duel.SendtoHand(g,nil,REASON_EFFECT)
+    else
+        Duel.Draw(tp,1,REASON_EFFECT)
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let tb = report.functions.get("s.target");
+        let ob = report.functions.get("s.operation").unwrap();
+        let spec = extract_choose_spec(tb, ob, &report.functions).expect("choose spec");
+        let arms: Vec<Vec<String>> = spec.options.iter()
+            .map(|(_, lines)| lines.iter().map(|l| l.clone().into_string("")).collect())
+            .collect();
+        assert_eq!(arms, vec![
+            vec!["add_to_hand (1, card, you control, from deck, where archetype == \"Amazoness\")".to_string()],
+            vec!["draw 1".to_string()],
+        ]);
+        // A refused arm fails the whole choose.
+        let refused = src.replace("c:IsAbleToHand()", "c:IsPublic()");
+        let parsed = full_moon::parse(&refused).expect("parse");
+        let report = walk(&parsed);
+        let ob = report.functions.get("s.operation").unwrap();
+        assert!(extract_choose_spec(report.functions.get("s.target"), ob, &report.functions).is_none());
     }
 }
