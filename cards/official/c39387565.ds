@@ -13,8 +13,9 @@ card "Return of the Red-Eyes" {
     effect "Effect 2" {
         speed: 2
         once_per_turn: hard
+        target (1, card, you control, from gy, where is_normal)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
         }
     }
 
@@ -23,8 +24,9 @@ card "Return of the Red-Eyes" {
         once_per_turn: soft
         timing: if
         trigger: custom "chain_end"
+        target (1, card, you control, from gy, where archetype == "Red-Eyes")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
         }
     }
 }

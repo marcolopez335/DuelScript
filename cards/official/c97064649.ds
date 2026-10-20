@@ -13,7 +13,10 @@ card "Secret Sect Druid Wid" {
         timing: if
         trigger: custom "chain_end"
         condition: previous_location == field
+        target (1, card, you control, from gy, where type == Continuous Spell)
         resolve {
+            set target
+            grant target cannot_activate effects until end_of_turn
         }
     }
 }

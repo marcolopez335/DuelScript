@@ -22,8 +22,9 @@ card "Baku the Beast Ninja" {
         once_per_turn: soft
         timing: if
         trigger: custom "chain_active"
+        target (1, card, you control, where (archetype == "Ninja" or archetype == "Ninjitsu Art") and is_face_up and not name == "Baku the Beast Ninja")
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }

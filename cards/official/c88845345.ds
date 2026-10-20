@@ -12,8 +12,9 @@ card "Elephun" {
         timing: when
         trigger: battle_damage
         condition: in_gy and reason == battle
+        target (1, card, you control, from banished, where is_face_up and level <= 3 and (race == Beast or race == Beast-Warrior or race == Winged Beast))
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }

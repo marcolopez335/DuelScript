@@ -19,8 +19,9 @@ card "Red Rising Dragon" {
         speed: 1
         timing: when
         trigger: summoned by special
+        target (1, card, you control, from gy, where archetype == "Resonator")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
         }
     }
 
@@ -30,8 +31,9 @@ card "Red Rising Dragon" {
         cost {
             banish self
         }
+        target (2, card, you control, from gy, except self, where archetype == "Resonator" and level == 1)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
         }
     }
 }

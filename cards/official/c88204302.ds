@@ -5,8 +5,9 @@ card "Speed Recovery" {
     effect "Effect 1" {
         speed: 1
         mandatory
+        target (1, card, you control, from gy, where archetype == "Speedroid")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
         }
     }
 
@@ -16,8 +17,9 @@ card "Speed Recovery" {
         cost {
             banish self
         }
+        target (1, card, you control, from gy, where archetype == "Speedroid" and is_monster)
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }

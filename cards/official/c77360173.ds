@@ -12,8 +12,9 @@ card "Synkron Resonator" {
         timing: if
         trigger: custom "chain_end"
         condition: previous_location == field
+        target (1, card, you control, from gy, where archetype == "Resonator" and not name == "Synkron Resonator" and is_monster)
         resolve {
-            return (all, card, either controls) to hand
+            add_to_hand target
         }
     }
 }

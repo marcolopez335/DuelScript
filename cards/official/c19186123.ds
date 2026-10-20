@@ -5,8 +5,9 @@ card "Vision Release" {
     effect "Effect 1" {
         speed: 1
         mandatory
+        target (1, card, you control, from spell_trap_zone, where is_face_up and archetype == "Vision HERO")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
         }
     }
 
@@ -16,8 +17,9 @@ card "Vision Release" {
         cost {
             banish self
         }
+        target (1, card, you control, from gy, where archetype == "Vision HERO" and is_monster)
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }

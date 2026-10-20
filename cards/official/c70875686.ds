@@ -27,8 +27,9 @@ card "Prank-Kids Rip-Roarin-Roaster" {
         once_per_turn: hard
         timing: if
         trigger: custom "chain_end"
+        target (1, card, you control, from gy, where not (is_monster and is_link))
         resolve {
-            return (all, card, either controls) to hand
+            add_to_hand target
         }
     }
 }

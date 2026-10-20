@@ -17,8 +17,9 @@ card "Azamina Sol Erysichthon" {
         once_per_turn: hard
         timing: if
         trigger: summoned by special
+        target (1, card, either controls, from field)
         resolve {
-            send (all, card, either controls) to gy
+            send target to gy
         }
     }
 
@@ -27,8 +28,9 @@ card "Azamina Sol Erysichthon" {
         once_per_turn: soft
         timing: when
         trigger: standby_phase
+        target (1, card, you control, from gy, where archetype == "Azamina" or archetype == "Sinful Spoils")
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }

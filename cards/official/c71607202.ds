@@ -21,7 +21,11 @@ card "Muckraker From the Underworld" {
         speed: 1
         once_per_turn: hard
         mandatory
+        target (1, card, you control, from gy, where race == Fiend and not name == "Muckraker From the Underworld")
         resolve {
+            discard (1, card, you control, from hand)
+            special_summon target
+            restrict you cannot_special_summon except (race == Fiend) end_of_turn
         }
     }
 

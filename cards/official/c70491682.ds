@@ -14,8 +14,10 @@ card "Vendread Anima" {
         cost {
             banish self
         }
+        target (1, card, you control, from banished, except self, where archetype == "Vendread" and not name == "Vendread Anima")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
+            restrict you cannot_special_summon except (race == Zombie) end_of_turn
         }
     }
 }

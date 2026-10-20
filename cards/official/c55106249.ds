@@ -21,7 +21,9 @@ card "Deskbot 006" {
         speed: 1
         timing: if
         trigger: summoned
+        target (1, card, either controls, from monster_zone)
         resolve {
+            change_position target
         }
     }
 
@@ -29,7 +31,10 @@ card "Deskbot 006" {
         speed: 1
         timing: if
         trigger: summoned by special
-        resolve { }
+        target (1, card, either controls, from monster_zone)
+        resolve {
+            change_position target
+        }
     }
 
     effect "Effect 5" {
@@ -37,8 +42,9 @@ card "Deskbot 006" {
         once_per_turn: hard
         timing: if
         trigger: destroyed
+        target (1, card, you control, from gy, where archetype == "Deskbot")
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }

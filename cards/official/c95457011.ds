@@ -32,8 +32,9 @@ card "Edea the Heavenly Squire" {
         once_per_turn: soft
         timing: if
         trigger: custom "chain_end"
+        target (1, card, you control, from banished, where is_face_up and archetype == "Monarch" and (is_spell or is_trap))
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }

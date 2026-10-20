@@ -11,8 +11,9 @@ card "Yaksha" {
         speed: 1
         timing: when
         trigger: summoned
+        target (1, card, opponent controls, from field, where is_spell or is_trap)
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 
@@ -20,8 +21,9 @@ card "Yaksha" {
         speed: 1
         timing: when
         trigger: custom "chain_active"
+        target (1, card, opponent controls, from field, where is_spell or is_trap)
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }

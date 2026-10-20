@@ -24,8 +24,9 @@ card "Perform Puppet" {
         once_per_turn: soft
         timing: if
         trigger: custom "chain_end"
+        target (1, card, you control, from banished, where is_face_up and archetype == "Gimmick Puppet")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
         }
     }
 }

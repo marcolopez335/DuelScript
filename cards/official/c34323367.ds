@@ -22,7 +22,10 @@ card "Performage Water Dancer" {
         once_per_turn: soft
         timing: when
         trigger: summoned
-        resolve { }
+        target (1, card, either controls, from monster_zone, in attack_position)
+        resolve {
+            change_position target to defense_position
+        }
     }
 
     effect "Effect 3" {
@@ -39,6 +42,9 @@ card "Performage Water Dancer" {
         speed: 1
         timing: if
         trigger: destroyed
-        resolve { }
+        target (1, card, either controls, from monster_zone, in attack_position)
+        resolve {
+            change_position target to defense_position
+        }
     }
 }

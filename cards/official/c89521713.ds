@@ -20,8 +20,11 @@ card "Madolche Cruffssant" {
         speed: 1
         once_per_turn: soft
         mandatory
+        target (1, card, you control, from field, except self, where is_face_up and archetype == "Madolche")
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
+            modify_level self + 1 until while_face_up
+            modify_atk self + 300 until while_face_up
         }
     }
 }

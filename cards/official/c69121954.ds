@@ -17,8 +17,9 @@ card "Dinowrestler Terra Parkourio" {
         once_per_turn: hard
         timing: if
         trigger: opponent_activates [activate_spell, activate_trap, activate_spell]
+        target (1, card, you control, from gy, where is_monster and archetype == "Dinowrestler")
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }

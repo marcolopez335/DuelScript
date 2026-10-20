@@ -14,8 +14,9 @@ card "Ninjitsu Art of Dancing Leaves" {
     effect "Effect 3" {
         speed: 2
         once_per_turn: hard
+        target (1, card, you control, from spell_trap_zone, where archetype == "Ninjitsu Art" and (is_spell or is_trap) and (type == Continuous Spell or type == Continuous Trap) and is_face_up)
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand target
         }
     }
 }

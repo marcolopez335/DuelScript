@@ -21,8 +21,10 @@ card "Cyber Dragon Nachster" {
         once_per_turn: soft
         timing: if
         trigger: summoned
+        target (1, card, you control, from gy, where race == Machine and (atk == 2100 or def == 2100))
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
+            restrict you cannot_special_summon except (race == Machine) end_of_turn
         }
     }
 
@@ -31,8 +33,10 @@ card "Cyber Dragon Nachster" {
         once_per_turn: soft
         timing: if
         trigger: summoned by special
+        target (1, card, you control, from gy, where race == Machine and (atk == 2100 or def == 2100))
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
+            restrict you cannot_special_summon except (race == Machine) end_of_turn
         }
     }
 }

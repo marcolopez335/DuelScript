@@ -27,8 +27,10 @@ card "Time Reloader" {
         once_per_turn: soft
         timing: if
         trigger: custom "chain_active"
+        target (1, card, you control, from gy)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon target
+            change_position (1, card, either controls, from monster_zone) to face_down_defense
         }
     }
 }

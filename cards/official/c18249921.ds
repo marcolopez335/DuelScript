@@ -12,7 +12,9 @@ card "Virtual World Gate - Xuanwu" {
     effect "Effect 2" {
         speed: 2
         once_per_turn: soft
+        target (1, card, either controls, from monster_zone, where is_face_up)
         resolve {
+            change_position target
         }
     }
 
@@ -22,7 +24,11 @@ card "Virtual World Gate - Xuanwu" {
         cost {
             banish self
         }
+        target (1, card, you control, from gy, where archetype == "Virtual World")
         resolve {
+            special_summon target
+            discard (1, card, you control, from hand)
+            negate_effects target while_face_up
         }
     }
 }

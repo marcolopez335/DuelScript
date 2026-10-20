@@ -12,8 +12,9 @@ card "Starship Spy Plane" {
         mandatory
         trigger: summoned by special
         condition: previous_location == hand
+        target (1, card, opponent controls, from field, where is_spell or is_trap)
         resolve {
-            return (all, card, either controls) to hand
+            add_to_hand target
         }
     }
 }

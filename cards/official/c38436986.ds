@@ -6,8 +6,10 @@ card "Tearlaments Metanoise" {
         speed: 2
         once_per_turn: hard
         mandatory
+        target (1, card, opponent controls, from monster_zone, where is_face_up)
         resolve {
-            send (all, card, either controls) to gy
+            change_position target to face_down_defense
+            send (1, card, you control, from deck, where archetype == "Tearlaments" and is_monster) to gy
         }
     }
 
@@ -16,8 +18,9 @@ card "Tearlaments Metanoise" {
         once_per_turn: hard
         timing: if
         trigger: custom "chain_end"
+        target (1, card, you control, from gy, where archetype == "Tearlaments" and is_monster)
         resolve {
-            return (all, card, either controls) to hand
+            add_to_hand target
         }
     }
 }
