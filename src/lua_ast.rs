@@ -7735,7 +7735,11 @@ fn translate_register_chain(
     } else if code == "EFFECT_CHANGE_CODE" {
         translate_change_code_chain(chain, body)
     } else if let Some(ability) = grant_ability_for(code) {
-        translate_grant_chain(ability, chain, body)
+        if grant_code_is_flag_only(code) && !chain_value_is_flag(chain) {
+            None
+        } else {
+            translate_grant_chain(ability, chain, body)
+        }
     } else {
         None
     };
@@ -7804,6 +7808,10 @@ fn set_stat_action(code: &str) -> Option<&'static str> {
         // grammar has no duration clause — reset-bearing lua chains would
         // silently lose their end-of-turn bound there.
         "EFFECT_CHANGE_LEVEL"      => "set_level",
+        // T39 S6: CHANGE_LEVEL_FINAL pins the level after every UPDATE_
+        // modifier — same priority nuance as SET_ATTACK_FINAL, same DSL
+        // atom (the compiler has no modifier-ordering concept).
+        "EFFECT_CHANGE_LEVEL_FINAL" => "set_level",
         _ => return None,
     })
 }
@@ -8364,8 +8372,40 @@ fn grant_ability_for(code: &str) -> Option<&'static str> {
         "EFFECT_ATTACK_ALL"              => "attack_all_monsters",
         "EFFECT_MUST_ATTACK"             => "must_attack",
         "EFFECT_CANNOT_CHANGE_POSITION"  => "cannot_change_position",
+        // T39 S6 code-table chore. Both are flag effects (no payload);
+        // their value is gated by `chain_value_is_flag` at the dispatch.
+        // Not extended here: EFFECT_UPDATE_RANK (no `rank` in the DSL
+        // `stat_name` vocabulary and `change_rank` has no AST arm),
+        // EFFECT_CHANGE_LSCALE / UPDATE_LSCALE (`set_scale … to` carries
+        // no `until` clause and compiles permanently — every corpus
+        // chain is end-of-turn bounded), EFFECT_SWAP_BASE_AD (`swap_stats`
+        // likewise has no duration). Emitting those would silently drop
+        // a lifetime, the exact failure `set_stat_action`'s CHANGE_LEVEL
+        // note refuses.
+        "EFFECT_CANNOT_DIRECT_ATTACK"    => "cannot_attack_directly",
+        "EFFECT_CANNOT_TRIGGER"          => "cannot_activate effects",
         _ => return None,
     })
+}
+
+/// T39 S6 — the two cannot-* codes `grant_ability_for` gained are flag
+/// effects: a present `SetValue` is the literal `1` or clone residue
+/// (Gold Pride - Pedal to the Metal! clones its `+500` ATK chip into the
+/// CANNOT_TRIGGER chain and never rewrites the value; ocgcore's
+/// `is_affected_by_effect` never reads it). A function-valued
+/// `SetValue` is a per-activation condition closure the grant phrase
+/// cannot carry — skip-not-mis-emit. Scoped to the S6 codes so the
+/// pre-S6 grant families keep their shipped (value-blind) policy; a
+/// corpus-wide flag gate is a policy flip owed its own retrofit.
+fn grant_code_is_flag_only(code: &str) -> bool {
+    matches!(code, "EFFECT_CANNOT_DIRECT_ATTACK" | "EFFECT_CANNOT_TRIGGER")
+}
+
+fn chain_value_is_flag(chain: &RegisterEffectChain) -> bool {
+    match chain.value.as_deref() {
+        None => true,
+        Some(v) => v.trim().parse::<i64>().is_ok(),
+    }
 }
 
 /// Resolve the DSL selector from the chain's `register_target` /
@@ -8776,6 +8816,9 @@ fn translate_equip_chain(
         }
         _ => {
             let ability = grant_ability_for(code)?;
+            if grant_code_is_flag_only(code) && !chain_value_is_flag(chain) {
+                return None;
+            }
             Some(DslLine::Action(format!(
                 "grant equipped_card {} until {}",
                 ability, dur,
@@ -14701,6 +14744,275 @@ end
             Some("grant (all, card, either controls, from monster_zone) cannot_attack until end_of_turn"),
             "got lines: {:?}", lines,
         );
+    }
+
+    /// T39 S6 harness: walk one handler and return its `grant ` /
+    /// `set_level ` action lines.
+    fn s6_actions(src: &str, handler: &str) -> Vec<String> {
+        let parsed = full_moon::parse(src).expect("parse");
+        let body = walk(&parsed).functions.remove(handler).expect("body");
+        translate_body(&body)
+            .into_iter()
+            .filter_map(|l| match l {
+                DslLine::Action(s) if s.starts_with("grant ") || s.starts_with("set_level ") => Some(s),
+                _ => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn t39s6_cannot_direct_attack_target_grant() {
+        // Heroic Chance (c53466826): tc=GetFirstTarget +
+        // EFFECT_CANNOT_DIRECT_ATTACK (no value) + RESETS_STANDARD_PHASE_END.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+        local e2=Effect.CreateEffect(e:GetHandler())
+        e2:SetDescription(3206)
+        e2:SetProperty(EFFECT_FLAG_CLIENT_HINT)
+        e2:SetType(EFFECT_TYPE_SINGLE)
+        e2:SetCode(EFFECT_CANNOT_DIRECT_ATTACK)
+        e2:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e2)
+    end
+end
+"#;
+        assert_eq!(
+            s6_actions(src, "s.activate"),
+            vec!["grant target cannot_attack_directly until end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn t39s6_cannot_direct_attack_while_face_up() {
+        // Massivemorph (c67820935): RESET_EVENT|RESETS_STANDARD, no phase
+        // component → while_face_up (card text has no "this turn").
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+        local e3=Effect.CreateEffect(e:GetHandler())
+        e3:SetType(EFFECT_TYPE_SINGLE)
+        e3:SetCode(EFFECT_CANNOT_DIRECT_ATTACK)
+        e3:SetReset(RESET_EVENT|RESETS_STANDARD)
+        tc:RegisterEffect(e3)
+    end
+end
+"#;
+        assert_eq!(
+            s6_actions(src, "s.activate"),
+            vec!["grant target cannot_attack_directly until while_face_up"],
+        );
+    }
+
+    #[test]
+    fn t39s6_cannot_direct_attack_battle_phase_reset_skips() {
+        // c21435914-shape: RESET_PHASE|PHASE_BATTLE lifetime has no
+        // duration keyword → the exact reset map refuses, no line.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CANNOT_DIRECT_ATTACK)
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_BATTLE)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert!(s6_actions(src, "s.operation").is_empty());
+    }
+
+    #[test]
+    fn t39s6_cannot_trigger_target_grant_flag_value() {
+        // Performapal Seal Eel (c33833230): SetValue(1) flag on a
+        // GetFirstTarget receiver → grant target cannot_activate effects.
+        let src = r#"
+function s.lckop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) then
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_CANNOT_TRIGGER)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        e1:SetValue(1)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(
+            s6_actions(src, "s.lckop"),
+            vec!["grant target cannot_activate effects until end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn t39s6_cannot_trigger_clone_residue_value_is_flag() {
+        // Gold Pride - Pedal to the Metal! (c27275398): the CANNOT_TRIGGER
+        // chain is a Clone of the +500 ATK chip and inherits SetValue(500);
+        // an integer literal is clone residue, not a condition → emits.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+        local c=e:GetHandler()
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(500)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+        local e4=e1:Clone()
+        e4:SetCode(EFFECT_CANNOT_TRIGGER)
+        tc:RegisterEffect(e4)
+    end
+end
+"#;
+        assert_eq!(
+            s6_actions(src, "s.activate"),
+            vec!["grant target cannot_activate effects until end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn t39s6_cannot_trigger_closure_value_skips() {
+        // A function-valued SetValue is a per-activation condition the
+        // grant phrase cannot carry → skip-not-mis-emit.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) then
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_CANNOT_TRIGGER)
+        e1:SetValue(s.trigval)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert!(s6_actions(src, "s.operation").is_empty());
+    }
+
+    #[test]
+    fn t39s6_cannot_trigger_group_loop() {
+        // Water Dragon Cluster (c6022371): aux.Next loop over a mapped
+        // opponent-side GetMatchingGroup → group selector receiver.
+        let src = r#"
+function s.atkfilter(c)
+    return c:IsFaceup() and c:IsType(TYPE_EFFECT)
+end
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.atkfilter,tp,0,LOCATION_MZONE,nil)
+    local tc=g:GetFirst()
+    for tc in aux.Next(g) do
+        local e2=Effect.CreateEffect(e:GetHandler())
+        e2:SetDescription(3302)
+        e2:SetType(EFFECT_TYPE_SINGLE)
+        e2:SetCode(EFFECT_CANNOT_TRIGGER)
+        e2:SetProperty(EFFECT_FLAG_SINGLE_RANGE+EFFECT_FLAG_CLIENT_HINT)
+        e2:SetRange(LOCATION_MZONE)
+        e2:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e2)
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let walked = walk(&parsed);
+        let body = walked.functions.get("s.atkop").expect("body");
+        let lines: Vec<String> = translate_body_with_functions(body, &walked.functions)
+            .into_iter()
+            .filter_map(|l| match l {
+                DslLine::Action(s) if s.starts_with("grant ") => Some(s),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(
+            lines,
+            vec!["grant (all, card, opponent controls, from monster_zone, where is_face_up and is_effect) cannot_activate effects until end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn t39s6_change_level_final_set_level() {
+        // Self receiver, literal level, DISABLE_PHASE_END macro →
+        // set_level self 4 until end_of_turn.
+        let src = r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_CHANGE_LEVEL_FINAL)
+    e1:SetValue(4)
+    e1:SetReset(RESETS_STANDARD_DISABLE_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(s6_actions(src, "s.operation"), vec!["set_level self 4 until end_of_turn"]);
+    }
+
+    #[test]
+    fn t39s6_change_level_final_except_target_loop_skips() {
+        // Galaxy Queen's Light (c52340274): the loop group EXCLUDES the
+        // declared target (`…,0,tc`) and the selector grammar has only
+        // `except self` → the shared mapper refuses the receiver.
+        let src = r#"
+function s.filter2(c)
+    return c:IsFaceup() and c:HasLevel()
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+        local g=Duel.GetMatchingGroup(s.filter2,tp,LOCATION_MZONE,0,tc)
+        local lc=g:GetFirst()
+        local lv=tc:GetLevel()
+        for lc in aux.Next(g) do
+            local e1=Effect.CreateEffect(e:GetHandler())
+            e1:SetType(EFFECT_TYPE_SINGLE)
+            e1:SetCode(EFFECT_CHANGE_LEVEL_FINAL)
+            e1:SetValue(lv)
+            e1:SetReset(RESETS_STANDARD_PHASE_END)
+            lc:RegisterEffect(e1)
+        end
+    end
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let walked = walk(&parsed);
+        let body = walked.functions.get("s.activate").expect("body");
+        let lines: Vec<DslLine> = translate_body_with_functions(body, &walked.functions)
+            .into_iter()
+            .filter(|l| matches!(l, DslLine::Action(s) if s.starts_with("set_level ")))
+            .collect();
+        assert!(lines.is_empty(), "got {:?}", lines);
+    }
+
+    #[test]
+    fn t39s6_no_surface_codes_stay_unmapped() {
+        // UPDATE_RANK / CHANGE_LSCALE / UPDATE_LSCALE / SWAP_BASE_AD: the
+        // DSL surfaces carry no duration (or no AST arm) — refused, see
+        // the grant_ability_for note.
+        for code in ["EFFECT_UPDATE_RANK", "EFFECT_CHANGE_LSCALE", "EFFECT_UPDATE_LSCALE", "EFFECT_SWAP_BASE_AD"] {
+            let src = format!(r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local e1=Effect.CreateEffect(e:GetHandler())
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode({code})
+    e1:SetValue(1)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    tc:RegisterEffect(e1)
+end
+"#);
+            let parsed = full_moon::parse(&src).expect("parse");
+            let body = walk(&parsed).functions.remove("s.operation").expect("body");
+            let actions: Vec<DslLine> = translate_body(&body)
+                .into_iter()
+                .filter(|l| matches!(l, DslLine::Action(_)))
+                .collect();
+            assert!(actions.is_empty(), "{code} emitted {:?}", actions);
+        }
     }
 
     #[test]
@@ -21652,7 +21964,8 @@ end
     #[test]
     fn s1_body_drops_chains_gate() {
         // c6022371 shape: the handler registers a translatable stat chip
-        // AND a chain outside translator coverage (EFFECT_CANNOT_TRIGGER).
+        // AND a chain outside translator coverage (EFFECT_UPDATE_RANK —
+        // T39 S6 mapped the original exemplar, EFFECT_CANNOT_TRIGGER).
         // Filling only the chip would under-state the card — the apply
         // passes consult body_drops_chains and skip the whole fill.
         let src = r#"
@@ -21667,7 +21980,8 @@ function s.operation(e,tp,eg,ep,ev,re,r,rp)
     tc:RegisterEffect(e1)
     local e2=Effect.CreateEffect(c)
     e2:SetType(EFFECT_TYPE_SINGLE)
-    e2:SetCode(EFFECT_CANNOT_TRIGGER)
+    e2:SetCode(EFFECT_UPDATE_RANK)
+    e2:SetValue(1)
     e2:SetReset(RESETS_STANDARD_PHASE_END)
     tc:RegisterEffect(e2)
 end
