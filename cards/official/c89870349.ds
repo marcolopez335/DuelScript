@@ -15,8 +15,9 @@ card "Masked HERO Blast" {
         speed: 1
         timing: if
         trigger: summoned by special
+        target (1, card, opponent controls, from monster_zone, where is_face_up)
         resolve {
-            add_to_hand target
+            set_atk target target.atk / 2 until while_face_up
         }
     }
 
