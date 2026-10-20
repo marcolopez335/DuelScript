@@ -699,6 +699,19 @@ impl EffectSkeleton {
             || self.ritual_summon_spec
     }
 
+    /// True when this chain's `SetCode` is `EFFECT_SPSUMMON_PROC` (or
+    /// `_G`) — a Special Summon procedure registered in `initial_effect`.
+    /// The corpus generator renders the procedure into the card's
+    /// `summon { }` block, never into an `effect` block, so a proc chain
+    /// carrying a SetOperation consumes a positional index without
+    /// owning a block (T38 S9b — the same orphan-consumer class as the
+    /// S9 continuous listeners; c41424250 / c46412900 / c73218989 /
+    /// c74631897 all sat one block late).
+    pub fn is_spsummon_proc(&self) -> bool {
+        self.first_arg_of("SetCode")
+            .is_some_and(|c| c.contains("EFFECT_SPSUMMON_PROC"))
+    }
+
     /// True when this chain's `SetCode` is a replacement-effect code
     /// (`EFFECT_DESTROY_REPLACE` and friends). Replacement semantics
     /// live in the `replacement` block the corpus generator emitted;
@@ -2270,13 +2283,22 @@ fn extract_effects_from_block(block: &Block, report: &mut LuaReport) {
     // itself (`<=`) and everything after it; the matcher rescues what
     // the block signatures force — the listener's own block included,
     // when the generator did emit one and the signature is distinctive.
+    // T38 S9b — `EFFECT_SPSUMMON_PROC` chains with a SetOperation are
+    // the same class: the generator rendered the procedure into the
+    // card's `summon { }` block (632 cards carry one; 332 proc chains
+    // have a SetOperation, 266 of those cards have exactly
+    // consumers-minus-procs effect blocks). Unlike a listener, a proc
+    // NEVER owns an effect block — `block_match::entity_sig` marks it
+    // `EntityKind::Orphan` so the matcher can't hand it one.
     let mut orphan_consumers: Vec<usize> = Vec::new();
     for skel in by_binding.values() {
-        let is_continuous_consumer = skel.registered
-            && (skel.operation_handler.is_some() || skel.is_summon_helper())
+        let is_consumer = skel.registered
+            && (skel.operation_handler.is_some() || skel.is_summon_helper());
+        let is_continuous_consumer = is_consumer
             && skel.first_arg_of("SetType")
                 .is_some_and(|t| t.contains("EFFECT_TYPE_CONTINUOUS"));
-        if is_continuous_consumer {
+        let is_proc_consumer = is_consumer && skel.is_spsummon_proc();
+        if is_continuous_consumer || is_proc_consumer {
             if let Some(ord) = ordinals.get(&skel.binding) {
                 orphan_consumers.push(*ord);
             }
@@ -13834,6 +13856,74 @@ end
 "#;
         let parsed = full_moon::parse(src).expect("parse");
         let report = walk(&parsed);
+        assert!(report.effects.iter().all(|e| !e.block_alignment_hazard));
+    }
+
+    #[test]
+    fn spsummon_proc_consumer_flags_itself_and_every_later_chain() {
+        // T38 S9b — Volcanic Emperor (c46412900) shape with an ignition
+        // ahead of the proc: the `EFFECT_SPSUMMON_PROC` chain carries a
+        // SetOperation (consumes an index) but the generator rendered it
+        // into `summon { }`, never into an effect block. The proc and
+        // every chain after it are flagged; the ignition before it keeps
+        // its trusted positional block.
+        let src = r#"
+function s.initial_effect(c)
+    local e0=Effect.CreateEffect(c)
+    e0:SetType(EFFECT_TYPE_IGNITION)
+    e0:SetRange(LOCATION_MZONE)
+    e0:SetOperation(s.igop)
+    c:RegisterEffect(e0)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_SPSUMMON_PROC)
+    e1:SetRange(LOCATION_HAND)
+    e1:SetCondition(s.spcon)
+    e1:SetTarget(s.sptg)
+    e1:SetOperation(s.spop)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+    e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+    e2:SetTarget(s.damtg)
+    e2:SetOperation(s.damop)
+    c:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let flags: Vec<(String, bool, bool)> = report.effects.iter()
+            .map(|e| (e.binding.clone(), e.is_spsummon_proc(), e.block_alignment_hazard))
+            .collect();
+        assert_eq!(flags, vec![
+            ("e0".to_string(), false, false),
+            ("e1".to_string(), true, true),
+            ("e2".to_string(), false, true),
+        ]);
+    }
+
+    #[test]
+    fn spsummon_proc_without_operation_is_not_a_hazard() {
+        // A condition-only proc (302 corpus chains) consumes no index —
+        // nothing to flag; the trigger after it stays positional.
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_SPSUMMON_PROC)
+    e1:SetRange(LOCATION_HAND)
+    e1:SetCondition(s.spcon)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+    e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+    e2:SetOperation(s.op2)
+    c:RegisterEffect(e2)
+end
+"#;
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        assert!(report.effects[0].is_spsummon_proc());
         assert!(report.effects.iter().all(|e| !e.block_alignment_hazard));
     }
 
