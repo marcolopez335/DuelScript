@@ -2365,9 +2365,15 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             rt.damage(player, amount, DamageType::Cost);
         }
         Action::FlipDown(sel) => {
+            // `flip_down` is the DSL surface for "change to face-down
+            // Defense Position" (Book of Moon / Tsukuyomi). It must use
+            // the positional form: the bare `change_position` is the
+            // game-rule battle-position toggle (face-up ATK <-> face-up
+            // DEF; face-down -> face-up ATK) and would leave the target
+            // face-up, or flip an already-set monster face-up.
             let cards = resolve_v2_selector(sel, rt, player);
             for card_id in cards {
-                rt.change_position(card_id);
+                rt.change_position_to(card_id, tm::POS_FACEDOWN_DEFENSE);
             }
         }
         Action::ChangePosition(sel, target_pos) => {
@@ -5141,6 +5147,72 @@ card "Test Cannot NS" {
         let cards = super::resolve_v2_selector(&sel, &mut rt, 0);
         assert_eq!(cards, vec![712],
             "not (Beast or Winged Beast) should keep only the Zombie");
+    }
+
+    // ── flip_down lowering ───────────────────────────────────────
+
+    /// `flip_down target` must emit the positional face-down-defense call,
+    /// never the bare toggle (which would leave the target face-up).
+    #[test]
+    fn flip_down_lowers_to_face_down_defense_not_toggle() {
+        use super::super::mock_runtime::MockRuntime;
+        use super::super::ast::Selector;
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.set_binding("__target__", 700);
+
+        super::execute_v2_action(&Action::FlipDown(Selector::Target), &mut rt, 0);
+
+        assert!(
+            rt.was_called_with("change_position_to", "card=700 pos=0x8"),
+            "flip_down must call change_position_to(POS_FACEDOWN_DEFENSE);\n{}",
+            rt.dump_calls(),
+        );
+        assert_eq!(rt.call_count("change_position"), 0,
+            "flip_down must not emit the bare toggle;\n{}", rt.dump_calls());
+    }
+
+    /// `change_position … to defense_position` still lands at face-up defense.
+    #[test]
+    fn change_position_to_defense_emits_face_up_defense() {
+        use super::super::mock_runtime::MockRuntime;
+        use super::super::ast::{BattlePosition, Selector};
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.set_binding("__target__", 700);
+
+        super::execute_v2_action(
+            &Action::ChangePosition(Selector::Target, Some(BattlePosition::Defense)),
+            &mut rt, 0,
+        );
+
+        assert!(
+            rt.was_called_with("change_position_to", "card=700 pos=0x4"),
+            "expected change_position_to(POS_FACEUP_DEFENSE);\n{}",
+            rt.dump_calls(),
+        );
+        assert_eq!(rt.call_count("change_position"), 0, "{}", rt.dump_calls());
+    }
+
+    /// Bare `change_position` is unchanged: it is the game-rule toggle.
+    #[test]
+    fn bare_change_position_still_emits_toggle() {
+        use super::super::mock_runtime::MockRuntime;
+        use super::super::ast::Selector;
+
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.set_binding("__target__", 700);
+
+        super::execute_v2_action(&Action::ChangePosition(Selector::Target, None), &mut rt, 0);
+
+        assert!(rt.was_called_with("change_position", "card=700"), "{}", rt.dump_calls());
+        assert_eq!(rt.call_count("change_position_to"), 0, "{}", rt.dump_calls());
     }
 
     // ── M3b tests ────────────────────────────────────────────────

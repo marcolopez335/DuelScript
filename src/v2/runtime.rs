@@ -888,7 +888,9 @@ pub trait DuelScriptRuntime {
     /// POS_FACEDOWN_ATTACK=0x2, POS_FACEDOWN_DEFENSE=0x8). Used by
     /// `Action::ChangePosition(sel, Some(BattlePosition))` so cards like
     /// "switch this to defense position" land at the requested position
-    /// instead of cycling through the toggle. Default delegates to
+    /// instead of cycling through the toggle, and by `Action::FlipDown`
+    /// (`flip_down <sel>`, Book of Moon) with `POS_FACEDOWN_DEFENSE` —
+    /// the bare toggle would leave a face-up target face-up. Default delegates to
     /// `change_position` (toggle) for runtimes that haven't implemented
     /// targeted position changes — preserves backward compatibility.
     fn change_position_to(&mut self, card_id: u32, _target_pos: u32) {
