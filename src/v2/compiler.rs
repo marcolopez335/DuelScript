@@ -1089,9 +1089,10 @@ fn stat_field_to_value(field: &StatField, card_id: u32, rt: &dyn DuelScriptRunti
 
 /// Evaluate a `where_clause` predicate against a single card.
 ///
-/// All `PredicateAtom` variants are evaluated via single-bit mask
-/// checks against `get_card_type(card_id)` and trait reads. Pure
-/// — takes `&dyn` and never mutates the runtime.
+/// `PredicateAtom` variants are evaluated via mask checks against
+/// `get_card_type(card_id)` and trait reads (`is_*` atoms are single-bit
+/// any-of; `type == …` is all-of, see `card_type_match`). Pure — takes
+/// `&dyn` and never mutates the runtime.
 fn eval_predicate(pred: &Predicate, card_id: u32, rt: &dyn DuelScriptRuntime) -> bool {
     match pred {
         Predicate::Single(atom) => eval_predicate_atom(atom, card_id, rt),
@@ -1108,8 +1109,10 @@ fn eval_predicate(pred: &Predicate, card_id: u32, rt: &dyn DuelScriptRuntime) ->
 /// IsMonster / IsSpell / IsTrap / IsFaceUp / IsFaceDown) plus the 11
 /// exotic atoms (IsEffect / IsNormal / IsTuner / IsFusion / IsSynchro /
 /// IsXyz / IsLink / IsRitual / IsPendulum / IsToken / IsFlip), each via
-/// a single-bit mask check against `get_card_type(card_id)`. Bit values
-/// follow the EDOPro convention enumerated in `card_type_to_bits`.
+/// a single-bit mask check against `get_card_type(card_id)`. `TypeIs`
+/// is the exception: it requires ALL bits of the sub-type mask (see
+/// `card_type_match`). Bit values follow the EDOPro convention
+/// enumerated in `card_type_match`.
 fn eval_predicate_atom(atom: &PredicateAtom, card_id: u32, rt: &dyn DuelScriptRuntime) -> bool {
     match atom {
         PredicateAtom::Not(inner) => !eval_predicate_atom(inner, card_id, rt),
@@ -1139,8 +1142,11 @@ fn eval_predicate_atom(atom: &PredicateAtom, card_id: u32, rt: &dyn DuelScriptRu
         }
 
         PredicateAtom::TypeIs(ctype) => {
-            let mask: u64 = card_type_to_bits(ctype);
-            rt.get_card_type(card_id) & mask != 0
+            // `type == <sub-type>` is a conjunction: the card must carry
+            // EVERY bit of the sub-type's mask (frame bit AND sub-type
+            // bit). An any-of test here would make `type == Equip Spell`
+            // match every Spell via the shared TYPE_SPELL bit.
+            card_type_match(ctype).matches(rt.get_card_type(card_id))
         }
 
         PredicateAtom::NameIs(name) => {
@@ -1183,7 +1189,7 @@ fn eval_predicate_atom(atom: &PredicateAtom, card_id: u32, rt: &dyn DuelScriptRu
 
         // Exotic atoms — T7/M4. Each is a single-bit check against the
         // EDOPro `get_card_type` bitmask. Bit values match the table in
-        // `card_type_to_bits` (TYPE_EFFECT=0x20, TYPE_NORMAL=0x10, etc.).
+        // `card_type_match` (TYPE_EFFECT=0x20, TYPE_NORMAL=0x10, etc.).
         PredicateAtom::IsEffect   => rt.get_card_type(card_id) & 0x20       != 0,
         PredicateAtom::IsNormal   => rt.get_card_type(card_id) & 0x10       != 0,
         PredicateAtom::IsTuner    => rt.get_card_type(card_id) & 0x1000     != 0,
@@ -1198,12 +1204,38 @@ fn eval_predicate_atom(atom: &PredicateAtom, card_id: u32, rt: &dyn DuelScriptRu
     }
 }
 
-/// Map an AST `CardType` variant to its EDOPro type bitmask.
+/// How a `type == <CardType>` predicate matches a card's EDOPro type
+/// bitmask (`get_card_type`).
+///
+/// * `AllOf(mask)` — the card must carry every bit of `mask`
+///   (`type & mask == mask`). Mirrors `Card.IsType(TYPE_X)` for the
+///   single-bit sub-types and `make_exact_type_check(TYPE_MONSTER|TYPE_X)`
+///   in CardScripts/utility.lua for the frame+sub-type pairs. This is a
+///   stricter contract than the `is_spell` / `is_fusion` … atoms, which
+///   stay single-bit any-of checks by design.
+/// * `Exact(mask)` — the card's type must equal `mask` with no other
+///   bits set. Only `Normal Spell` / `Normal Trap`, which CardScripts
+///   defines as `c:GetType()==TYPE_SPELL` / `==TYPE_TRAP`: a Spell with
+///   no Quick-Play/Continuous/Equip/Field/Ritual bit.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum TypeMatch {
+    AllOf(u64),
+    Exact(u64),
+}
+
+impl TypeMatch {
+    fn matches(self, type_bits: u64) -> bool {
+        match self {
+            TypeMatch::AllOf(mask) => type_bits & mask == mask,
+            TypeMatch::Exact(mask) => type_bits == mask,
+        }
+    }
+}
+
+/// Map an AST `CardType` variant to its EDOPro type-bitmask match rule.
 ///
 /// Used by `eval_predicate_atom` for `PredicateAtom::TypeIs`.
-/// Exotic sub-types (Tuner, Flip, Gemini, etc.) with no straightforward
-/// EDOPro single-bit mapping return 0 (will never match).
-fn card_type_to_bits(ctype: &CardType) -> u64 {
+fn card_type_match(ctype: &CardType) -> TypeMatch {
     // EDOPro TYPE_* constants (subset used in goat corpus):
     //   TYPE_MONSTER      = 0x1
     //   TYPE_SPELL        = 0x2
@@ -1243,31 +1275,32 @@ fn card_type_to_bits(ctype: &CardType) -> u64 {
     const T_PENDULUM:   u64 = 0x1000000;
     const T_LINK:       u64 = 0x4000000;
 
+    use TypeMatch::{AllOf, Exact};
     match ctype {
-        CardType::NormalMonster    => T_MONSTER | T_NORMAL,
-        CardType::EffectMonster    => T_MONSTER | T_EFFECT,
-        CardType::RitualMonster    => T_MONSTER | T_RITUAL,
-        CardType::FusionMonster    => T_MONSTER | T_FUSION,
-        CardType::SynchroMonster   => T_MONSTER | T_SYNCHRO,
-        CardType::XyzMonster       => T_MONSTER | T_XYZ,
-        CardType::LinkMonster      => T_MONSTER | T_LINK,
-        CardType::PendulumMonster  => T_MONSTER | T_PENDULUM,
-        CardType::NormalSpell      => T_SPELL,
-        CardType::QuickPlaySpell   => T_SPELL | T_QUICKPLAY,
-        CardType::ContinuousSpell  => T_SPELL | T_CONTINUOUS,
-        CardType::EquipSpell       => T_SPELL | T_EQUIP,
-        CardType::FieldSpell       => T_SPELL | T_FIELD,
-        CardType::RitualSpell      => T_SPELL | T_RITUAL,
-        CardType::NormalTrap       => T_TRAP,
-        CardType::CounterTrap      => T_TRAP | T_COUNTER,
-        CardType::ContinuousTrap   => T_TRAP | T_CONTINUOUS,
-        CardType::Tuner            => T_TUNER,
-        CardType::SynchroTuner     => T_TUNER | T_SYNCHRO,
-        CardType::Flip             => T_FLIP,
-        CardType::Gemini           => T_GEMINI,
-        CardType::Union            => T_UNION,
-        CardType::Spirit           => T_SPIRIT,
-        CardType::Toon             => T_TOON,
+        CardType::NormalMonster    => AllOf(T_MONSTER | T_NORMAL),
+        CardType::EffectMonster    => AllOf(T_MONSTER | T_EFFECT),
+        CardType::RitualMonster    => AllOf(T_MONSTER | T_RITUAL),
+        CardType::FusionMonster    => AllOf(T_MONSTER | T_FUSION),
+        CardType::SynchroMonster   => AllOf(T_MONSTER | T_SYNCHRO),
+        CardType::XyzMonster       => AllOf(T_MONSTER | T_XYZ),
+        CardType::LinkMonster      => AllOf(T_MONSTER | T_LINK),
+        CardType::PendulumMonster  => AllOf(T_MONSTER | T_PENDULUM),
+        CardType::NormalSpell      => Exact(T_SPELL),
+        CardType::QuickPlaySpell   => AllOf(T_SPELL | T_QUICKPLAY),
+        CardType::ContinuousSpell  => AllOf(T_SPELL | T_CONTINUOUS),
+        CardType::EquipSpell       => AllOf(T_SPELL | T_EQUIP),
+        CardType::FieldSpell       => AllOf(T_SPELL | T_FIELD),
+        CardType::RitualSpell      => AllOf(T_SPELL | T_RITUAL),
+        CardType::NormalTrap       => Exact(T_TRAP),
+        CardType::CounterTrap      => AllOf(T_TRAP | T_COUNTER),
+        CardType::ContinuousTrap   => AllOf(T_TRAP | T_CONTINUOUS),
+        CardType::Tuner            => AllOf(T_TUNER),
+        CardType::SynchroTuner     => AllOf(T_TUNER | T_SYNCHRO),
+        CardType::Flip             => AllOf(T_FLIP),
+        CardType::Gemini           => AllOf(T_GEMINI),
+        CardType::Union            => AllOf(T_UNION),
+        CardType::Spirit           => AllOf(T_SPIRIT),
+        CardType::Toon             => AllOf(T_TOON),
     }
 }
 
@@ -5487,6 +5520,113 @@ card "Test Cannot NS" {
     // TYPE_EFFECT = 0x21 — does NOT include any exotic bit). Resolve a
     // `Counted + where_clause` selector and assert the match set is
     // the expected singleton.
+
+    // ── `type == <sub-type>` is an all-of mask, not any-of ─────────
+    //
+    // PR #169 started emitting `where type == Equip Spell` etc. from
+    // `Card.IsType(TYPE_EQUIP)`. The old `& mask != 0` test let every
+    // Spell match via the shared TYPE_SPELL bit. These pin the all-of
+    // (and, for Normal Spell/Trap, exact) contract on the mock runtime.
+
+    /// Resolve `(all, spell, opponent controls) where <atom>` against a
+    /// Normal Spell (0x2), an Equip Spell (0x2|0x40000) and a Field Spell
+    /// (0x2|0x80000) in the opponent's S/T zone.
+    #[cfg(test)]
+    fn run_spell_type_atom_test(atom: super::super::ast::PredicateAtom) -> Vec<u32> {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        use super::super::ast::{
+            Selector, Quantity, CardFilter, CardFilterKind, Controller, Predicate,
+        };
+        let sel = Selector::Counted {
+            quantity: Quantity::All,
+            filter: CardFilter { name: None, kind: CardFilterKind::Spell },
+            controller: Some(Controller::Opponent),
+            zone: None,
+            position: None,
+            where_clause: Some(Predicate::Single(atom)),
+        };
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.state.add_card(CardSnapshot::spell(2001, "NormalSpell"));
+        rt.state.add_card(CardSnapshot::spell(2002, "EquipSpell").with_type(0x2 | 0x40000));
+        rt.state.add_card(CardSnapshot::spell(2003, "FieldSpell").with_type(0x2 | 0x80000));
+        rt.state.players[1].field_spells.extend([2001, 2002, 2003]);
+        super::resolve_v2_selector(&sel, &mut rt, 0)
+    }
+
+    #[test]
+    fn type_is_equip_spell_matches_only_equip_spells() {
+        use super::super::ast::{CardType, PredicateAtom};
+        let cards = run_spell_type_atom_test(PredicateAtom::TypeIs(CardType::EquipSpell));
+        assert_eq!(cards, vec![2002],
+            "type == Equip Spell must not match a Normal or Field Spell via TYPE_SPELL");
+    }
+
+    #[test]
+    fn type_is_normal_spell_is_exact() {
+        use super::super::ast::{CardType, PredicateAtom};
+        // CardScripts: Card.IsNormalSpell = c:GetType()==TYPE_SPELL.
+        let cards = run_spell_type_atom_test(PredicateAtom::TypeIs(CardType::NormalSpell));
+        assert_eq!(cards, vec![2001],
+            "type == Normal Spell must exclude Spells carrying a sub-type bit");
+    }
+
+    #[test]
+    fn is_spell_atom_stays_any_of() {
+        use super::super::ast::PredicateAtom;
+        let cards = run_spell_type_atom_test(PredicateAtom::IsSpell);
+        assert_eq!(cards, vec![2001, 2002, 2003],
+            "is_spell is a single-bit check and must keep matching every Spell");
+    }
+
+    #[test]
+    fn type_is_gemini_matches_only_gemini_monster() {
+        use super::super::ast::{CardType, PredicateAtom};
+        // TYPE_MONSTER | TYPE_EFFECT | TYPE_GEMINI (0x1 | 0x20 | 0x800) vs the
+        // default Effect monster — the monster/effect bits are shared, so an
+        // any-of test on the frame bit would have matched both.
+        let cards = run_exotic_atom_test(
+            PredicateAtom::TypeIs(CardType::Gemini), 0x1 | 0x20 | 0x800);
+        assert_eq!(cards, vec![1001], "type == Gemini should match only the Gemini monster");
+    }
+
+    #[test]
+    fn type_is_fusion_monster_requires_frame_and_subtype_bits() {
+        use super::super::ast::{CardType, PredicateAtom};
+        // A Fusion monster matches; a plain Effect monster (shares TYPE_MONSTER)
+        // does not.
+        let cards = run_exotic_atom_test(
+            PredicateAtom::TypeIs(CardType::FusionMonster), 0x1 | 0x20 | 0x40);
+        assert_eq!(cards, vec![1001]);
+    }
+
+    #[test]
+    fn card_type_match_mask_contents() {
+        use super::super::ast::CardType;
+        use super::{card_type_match, TypeMatch};
+        assert_eq!(card_type_match(&CardType::EquipSpell),     TypeMatch::AllOf(0x2 | 0x40000));
+        assert_eq!(card_type_match(&CardType::FieldSpell),     TypeMatch::AllOf(0x2 | 0x80000));
+        assert_eq!(card_type_match(&CardType::QuickPlaySpell), TypeMatch::AllOf(0x2 | 0x10000));
+        assert_eq!(card_type_match(&CardType::ContinuousTrap), TypeMatch::AllOf(0x4 | 0x20000));
+        assert_eq!(card_type_match(&CardType::CounterTrap),    TypeMatch::AllOf(0x4 | 0x100000));
+        assert_eq!(card_type_match(&CardType::NormalSpell),    TypeMatch::Exact(0x2));
+        assert_eq!(card_type_match(&CardType::NormalTrap),     TypeMatch::Exact(0x4));
+        assert_eq!(card_type_match(&CardType::Gemini),         TypeMatch::AllOf(0x800));
+        assert_eq!(card_type_match(&CardType::Union),          TypeMatch::AllOf(0x400));
+        assert_eq!(card_type_match(&CardType::Spirit),         TypeMatch::AllOf(0x200));
+        assert_eq!(card_type_match(&CardType::Toon),           TypeMatch::AllOf(0x400000));
+        assert_eq!(card_type_match(&CardType::SynchroTuner),   TypeMatch::AllOf(0x1000 | 0x2000));
+
+        // All-of semantics on the raw matcher.
+        let equip = TypeMatch::AllOf(0x2 | 0x40000);
+        assert!(equip.matches(0x2 | 0x40000));
+        assert!(!equip.matches(0x2), "a bare Spell must not satisfy an Equip Spell mask");
+        assert!(!equip.matches(0x40000), "sub-type bit without the frame bit must not match");
+        let normal = TypeMatch::Exact(0x2);
+        assert!(normal.matches(0x2));
+        assert!(!normal.matches(0x2 | 0x20000));
+    }
 
     /// Shared helper: run a `where_clause` against a two-card deck
     /// (match + non-match) and assert which IDs survived the filter.
