@@ -505,9 +505,12 @@ implemented these features compile and run correctly against cards that do not u
   duration dictated by the card's effect. Default: no-op.
 
 - `register_grant(card_id, grant_code, duration)` — Register a continuous ability
-  grant on `card_id` identified by `grant_code` (engine-defined; e.g.,
-  `GRANT_CANNOT_BE_DESTROYED`), lasting for the phase/event mask `duration`.
-  Default: no-op.
+  grant on `card_id` identified by `grant_code` — an EDOPro `EFFECT_*` code from
+  `CardScripts/constant.lua` (e.g. 42 `EFFECT_INDESTRUCTABLE_BATTLE`, 73
+  `EFFECT_CANNOT_DIRECT_ATTACK`, 7 `EFFECT_CANNOT_TRIGGER`, 1
+  `EFFECT_IMMUNE_EFFECT`; the compiler's `grant_to_code` table is the single
+  source), lasting for the phase/event mask `duration`. The lua `SetValue`
+  payload (immunity filter, extra-attack count) is not carried. Default: no-op.
 
 - `register_redirect(source_card, from_zone, to_zone, scope_mask, filter_flags)` —
   Register a continuous leave-field destination redirect (Macro Cosmos, Dimensional
