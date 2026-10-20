@@ -12,8 +12,9 @@ card "The Fabled Catsith" {
         mandatory
         trigger: custom "chain_end"
         condition: previous_location == hand and reason includes discard
+        target (1, card, either controls, from field, where is_face_up)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 }

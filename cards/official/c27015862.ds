@@ -29,7 +29,8 @@ card "Veda Kalanta" {
         trigger: destroyed
         target (1, card, opponent controls, from monster_zone)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
+            modify_atk self + target.base_atk until end_of_turn
         }
     }
 }

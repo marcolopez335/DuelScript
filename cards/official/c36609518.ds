@@ -19,7 +19,7 @@ card "Evil★Twin Lil-la" {
         trigger: summoned by special
         target (1, card, either controls, from field)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 
@@ -27,7 +27,8 @@ card "Evil★Twin Lil-la" {
         speed: 2
         once_per_turn: soft
         resolve {
-            special_summon (all, card, either controls)
+            special_summon (1, card, you control, from gy)
+            restrict you cannot_special_summon from extra_deck except (race == Fiend) end_of_turn
         }
     }
 }

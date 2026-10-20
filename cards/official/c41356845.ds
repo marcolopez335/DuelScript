@@ -5,8 +5,11 @@ card "Acid Trap Hole" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        target (1, card, either controls, from monster_zone, where is_face_down)
         resolve {
-            destroy (all, card, either controls)
+            change_position target to defense_position
+            destroy target
+            change_position target to face_down_defense
         }
     }
 }
