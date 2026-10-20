@@ -6,8 +6,6 @@ card "Revenge Rally" {
         speed: 2
         mandatory
         resolve {
-            discard (1+, card, you control, from hand)
-            draw 1
         }
     }
 
@@ -18,7 +16,8 @@ card "Revenge Rally" {
         trigger: custom "chain_end"
         resolve {
             draw 2
-            discard (all, card, either controls)
+            shuffle_hand yours
+            discard (1, card, you control, from hand)
             draw 1
         }
     }

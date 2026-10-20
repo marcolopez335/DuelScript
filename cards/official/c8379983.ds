@@ -13,8 +13,9 @@ card "Lunalight Gold Leo" {
         timing: if
         trigger: summoned
         resolve {
-            add_to_hand (1, monster, where archetype == "Lunalight") from deck
-            discard (all, card, either controls)
+            add_to_hand (1, card, you control, from deck, where archetype == "Lunalight" and is_monster and not name == "Lunalight Gold Leo")
+            shuffle_hand yours
+            discard (1, card, you control, from hand)
         }
     }
 
@@ -24,8 +25,9 @@ card "Lunalight Gold Leo" {
         timing: if
         trigger: summoned by special
         resolve {
-            add_to_hand (1, monster, where archetype == "Lunalight") from deck
-            discard (all, card, either controls)
+            add_to_hand (1, card, you control, from deck, where archetype == "Lunalight" and is_monster and not name == "Lunalight Gold Leo")
+            shuffle_hand yours
+            discard (1, card, you control, from hand)
         }
     }
 }
