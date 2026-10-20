@@ -295,6 +295,7 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
     };
     paths.sort();
     let (mut stubs, mut reviews, mut reshapes) = (0usize, 0usize, 0usize);
+    let (mut decls, mut decl_reviews) = (0usize, 0usize);
     for path in paths {
         let Ok(txt) = fs::read_to_string(&path) else { continue };
         let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
@@ -315,6 +316,47 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
             let Some(body) = walk.functions.get(handler) else { continue };
             // Offsets recomputed against new_txt — a stub earlier in this
             // file shifts every later block.
+            let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else { continue };
+            // T39 S9 — DECL class: a shipped `target (…)` line equal to
+            // the pre-S9 decl rendering that the shared-mapper rendering
+            // now writes differently is a machine-emitted declaration
+            // the flip re-renders; `--stub` rewrites the line in place
+            // (a decl has no empty form — stubbing it would orphan the
+            // resolve's `target` references). A shipped line equal to
+            // NEITHER rendering is hand content or an older emitter's
+            // and is reported only.
+            if let Some((d_lo, d_hi)) = shipped_target_decl_span(&new_txt, block_lo, block_hi) {
+                let shipped_decl = new_txt[d_lo..d_hi].trim().to_string();
+                let current = target_decl_selector(eff, &walk.functions);
+                let legacy = lua_ast::with_legacy_decl_policy(|| target_decl_selector(eff, &walk.functions));
+                let current_line = current.as_ref().ok().map(|s| format!("target {}", s));
+                let legacy_line = legacy.as_ref().ok().map(|s| format!("target {}", s));
+                if current_line.as_deref() != Some(shipped_decl.as_str()) {
+                    if legacy_line.as_deref() == Some(shipped_decl.as_str()) {
+                        decls += 1;
+                        println!("DECL   {} block={} target={} current={}",
+                            stem, block_idx, eff.target_handler.as_deref().unwrap_or("-").trim(),
+                            current.as_ref().map(|_| "ok").unwrap_or("refused"));
+                        println!("    shipped:  {}", shipped_decl);
+                        match &current {
+                            Ok(s) => println!("    rendered: target {}", s),
+                            Err(e) => println!("    refused:  {}", e),
+                        }
+                        if stub {
+                            if let Some(line) = &current_line {
+                                new_txt = format!("{}{}{}", &new_txt[..d_lo], line, &new_txt[d_hi..]);
+                                changed = true;
+                            }
+                        }
+                    } else if current_line.is_some() {
+                        decl_reviews += 1;
+                        println!("DECL-REVIEW {} block={} target={}",
+                            stem, block_idx, eff.target_handler.as_deref().unwrap_or("-").trim());
+                        println!("    shipped:  {}", shipped_decl);
+                        println!("    rendered: {}", current_line.as_deref().unwrap_or(""));
+                    }
+                }
+            }
             let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else { continue };
             let Some((inner_lo, inner_hi)) = block_match::resolve_inner_span(&new_txt, block_lo, block_hi) else { continue };
             let shipped: Vec<String> = new_txt[inner_lo..inner_hi].lines()
@@ -425,6 +467,20 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
         ),
         None => println!("=== audit-fills: {} stub, {} review ===", stubs, reviews),
     }
+    println!("=== audit-fills decls: {} decl, {} decl-review ===", decls, decl_reviews);
+}
+
+/// Byte span of the shipped `target (…)` declaration line of the
+/// effect block at `[lo, hi)` — from the line's first non-blank byte to
+/// its end — or None when the block declares none (same marker as Pass
+/// E's idempotency check).
+fn shipped_target_decl_span(txt: &str, lo: usize, hi: usize) -> Option<(usize, usize)> {
+    let block = &txt[lo..hi];
+    let at = block.find("\n        target (")? + 1;
+    let rest = &block[at..];
+    let start = lo + at + (rest.len() - rest.trim_start().len());
+    let end = lo + at + rest.find('\n').unwrap_or(rest.len());
+    Some((start, end))
 }
 
 /// See the `audit-owners` mode arm. Walks every effect block with a
@@ -1180,11 +1236,8 @@ fn plan_fill(
     let mut co_target: Option<String> = None;
     if lines_reference_target(&lines) && !block_has_target_decl(block) {
         match target_decl_selector(eff, &walk.functions) {
-            Some(sel) => co_target = Some(sel),
-            None => {
-                let detail = eff.target_handler.as_deref().unwrap_or("(no SetTarget)").trim().to_string();
-                return skip(FillReason::TargetDeclUndecodable, detail);
-            }
+            Ok(sel) => co_target = Some(sel),
+            Err(detail) => return skip(FillReason::TargetDeclUndecodable, detail),
         }
     }
     FillPlan::Fill { lines, co_target }
@@ -2220,14 +2273,20 @@ fn block_has_target_decl(block: &str) -> bool {
 
 /// The target-declaration selector to co-emit with a bare-target fill
 /// (T38 S6): the effect's SetTarget handler through the REFINED
-/// extraction — Phase 8's nil/aux.TRUE shapes plus exactly-mapped
-/// custom filters. None ⇒ the fill must skip.
+/// extraction — Phase 8's nil/aux.TRUE shapes plus custom filters
+/// resolved through the shared selector mapper with the owning
+/// operation handler's target-consuming actions as the transparent-
+/// legality context (T39 S9). Err names the refusal ⇒ the fill skips.
 fn target_decl_selector(
     eff: &lua_ast::EffectSkeleton,
     functions: &std::collections::BTreeMap<String, lua_ast::FunctionBody>,
-) -> Option<String> {
-    let th = eff.target_handler.as_deref()?;
-    Some(lua_ast::extract_target_decl_refined(th.trim(), functions)?.to_dsl())
+) -> Result<String, String> {
+    let th = eff.target_handler.as_deref().ok_or_else(|| "(no SetTarget)".to_string())?;
+    let consumers = eff.operation_handler.as_deref()
+        .and_then(|oh| functions.get(oh.trim()))
+        .map(lua_ast::target_consumers)
+        .unwrap_or_default();
+    Ok(lua_ast::extract_target_decl_refined(th.trim(), functions, &consumers)?.to_dsl())
 }
 
 fn render_resolve_body(lines: &[lua_ast::DslLine]) -> String {
