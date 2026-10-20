@@ -277,6 +277,34 @@ fn main() {
 /// the current rendering's. Lines of other actions are not compared —
 /// a selector or duration drift in a sibling line is another slice's
 /// retrofit, not this one's.
+/// The DECL-class verdict for a shipped `target (…)` line (T39 S9 /
+/// S10): equal to the current rendering → healthy; equal to one of the
+/// `legacies` renderings (name, line) → a machine emission a policy
+/// flip re-renders (`Rewrite` names the policy); equal to neither while
+/// the current rendering exists → `Review` (hand content or an older
+/// emitter's). A current rendering that is refused is never reviewed —
+/// there is nothing to compare against.
+#[derive(Debug, PartialEq, Eq)]
+enum DeclVerdict {
+    Healthy,
+    Rewrite(&'static str),
+    Review,
+}
+
+fn classify_decl(
+    shipped: &str,
+    current: Option<&str>,
+    legacies: &[(&'static str, Option<String>)],
+) -> DeclVerdict {
+    if current == Some(shipped) {
+        return DeclVerdict::Healthy;
+    }
+    if let Some((name, _)) = legacies.iter().find(|(_, l)| l.as_deref() == Some(shipped)) {
+        return DeclVerdict::Rewrite(name);
+    }
+    if current.is_some() { DeclVerdict::Review } else { DeclVerdict::Healthy }
+}
+
 fn shape_lines_differ(shipped: &[String], rendered: &[String], action: &str) -> bool {
     let prefix = format!("{} ", action);
     let pick = |lines: &[String]| -> Vec<String> {
@@ -294,7 +322,7 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
         Err(e) => { eprintln!("cannot read {}: {}", corpus_dir, e); return; }
     };
     paths.sort();
-    let (mut stubs, mut reviews, mut reshapes) = (0usize, 0usize, 0usize);
+    let (mut stubs, mut reviews, mut reshapes, mut reshape_reviews) = (0usize, 0usize, 0usize, 0usize);
     let (mut decls, mut decl_reviews) = (0usize, 0usize);
     for path in paths {
         let Ok(txt) = fs::read_to_string(&path) else { continue };
@@ -325,18 +353,26 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
             // resolve's `target` references). A shipped line equal to
             // NEITHER rendering is hand content or an older emitter's
             // and is reported only.
+            // T39 S10 adds the pre-T38 S1 Pass E rendering (no `except
+            // self`) as a second legacy policy: a shipped decl equal to
+            // it is the same machine-emission class.
             if let Some((d_lo, d_hi)) = shipped_target_decl_span(&new_txt, block_lo, block_hi) {
                 let shipped_decl = new_txt[d_lo..d_hi].trim().to_string();
                 let current = target_decl_selector(eff, &walk.functions);
                 let legacy = lua_ast::with_legacy_decl_policy(|| target_decl_selector(eff, &walk.functions));
+                let legacy_exc = lua_ast::with_legacy_decl_exc_policy(|| target_decl_selector(eff, &walk.functions));
                 let current_line = current.as_ref().ok().map(|s| format!("target {}", s));
-                let legacy_line = legacy.as_ref().ok().map(|s| format!("target {}", s));
-                if current_line.as_deref() != Some(shipped_decl.as_str()) {
-                    if legacy_line.as_deref() == Some(shipped_decl.as_str()) {
+                let legacies = [
+                    ("s9-decl", legacy.as_ref().ok().map(|s| format!("target {}", s))),
+                    ("pre-s1-exc", legacy_exc.as_ref().ok().map(|s| format!("target {}", s))),
+                ];
+                match classify_decl(&shipped_decl, current_line.as_deref(), &legacies) {
+                    DeclVerdict::Healthy => {}
+                    DeclVerdict::Rewrite(policy) => {
                         decls += 1;
-                        println!("DECL   {} block={} target={} current={}",
+                        println!("DECL   {} block={} target={} legacy={} current={}",
                             stem, block_idx, eff.target_handler.as_deref().unwrap_or("-").trim(),
-                            current.as_ref().map(|_| "ok").unwrap_or("refused"));
+                            policy, current.as_ref().map(|_| "ok").unwrap_or("refused"));
                         println!("    shipped:  {}", shipped_decl);
                         match &current {
                             Ok(s) => println!("    rendered: target {}", s),
@@ -348,7 +384,8 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
                                 changed = true;
                             }
                         }
-                    } else if current_line.is_some() {
+                    }
+                    DeclVerdict::Review => {
                         decl_reviews += 1;
                         println!("DECL-REVIEW {} block={} target={}",
                             stem, block_idx, eff.target_handler.as_deref().unwrap_or("-").trim());
@@ -379,18 +416,47 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
             // body), the skip-not-mis-emit outcome.
             if let Some(action) = shape {
                 if shape_lines_differ(&shipped, &rendered, action) {
-                    reshapes += 1;
+                    // T39 S10: the single-flip legacy rendering of the
+                    // shape, when one exists — a shipped block equal to
+                    // it (or to the all-flips rendering) is a machine
+                    // fill the flip moved (`machine=yes`); anything else
+                    // is hand content or an older emitter's (`no`). The
+                    // stub is mechanical either way; the tag steers the
+                    // hand verification.
+                    let render = || action_lines(&lua_ast::translate_body_with_functions(body, &walk.functions));
+                    let single_flip = match action {
+                        "special_summon" => Some(lua_ast::with_legacy_summon_pos_policy(render)),
+                        "add_to_hand" | "return" => Some(lua_ast::with_legacy_to_hand_policy(render)),
+                        _ => None,
+                    };
+                    let all_flips = lua_ast::with_legacy_selector_policy(render);
+                    // A shape WITH a single-flip policy stubs only its
+                    // machine fills: the generator's category
+                    // placeholders (`special_summon (all, card, either
+                    // controls)`) and older drift under the same verb
+                    // are the report-only class S4 / S5 left behind,
+                    // not this flip's. A shape without one (S2
+                    // change_position, S4 discard) keeps stubbing every
+                    // hit.
+                    let machine = match single_flip {
+                        Some(l) if l == shipped || all_flips == shipped => "yes",
+                        Some(_) => "no",
+                        None => "-",
+                    };
+                    let class = if machine == "no" { "RESHAPE-REVIEW" } else { "RESHAPE" };
+                    if machine == "no" { reshape_reviews += 1; } else { reshapes += 1; }
                     println!(
-                        "RESHAPE {} block={} handler={} shape={} drop={}",
-                        stem, block_idx, handler, action,
-                        drop.as_ref().map(|d| d.code()).unwrap_or("-")
+                        "{} {} block={} handler={} shape={} drop={} machine={}",
+                        class, stem, block_idx, handler, action,
+                        drop.as_ref().map(|d| d.code()).unwrap_or("-"),
+                        machine
                     );
                     for l in &shipped  { println!("    shipped:  {}", l); }
                     for l in &rendered { println!("    rendered: {}", l); }
                     for l in lines.iter().filter(|l| !l.is_action()) {
                         println!("    todo:     {}", l.clone().into_string("").trim());
                     }
-                    if stub {
+                    if stub && machine != "no" {
                         new_txt = format!("{}\n        {}", &new_txt[..inner_lo], &new_txt[inner_hi..]);
                         changed = true;
                     }
@@ -462,8 +528,8 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>)
     }
     match shape {
         Some(action) => println!(
-            "=== audit-fills: {} stub, {} review, {} reshape ({}) ===",
-            stubs, reviews, reshapes, action
+            "=== audit-fills: {} stub, {} review, {} reshape, {} reshape-review ({}) ===",
+            stubs, reviews, reshapes, reshape_reviews, action
         ),
         None => println!("=== audit-fills: {} stub, {} review ===", stubs, reviews),
     }
@@ -2721,5 +2787,30 @@ mod tests {
         assert!(!shape_lines_differ(&s(&["draw 1"]), &s(&[]), "change_position"));
         // Prefix discipline: `change_position_x` is not `change_position`.
         assert!(!shape_lines_differ(&s(&["change_positionx self"]), &s(&[]), "change_position"));
+    }
+
+    #[test]
+    fn classify_decl_recognises_both_legacy_renderings() {
+        let cur = "target (1, card, either controls, from field, except self)";
+        let legacies = [
+            ("s9-decl", Some("target (1, card, either controls, from field, where is_face_up)".to_string())),
+            ("pre-s1-exc", Some("target (1, card, either controls, from field)".to_string())),
+        ];
+        assert_eq!(classify_decl(cur, Some(cur), &legacies), DeclVerdict::Healthy);
+        assert_eq!(
+            classify_decl("target (1, card, either controls, from field)", Some(cur), &legacies),
+            DeclVerdict::Rewrite("pre-s1-exc")
+        );
+        assert_eq!(
+            classify_decl("target (1, card, either controls, from field, where is_face_up)", Some(cur), &legacies),
+            DeclVerdict::Rewrite("s9-decl")
+        );
+        assert_eq!(classify_decl("target (1, monster, you control)", Some(cur), &legacies), DeclVerdict::Review);
+        // A refused current rendering: a legacy match still reports, anything else is silent.
+        assert_eq!(
+            classify_decl("target (1, card, either controls, from field)", None, &legacies),
+            DeclVerdict::Rewrite("pre-s1-exc")
+        );
+        assert_eq!(classify_decl("target (1, monster, you control)", None, &legacies), DeclVerdict::Healthy);
     }
 }

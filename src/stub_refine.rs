@@ -84,7 +84,7 @@ impl Category {
 ///
 /// | lua category       | generator stub       | translator rendering | evidence |
 /// |--------------------|----------------------|----------------------|----------|
-/// | `CATEGORY_TOHAND`  | `return … to hand`   | `add_to_hand …`      | c10805153 Witchcrafter Collaboration ("add this card from your GY to your hand"), c11759079 Dual Avatar Feet - Kokoku ("add 1 'Dual Avatar' Trap from your Deck to your hand"), c1186447 / c13533678 / c13597785 (deck searches) — `Duel.SendtoHand` renders `add_to_hand` whatever the source zone |
+/// | `CATEGORY_TOHAND`  | `return … to hand`   | `add_to_hand …`      | c10805153 Witchcrafter Collaboration ("add this card from your GY to your hand"), c11759079 Dual Avatar Feet - Kokoku ("add 1 'Dual Avatar' Trap from your Deck to your hand"), c1186447 / c13533678 / c13597785 (deck searches) — `Duel.SendtoHand` renders `add_to_hand` for your own pile cards and `return … to hand` for a field bounce / the opponent's pile cards (T39 S10); both spellings are this category |
 /// | `CATEGORY_TODECK`  | `return … to deck`   | `send … to deck`     | c11548522 Outstanding Dog Marron ("shuffle this card into the Deck"), c11868731, c12948099 ("shuffle all monsters … into the Deck"), c14001430 ("shuffle … from your GY into the Deck") — `Duel.SendtoDeck` renders `send … to deck` |
 ///
 /// NOT admitted (no evidence in the refill set, so no entry):
