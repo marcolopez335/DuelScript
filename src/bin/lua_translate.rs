@@ -23,6 +23,7 @@ use std::process;
 
 use duelscript::block_match;
 use duelscript::lua_ast;
+use duelscript::stub_refine;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -115,6 +116,16 @@ fn main() {
             println!("  durations retrofitted:   {}", report.durations_retrofitted);
             println!("  retrofit conflicts:      {}", report.retrofit_conflicts);
             println!("  retrofit removal cands:  {}", report.retrofit_removals);
+            println!("  lone stubs seen:         {}", report.stubs_seen);
+            println!("  stubs refined:           {}", report.stubs_refined);
+            for (cat, n) in &report.stubs_refined_by_category {
+                println!("    {:22} {}", cat, n);
+            }
+            println!("  stubs skipped (category mismatch): {}", report.stubs_skipped_category);
+            println!("  stubs skipped (gate):    {}", report.stubs_skipped_gate);
+            println!("  stubs skipped (lossy translation): {}", report.stubs_skipped_lossy);
+            println!("  stubs skipped (unassigned block): {}", report.stubs_unassigned);
+            println!("  stubs already exact:     {}", report.stubs_exact);
         }
         "audit-fills" => {
             // T38 S2b — policy-flip retrofit audit: re-derive every
@@ -358,6 +369,10 @@ fn load_card_names(cli_path: Option<&str>, lua_dir: &str) {
             lua_ast::register_card_strings(
                 cdb.all_cards().into_iter().map(|c| (c.id as u32, c.strings.clone())),
             );
+            // T38 Pass S — card text backs the rider-line evidence check.
+            let _ = CARD_DESCS.set(
+                cdb.all_cards().into_iter().map(|c| (c.id as u32, c.desc.clone())).collect(),
+            );
         }
         Err(e) => eprintln!("note: cannot read {}: {:?} — change_name translation disabled", path.display(), e),
     }
@@ -385,6 +400,180 @@ struct ApplyReport {
     retrofit_conflicts: usize,
     retrofit_removals: usize,
     no_lua: usize,
+    // T38 stub refinement (Pass S).
+    stubs_seen: usize,
+    stubs_refined: usize,
+    stubs_refined_by_category: std::collections::BTreeMap<&'static str, usize>,
+    stubs_skipped_category: usize,
+    stubs_skipped_gate: usize,
+    stubs_unassigned: usize,
+    stubs_exact: usize,
+    stubs_skipped_lossy: usize,
+}
+
+/// Card passcode → full card text (`desc`), from the cdb — Pass S's
+/// rider evidence (`stub_refine::category_match`). Absent without a
+/// cdb, which admits no rider lines (conservative).
+static CARD_DESCS: std::sync::OnceLock<std::collections::BTreeMap<u32, String>> =
+    std::sync::OnceLock::new();
+
+fn card_desc(card_id: Option<u32>) -> Option<&'static str> {
+    CARD_DESCS.get()?.get(&card_id?).map(String::as_str)
+}
+
+/// Why Pass A would (not) fill an effect's resolve — ONE decision path
+/// shared by Pass A (empty resolves), Pass A2 (blocks without a
+/// resolve) and Pass S (lone category stubs, T38), so the stub
+/// refinement can never admit a fill the empty-resolve path refuses.
+enum FillPlan {
+    /// Pure passive, undecodable helper, or unknown handler body —
+    /// nothing to emit (`effects_no_handler`).
+    NoHandler,
+    /// Replacement chain, dropped chain, TODO-mixed body, or a header
+    /// parity / bare-target gate failure (`effects_incomplete`).
+    Incomplete,
+    /// No unambiguous block for this effect (`effects_alignment_hazard`).
+    Hazard,
+    /// Translator emitted no action line (`effects_todo_only`).
+    TodoOnly,
+    /// The assigned block index doesn't exist in the text.
+    NoBlock,
+    /// Phase 16 — a `choose { … }` block replaces the resolve.
+    Choose(String),
+    /// A complete fill: the action lines plus, when they reference
+    /// `target` and the block has no declaration, the co-emitted
+    /// target selector.
+    Fill { lines: Vec<lua_ast::DslLine>, co_target: Option<String> },
+}
+
+fn plan_fill(
+    eff_i: usize,
+    eff: &lua_ast::EffectSkeleton,
+    walk: &lua_ast::LuaReport,
+    assign: &block_match::Assignments,
+    txt: &str,
+    card_id: Option<u32>,
+) -> FillPlan {
+    if !eff.is_summon_helper() && eff.operation_handler.is_none() {
+        return FillPlan::NoHandler; // pure-passive — no effect block in .ds
+    }
+    // T38 S4 — replacement-code chains (EFFECT_*_REPLACE): the op body
+    // belongs to the corpus-generated `replacement` block; filling an
+    // effect-block resolve with it duplicates the semantics in the
+    // wrong surface (c39996157's shipped `banish self`). Consume the
+    // index, decline the fill.
+    if eff.is_replacement_chain() {
+        return FillPlan::Incomplete;
+    }
+    let Some(block_idx) = assign.by_effect[eff_i] else {
+        // Hazard-gated and not rescued: a clone / bare-activate chain
+        // owns a .ds block before this one (or a continuous listener
+        // consumed an index without owning a block — T38 S9) and the
+        // block signatures don't force a unique home — filling would
+        // risk landing in the wrong block.
+        return FillPlan::Hazard;
+    };
+    // Phase 16 — SelectOption label-branch dispatch. When the target
+    // handler picked an option (`Duel.SelectOption` + `e:SetLabel`)
+    // and the operation handler splits on `e:GetLabel()` with one
+    // fully-translatable arm per option, a `choose { option … }` block
+    // REPLACES the empty resolve (the validator accepts either, never
+    // both). Falls through to the normal fill when the shape or a
+    // label doesn't resolve.
+    if !eff.is_summon_helper() {
+        let choose_text = eff.operation_handler.as_deref().and_then(|oh| {
+            let ob = walk.functions.get(oh.trim())?;
+            let tb = eff.target_handler.as_deref()
+                .and_then(|th| walk.functions.get(th.trim()));
+            let spec = lua_ast::extract_choose_spec(tb, ob, &walk.functions)?;
+            render_choose_block(&spec, card_id?)
+        });
+        if let Some(choose_text) = choose_text {
+            return FillPlan::Choose(choose_text);
+        }
+    }
+    // Special case: skeletons backed by a fusion/ritual summon helper —
+    // the plain factories (Fusion.CreateSummonEff / Ritual.AddProc* /
+    // Ritual.CreateProc, fixed line) and the parameterized SetOperation
+    // forms (Fusion.SummonEffOP / Ritual.Operation, Phase 12). The
+    // helper owns the UI / op pipeline, so a summon line replaces the
+    // handler walk. Parameterized forms whose params don't decode
+    // return None and fall through to the no-handler skip.
+    let helper_line = eff.summon_helper_line();
+    let is_helper_fill = helper_line.is_some();
+    let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
+        vec![lua_ast::DslLine::Action(text)]
+    } else if eff.is_summon_helper() {
+        // Helper params undecodable — the activation block exists in
+        // the .ds but its resolve stays an empty stub (skip-not-mis-emit).
+        return FillPlan::NoHandler;
+    } else {
+        // Consumer without a helper spec has an operation handler
+        // (checked at the top).
+        let handler = eff.operation_handler.as_deref().unwrap_or_default();
+        match walk.functions.get(handler.trim()) {
+            Some(body) => {
+                // T38 S1 — completeness gate: a handler whose
+                // translation drops a RegisterEffect chain would fill
+                // an under-stated resolve. Skip the whole fill; the
+                // dropped chain is the S1b/S8 backlog.
+                if lua_ast::body_drops_chains(body, &walk.functions) {
+                    return FillPlan::Incomplete;
+                }
+                lua_ast::translate_body_with_functions(body, &walk.functions)
+            }
+            None => return FillPlan::NoHandler, // block exists, body unknown
+        }
+    };
+    if !lines.iter().any(|l| l.is_action()) {
+        return FillPlan::TodoOnly;
+    }
+    // T38 S1 — a TODO line marks an untranslated Duel.* call in the
+    // same handler; filling only the translated remainder silently
+    // drops it. Skip-not-mis-emit.
+    if lines.iter().any(|l| !l.is_action()) {
+        return FillPlan::Incomplete;
+    }
+    let Some((block_lo, block_hi)) = nth_effect_block(txt, block_idx) else {
+        return FillPlan::NoBlock;
+    };
+    let block = &txt[block_lo..block_hi];
+    // T38 S6 review — cost-header parity: filling a resolve makes the
+    // block's header LIVE, so a block-side cost must re-derive exactly
+    // from the lua cost handler (skip class 10 — c9798352's `banish
+    // self` header contradicts the lua's banish-a-Trap-from-Deck cost).
+    if !cost_header_matches(block, eff, &walk.functions) {
+        return FillPlan::Incomplete;
+    }
+    // T38 S5 review — frame parity for summon-helper fills.
+    if is_helper_fill && !helper_frame_matches(block, eff) {
+        return FillPlan::Incomplete;
+    }
+    // T38 S6 — bare-target gate: a fill referencing `target` only lands
+    // together with a target declaration; otherwise the validator's
+    // bare-target check trades the empty-resolve error for a new one.
+    // Blocks without one get the decl CO-EMITTED from the SetTarget
+    // selector (refined extraction — exactly-mapped filters only);
+    // when that fails, the whole fill skips.
+    let mut co_target: Option<String> = None;
+    if lines_reference_target(&lines) && !block_has_target_decl(block) {
+        match target_decl_selector(eff, &walk.functions) {
+            Some(sel) => co_target = Some(sel),
+            None => return FillPlan::Incomplete,
+        }
+    }
+    FillPlan::Fill { lines, co_target }
+}
+
+/// The text that replaces an empty / stub `resolve { }` slot: the
+/// rendered body, preceded by the co-emitted target declaration when
+/// the plan carries one (8-space block indent).
+fn render_fill(lines: &[lua_ast::DslLine], co_target: Option<&str>) -> String {
+    let body = render_resolve_body(lines);
+    match co_target {
+        Some(sel) => format!("target {}\n        resolve {{\n{}        }}", sel, body),
+        None => format!("resolve {{\n{}        }}", body),
+    }
 }
 
 /// The pre-fix substring mapping `reset_to_duration_kw` shipped with —
@@ -467,6 +656,19 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         r.match_positional += assign.positional;
         r.match_rescued += assign.rescued;
 
+        // T38 Pass S census — lone category stubs in blocks no effect
+        // is assigned to. Never rewritten (there is no owner handler to
+        // derive a fill from); reported so the backlog stays visible.
+        for (idx, (lo, hi)) in block_match::effect_block_ranges(&txt).into_iter().enumerate() {
+            if assign.by_effect.iter().any(|b| *b == Some(idx)) { continue; }
+            if txt[lo..hi].contains("choose {") { continue; }
+            if let Some((ilo, ihi)) = block_match::resolve_inner_span(&txt, lo, hi) {
+                if stub_refine::lone_stub_category(&txt[ilo..ihi]).is_some() {
+                    r.stubs_unassigned += 1;
+                }
+            }
+        }
+
         let mut new_txt = txt.clone();
         let mut filled = 0usize;
         // Card passcode from the filename stem (`c1006081` → 1006081) —
@@ -478,49 +680,17 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
         // that effect. Filling "the first empty resolve anywhere" instead
         // would, on rerun, inject an earlier effect's lines into a later
         // untranslatable effect's still-empty resolve — wrong content and
-        // non-idempotent.
+        // non-idempotent. The fill decision itself is `plan_fill`, shared
+        // with Pass A2 and Pass S.
         for (eff_i, eff) in walk.effects.iter().enumerate() {
-            if !eff.is_summon_helper() && eff.operation_handler.is_none() {
-                r.effects_no_handler += 1;
-                continue; // pure-passive — no effect block in .ds
-            }
-            // T38 S4 — replacement-code chains (EFFECT_*_REPLACE): the
-            // op body belongs to the corpus-generated `replacement`
-            // block; filling an effect-block resolve with it duplicates
-            // the semantics in the wrong surface (c39996157's shipped
-            // `banish self`). Consume the index, decline the fill.
-            if eff.is_replacement_chain() {
-                r.effects_incomplete += 1;
-                continue;
-            }
-            let Some(block_idx) = assign.by_effect[eff_i] else {
-                // Hazard-gated and not rescued: a clone / bare-activate
-                // chain owns a .ds block before this one (or a
-                // continuous listener consumed an index without owning
-                // a block — T38 S9) and the block signatures don't force
-                // a unique home — filling would risk landing in the
-                // wrong block.
-                r.effects_alignment_hazard += 1;
-                continue;
-            };
-            // Phase 16 — SelectOption label-branch dispatch. When the
-            // target handler picked an option (`Duel.SelectOption` +
-            // `e:SetLabel`) and the operation handler splits on
-            // `e:GetLabel()` with one fully-translatable arm per option,
-            // a `choose { option … }` block REPLACES the empty resolve
-            // (the validator accepts either, never both). Falls through
-            // to the normal fill when the shape or a label doesn't
-            // resolve.
-            if !eff.is_summon_helper() {
-                let choose_text = eff.operation_handler.as_deref()
-                    .and_then(|oh| {
-                        let ob = walk.functions.get(oh.trim())?;
-                        let tb = eff.target_handler.as_deref()
-                            .and_then(|th| walk.functions.get(th.trim()));
-                        let spec = lua_ast::extract_choose_spec(tb, ob, &walk.functions)?;
-                        render_choose_block(&spec, card_id?)
-                    });
-                if let Some(choose_text) = choose_text {
+            let (lines, co_target) = match plan_fill(eff_i, eff, &walk, &assign, &new_txt, card_id) {
+                FillPlan::NoHandler => { r.effects_no_handler += 1; continue; }
+                FillPlan::Incomplete => { r.effects_incomplete += 1; continue; }
+                FillPlan::Hazard => { r.effects_alignment_hazard += 1; continue; }
+                FillPlan::TodoOnly => { r.effects_todo_only += 1; continue; }
+                FillPlan::NoBlock => continue,
+                FillPlan::Choose(choose_text) => {
+                    let Some(block_idx) = assign.by_effect[eff_i] else { continue };
                     if let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) {
                         if let Some((lo, hi)) = first_empty_resolve_within(&new_txt, block_lo, block_hi) {
                             new_txt = format!("{}{}{}", &new_txt[..lo], choose_text, &new_txt[hi..]);
@@ -548,103 +718,12 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
                     }
                     continue;
                 }
-            }
-            // Special case: skeletons backed by a fusion/ritual summon
-            // helper — the plain factories (Fusion.CreateSummonEff /
-            // Ritual.AddProc* / Ritual.CreateProc, fixed line) and the
-            // parameterized SetOperation forms (Fusion.SummonEffOP /
-            // Ritual.Operation, Phase 12). The helper owns the UI / op
-            // pipeline, so a summon line replaces the handler walk.
-            // Parameterized forms whose params don't decode return None
-            // and fall through to the no-handler skip below.
-            let helper_line = eff.summon_helper_line();
-            let is_helper_fill = helper_line.is_some();
-            let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
-                vec![lua_ast::DslLine::Action(text)]
-            } else if eff.is_summon_helper() {
-                // Helper params undecodable — the activation block exists
-                // in the .ds but its resolve stays an empty stub
-                // (skip-not-mis-emit).
-                r.effects_no_handler += 1;
-                continue;
-            } else {
-                // Consumer without a helper spec has an operation handler
-                // (checked at the top of the loop).
-                let handler = eff.operation_handler.as_deref().unwrap_or_default();
-                match walk.functions.get(handler.trim()) {
-                    Some(body) => {
-                        // T38 S1 — completeness gate: a handler whose
-                        // translation drops a RegisterEffect chain would
-                        // fill an under-stated resolve. Skip the whole
-                        // fill; the dropped chain is the S1b/S8 backlog.
-                        if lua_ast::body_drops_chains(body, &walk.functions) {
-                            r.effects_incomplete += 1;
-                            continue;
-                        }
-                        lua_ast::translate_body_with_functions(body, &walk.functions)
-                    }
-                    None => {
-                        r.effects_no_handler += 1; // block exists, body unknown
-                        continue;
-                    }
-                }
+                FillPlan::Fill { lines, co_target } => (lines, co_target),
             };
-            if !lines.iter().any(|l| l.is_action()) {
-                r.effects_todo_only += 1;
-                continue;
-            }
-            // T38 S1 — a TODO line marks an untranslated Duel.* call in
-            // the same handler; filling only the translated remainder
-            // silently drops it. Skip-not-mis-emit.
-            if lines.iter().any(|l| !l.is_action()) {
-                r.effects_incomplete += 1;
-                continue;
-            }
-            let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else {
-                continue;
-            };
-            // T38 S6 review — cost-header parity: filling a resolve
-            // makes the block's header LIVE, so a block-side cost must
-            // re-derive exactly from the lua cost handler (skip class
-            // 10 — c9798352's `banish self` header contradicts the
-            // lua's banish-a-Trap-from-Deck cost).
-            if !cost_header_matches(&new_txt[block_lo..block_hi], eff, &walk.functions) {
-                r.effects_incomplete += 1;
-                continue;
-            }
-            // T38 S5 review — frame parity for summon-helper fills.
-            if is_helper_fill && !helper_frame_matches(&new_txt[block_lo..block_hi], eff) {
-                r.effects_incomplete += 1;
-                continue;
-            }
-            // T38 S6 — bare-target gate: a fill referencing `target`
-            // only lands together with a target declaration; otherwise
-            // the validator's bare-target check trades the empty-resolve
-            // error for a new one. Blocks without one get the decl
-            // CO-EMITTED from the SetTarget selector (refined extraction
-            // — exactly-mapped filters only); when that fails, the whole
-            // fill skips.
-            let mut co_target: Option<String> = None;
-            if lines_reference_target(&lines)
-                && !block_has_target_decl(&new_txt[block_lo..block_hi])
-            {
-                match target_decl_selector(eff, &walk.functions) {
-                    Some(sel) => co_target = Some(sel),
-                    None => {
-                        r.effects_incomplete += 1;
-                        continue;
-                    }
-                }
-            }
+            let Some(block_idx) = assign.by_effect[eff_i] else { continue };
+            let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else { continue };
             if let Some((lo, hi)) = first_empty_resolve_within(&new_txt, block_lo, block_hi) {
-                let body = render_resolve_body(&lines);
-                let injection = match &co_target {
-                    Some(sel) => format!(
-                        "target {}\n        resolve {{\n{}        }}",
-                        sel, body,
-                    ),
-                    None => format!("resolve {{\n{}        }}", body),
-                };
+                let injection = render_fill(&lines, co_target.as_deref());
                 new_txt = format!("{}{}{}", &new_txt[..lo], injection, &new_txt[hi..]);
                 filled += 1;
                 if co_target.is_some() {
@@ -655,68 +734,22 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
 
         // Pass A2 — inject a fresh `resolve { … }` into effect blocks that
         // lack one entirely (validator: "must have a resolve or choose
-        // block"). Only fires when the lua-ast translator emits at least
-        // one ACTION line, so blocks without translator coverage stay
+        // block"). Same decision path as Pass A (`plan_fill`); only a
+        // complete fill lands, so blocks without translator coverage stay
         // untouched. Effect blocks come from the shared Phase 20
         // assignment (pure-passive lua chains have no effect block and
         // are skipped upstream).
         for (eff_i, eff) in walk.effects.iter().enumerate() {
-            if !eff.is_summon_helper() && eff.operation_handler.is_none() {
-                continue; // pure-passive — no effect block in .ds
-            }
-            // T38 S4 — replacement-code chains: see Pass A.
-            if eff.is_replacement_chain() { continue; }
-            let Some(block_idx) = assign.by_effect[eff_i] else {
-                continue; // see Pass A — no unambiguous block for this effect
-            };
-            let helper_line = eff.summon_helper_line();
-            let is_helper_fill = helper_line.is_some();
-            let lines: Vec<lua_ast::DslLine> = if let Some(text) = helper_line {
-                vec![lua_ast::DslLine::Action(text)]
-            } else if eff.is_summon_helper() {
-                // Block exists, but no line to emit — see Pass A.
-                continue;
-            } else {
-                let handler = eff.operation_handler.as_deref().unwrap_or_default();
-                match walk.functions.get(handler.trim()) {
-                    Some(body) => {
-                        // T38 S1 — same completeness gate as Pass A.
-                        if lua_ast::body_drops_chains(body, &walk.functions) {
-                            continue;
-                        }
-                        lua_ast::translate_body_with_functions(body, &walk.functions)
-                    }
-                    None => continue,
-                }
-            };
-            if !lines.iter().any(|l| l.is_action()) { continue; }
-            // T38 S1 — see Pass A: TODO lines mark dropped calls.
-            if lines.iter().any(|l| !l.is_action()) { continue; }
-
-            let (block_lo, block_hi) = match nth_effect_block(&new_txt, block_idx) {
-                Some(r) => r,
-                None => continue,
-            };
+            let FillPlan::Fill { lines, co_target } =
+                plan_fill(eff_i, eff, &walk, &assign, &new_txt, card_id)
+            else { continue };
+            let Some(block_idx) = assign.by_effect[eff_i] else { continue };
+            let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else { continue };
             let block = &new_txt[block_lo..block_hi];
             // Skip if the block already has a resolve or choose — Pass A
             // handles those, and we don't want to double-inject.
             if block.contains("resolve") || block.contains("choose") { continue; }
-            // T38 S6 review — cost-header parity, same rationale as
-            // Pass A.
-            if !cost_header_matches(block, eff, &walk.functions) { continue; }
-            // T38 S5 review — frame parity for summon-helper fills.
-            if is_helper_fill && !helper_frame_matches(block, eff) { continue; }
-            // T38 S6 — bare-target gate + decl co-emission, same
-            // rationale as Pass A.
-            let mut co_target: Option<String> = None;
-            if lines_reference_target(&lines) && !block_has_target_decl(block) {
-                match target_decl_selector(eff, &walk.functions) {
-                    Some(sel) => co_target = Some(sel),
-                    None => continue,
-                }
-            }
 
-            let body_text = render_resolve_body(&lines);
             // Inject right before the block's closing `}`, after any
             // trailing whitespace, so the new resolve nests inside the
             // effect block with the standard 8-space indent.
@@ -726,13 +759,7 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             while inject_pos > block_lo && bytes[inject_pos - 1].is_ascii_whitespace() {
                 inject_pos -= 1;
             }
-            let injection = match &co_target {
-                Some(sel) => format!(
-                    "\n        target {}\n        resolve {{\n{}        }}",
-                    sel, body_text,
-                ),
-                None => format!("\n        resolve {{\n{}        }}", body_text),
-            };
+            let injection = format!("\n        {}", render_fill(&lines, co_target.as_deref()));
             new_txt = format!("{}{}{}", &new_txt[..inject_pos], injection, &new_txt[inject_pos..]);
             filled += 1;
             if co_target.is_some() {
@@ -766,6 +793,77 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
                         blocks_added += 1;
                     }
                 }
+            }
+        }
+
+        // Pass S — T38 stub refinement. The corpus generator left one
+        // placeholder category line per effect (`special_summon (all,
+        // card, either controls)`, …) in resolves it could not
+        // translate; they validate, so Pass A never revisits them. A
+        // block whose resolve body is EXACTLY one such line is refilled
+        // when (1) the owner handler yields a complete fill under every
+        // Pass A gate (`plan_fill` — hazard-gated effects have no
+        // assignment and never reach here) and (2) the rendered lines
+        // state the stub's category (`stub_refine::category_match`:
+        // synonym table + card-text-evidenced riders; anything else
+        // skips). Byte-idempotent by construction — a refined body is no
+        // longer a lone stub. Blocks the matcher left unassigned are
+        // never visited (counted above as `stubs_unassigned`); choose-
+        // bearing blocks and multi-line stub bodies are out of scope.
+        let mut refined = 0usize;
+        for (eff_i, eff) in walk.effects.iter().enumerate() {
+            let Some(block_idx) = assign.by_effect[eff_i] else { continue };
+            let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else { continue };
+            if new_txt[block_lo..block_hi].contains("choose {") { continue; }
+            let Some((inner_lo, inner_hi)) = block_match::resolve_inner_span(&new_txt, block_lo, block_hi) else { continue };
+            let Some(stub_cat) = stub_refine::lone_stub_category(&new_txt[inner_lo..inner_hi]) else { continue };
+            r.stubs_seen += 1;
+            let FillPlan::Fill { lines, co_target } =
+                plan_fill(eff_i, eff, &walk, &assign, &new_txt, card_id)
+            else {
+                r.stubs_skipped_gate += 1;
+                continue;
+            };
+            let rendered: Vec<String> = lines.iter().filter(|l| l.is_action())
+                .map(|l| l.clone().into_string("").trim().to_string()).collect();
+            if !stub_refine::category_match(stub_cat, &rendered, card_desc(card_id)) {
+                r.stubs_skipped_category += 1;
+                eprintln!("stub category mismatch ({}): block {} stub={} rendered={:?}",
+                    path.display(), block_idx, stub_cat.name(), rendered);
+                continue;
+            }
+            // Hand-review refusals: calls whose current translation is
+            // known lossy (see `stub_refine::lossy_call`) — Pass A's
+            // policy on empty resolves is untouched; a stub rewrite
+            // must not add more instances.
+            let lossy = eff.operation_handler.as_deref()
+                .and_then(|h| walk.functions.get(h.trim()))
+                .and_then(|b| b.calls.iter()
+                    .find_map(|c| stub_refine::lossy_call(&c.method, &c.args)));
+            if let Some(why) = lossy {
+                r.stubs_skipped_lossy += 1;
+                eprintln!("stub lossy translation ({}): block {} stub={} why={} rendered={:?}",
+                    path.display(), block_idx, stub_cat.name(), why, rendered);
+                continue;
+            }
+            // The owner's complete fill IS the generator's spelling
+            // (a genuine "all cards either player controls" selector):
+            // the stub was exact all along — nothing to rewrite, and
+            // counting it as a refinement would make every re-run
+            // report phantom work.
+            if rendered.len() == 1 && rendered[0] == new_txt[inner_lo..inner_hi].trim() {
+                r.stubs_exact += 1;
+                continue;
+            }
+            // `resolve_inner_span` found the literal `resolve {`, so the
+            // keyword starts exactly 9 bytes before the body.
+            let resolve_lo = inner_lo - "resolve {".len();
+            let injection = render_fill(&lines, co_target.as_deref());
+            new_txt = format!("{}{}{}", &new_txt[..resolve_lo], injection, &new_txt[inner_hi + 1..]);
+            refined += 1;
+            *r.stubs_refined_by_category.entry(stub_cat.name()).or_default() += 1;
+            if co_target.is_some() {
+                r.targets_injected += 1;
             }
         }
 
@@ -948,8 +1046,9 @@ fn apply(corpus_dir: &str, lua_dir: &str) -> ApplyReport {
             }
         }
 
-        if filled > 0 || blocks_added > 0 || passives_added > 0 || conditions_added > 0 || costs_added > 0 || targets_added > 0 || retrofitted > 0 {
+        if filled > 0 || refined > 0 || blocks_added > 0 || passives_added > 0 || conditions_added > 0 || costs_added > 0 || targets_added > 0 || retrofitted > 0 {
             r.effects_filled += filled;
+            r.stubs_refined += refined;
             r.blocks_injected += blocks_added;
             r.passives_injected += passives_added;
             r.conditions_injected += conditions_added;
