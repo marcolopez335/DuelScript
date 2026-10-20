@@ -11,7 +11,7 @@
 use std::sync::Arc;
 use super::ast::*;
 use super::constants as tm;
-use super::runtime::{DamageRule as RuntimeDamageRule, DamageType, Duration as RuntimeDuration, DuelScriptRuntime, CardFilter as RuntimeCardFilter, ExemptCheck as RuntimeExemptCheck, ExemptConjunction as RuntimeExemptConjunction, ExemptFilter as RuntimeExemptFilter, ExtraMaterialPool, MaterialDestination as RuntimeMaterialDestination, PlayerRestriction as RuntimePlayerRestriction, RestrictionQualifier as RuntimeRestrictionQualifier, Stat, TokenSpec};
+use super::runtime::{DamageRule as RuntimeDamageRule, DamageType, DelayedBodyRef, DelayedEnv, Duration as RuntimeDuration, DuelScriptRuntime, CardFilter as RuntimeCardFilter, ExemptCheck as RuntimeExemptCheck, ExemptConjunction as RuntimeExemptConjunction, ExemptFilter as RuntimeExemptFilter, ExtraMaterialPool, MaterialDestination as RuntimeMaterialDestination, PlayerRestriction as RuntimePlayerRestriction, RestrictionQualifier as RuntimeRestrictionQualifier, Stat, TokenSpec};
 
 // ── Output Types ────────────────────────────────────────────
 
@@ -39,6 +39,30 @@ pub struct CompiledEffectV2 {
     pub cost: Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime, bool) -> bool + Send + Sync>>,
     pub target: Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime, bool) -> bool + Send + Sync>>,
     pub operation: Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime) + Send + Sync>>,
+    /// T38 S8c — every `delayed` wrapper body in this effect's resolve
+    /// (pre-order over the action tree, nested containers included),
+    /// compiled as an indexed sub-program. `operation` arms each
+    /// wrapper (`register_delayed` / `register_delayed_trigger`) with
+    /// a [`DelayedBodyRef`] naming its index here; the engine re-enters
+    /// the body at fire time through [`Self::execute_delayed_body`]
+    /// (or the ref's own `fire`). The arming operation never runs a
+    /// body itself.
+    pub delayed_bodies: Vec<Arc<DelayedBody>>,
+}
+
+impl CompiledEffectV2 {
+    /// Run ONLY the `body`-th delayed wrapper body under `env` (T38
+    /// S8c fire-time re-entry). Returns `false` when `body` is out of
+    /// range — nothing runs. Callers set the runtime's effect context
+    /// (`effect_card_id` = the registering card, `effect_player` =
+    /// `env.player`) before calling.
+    pub fn execute_delayed_body(&self, rt: &mut dyn DuelScriptRuntime, body: usize,
+                                env: &DelayedEnv) -> bool {
+        match self.delayed_bodies.get(body) {
+            Some(b) => { b.execute(rt, env); true }
+            None => false,
+        }
+    }
 }
 
 impl std::fmt::Debug for CompiledEffectV2 {
@@ -49,7 +73,322 @@ impl std::fmt::Debug for CompiledEffectV2 {
             .field("category", &self.category)
             .field("code", &self.code)
             .field("simultaneous", &self.simultaneous)
+            .field("delayed_bodies", &self.delayed_bodies)
             .finish()
+    }
+}
+
+// ── T38 S8c: delayed wrapper bodies ─────────────────────────
+
+/// How a compiled delayed body arms — the engine-code form of
+/// `ast::DelayedArming`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DelayedArmingCode {
+    /// `delayed until <phase>` — `PHASE_*` code; runs once at that phase.
+    Phase(u32),
+    /// `delayed on <event> (until <duration>)?` — `EVENT_*` code (phase
+    /// events as `EVENT_PHASE | PHASE_*`); recurs until the duration.
+    Event(u32),
+}
+
+/// One compiled `delayed` wrapper body: an indexed sub-program on its
+/// `CompiledEffectV2` that runs ONLY when the engine fires the
+/// registration (T38 S8c). Built once per effect by
+/// `compile_delayed_bodies`; the arming closure and the compiled effect
+/// share the same `Arc`.
+pub struct DelayedBody {
+    /// Position in `CompiledEffectV2::delayed_bodies` (pre-order).
+    pub index: usize,
+    pub arming: DelayedArmingCode,
+    /// Reset bound of the event form (absent `until` = `EndOfTurn`);
+    /// `None` for the phase form, which runs once.
+    pub duration: Option<RuntimeDuration>,
+    /// Binding names the body reads (sentinels + user bindings), the
+    /// statically-known capture set — see `DelayedEnv`.
+    captures: Vec<String>,
+    actions: Vec<Action>,
+}
+
+impl DelayedBody {
+    /// Number of actions in the body (for inspection / tests).
+    pub fn len(&self) -> usize { self.actions.len() }
+    pub fn is_empty(&self) -> bool { self.actions.is_empty() }
+
+    /// Snapshot the binding environment at arming: every captured
+    /// name that currently resolves to a card, plus the resolving
+    /// player.
+    pub fn capture_env(&self, rt: &dyn DuelScriptRuntime, player: u8) -> DelayedEnv {
+        let bindings = self.captures.iter()
+            .filter_map(|name| rt.get_binding_card(name).map(|id| (name.clone(), id)))
+            .collect();
+        DelayedEnv { player, bindings }
+    }
+
+    /// Fire-time re-entry: restore `env` into `rt` and run the body
+    /// actions — nothing else. Containers inside the body (`if`,
+    /// `for_each`, `then`, …) run as they would in a resolve; a
+    /// `delayed` wrapper can never appear here (the validator bans
+    /// nesting in both directions), so the empty ctx is exact.
+    pub fn execute(&self, rt: &mut dyn DuelScriptRuntime, env: &DelayedEnv) {
+        for (name, id) in &env.bindings {
+            rt.set_binding(name, *id);
+        }
+        let ctx = ExecCtx { root: &[], bodies: &[] };
+        for a in &self.actions {
+            execute_v2_action(a, rt, env.player, &ctx);
+        }
+    }
+}
+
+impl std::fmt::Debug for DelayedBody {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.debug_struct("DelayedBody")
+            .field("index", &self.index)
+            .field("arming", &self.arming)
+            .field("duration", &self.duration)
+            .field("captures", &self.captures)
+            .field("actions", &self.actions.len())
+            .finish()
+    }
+}
+
+/// Execution context threaded through `execute_v2_action`: the action
+/// tree the operation owns (`root`) and the delayed bodies compiled
+/// from it, so the `Action::Delayed` arm can find its own sub-program
+/// (T38 S8c).
+struct ExecCtx<'a> {
+    root: &'a [Action],
+    bodies: &'a [Arc<DelayedBody>],
+}
+
+impl ExecCtx<'_> {
+    /// The compiled body for the `Action::Delayed` node `needle`, found
+    /// by the node's pre-order ordinal among the wrappers of `root`.
+    /// Pointer identity is exact here: every `execute_v2_action` call
+    /// passes a reference INTO the operation's own action tree (nested
+    /// containers recurse by reference), and `compile_delayed_bodies`
+    /// numbers the wrappers of that same tree in the same pre-order.
+    fn body_for(&self, needle: &Action) -> Option<&Arc<DelayedBody>> {
+        let mut ordinal = 0usize;
+        let mut found = None;
+        walk_actions(self.root, &mut |a| {
+            if let Action::Delayed { .. } = a {
+                if found.is_none() && std::ptr::eq(a, needle) {
+                    found = Some(ordinal);
+                }
+                ordinal += 1;
+            }
+        });
+        found.and_then(|i| self.bodies.get(i))
+    }
+}
+
+/// Depth-first, pre-order walk over an action tree, visiting every
+/// nested container's children (`if`, `coin_flip`, `dice_roll`,
+/// `delayed`, `and_if_you_do`, `then`, `also`, `for_each`,
+/// `install_watcher`, inline `choose`). Same shape as the validator's
+/// walk — the ordinal contract above depends on the two agreeing.
+fn walk_actions(actions: &[Action], visit: &mut impl FnMut(&Action)) {
+    for action in actions {
+        visit(action);
+        match action {
+            Action::CoinFlip { heads, tails } => {
+                walk_actions(heads, visit);
+                walk_actions(tails, visit);
+            }
+            Action::If { then, otherwise, .. } => {
+                walk_actions(then, visit);
+                walk_actions(otherwise, visit);
+            }
+            Action::DiceRoll(body)
+            | Action::Delayed { body, .. }
+            | Action::AndIfYouDo(body)
+            | Action::Then(body)
+            | Action::Also(body)
+            | Action::ForEach { body, .. } => walk_actions(body, visit),
+            Action::InstallWatcher { check, .. } => walk_actions(check, visit),
+            Action::Choose(block) => {
+                for opt in &block.options {
+                    walk_actions(&opt.resolve, visit);
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+/// Compile every `delayed` wrapper in `actions` (pre-order, nested
+/// containers included) into its indexed sub-program.
+fn compile_delayed_bodies(actions: &[Action]) -> Vec<Arc<DelayedBody>> {
+    let mut bodies = Vec::new();
+    walk_actions(actions, &mut |a| {
+        if let Action::Delayed { arming, body } = a {
+            let (arming, duration) = match arming {
+                DelayedArming::UntilPhase(until) =>
+                    (DelayedArmingCode::Phase(phase_name_to_code(until)), None),
+                DelayedArming::OnEvent { trigger, until } => (
+                    DelayedArmingCode::Event(trigger_to_event_code(&Some(trigger.clone()))),
+                    Some(until.as_ref().map(ast_duration_to_runtime)
+                        .unwrap_or(RuntimeDuration::EndOfTurn)),
+                ),
+            };
+            bodies.push(Arc::new(DelayedBody {
+                index: bodies.len(),
+                arming,
+                duration,
+                captures: collect_body_captures(body),
+                actions: body.clone(),
+            }));
+        }
+    });
+    bodies
+}
+
+/// Every binding name a wrapper body reads — the sentinel names behind
+/// the shorthand selectors / stat entities and user bindings — sorted
+/// and deduplicated. This is the arming-time capture set (`DelayedEnv`).
+fn collect_body_captures(body: &[Action]) -> Vec<String> {
+    let mut names = Vec::new();
+    walk_actions(body, &mut |a| capture_names_in_action(a, &mut names));
+    names.sort();
+    names.dedup();
+    names
+}
+
+fn capture_name_in_selector(s: &Selector, out: &mut Vec<String>) {
+    match s {
+        Selector::SelfCard => {}
+        Selector::Target => out.push("__target__".into()),
+        Selector::NegatedCard => out.push("__negated__".into()),
+        Selector::Searched => out.push("__searched__".into()),
+        Selector::EquippedCard => out.push("__equipped__".into()),
+        Selector::LinkedCard => out.push("__linked__".into()),
+        Selector::Binding(name) => out.push(name.clone()),
+        Selector::Counted { where_clause, .. } => {
+            if let Some(p) = where_clause {
+                capture_names_in_predicate(p, out);
+            }
+        }
+    }
+}
+
+fn capture_names_in_expr(e: &Expr, out: &mut Vec<String>) {
+    match e {
+        // Same entity → sentinel table as `eval_v2_expr`'s StatRef arm.
+        Expr::StatRef(entity, _) => match entity.as_str() {
+            "self" => {}
+            "target"   => out.push("__target__".into()),
+            "searched" => out.push("__searched__".into()),
+            "negated"  => out.push("__negated__".into()),
+            "equipped" => out.push("__equipped__".into()),
+            other => out.push(other.to_string()),
+        },
+        Expr::BindingRef(name, _) => out.push(name.clone()),
+        Expr::Count(sel) => capture_name_in_selector(sel, out),
+        Expr::BinOp { left, right, .. } => {
+            capture_names_in_expr(left, out);
+            capture_names_in_expr(right, out);
+        }
+        Expr::Literal(_) | Expr::Half | Expr::PlayerLp(_)
+        | Expr::OverlayCount | Expr::CounterCount(_) => {}
+    }
+}
+
+fn capture_names_in_predicate(p: &Predicate, out: &mut Vec<String>) {
+    let atoms: &[PredicateAtom] = match p {
+        Predicate::And(v) | Predicate::Or(v) => v,
+        Predicate::Single(a) => std::slice::from_ref(a),
+    };
+    for a in atoms {
+        capture_names_in_predicate_atom(a, out);
+    }
+}
+
+fn capture_names_in_predicate_atom(a: &PredicateAtom, out: &mut Vec<String>) {
+    match a {
+        PredicateAtom::Not(inner) => capture_names_in_predicate_atom(inner, out),
+        PredicateAtom::Nested(p) => capture_names_in_predicate(p, out),
+        PredicateAtom::StatCompare(_, _, e) => capture_names_in_expr(e, out),
+        _ => {}
+    }
+}
+
+fn capture_names_in_condition(c: &Condition, out: &mut Vec<String>) {
+    let atoms: &[ConditionAtom] = match c {
+        Condition::And(v) | Condition::Or(v) => v,
+        Condition::Single(a) => std::slice::from_ref(a),
+    };
+    for a in atoms {
+        capture_names_in_condition_atom(a, out);
+    }
+}
+
+fn capture_names_in_condition_atom(a: &ConditionAtom, out: &mut Vec<String>) {
+    match a {
+        ConditionAtom::Not(inner) => capture_names_in_condition_atom(inner, out),
+        ConditionAtom::Controls(_, sel) => capture_name_in_selector(sel, out),
+        ConditionAtom::LpCompare(_, e)
+        | ConditionAtom::OpponentLpCompare(_, e)
+        | ConditionAtom::HandSize(_, e)
+        | ConditionAtom::CardsInGy(_, e)
+        | ConditionAtom::CardsInBanished(_, e) => capture_names_in_expr(e, out),
+        ConditionAtom::HasCounter(_, _, e, _) => {
+            if let Some(e) = e { capture_names_in_expr(e, out); }
+        }
+        _ => {}
+    }
+}
+
+/// Binding names read directly by one action node (children of
+/// containers are visited by the caller's walk).
+fn capture_names_in_action(action: &Action, out: &mut Vec<String>) {
+    match action {
+        Action::Draw(e) | Action::GainLp(e) | Action::PayLp(e)
+        | Action::Damage(_, e) | Action::Mill(e, _) | Action::Excavate(e, _) => {
+            capture_names_in_expr(e, out);
+        }
+        Action::Discard(s) | Action::Destroy(s) | Action::Banish(s, _, _)
+        | Action::Send(s, _) | Action::Return(s, _) | Action::Search(s, _)
+        | Action::AddToHand(s, _) | Action::SpecialSummon(s, _, _, _)
+        | Action::NormalSummon(s) | Action::Set(s, _) | Action::FlipDown(s)
+        | Action::ChangePosition(s, _) | Action::TakeControl(s, _)
+        | Action::NegateEffects(s, _) | Action::ChangeAttribute(s, _)
+        | Action::ChangeRace(s, _) | Action::ChangeName(s, _, _)
+        | Action::Detach(_, s) | Action::PlaceCounter(_, _, s)
+        | Action::RemoveCounter(_, _, s) | Action::Reveal(s) | Action::LookAt(s, _)
+        | Action::Grant(s, _, _) | Action::SwapStats(s)
+        | Action::ForEach { selector: s, .. } => capture_name_in_selector(s, out),
+        Action::ModifyStat(_, s, _, e, _) | Action::SetStat(_, s, e, _)
+        | Action::ChangeLevel(s, e) | Action::SetScale(s, e) => {
+            capture_name_in_selector(s, out);
+            capture_names_in_expr(e, out);
+        }
+        Action::RitualSummon { target, materials, level_expr, .. } => {
+            capture_name_in_selector(target, out);
+            if let Some(m) = materials { capture_name_in_selector(m, out); }
+            if let Some(e) = level_expr { capture_names_in_expr(e, out); }
+        }
+        Action::FusionSummon { target, materials, extra_materials, .. } => {
+            capture_name_in_selector(target, out);
+            if let Some(m) = materials { capture_name_in_selector(m, out); }
+            if let Some(m) = extra_materials { capture_name_in_selector(m, out); }
+        }
+        Action::SynchroSummon { target, materials }
+        | Action::XyzSummon { target, materials } => {
+            capture_name_in_selector(target, out);
+            if let Some(m) = materials { capture_name_in_selector(m, out); }
+        }
+        Action::Equip(a, b) | Action::Attach(a, b) | Action::LinkTo(a, b)
+        | Action::SwapControl(a, b) => {
+            capture_name_in_selector(a, out);
+            capture_name_in_selector(b, out);
+        }
+        Action::If { condition, .. } => capture_names_in_condition(condition, out),
+        Action::Negate(_) | Action::CreateToken(_) | Action::ShuffleDeck(_)
+        | Action::ShuffleHand(_) | Action::Announce(_, _) | Action::CoinFlip { .. }
+        | Action::DiceRoll(_) | Action::Restrict { .. } | Action::DamageRule { .. }
+        | Action::Choose(_) | Action::Delayed { .. } | Action::AndIfYouDo(_)
+        | Action::Then(_) | Action::Also(_) | Action::InstallWatcher { .. } => {}
     }
 }
 
@@ -156,6 +495,7 @@ fn compile_summon(summon: &SummonBlock, card: &Card) -> Vec<CompiledEffectV2> {
                 count_limit: None,
                 simultaneous: false,
                 condition: None, cost: None, target: None, operation: None,
+                delayed_bodies: Vec::new(),
             });
         }
 
@@ -218,6 +558,7 @@ fn compile_summon(summon: &SummonBlock, card: &Card) -> Vec<CompiledEffectV2> {
             simultaneous: false,
             condition: None, cost: None, target: None,
             operation: summon_op,
+            delayed_bodies: Vec::new(),
         });
     }
 
@@ -254,6 +595,7 @@ fn compile_summon(summon: &SummonBlock, card: &Card) -> Vec<CompiledEffectV2> {
                 cost: ssp_cost,
                 target: None,
                 operation: ssp_op,
+                delayed_bodies: Vec::new(),
             });
 
             // Nested restriction inside the special summon procedure block
@@ -283,6 +625,7 @@ fn compile_summon(summon: &SummonBlock, card: &Card) -> Vec<CompiledEffectV2> {
                     cost: None,
                     target: None,
                     operation: nested_op,
+                    delayed_bodies: Vec::new(),
                 });
             }
         }
@@ -310,6 +653,7 @@ fn compile_summon(summon: &SummonBlock, card: &Card) -> Vec<CompiledEffectV2> {
             count_limit: None,
             simultaneous: false,
             condition: None, cost: None, target: None, operation: None,
+                delayed_bodies: Vec::new(),
         });
     }
 
@@ -368,6 +712,7 @@ fn compile_passive(passive: &Passive, card: &Card) -> CompiledEffectV2 {
         cost: None,
         target: None,
         operation,
+        delayed_bodies: Vec::new(),
     }
 }
 
@@ -638,7 +983,7 @@ fn compile_effect(effect: &Effect, card: &Card) -> Vec<CompiledEffectV2> {
     let count_limit = frequency_to_count_limit(&effect.frequency, card_id);
 
     // Generate callbacks
-    let (condition, cost, target, operation) = build_effect_callbacks(effect, card);
+    let (condition, cost, target, operation, delayed_bodies) = build_effect_callbacks(effect, card);
 
     // SEGOC: a trigger is simultaneous if the card declares it, OR if it is
     // any optional trigger (TRIGGER_O). Mandatory triggers can also participate
@@ -663,6 +1008,7 @@ fn compile_effect(effect: &Effect, card: &Card) -> Vec<CompiledEffectV2> {
             cost: cost.clone(),
             target: target.clone(),
             operation: operation.clone(),
+            delayed_bodies: delayed_bodies.clone(),
         }).collect();
     }
 
@@ -694,6 +1040,7 @@ fn compile_effect(effect: &Effect, card: &Card) -> Vec<CompiledEffectV2> {
             cost: cost.clone(),
             target: target.clone(),
             operation: operation.clone(),
+            delayed_bodies: delayed_bodies.clone(),
         }).collect();
     }
 
@@ -710,6 +1057,7 @@ fn compile_effect(effect: &Effect, card: &Card) -> Vec<CompiledEffectV2> {
         cost,
         target,
         operation,
+        delayed_bodies,
     }]
 }
 
@@ -741,6 +1089,7 @@ fn compile_restriction(restriction: &Restriction, card: &Card) -> CompiledEffect
         cost: None,
         target: None,
         operation,
+        delayed_bodies: Vec::new(),
     }
 }
 
@@ -757,6 +1106,7 @@ fn compile_replacement(replacement: &Replacement, card: &Card) -> CompiledEffect
         ReplaceableEvent::LeavesField => 0x1000014,
     };
 
+    let (operation, delayed_bodies) = gen_operation(&replacement.actions);
     CompiledEffectV2 {
         label: replacement.name.clone().unwrap_or_else(|| "replacement".into()),
         effect_type: tm::EFFECT_TYPE_SINGLE | tm::EFFECT_TYPE_CONTINUOUS,
@@ -769,7 +1119,8 @@ fn compile_replacement(replacement: &Replacement, card: &Card) -> CompiledEffect
         condition: gen_condition_from_optional(&replacement.condition),
         cost: None,
         target: None,
-        operation: gen_operation(&replacement.actions),
+        operation,
+        delayed_bodies,
     }
 }
 
@@ -864,6 +1215,7 @@ fn compile_redirect(redirect: &Redirect, card: &Card) -> CompiledEffectV2 {
         cost: None,
         target: None,
         operation,
+        delayed_bodies: Vec::new(),
     }
 }
 
@@ -2349,21 +2701,32 @@ fn gen_target(target: &Option<TargetDecl>) -> Option<Arc<dyn Fn(&mut dyn DuelScr
     }))
 }
 
-fn gen_operation(actions: &[Action]) -> Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime) + Send + Sync>> {
+/// Compile a resolve body into its operation closure plus the delayed
+/// wrapper bodies it arms (T38 S8c). The closure and the returned
+/// `Vec` share the same `Arc<DelayedBody>`s, so a `DelayedBodyRef`
+/// handed to the engine at arming is the same sub-program the compiled
+/// effect exposes under `delayed_bodies[index]`.
+fn gen_operation(actions: &[Action]) -> (
+    Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime) + Send + Sync>>,
+    Vec<Arc<DelayedBody>>,
+) {
     if actions.is_empty() {
-        return None;
+        return (None, Vec::new());
     }
     let actions = actions.to_vec();
+    let bodies = compile_delayed_bodies(&actions);
+    let closure_bodies = bodies.clone();
 
-    Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
+    (Some(Arc::new(move |rt: &mut dyn DuelScriptRuntime| {
         let player = rt.effect_player();
+        let ctx = ExecCtx { root: &actions, bodies: &closure_bodies };
         for action in &actions {
-            execute_v2_action(action, rt, player);
+            execute_v2_action(action, rt, player, &ctx);
         }
-    }))
+    })), bodies)
 }
 
-fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8) {
+fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8, ctx: &ExecCtx) {
     match action {
         Action::Draw(expr) => {
             let n = eval_v2_expr(expr, rt) as u32;
@@ -2689,9 +3052,9 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
         }
         Action::If { condition, then, otherwise } => {
             if eval_v2_condition(condition, rt) {
-                for a in then { execute_v2_action(a, rt, player); }
+                for a in then { execute_v2_action(a, rt, player, ctx); }
             } else {
-                for a in otherwise { execute_v2_action(a, rt, player); }
+                for a in otherwise { execute_v2_action(a, rt, player, ctx); }
             }
         }
         Action::Then(actions) | Action::Also(actions) | Action::AndIfYouDo(actions) => {
@@ -2705,7 +3068,7 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             // `destroy ... and_if_you_do { banish ... }` banishes ALL candidates
             // that match the banish selector, even ones the destroy didn't hit.
             // Current T6 Bottomless test exercises this deterministically.
-            for a in actions { execute_v2_action(a, rt, player); }
+            for a in actions { execute_v2_action(a, rt, player, ctx); }
         }
         Action::ChangeLevel(sel, expr) => {
             let cards = resolve_v2_selector(sel, rt, player);
@@ -2821,14 +3184,14 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             let result = rt.coin_flip(player);
             let actions = if result { heads } else { tails };
             for a in actions {
-                execute_v2_action(a, rt, player);
+                execute_v2_action(a, rt, player, ctx);
             }
         }
         Action::DiceRoll(branches) => {
             let result = rt.dice_roll(player) as usize;
             if !branches.is_empty() {
                 let idx = if result > 0 && result <= branches.len() { result - 1 } else { 0 };
-                execute_v2_action(&branches[idx], rt, player);
+                execute_v2_action(&branches[idx], rt, player, ctx);
             }
         }
         Action::NormalSummon(sel) => {
@@ -2863,7 +3226,7 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
                 // Set the card as the current target so body actions can reference it
                 rt.set_targets(&[card_id]);
                 for a in body {
-                    execute_v2_action(a, rt, player);
+                    execute_v2_action(a, rt, player, ctx);
                 }
             }
         }
@@ -2874,37 +3237,41 @@ fn execute_v2_action(action: &Action, rt: &mut dyn DuelScriptRuntime, player: u8
             let chosen = rt.select_option(player, &labels);
             if let Some(option) = block.options.get(chosen) {
                 for a in &option.resolve {
-                    execute_v2_action(a, rt, player);
+                    execute_v2_action(a, rt, player, ctx);
                 }
             }
         }
-        Action::Delayed { arming, body } => {
+        Action::Delayed { .. } => {
+            // T38 S8c: arming ONLY. The body is an indexed sub-program
+            // (`compile_delayed_bodies`); the engine re-enters it at
+            // fire time through the DelayedBodyRef / execute_delayed_body
+            // — nothing from the body runs here. The binding environment
+            // the body reads (outer `target`, an S8b `sp`, …) is
+            // snapshotted now, by card id.
+            let Some(body) = ctx.body_for(action) else {
+                // Unreachable through gen_operation (every wrapper of the
+                // operation's tree is compiled); a bare execute_v2_action
+                // on a detached node has no sub-program to arm.
+                return;
+            };
             let card_id = rt.effect_card_id();
-            match arming {
-                DelayedArming::UntilPhase(until) => {
-                    let phase_code = phase_name_to_code(until);
-                    rt.register_delayed(phase_code, card_id);
+            let env = body.capture_env(rt, player);
+            let body_ref = DelayedBodyRef { index: body.index, env, body: Arc::clone(body) };
+            match body.arming {
+                DelayedArmingCode::Phase(phase_code) => {
+                    rt.register_delayed(phase_code, card_id, body_ref);
                 }
-                DelayedArming::OnEvent { trigger, until } => {
-                    // T38 S8: event-armed wrapper — lua inner
-                    // FIELD+CONTINUOUS effect on the event code, reset
-                    // from the duration (absent clause = end_of_turn).
-                    // The validator rejects every trigger this mapping
-                    // sends to 0 (it calls trigger_to_event_code
-                    // directly — S8 review), so the defensive skip here
-                    // can only fire on unvalidated ASTs.
-                    let event_code = trigger_to_event_code(&Some(trigger.clone()));
-                    if event_code != 0 {
-                        let dur = until.as_ref()
-                            .map(ast_duration_to_runtime)
-                            .unwrap_or(RuntimeDuration::EndOfTurn);
-                        rt.register_delayed_trigger(event_code, card_id, dur);
-                    }
+                // T38 S8: event-armed wrapper — lua inner FIELD+CONTINUOUS
+                // effect on the event code, reset from the duration
+                // (absent clause = end_of_turn). The validator rejects
+                // every trigger this mapping sends to 0 (it calls
+                // trigger_to_event_code directly — S8 review), so the
+                // defensive skip here can only fire on unvalidated ASTs.
+                DelayedArmingCode::Event(0) => {}
+                DelayedArmingCode::Event(event_code) => {
+                    let dur = body.duration.unwrap_or(RuntimeDuration::EndOfTurn);
+                    rt.register_delayed_trigger(event_code, card_id, dur, body_ref);
                 }
-            }
-            // In mock/test context also execute body immediately so tests can observe
-            for a in body {
-                execute_v2_action(a, rt, player);
             }
         }
         Action::InstallWatcher { name, .. } => {
@@ -2970,13 +3337,17 @@ fn build_effect_callbacks(effect: &Effect, card: &Card) -> (
     Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime, bool) -> bool + Send + Sync>>,
     Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime, bool) -> bool + Send + Sync>>,
     Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime) + Send + Sync>>,
+    Vec<Arc<DelayedBody>>,
 ) {
     let card_id = card.fields.id.unwrap_or(0);
+    let (operation, delayed_bodies) =
+        gen_operation_with_binding_prologue(&effect.resolve, &effect.trigger);
     (
         gen_condition(effect),
         gen_cost(&effect.cost, card_id),
         gen_target(&effect.target),
-        gen_operation_with_binding_prologue(&effect.resolve, &effect.trigger),
+        operation,
+        delayed_bodies,
     )
 }
 
@@ -2988,15 +3359,18 @@ fn build_effect_callbacks(effect: &Effect, card: &Card) -> (
 fn gen_operation_with_binding_prologue(
     actions: &[Action],
     trigger: &Option<Trigger>,
-) -> Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime) + Send + Sync>> {
+) -> (
+    Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime) + Send + Sync>>,
+    Vec<Arc<DelayedBody>>,
+) {
     let binding_name = match trigger {
         Some(Trigger::UsedAsMaterial { summoned_by_binding: Some(n), .. }) => {
             Some(n.clone())
         }
         _ => None,
     };
-    let inner = gen_operation(actions);
-    match (binding_name, inner) {
+    let (inner, delayed_bodies) = gen_operation(actions);
+    let operation: Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime) + Send + Sync>> = match (binding_name, inner) {
         // No binding + no actions → no-op.
         (None, None) => None,
         // No binding → pass-through.
@@ -3013,7 +3387,8 @@ fn gen_operation_with_binding_prologue(
             let summoner = rt.material_summoner_id();
             rt.set_binding(&name, summoner);
         })),
-    }
+    };
+    (operation, delayed_bodies)
 }
 
 // ── Tests ───────────────────────────────────────────────────
@@ -3514,12 +3889,13 @@ card "Restrict Qualifier Compile Test" {
 
     #[test]
     fn test_delayed_on_compiles_and_executes() {
-        use super::super::mock_runtime::MockRuntime;
+        use super::super::mock_runtime::{MockDelayedArming, MockRuntime};
         // T38 S8: the on-form registers the event wrapper — phase events
         // as EVENT_PHASE|PHASE_*, an absent until clause defaulting to
-        // EndOfTurn — and the mock executes the body inline (the
-        // register_delayed house convention). The until-phase form still
-        // routes to register_delayed.
+        // EndOfTurn. The until-phase form still routes to
+        // register_delayed. T38 S8c: arming executes NOTHING from any
+        // body; each registration carries its indexed body payload and
+        // firing one runs exactly that body, once.
         let source = r#"
 card "Delayed On Compile Test" {
     id: 30004
@@ -3545,26 +3921,119 @@ card "Delayed On Compile Test" {
 "#;
         let file = parse_v2(source).unwrap();
         let compiled = compile_card_v2(&file.cards[0]);
+        let effect = &compiled.effects[0];
+        assert_eq!(effect.delayed_bodies.len(), 3, "three wrappers → three indexed bodies");
+        assert_eq!(effect.delayed_bodies[0].arming,
+            DelayedArmingCode::Event(tm::EVENT_PHASE | tm::PHASE_END));
+        assert_eq!(effect.delayed_bodies[0].duration, Some(RuntimeDuration::EndOfTurn),
+            "absent until clause defaults to EndOfTurn");
+        assert_eq!(effect.delayed_bodies[1].arming,
+            DelayedArmingCode::Event(tm::EVENT_BATTLE_DESTROYING));
+        assert_eq!(effect.delayed_bodies[1].duration, Some(RuntimeDuration::ThisTurn));
+        assert_eq!(effect.delayed_bodies[2].arming, DelayedArmingCode::Phase(tm::PHASE_END));
+        assert_eq!(effect.delayed_bodies[2].duration, None, "the phase form runs once");
+        assert_eq!(effect.delayed_bodies[0].captures, vec!["__target__".to_string()],
+            "`destroy target` captures the outer chain target");
+        assert!(effect.delayed_bodies[1].captures.is_empty());
+
         let mut rt = MockRuntime::new();
         rt.effect_card_id = 30004;
         rt.effect_player = 0;
-        (compiled.effects[0].operation.as_ref().unwrap())(&mut rt);
+        (effect.operation.as_ref().unwrap())(&mut rt);
 
-        let pe = format!("event={:#x} card=30004 dur=EndOfTurn",
+        let pe = format!("event={:#x} card=30004 dur=EndOfTurn body=0",
             tm::EVENT_PHASE | tm::PHASE_END);
         assert!(rt.was_called_with("register_delayed_trigger", &pe),
             "phase-end wrapper missing; calls: {}", rt.dump_calls());
-        let bd = format!("event={:#x} card=30004 dur=ThisTurn", tm::EVENT_BATTLE_DESTROYING);
+        let bd = format!("event={:#x} card=30004 dur=ThisTurn body=1", tm::EVENT_BATTLE_DESTROYING);
         assert!(rt.was_called_with("register_delayed_trigger", &bd),
             "battle-destroying wrapper missing; calls: {}", rt.dump_calls());
-        // Bodies execute inline in mock context (house convention).
-        assert!(rt.was_called_with("damage", "player=1 amount=1000"),
-            "wrapper body not executed; calls: {}", rt.dump_calls());
         // Backward compat (S8 review): the pre-S8 until-phase form still
         // routes to register_delayed.
-        let up = format!("phase={:#x} card=30004", tm::PHASE_END);
+        let up = format!("phase={:#x} card=30004 body=2", tm::PHASE_END);
         assert!(rt.was_called_with("register_delayed", &up),
             "until-phase routing lost; calls: {}", rt.dump_calls());
+
+        // S8c: NOTHING from any body ran at arming.
+        assert_eq!(rt.call_count("damage"), 0, "body ran at arming; calls: {}", rt.dump_calls());
+        assert_eq!(rt.call_count("destroy"), 0, "body ran at arming; calls: {}", rt.dump_calls());
+        assert_eq!(rt.call_count("draw"), 0, "body ran at arming; calls: {}", rt.dump_calls());
+        assert_eq!(rt.delayed_registrations.len(), 3);
+        assert_eq!(rt.delayed_registrations[1].arming,
+            MockDelayedArming::Event(tm::EVENT_BATTLE_DESTROYING, RuntimeDuration::ThisTurn));
+        assert_eq!(rt.delayed_registrations[2].arming, MockDelayedArming::Phase(tm::PHASE_END));
+
+        // Firing the battle-destroying registration runs exactly its
+        // body — once — and nothing from the sibling bodies.
+        rt.fire_delayed(1);
+        assert_eq!(rt.call_count("damage"), 1, "calls: {}", rt.dump_calls());
+        assert!(rt.was_called_with("damage", "player=1 amount=1000"));
+        assert_eq!(rt.call_count("destroy"), 0);
+        assert_eq!(rt.call_count("draw"), 0);
+        assert_eq!(rt.call_count("register_delayed_trigger"), 2,
+            "firing must not re-arm; calls: {}", rt.dump_calls());
+        // The until-phase body behaves the same.
+        rt.fire_delayed(2);
+        assert_eq!(rt.call_count("draw"), 1);
+        assert!(rt.was_called_with("draw", "player=0 count=1"), "calls: {}", rt.dump_calls());
+        assert_eq!(rt.call_count("damage"), 1);
+        // The public re-entry point is the same sub-program.
+        let env = rt.delayed_registrations[1].body.env.clone();
+        assert!(effect.execute_delayed_body(&mut rt, 1, &env));
+        assert_eq!(rt.call_count("damage"), 2);
+        assert!(!effect.execute_delayed_body(&mut rt, 7, &Default::default()),
+            "out-of-range index runs nothing");
+        assert_eq!(rt.call_count("damage"), 2);
+    }
+
+    #[test]
+    fn test_delayed_body_captures_outer_target_at_arming() {
+        use super::super::mock_runtime::{CardSnapshot, MockRuntime};
+        // T38 S8c: a body's `target` is the OUTER chain target, snapshotted
+        // by card id when the wrapper arms and restored at fire time even
+        // after the resolve-time binding store has been replaced.
+        let source = r#"
+card "Delayed Target Capture Test" {
+    id: 30007
+    type: Normal Trap
+
+    effect "Later" {
+        speed: 2
+        mandatory
+        target (1, monster, from field)
+        resolve {
+            delayed on end_phase {
+                destroy target
+            }
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let effect = &compiled.effects[0];
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 30007;
+        rt.effect_player = 1;
+        rt.state.add_card(CardSnapshot::monster(55, "Chain Target", 1000, 1000, 4));
+        rt.state.players[0].field_monsters = vec![55u32];
+        assert!((effect.target.as_ref().unwrap())(&mut rt, false));
+        (effect.operation.as_ref().unwrap())(&mut rt);
+        assert_eq!(rt.call_count("destroy"), 0, "calls: {}", rt.dump_calls());
+
+        let env = &rt.delayed_registrations[0].body.env;
+        assert_eq!(env.player, 1);
+        assert_eq!(env.bindings, vec![("__target__".to_string(), 55u32)]);
+
+        // Another resolution overwrote the binding store in the meantime.
+        rt.set_binding("__target__", 999);
+        rt.effect_player = 0;
+        rt.effect_card_id = 0;
+        rt.fire_delayed(0);
+        assert!(rt.was_called_with("destroy", "ids=[55]"),
+            "captured target not restored at fire time; calls: {}", rt.dump_calls());
+        assert_eq!(rt.effect_card_id, 30007, "body re-enters as the registering card");
+        assert_eq!(rt.effect_player, 1, "body re-enters as the arming player");
     }
 
     #[test]
@@ -3572,9 +4041,11 @@ card "Delayed On Compile Test" {
         use super::super::mock_runtime::{CardSnapshot, MockRuntime};
         // T38 S8b: `as sp` stores the summoned card; the delayed
         // wrapper's `destroy sp` resolves the binding to that exact
-        // card (mock executes wrapper bodies inline — house
-        // convention). `return self to field` exercises the new
-        // ReturnDest::Field -> return_to_field lowering.
+        // card. T38 S8c: the binding is captured at arming and the
+        // destroy happens only when the registration fires — the
+        // S8c defect was the monster dying at resolution. `return self
+        // to field` exercises the ReturnDest::Field -> return_to_field
+        // lowering.
         let source = r#"
 card "Summon Binding Compile Test" {
     id: 30006
@@ -3595,6 +4066,7 @@ card "Summon Binding Compile Test" {
 "#;
         let file = parse_v2(source).unwrap();
         let compiled = compile_card_v2(&file.cards[0]);
+        assert_eq!(compiled.effects[0].delayed_bodies[0].captures, vec!["sp".to_string()]);
         let mut rt = MockRuntime::new();
         rt.effect_card_id = 30006;
         rt.effect_player = 0;
@@ -3606,10 +4078,82 @@ card "Summon Binding Compile Test" {
             "summon binding not stored; calls: {}", rt.dump_calls());
         assert!(rt.was_called_with("special_summon", "card=41"),
             "summon missing; calls: {}", rt.dump_calls());
-        assert!(rt.was_called_with("destroy", "ids=[41]"),
-            "delayed body did not resolve the binding; calls: {}", rt.dump_calls());
+        assert_eq!(rt.call_count("destroy"), 0,
+            "S8c: the summoned monster must survive arming; calls: {}", rt.dump_calls());
         assert!(rt.was_called_with("return_to_field", "ids=[30006]"),
             "return-to-field lowering missing; calls: {}", rt.dump_calls());
+        assert_eq!(rt.delayed_registrations[0].body.env.bindings,
+            vec![("sp".to_string(), 41u32)], "binding captured at arming");
+
+        rt.fire_delayed(0);
+        assert!(rt.was_called_with("destroy", "ids=[41]"),
+            "delayed body did not resolve the binding at fire time; calls: {}", rt.dump_calls());
+        assert_eq!(rt.call_count("destroy"), 1);
+        assert_eq!(rt.call_count("special_summon"), 1, "firing never re-runs the arming resolve");
+    }
+
+    #[test]
+    fn test_delayed_body_inside_container_is_indexed_and_armed() {
+        use super::super::mock_runtime::MockRuntime;
+        // T38 S8c: wrappers nested in action containers are numbered in
+        // pre-order with their top-level siblings, and the arming closure
+        // finds the right sub-program for each (ordinal-by-identity).
+        let source = r#"
+card "Delayed Nested Index Test" {
+    id: 30008
+    type: Normal Spell
+
+    effect "Branch" {
+        speed: 1
+        mandatory
+        resolve {
+            if (lp > 1000) {
+                delayed on end_phase {
+                    draw 1
+                }
+            }
+            then {
+                delayed on standby_phase until this_turn {
+                    draw 2
+                }
+            }
+            delayed on destroys_by_battle until this_turn {
+                damage opponent 300
+            }
+        }
+    }
+}
+"#;
+        let file = parse_v2(source).unwrap();
+        let compiled = compile_card_v2(&file.cards[0]);
+        let effect = &compiled.effects[0];
+        assert_eq!(effect.delayed_bodies.len(), 3);
+        assert_eq!(effect.delayed_bodies[0].arming,
+            DelayedArmingCode::Event(tm::EVENT_PHASE | tm::PHASE_END));
+        assert_eq!(effect.delayed_bodies[1].arming,
+            DelayedArmingCode::Event(tm::EVENT_PHASE | tm::PHASE_STANDBY));
+        assert_eq!(effect.delayed_bodies[2].arming,
+            DelayedArmingCode::Event(tm::EVENT_BATTLE_DESTROYING));
+
+        let mut rt = MockRuntime::new();
+        rt.effect_card_id = 30008;
+        rt.effect_player = 0;
+        rt.state.players[0].lp = 500; // `lp > 1000` is false: body 0 never arms
+        (effect.operation.as_ref().unwrap())(&mut rt);
+        // The skipped branch leaves a gap: the `then` container's wrapper
+        // is body 1 and the trailing wrapper body 2.
+        let armed: Vec<usize> = rt.delayed_registrations.iter().map(|r| r.body.index).collect();
+        assert_eq!(armed, vec![1, 2], "calls: {}", rt.dump_calls());
+        assert_eq!(rt.call_count("draw"), 0);
+        rt.fire_delayed(0);
+        assert!(rt.was_called_with("draw", "player=0 count=2"), "calls: {}", rt.dump_calls());
+        assert_eq!(rt.call_count("draw"), 1);
+        rt.fire_delayed(1);
+        assert!(rt.was_called_with("damage", "player=1 amount=300"), "calls: {}", rt.dump_calls());
+        // A recurring listener fires again on its next event.
+        rt.fire_delayed(1);
+        assert_eq!(rt.call_count("damage"), 2);
+        assert_eq!(rt.call_count("draw"), 1);
     }
 
     #[test]
@@ -3619,19 +4163,23 @@ card "Summon Binding Compile Test" {
         // the seam even for ASTs that bypassed validation (the validator
         // shares trigger_to_event_code, so this is unreachable from
         // parsed+validated input — belt and braces).
-        let action = Action::Delayed {
+        let actions = vec![Action::Delayed {
             arming: DelayedArming::OnEvent {
                 trigger: Trigger::Custom("homebrew".into()),
                 until: None,
             },
             body: vec![Action::Draw(Expr::Literal(1))],
-        };
+        }];
+        let (op, bodies) = gen_operation(&actions);
+        assert_eq!(bodies[0].arming, DelayedArmingCode::Event(0));
         let mut rt = MockRuntime::new();
         rt.effect_card_id = 30005;
         rt.effect_player = 0;
-        execute_v2_action(&action, &mut rt, 0);
+        (op.unwrap())(&mut rt);
         assert!(!rt.was_called_with("register_delayed_trigger", ""),
             "event=0 must never reach the engine; calls: {}", rt.dump_calls());
+        assert!(rt.delayed_registrations.is_empty());
+        assert_eq!(rt.call_count("draw"), 0);
     }
 
     #[test]
@@ -5455,7 +6003,8 @@ card "Test Cannot NS" {
         rt.effect_card_id = 0;
         rt.set_binding("__target__", 700);
 
-        super::execute_v2_action(&Action::FlipDown(Selector::Target), &mut rt, 0);
+        let ctx = super::ExecCtx { root: &[], bodies: &[] };
+        super::execute_v2_action(&Action::FlipDown(Selector::Target), &mut rt, 0, &ctx);
 
         assert!(
             rt.was_called_with("change_position_to", "card=700 pos=0x8"),
@@ -5477,9 +6026,10 @@ card "Test Cannot NS" {
         rt.effect_card_id = 0;
         rt.set_binding("__target__", 700);
 
+        let ctx = super::ExecCtx { root: &[], bodies: &[] };
         super::execute_v2_action(
             &Action::ChangePosition(Selector::Target, Some(BattlePosition::Defense)),
-            &mut rt, 0,
+            &mut rt, 0, &ctx,
         );
 
         assert!(
@@ -5501,7 +6051,8 @@ card "Test Cannot NS" {
         rt.effect_card_id = 0;
         rt.set_binding("__target__", 700);
 
-        super::execute_v2_action(&Action::ChangePosition(Selector::Target, None), &mut rt, 0);
+        let ctx = super::ExecCtx { root: &[], bodies: &[] };
+        super::execute_v2_action(&Action::ChangePosition(Selector::Target, None), &mut rt, 0, &ctx);
 
         assert!(rt.was_called_with("change_position", "card=700"), "{}", rt.dump_calls());
         assert_eq!(rt.call_count("change_position_to"), 0, "{}", rt.dump_calls());
@@ -6124,7 +6675,8 @@ card "Test Cannot NS" {
             where_clause: None,
         };
 
-        super::execute_v2_action(&Action::Equip(equip_card_sel, target_sel), &mut rt, 0);
+        let ctx = super::ExecCtx { root: &[], bodies: &[] };
+        super::execute_v2_action(&Action::Equip(equip_card_sel, target_sel), &mut rt, 0, &ctx);
 
         // The "__equipped__" binding should contain the target monster id (900).
         assert_eq!(rt.get_binding_card("__equipped__"), Some(900),
