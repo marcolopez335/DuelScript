@@ -12,7 +12,7 @@ card "Raidraptor - Tribute Lanius" {
         once_per_turn: hard
         mandatory
         resolve {
-            send (all, card, either controls) to gy
+            send (1, card, you control, from deck) to gy
         }
     }
 
@@ -21,7 +21,8 @@ card "Raidraptor - Tribute Lanius" {
         once_per_turn: soft
         mandatory
         resolve {
-            add_to_hand (all, card, either controls)
+            add_to_hand (1, card, you control, from deck)
+            restrict you cannot_special_summon except (archetype == "Raidraptor") end_of_turn
         }
     }
 }

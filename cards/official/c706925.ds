@@ -12,7 +12,7 @@ card "Atlantean Marksman" {
         timing: when
         trigger: destroyed_by_battle
         resolve {
-            special_summon (all, card, either controls)
+            special_summon (1, card, you control, from deck)
         }
     }
 
@@ -20,8 +20,9 @@ card "Atlantean Marksman" {
         speed: 1
         mandatory
         trigger: custom "chain_end"
+        target (1, card, opponent controls, from field, where is_face_down)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 }

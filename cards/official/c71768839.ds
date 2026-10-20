@@ -23,7 +23,8 @@ card "I.A.S. -Invasive Alien Species-" {
         mandatory
         target (1, card, opponent controls, from monster_zone)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
+            modify_atk self + 1000 until while_face_up
         }
     }
 
@@ -32,7 +33,7 @@ card "I.A.S. -Invasive Alien Species-" {
         once_per_turn: soft
         mandatory
         resolve {
-            special_summon (all, card, either controls)
+            special_summon self
         }
     }
 }

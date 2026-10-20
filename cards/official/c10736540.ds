@@ -19,8 +19,10 @@ card "Lady of the Lake" {
     effect "Effect 4" {
         speed: 1
         mandatory
+        target (1, card, you control, from monster_zone, where level == 5 and archetype == "Noble Knight" and is_face_up)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon self
+            modify_level target - 1 until while_face_up
         }
     }
 }

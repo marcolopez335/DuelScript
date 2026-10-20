@@ -15,8 +15,10 @@ card "Latinum, Exarch of Dark World" {
         speed: 1
         mandatory
         trigger: custom "chain_end"
+        target (1, card, either controls, from monster_zone, where is_face_up and race == Fiend)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon self
+            modify_atk target + 500 until while_face_up
         }
     }
 }

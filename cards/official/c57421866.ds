@@ -10,8 +10,10 @@ card "Level Eater" {
     effect "Effect 1" {
         speed: 1
         mandatory
+        target (1, card, you control, from monster_zone, where is_face_up and level >= 5)
         resolve {
-            special_summon (all, card, either controls)
+            special_summon self
+            modify_level target - 1 until while_face_up
         }
     }
 }

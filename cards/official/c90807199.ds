@@ -27,8 +27,9 @@ card "Danger! Thunderbird!" {
         timing: if
         trigger: custom "chain_end"
         condition: previous_location == hand and reason includes discard
+        target (1, card, opponent controls, from field, where is_face_down)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 }

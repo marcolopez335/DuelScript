@@ -12,7 +12,7 @@ card "Donpa, Marksman Fur Hire" {
         once_per_turn: hard
         mandatory
         resolve {
-            special_summon (all, card, either controls)
+            special_summon (1, card, you control, from hand)
         }
     }
 
@@ -21,8 +21,9 @@ card "Donpa, Marksman Fur Hire" {
         once_per_turn: soft
         timing: if
         trigger: summoned by special
+        target (1, card, either controls, from field, where is_face_up)
         resolve {
-            destroy (all, card, either controls)
+            destroy target
         }
     }
 }

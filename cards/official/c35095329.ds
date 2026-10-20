@@ -15,8 +15,10 @@ card "Evil HERO Vicious Claws" {
         speed: 1
         once_per_turn: hard
         mandatory
+        target (1, card, either controls, from monster_zone, where is_face_up and archetype == "HERO")
         resolve {
-            special_summon (all, card, either controls)
+            special_summon self
+            modify_atk target + 300 until while_face_up
         }
     }
 
