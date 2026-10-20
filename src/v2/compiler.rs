@@ -1420,84 +1420,51 @@ fn inject_zone_into_selector(sel: &Selector, zone: Zone) -> Selector {
     sel.clone()
 }
 
+/// Minimum number of cards a `Counted` selector must yield for an action
+/// built on it to be performable. `all` needs at least one card (a cost of
+/// "discard your entire hand" is unpayable with an empty hand).
+fn quantity_min(quantity: &Quantity) -> usize {
+    match quantity {
+        Quantity::All => 1,
+        Quantity::Exact(n) | Quantity::AtLeast(n) => *n as usize,
+    }
+}
+
+/// Apply a selector's quantity to its candidate set. `N` prompts for
+/// exactly N, `N+` prompts for between N and every candidate, `all` takes
+/// the whole set without a prompt. No prompt is issued when the candidate
+/// count does not exceed the minimum (the choice is forced).
+fn apply_v2_quantity(quantity: &Quantity, cards: Vec<u32>, rt: &mut dyn DuelScriptRuntime, player: u8) -> Vec<u32> {
+    match quantity {
+        Quantity::All => cards,
+        Quantity::Exact(n) => {
+            let n = *n as usize;
+            if cards.len() <= n { cards } else { rt.select_cards(player, &cards, n, n) }
+        }
+        Quantity::AtLeast(n) => {
+            let n = *n as usize;
+            if cards.len() <= n { cards } else { rt.select_cards(player, &cards, n, cards.len()) }
+        }
+    }
+}
+
+/// Resolve a selector to its full candidate set *before* the quantity is
+/// applied — no `select_cards` prompt is issued. Used by cost payability
+/// checks, which must not prompt the player.
+fn collect_v2_selector_candidates(sel: &Selector, rt: &mut dyn DuelScriptRuntime, player: u8) -> Vec<u32> {
+    match sel {
+        Selector::Counted { quantity: _, filter, controller, zone, position, where_clause } =>
+            collect_counted_candidates(filter, controller, zone, position, where_clause, rt, player),
+        other => resolve_v2_selector(other, rt, player),
+    }
+}
+
 fn resolve_v2_selector(sel: &Selector, rt: &mut dyn DuelScriptRuntime, player: u8) -> Vec<u32> {
-    let opponent = 1 - player;
     match sel {
         Selector::SelfCard => vec![rt.effect_card_id()],
         Selector::Counted { quantity, filter, controller, zone, position, where_clause } => {
-            let ctrl_player = match controller {
-                Some(Controller::You) => Some(player),
-                Some(Controller::Opponent) => Some(opponent),
-                Some(Controller::Either) | None => None, // both
-            };
-
-            // (a) Collect candidates from zone / controller.
-            let mut cards = Vec::new();
-            match zone {
-                Some(ZoneFilter::In(zones)) | Some(ZoneFilter::From(zones)) => {
-                    for z in zones {
-                        let location = zone_to_location(z);
-                        if let Some(p) = ctrl_player {
-                            cards.extend(rt.get_field_cards(p, location));
-                        } else {
-                            cards.extend(rt.get_field_cards(player, location));
-                            cards.extend(rt.get_field_cards(opponent, location));
-                        }
-                    }
-                }
-                Some(ZoneFilter::OnField(_)) | None => {
-                    let location = tm::LOCATION_ONFIELD;
-                    if let Some(p) = ctrl_player {
-                        cards.extend(rt.get_field_cards(p, location));
-                    } else {
-                        cards.extend(rt.get_field_cards(player, location));
-                        cards.extend(rt.get_field_cards(opponent, location));
-                    }
-                }
-            }
-
-            // (b) Apply filter predicate (type / name).
-            let rt_filter = ast_filter_to_runtime(filter);
-            cards.retain(|&id| rt.card_matches_filter(id, &rt_filter));
-
-            // (c) Apply position filter if specified.
-            if let Some(pos_filter) = position {
-                let self_id = rt.effect_card_id();
-                match pos_filter {
-                    PositionFilter::FaceUp           => cards.retain(|&id| rt.is_face_up(id)),
-                    PositionFilter::FaceDown         => cards.retain(|&id| rt.is_face_down(id)),
-                    PositionFilter::AttackPosition   => cards.retain(|&id| rt.is_attack_position(id)),
-                    PositionFilter::DefensePosition  => cards.retain(|&id| rt.is_defense_position(id)),
-                    PositionFilter::ExceptSelf       => cards.retain(|&id| id != self_id),
-                }
-            }
-
-            // (d) where_clause — evaluate predicate against each candidate.
-            //     Collect the candidate IDs first, then re-borrow rt as &dyn
-            //     for the immutable eval_predicate call to avoid a borrow
-            //     conflict with the outer &mut.
-            if let Some(pred) = where_clause {
-                let candidate_ids: Vec<u32> = cards.drain(..).collect();
-                let rt_ref: &dyn DuelScriptRuntime = &*rt;
-                for id in candidate_ids {
-                    if eval_predicate(pred, id, rt_ref) {
-                        cards.push(id);
-                    }
-                }
-            }
-
-            // (e) Truncate to quantity via rt.select_cards when quantity is limited.
-            match quantity {
-                Quantity::All => cards,
-                Quantity::Exact(n) | Quantity::AtLeast(n) => {
-                    let n = *n as usize;
-                    if cards.len() <= n {
-                        cards
-                    } else {
-                        rt.select_cards(player, &cards, n, n)
-                    }
-                }
-            }
+            let cards = collect_counted_candidates(filter, controller, zone, position, where_clause, rt, player);
+            apply_v2_quantity(quantity, cards, rt, player)
         }
         Selector::Target => {
             // Read back the card recorded by `gen_target` via `bind_last_selection("__target__")`.
@@ -1530,6 +1497,83 @@ fn resolve_v2_selector(sel: &Selector, rt: &mut dyn DuelScriptRuntime, player: u
             rt.get_binding_card("__linked__").map(|id| vec![id]).unwrap_or_default()
         }
     }
+}
+
+/// Steps (a)–(d) of `Counted` selector resolution: zone/controller
+/// collection, card filter, position filter, `where` predicate. The
+/// quantity is applied separately by `apply_v2_quantity`.
+fn collect_counted_candidates(
+    filter: &CardFilter,
+    controller: &Option<Controller>,
+    zone: &Option<ZoneFilter>,
+    position: &Option<PositionFilter>,
+    where_clause: &Option<Predicate>,
+    rt: &mut dyn DuelScriptRuntime,
+    player: u8,
+) -> Vec<u32> {
+    let opponent = 1 - player;
+    let ctrl_player = match controller {
+        Some(Controller::You) => Some(player),
+        Some(Controller::Opponent) => Some(opponent),
+        Some(Controller::Either) | None => None, // both
+    };
+
+    // (a) Collect candidates from zone / controller.
+    let mut cards = Vec::new();
+    match zone {
+        Some(ZoneFilter::In(zones)) | Some(ZoneFilter::From(zones)) => {
+            for z in zones {
+                let location = zone_to_location(z);
+                if let Some(p) = ctrl_player {
+                    cards.extend(rt.get_field_cards(p, location));
+                } else {
+                    cards.extend(rt.get_field_cards(player, location));
+                    cards.extend(rt.get_field_cards(opponent, location));
+                }
+            }
+        }
+        Some(ZoneFilter::OnField(_)) | None => {
+            let location = tm::LOCATION_ONFIELD;
+            if let Some(p) = ctrl_player {
+                cards.extend(rt.get_field_cards(p, location));
+            } else {
+                cards.extend(rt.get_field_cards(player, location));
+                cards.extend(rt.get_field_cards(opponent, location));
+            }
+        }
+    }
+
+    // (b) Apply filter predicate (type / name).
+    let rt_filter = ast_filter_to_runtime(filter);
+    cards.retain(|&id| rt.card_matches_filter(id, &rt_filter));
+
+    // (c) Apply position filter if specified.
+    if let Some(pos_filter) = position {
+        let self_id = rt.effect_card_id();
+        match pos_filter {
+            PositionFilter::FaceUp           => cards.retain(|&id| rt.is_face_up(id)),
+            PositionFilter::FaceDown         => cards.retain(|&id| rt.is_face_down(id)),
+            PositionFilter::AttackPosition   => cards.retain(|&id| rt.is_attack_position(id)),
+            PositionFilter::DefensePosition  => cards.retain(|&id| rt.is_defense_position(id)),
+            PositionFilter::ExceptSelf       => cards.retain(|&id| id != self_id),
+        }
+    }
+
+    // (d) where_clause — evaluate predicate against each candidate.
+    //     Collect the candidate IDs first, then re-borrow rt as &dyn
+    //     for the immutable eval_predicate call to avoid a borrow
+    //     conflict with the outer &mut.
+    if let Some(pred) = where_clause {
+        let candidate_ids: Vec<u32> = cards.drain(..).collect();
+        let rt_ref: &dyn DuelScriptRuntime = &*rt;
+        for id in candidate_ids {
+            if eval_predicate(pred, id, rt_ref) {
+                cards.push(id);
+            }
+        }
+    }
+
+    cards
 }
 
 fn zone_to_location(zone: &Zone) -> u32 {
@@ -2082,6 +2126,66 @@ fn category_to_engine(cat: &Category) -> u32 {
     }
 }
 
+/// Scope a cost selector to the paying player's own cards. `default_zones`
+/// is injected when the selector carries no zone (a cost `discard` is
+/// always from hand, a cost `tribute` always from the monster zone — the
+/// parser leaves the selector's zone empty for those shapes). When
+/// `pin_controller` is set the selector is pinned to `you control`: a
+/// player can only pay a discard / tribute cost with cards they control,
+/// which also keeps the translator's `(all, card, either controls)` stub
+/// selector from reaching into the opponent's hand or field.
+fn cost_selector(sel: &Selector, default_zones: &[Zone], pin_controller: bool) -> Selector {
+    if let Selector::Counted { quantity, filter, controller, zone, position, where_clause } = sel {
+        let zone = match zone {
+            Some(z) => Some(z.clone()),
+            None => Some(ZoneFilter::From(default_zones.to_vec())),
+        };
+        let controller = if pin_controller { Some(Controller::You) } else { controller.clone() };
+        return Selector::Counted {
+            quantity: quantity.clone(),
+            filter: filter.clone(),
+            controller,
+            zone,
+            position: position.clone(),
+            where_clause: where_clause.clone(),
+        };
+    }
+    sel.clone()
+}
+
+/// Check or pay a card-set cost described by `sel`.
+///
+/// Returns `None` when the cost cannot be paid in full — fewer candidates
+/// than the selector's minimum quantity (`N` and `N+` need N, `all` needs
+/// at least one, shorthand selectors need their card to resolve). In
+/// `check_only` mode no prompt is issued and `Some(vec![])` signals
+/// payable; otherwise the chosen cards are returned (`N` → exactly N,
+/// `N+` → N up to every candidate, `all` → the whole set).
+///
+/// The pay path always goes through `select_cards`, even when the choice
+/// is forced: `bind_last_selection` (an `as <name>` binding on the cost)
+/// reads the last `select_cards` / `set_targets` call, so a forced pick
+/// must still be recorded.
+fn pay_card_cost(sel: &Selector, rt: &mut dyn DuelScriptRuntime, player: u8, check_only: bool) -> Option<Vec<u32>> {
+    let candidates = collect_v2_selector_candidates(sel, rt, player);
+    let min = match sel {
+        Selector::Counted { quantity, .. } => quantity_min(quantity),
+        _ => 1,
+    };
+    if candidates.len() < min {
+        return None;
+    }
+    if check_only {
+        return Some(Vec::new());
+    }
+    let (min, max) = match sel {
+        Selector::Counted { quantity: Quantity::Exact(n), .. } => (*n as usize, *n as usize),
+        Selector::Counted { quantity: Quantity::AtLeast(n), .. } => (*n as usize, candidates.len()),
+        _ => (candidates.len(), candidates.len()),
+    };
+    Some(rt.select_cards(player, &candidates, min, max))
+}
+
 fn gen_cost(costs: &[CostAction], card_id: u64) -> Option<Arc<dyn Fn(&mut dyn DuelScriptRuntime, bool) -> bool + Send + Sync>> {
     if costs.is_empty() {
         return None;
@@ -2102,34 +2206,24 @@ fn gen_cost(costs: &[CostAction], card_id: u64) -> Option<Arc<dyn Fn(&mut dyn Du
                     }
                 }
                 CostAction::Discard(sel, binding) => {
-                    if check_only {
-                        return rt.get_hand_count(player) > 0;
-                    }
-                    let hand = rt.get_field_cards(player, tm::LOCATION_HAND);
-                    if !hand.is_empty() {
-                        let selected = rt.select_cards(player, &hand, 1, 1);
-                        if !selected.is_empty() {
-                            rt.discard(&selected);
-                            if let Some(name) = binding {
-                                rt.bind_last_selection(name);
-                            }
+                    let sel = cost_selector(sel, &[Zone::Hand], true);
+                    let Some(selected) = pay_card_cost(&sel, rt, player, check_only) else { return false; };
+                    if !check_only {
+                        rt.discard(&selected);
+                        if let Some(name) = binding {
+                            rt.bind_last_selection(name);
                         }
                     }
-                    let _ = sel; // selector used for engine-level filtering
                 }
                 CostAction::Tribute(sel, binding) => {
-                    if check_only {
-                        return rt.get_field_card_count(player, tm::LOCATION_MZONE) > 0;
-                    }
-                    let monsters = rt.get_field_cards(player, tm::LOCATION_MZONE);
-                    if !monsters.is_empty() {
-                        let selected = rt.select_cards(player, &monsters, 1, 1);
+                    let sel = cost_selector(sel, &[Zone::MonsterZone], true);
+                    let Some(selected) = pay_card_cost(&sel, rt, player, check_only) else { return false; };
+                    if !check_only {
                         rt.tribute(&selected);
                         if let Some(name) = binding {
                             rt.bind_last_selection(name);
                         }
                     }
-                    let _ = sel;
                 }
                 CostAction::Detach(count, _sel) => {
                     if check_only { return true; }
@@ -2137,21 +2231,16 @@ fn gen_cost(costs: &[CostAction], card_id: u64) -> Option<Arc<dyn Fn(&mut dyn Du
                     rt.detach_material(card_id, *count as u32);
                 }
                 CostAction::Banish(sel, source_zone, binding) => {
-                    if check_only { return true; }
-                    let player = rt.effect_player();
                     // Honor the source zone if specified — `cost { banish (1, ...) from gy }`
                     // must banish from grave, not from hand+field. Defaults to
-                    // hand+field if zone is None (the historical behavior).
-                    let candidates: Vec<u32> = if let Some(z) = source_zone {
-                        rt.get_field_cards(player, zone_to_location(z))
-                    } else {
-                        let mut c = rt.get_field_cards(player, tm::LOCATION_HAND);
-                        c.extend(rt.get_field_cards(player, tm::LOCATION_MZONE));
-                        c
+                    // hand+monster zone if neither the action nor the selector
+                    // names a zone (the historical behavior).
+                    let sel = match source_zone {
+                        Some(z) => cost_selector(sel, std::slice::from_ref(z), false),
+                        None => cost_selector(sel, &[Zone::Hand, Zone::MonsterZone], false),
                     };
-                    let _ = sel; // filter hint for engine-level use
-                    if !candidates.is_empty() {
-                        let selected = rt.select_cards(player, &candidates, 1, 1);
+                    let Some(selected) = pay_card_cost(&sel, rt, player, check_only) else { return false; };
+                    if !check_only {
                         rt.banish(&selected);
                         if let Some(name) = binding {
                             rt.bind_last_selection(name);
@@ -2159,15 +2248,10 @@ fn gen_cost(costs: &[CostAction], card_id: u64) -> Option<Arc<dyn Fn(&mut dyn Du
                     }
                 }
                 CostAction::Send(sel, zone, binding) => {
-                    if check_only { return true; }
-                    let player = rt.effect_player();
-                    let loc = zone_to_location(zone);
-                    let mut candidates = rt.get_field_cards(player, tm::LOCATION_HAND);
-                    candidates.extend(rt.get_field_cards(player, tm::LOCATION_MZONE));
-                    let _ = sel;
-                    if !candidates.is_empty() {
-                        let selected = rt.select_cards(player, &candidates, 1, 1);
-                        if loc == tm::LOCATION_GRAVE {
+                    let sel = cost_selector(sel, &[Zone::Hand, Zone::MonsterZone], false);
+                    let Some(selected) = pay_card_cost(&sel, rt, player, check_only) else { return false; };
+                    if !check_only {
+                        if zone_to_location(zone) == tm::LOCATION_GRAVE {
                             rt.send_to_grave(&selected);
                         } else {
                             rt.send_to_deck(&selected, true);
@@ -2179,19 +2263,19 @@ fn gen_cost(costs: &[CostAction], card_id: u64) -> Option<Arc<dyn Fn(&mut dyn Du
                 }
                 CostAction::RemoveCounter(name, count, sel) => {
                     if check_only { return true; }
-                    let player = rt.effect_player();
                     let card_id = rt.effect_card_id();
-                    let candidates = rt.get_field_cards(player, tm::LOCATION_MZONE);
-                    let _ = sel;
-                    let target = candidates.first().copied().unwrap_or(card_id);
+                    // `from self` resolves to the effect card; a counted
+                    // selector prompts for the holder among its candidates.
+                    let sel = cost_selector(sel, &[Zone::MonsterZone, Zone::SpellTrapZone], false);
+                    let target = resolve_v2_selector(&sel, rt, player).first().copied().unwrap_or(card_id);
                     rt.remove_counter(target, name, *count as u32);
                 }
                 CostAction::Reveal(sel) => {
-                    if check_only { return true; }
-                    let player = rt.effect_player();
-                    let cards = rt.get_field_cards(player, tm::LOCATION_HAND);
-                    let _ = sel;
-                    rt.reveal(&cards);
+                    let sel = cost_selector(sel, &[Zone::Hand], true);
+                    let Some(selected) = pay_card_cost(&sel, rt, player, check_only) else { return false; };
+                    if !check_only {
+                        rt.reveal(&selected);
+                    }
                 }
                 CostAction::Announce(what, binding) => {
                     if check_only { return true; }
@@ -7171,5 +7255,212 @@ card "T32 Fmt" {
         assert_eq!(code, tm::EVENT_REMOVE,
             "sent_to banished must register on EVENT_REMOVE (1011)");
         assert_eq!(code, 1011);
+    }
+
+    // ── T39 S4 follow-up: N+ quantities and selector-driven costs ─────
+
+    fn compile_src(source: &str) -> CompiledCardV2 {
+        let file = parse_v2(source).unwrap();
+        compile_card_v2(&file.cards[0])
+    }
+
+    fn opp_field_with_three_monsters() -> super::super::mock_runtime::MockRuntime {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 66000002;
+        for id in [301u32, 302, 303] {
+            rt.state.add_card(CardSnapshot::monster(id, "Mon", 1500, 1000, 4));
+            rt.state.players[1].field_monsters.push(id);
+        }
+        rt
+    }
+
+    /// `(2+, …)` prompts for at least 2 and up to every candidate.
+    #[test]
+    fn at_least_quantity_selects_min_n_max_candidates() {
+        let c = compile_src(r#"
+            card "Banish Any Number" {
+                id: 66000002
+                type: Normal Spell
+                effect "Banish" {
+                    speed: 1
+                    resolve {
+                        destroy (2+, monster, opponent controls)
+                    }
+                }
+            }
+        "#);
+        let mut rt = opp_field_with_three_monsters();
+        (c.effects[0].operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("select_cards", "min=2 max=3"), "got: {}", rt.dump_calls());
+    }
+
+    /// `(2, …)` stays exact: min == max == 2.
+    #[test]
+    fn exact_quantity_selects_exactly_n() {
+        let c = compile_src(r#"
+            card "Destroy Two" {
+                id: 66000002
+                type: Normal Spell
+                effect "Destroy" {
+                    speed: 1
+                    resolve {
+                        destroy (2, monster, opponent controls)
+                    }
+                }
+            }
+        "#);
+        let mut rt = opp_field_with_three_monsters();
+        (c.effects[0].operation.as_ref().unwrap())(&mut rt);
+        assert!(rt.was_called_with("select_cards", "min=2 max=2"), "got: {}", rt.dump_calls());
+        assert_eq!(rt.state.players[1].field_monsters.len(), 1);
+    }
+
+    fn discard_two_card() -> CompiledCardV2 {
+        compile_src(r#"
+            card "Discard Two" {
+                id: 66000003
+                type: Normal Spell
+                effect "Draw" {
+                    speed: 1
+                    cost {
+                        discard (2, card, you control, from hand)
+                    }
+                    resolve {
+                        draw 1
+                    }
+                }
+            }
+        "#)
+    }
+
+    fn hand_of(n: usize) -> super::super::mock_runtime::MockRuntime {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 66000003;
+        for i in 0..n as u32 {
+            let id = 400 + i;
+            rt.state.add_card(CardSnapshot::spell(id, "Hand Card"));
+            rt.state.players[0].hand.push(id);
+        }
+        rt
+    }
+
+    /// `cost { discard (2, card, you control, from hand) }` discards two
+    /// chosen cards, not one.
+    #[test]
+    fn cost_discard_honours_quantity() {
+        let c = discard_two_card();
+        let cost = c.effects[0].cost.as_ref().unwrap();
+        let mut rt = hand_of(3);
+        assert!(cost(&mut rt, true));
+        assert_eq!(rt.call_count("select_cards"), 0, "payability check must not prompt");
+        assert!(cost(&mut rt, false));
+        assert!(rt.was_called_with("select_cards", "min=2 max=2"), "got: {}", rt.dump_calls());
+        assert_eq!(rt.state.players[0].hand.len(), 1);
+        assert_eq!(rt.state.players[0].graveyard.len(), 2);
+    }
+
+    /// A two-card discard with one card in hand is unpayable — both the
+    /// check and the payment report failure and nothing is discarded.
+    #[test]
+    fn cost_discard_fails_when_hand_too_small() {
+        let c = discard_two_card();
+        let cost = c.effects[0].cost.as_ref().unwrap();
+        let mut rt = hand_of(1);
+        assert!(!cost(&mut rt, true));
+        assert!(!cost(&mut rt, false));
+        assert_eq!(rt.call_count("discard"), 0);
+        assert_eq!(rt.state.players[0].hand.len(), 1);
+    }
+
+    /// `cost { discard (1, monster, you control, from hand) }` only offers
+    /// monsters: with a spell and a monster in hand, the monster goes.
+    #[test]
+    fn cost_discard_honours_filter() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let c = compile_src(r#"
+            card "Discard Monster" {
+                id: 66000004
+                type: Normal Spell
+                effect "Draw" {
+                    speed: 1
+                    cost {
+                        discard (1, monster, you control, from hand)
+                    }
+                    resolve {
+                        draw 1
+                    }
+                }
+            }
+        "#);
+        let cost = c.effects[0].cost.as_ref().unwrap();
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 66000004;
+        rt.state.add_card(CardSnapshot::spell(501, "Spell In Hand"));
+        rt.state.add_card(CardSnapshot::monster(502, "Monster In Hand", 1000, 1000, 3));
+        rt.state.players[0].hand.push(501);
+        rt.state.players[0].hand.push(502);
+        assert!(cost(&mut rt, false));
+        assert!(rt.was_called_with("discard", "ids=[502]"), "got: {}", rt.dump_calls());
+        assert_eq!(rt.state.players[0].hand, vec![501]);
+
+        // Only a spell in hand: the filter leaves no candidate, cost fails.
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 66000004;
+        rt.state.add_card(CardSnapshot::spell(501, "Spell In Hand"));
+        rt.state.players[0].hand.push(501);
+        assert!(!cost(&mut rt, true));
+    }
+
+    /// `cost { tribute self }` tributes the effect card, not an arbitrary
+    /// monster, and `cost { banish self }` banishes the effect card.
+    #[test]
+    fn cost_self_selectors_resolve_to_effect_card() {
+        use super::super::mock_runtime::{MockRuntime, CardSnapshot};
+        let c = compile_src(r#"
+            card "Self Costs" {
+                id: 66000005
+                type: Effect Monster
+                attribute: DARK
+                race: Fiend
+                level: 4
+                atk: 1000
+                def: 1000
+                effect "Tribute" {
+                    speed: 1
+                    cost {
+                        tribute self
+                    }
+                    resolve {
+                        draw 1
+                    }
+                }
+                effect "Banish" {
+                    speed: 1
+                    cost {
+                        banish self
+                    }
+                    resolve {
+                        draw 1
+                    }
+                }
+            }
+        "#);
+        let mut rt = MockRuntime::new();
+        rt.effect_player = 0;
+        rt.effect_card_id = 66000005;
+        rt.state.add_card(CardSnapshot::monster(601, "Other", 1000, 1000, 4));
+        rt.state.add_card(CardSnapshot::monster(66000005, "Self Costs", 1000, 1000, 4));
+        rt.state.players[0].field_monsters.push(601);
+        rt.state.players[0].field_monsters.push(66000005);
+        assert!((c.effects[0].cost.as_ref().unwrap())(&mut rt, false));
+        assert!(rt.was_called_with("tribute", "ids=[66000005]"), "got: {}", rt.dump_calls());
+        assert!((c.effects[1].cost.as_ref().unwrap())(&mut rt, false));
+        assert!(rt.was_called_with("banish", "ids=[66000005]"), "got: {}", rt.dump_calls());
     }
 }
