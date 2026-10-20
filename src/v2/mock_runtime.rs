@@ -562,6 +562,9 @@ impl DuelScriptRuntime for MockRuntime {
     fn change_position(&mut self, card_id: u32) {
         self.record("change_position", format!("card={}", card_id));
     }
+    fn change_position_to(&mut self, card_id: u32, target_pos: u32) {
+        self.record("change_position_to", format!("card={} pos={:#x}", card_id, target_pos));
+    }
 
     // ── Token creation ───────────────────────────────────────
     fn create_token(&mut self, player: u8, spec: &TokenSpec) {
