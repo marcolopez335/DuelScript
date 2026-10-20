@@ -445,7 +445,8 @@ Per-block triage of every empty `resolve { }` left after T38 (2,327 blocks / 2,0
 
 | # | Slice | Sub-shape | Yield | Status |
 |---|-------|-----------|-------|--------|
-| **S1** | **Stat-chip decode widening** | see below | 33 blocks / 30 cards | ✓ shipped (this PR) |
+| **S1** | **Stat-chip decode widening** | see below | 33 blocks / 30 cards | ✓ shipped (PR #166) |
+| **S2** | **`Duel.ChangePosition` 5-arg matrix** | see below | 24 blocks (18 new + 6 reshape refills) | ✓ shipped (PR #167) |
 
 #### T39 S1 — stat-chip decode widening (translator-only) ✓
 
@@ -463,6 +464,37 @@ Per-block triage of every empty `resolve { }` left after T38 (2,327 blocks / 2,0
 **Skip classes (documented, counts = sole-blocker blocks).** `e:GetLabel()` label plumbing 47 (T38 class 3); battle-context / label-object / reason-card / event-group receivers 53 (class 6); non-mapped resets 38 (class 4); branch-conditional values (if/else `SetValue`, `SelectYesNo`, `and/or` ternaries) and reassigned locals ~20 (class 2/5); `Duel.AnnounceLevel` / `GetChainInfo` values 10; `GetSum` / `GetClassCount` / `tc:GetOverlayCount()` / `GetMaterialCount` / `GetOriginalLevel` / `GetTextAttack` reads 14 (**grammar backlog**: `target.overlay_count`, `original_level`, a `sum(selector, stat)` expr); `c:IsCode(id)` named filters 7 (needs the card's own name — **backlog**: `name == self.name` or a cdb lookup at emit); `Card.IsPosition` filters 3 (**backlog**: a `SelectorSpec` position slot); or-under-conjunction filters (`aux.FaceupFilter(Card.IsRace,A|B)`, `not (A and B)`) 3 — the v2 paren-predicate parser now has a passing test, so the "broken paren branch" gates in `map_group_filter` / `lua_filter_expr_to_where` can be lifted in a follow-up (shared-mapper flip → audit-fills sweep); named filters with local aliases (`local lv=c:GetLevel()` then `return … lv>0`) 1; loop values reading the declared target while the loop var is not `tc` (Sylvan Dancepione, Snowdrop) 4 — every instance also carries a group extra arg, so no yield.
 
 **Yield.** 33 blocks / 30 cards filled (+1 stale partial fill stubbed, +1 policy-flip stub): 2,327 → 2,294 errors, 1,357 → 1,352 warnings. Against the census' 314-block "sole-blocker" estimate the true decodable share was ~13% — the brief's "20–50% is real" was itself optimistic for this class because the census counts a handler as sole-blocked whenever the chip is its only *drop*, which includes every conditional-value and foreign-receiver chip. Side yield from the shared mapper widenings: Constellar Omega (immune grant), Mischief of the Wolves (S6 method ops), Uni-Zombie (Pass S refined a lone `discard` stub — note `Duel.DiscardHand` renders `(1+, …)` regardless of its min/max args, a pre-existing lossy renderer worth its own fix).
+
+#### T39 S2 — `Duel.ChangePosition` 5-arg position matrix (shipped)
+
+**Ruling (the DSL contract for the two `change_position` forms).**
+
+- `change_position <sel> to <pos>` puts EVERY selected monster in `<pos>` whatever its current position (`defense_position` = face-up defense, so a face-down card is flipped). Lua: the 1-arg form, and any matrix whose admitted arms agree.
+- Bare `change_position <sel>` is the game-rule "change its battle position": face-up attack ↔ face-up defense, and a face-down monster is flipped to **face-up attack** (Card Rotator's own parenthetical; the Burei/Dream Cicada Q&A). Lua spells it `(POS_FACEUP_DEFENSE, *, POS_FACEUP_ATTACK, POS_FACEUP_ATTACK)` — the `ad` arm varies (`FD_DEF` / `FU_ATK` / `FU_DEF`) across cards with identical text. The S7-era reading ("bare = toggle, face-down untouched") was the `(FU_DEF, 0, FU_ATK, 0)` spelling, which the corpus uses only under a face-up guard/filter.
+- Face-down ATTACK is unreachable in play (Darkness Approaches aside); the decoder ignores the `ad` arm and never admits that position. `0` arms = unchanged (ocgcore); a missing arm defaults to `au`; the 6th/7th args (`noflip` — "Flip effects are not activated" — / `setavail`) have no DSL surface.
+- ygobeetle mirror (backlog, adapter): `ds_runtime_adapter.rs::change_position` is a 3-cycle (FU_ATK → FU_DEF → **FD_DEF** → FU_ATK); the FU_DEF → FD_DEF step matches no lua form. It must become FU_ATK ↔ FU_DEF, FD_* → FU_ATK (a flip). `change_position_to` is already exact (it also emits `PositionChanged` for an identity move — harmless, note only).
+
+**Decoder (src/lua_ast.rs `action_change_position`, new `FunctionBody::position_guards`).** The walk records, per `Duel.ChangePosition(<var>, …)` first argument, the current positions the enclosing guards admit (`<v>:IsFaceup()` / `IsFacedown()` / `IsAttackPos()` / `IsDefensePos()`, with `not`, over top-level `and` conjuncts of enclosing `if`/`elseif` conditions, plus `if A or B then return end` early-outs narrowing the rest of the block; several sites on one variable take the UNION). The rendered selector's `where is_face_up` / `is_face_down` conjunct narrows further. Then: all admitted arms one literal position → `to <pos>`; all admitted arms the ruling's toggle → bare form; all admitted arms identity → TODO (no-op); else TODO. `c:GetEquipTarget()`-style derived receivers are refused (they rendered as `self` before — 3 shipped mis-aims).
+
+| bucket (90 blocks before, by matrix shape) | blocks / cards | verdict |
+|---|---|---|
+| A `(FU_DEF, *, FU_ATK, FU_ATK)` game-rule toggle, provenance ok | 36 / 29 | **14 filled** (bare form; 10 cards incl. the 2-block Superheavy Samurai quartet); **20 `target-decl-undecodable`** — the fill is `change_position target`, the block has no decl and `s.postg` carries `Card.IsCanChangePosition` (unmapped atom → candidate 4); 1 cost-header-mismatch, 1 incomplete |
+| A, provenance unknown (`d=Duel.GetAttackTarget()`, chain-info filters) | 2 / 2 | skip (candidate 4) |
+| B `(FU_DEF, 0, FU_ATK, 0)`, provenance unknown | 2 / 2 | skip (candidate 4) |
+| C uniform 4-arm `(FU_DEF ×4)` Hyades | 1 / 1 | **filled** `to defense_position` |
+| D `(0,0,FU_ATK,0)` Naga (face-up defense guard) | 1 / 1 | **filled** `self to attack_position` |
+| D `(FU_ATK,FU_ATK,FU_DEF,FU_DEF)` on `Card.IsFacedown` groups (Swords of Revealing Light, Dark-Piercing Light) | 2 / 2 | **filled** `… where is_face_down) to defense_position` |
+| D `(0,0,FU_ATK,FU_ATK)` Stop Defense / Barses / Reptilianne Poison, `(FD_DEF,0,FD_DEF,0)` Erokin, `(FU_DEF,FD_DEF,0,0)` Water Dancer, `(FU_DEF,FD_DEF,FU_DEF,FD_DEF)` Fane | 8 / 7 | decoder renders `to <pos>` under the body guard (unit-tested) but every block stops at `target-decl-undecodable` (same `IsCanChangePosition` atom); Lose 1 Turn (no guard, `GetTargetCards`) stays TODO |
+| E 3-arg `(FU_DEF, FD_DEF)` Soldier Gaia / World of Spirits / Borrelsword | 3 / 3 | renders `to defense_position`; `target-decl-undecodable` |
+| F uniform 2-arg, provenance unknown (`eg:Filter`, `Duel.GetAttacker()`, chain-info filters, column groups) | 25 / 19 | skip (candidate 4) |
+| noflip 6-arg (Amazoness Archers, VW-Tiger Catapult, Dark Gaia, Tin Archduke, …) | 9 / 7 | skip — grammar backlog: a `without_flip` modifier (or `flip <sel> face_up`) |
+| Staplen `(FU_ATK,0,FU_ATK,0)` on `e:GetHandler()` under a guard on the OTHER variable | 1 / 1 | skip (correct: admitted set unrestricted) |
+
+**Policy flip / retrofit.** `audit-fills` could not see this flip (a TODO-only body is not a `BodyDrop`), so it grew `--shape <action>`: a RESHAPE class for shipped resolves the gate still accepts whose `<action>` lines no longer byte-match the current rendering; `--stub` empties them and `apply` refills under the corrected decoder. 11 hits, all hand-verified: 3 `c:GetEquipTarget()` mis-aims (Ailin, Second Goblin, c50418970 → stub), Cloudian Eye of the Typhoon + Windstorm of Etaqua (`(FU_DEF,0,FU_ATK,0)` on a lossy selector that lost its `IsFaceup` → the bare form would flip face-down cards → stub), Junk Sleep ×3 + Tsuchinoko + Ultramafus (pre-existing selector drift `where is_face_down` / `except self`, refilled exactly; Junk Sleep block 3 was a positional-residue `to attack_position` where the lua says `to face_down_defense`), WAKE CUP! Mocha (positional residue `target to attack_position` → `self to face_down_defense`). The other 16 cards with shipped bare lines re-derive byte-identically (all carry `IsFaceup` guards or `Card.IsFaceup` filters).
+
+**Yield.** 24 effects filled (18 new + 6 reshape refills) + 1 Pass S refinement (Berry Magician Girl: lone `special_summon` stub → `change_position self` + `special_summon (1, card, you control, from deck)`), 5 resolves stubbed. Check 2,327 → 2,313 errors (−14), 1,357 → 1,355 warnings (−2). Against the ~50 estimate: the decoder now renders 50 of the 52 matrix-form blocks with known provenance (Staplen and Lose 1 Turn are the two honest refusals), but 30 of them sit behind `target-decl-undecodable` on one atom — mapping `Card.IsCanChangePosition` in the named-filter refinement (candidate 4) releases them for free. 761 lib / 23 bin tests, zero warnings; second fixed-point run a no-op.
+
+**Backlog.** (1) `Card.IsCanChangePosition` / `IsCanTurnSet` atoms (candidate 4; ~27 blocks here + the lossy `where`-less selectors of Hyades / Curse of Fiend / Registrider / Etaqua); (2) `noflip` grammar (9 blocks); (3) ygobeetle adapter bare-form cycle fix (above); (4) `Duel.SelectPosition` player-chosen positions (8 blocks: `change_position <sel> to (attack_position | face_down_defense)` choice form) and `Duel.TossCoin` arms (2).
 
 ---
 

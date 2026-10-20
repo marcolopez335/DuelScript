@@ -136,17 +136,29 @@ fn main() {
             // to empty resolves); mismatches print both sides and stay
             // report-only for hand verification.
             //
-            //   lua_translate audit-fills <corpus_dir> <lua_dir> [cards.cdb] [--stub]
+            //   lua_translate audit-fills <corpus_dir> <lua_dir> [cards.cdb] [--stub] [--shape <action>]
+            //
+            // T39 S2 — `--shape <action>` adds the RESHAPE class: a
+            // shipped resolve the gate still ACCEPTS, but whose
+            // `<action> …` lines no longer byte-match the current
+            // rendering (a decoder that moved an action's rendering
+            // — or refuses it as a TODO — without tripping a body
+            // gate). `--stub` empties those too; `apply` refills them
+            // under the corrected decoder where its gate allows.
             if args.len() < 4 {
-                eprintln!("usage: lua_translate audit-fills <corpus_dir> <lua_dir> [cards.cdb] [--stub]");
+                eprintln!("usage: lua_translate audit-fills <corpus_dir> <lua_dir> [cards.cdb] [--stub] [--shape <action>]");
                 process::exit(2);
             }
             let corpus = &args[2];
             let lua_dir = &args[3];
             let stub = args.iter().any(|a| a == "--stub");
-            let cdb = args.get(4).map(String::as_str).filter(|a| *a != "--stub");
+            let shape = args.iter().position(|a| a == "--shape")
+                .and_then(|i| args.get(i + 1))
+                .map(String::as_str);
+            let cdb = args.get(4).map(String::as_str)
+                .filter(|a| *a != "--stub" && *a != "--shape");
             load_card_names(cdb, lua_dir);
-            audit_fills(corpus, lua_dir, stub);
+            audit_fills(corpus, lua_dir, stub, shape);
         }
         "audit-owners" => {
             // T38 S9 backlog (b) — Phase-2-era positional residue: a
@@ -203,7 +215,21 @@ fn main() {
 /// See the `audit-fills` mode arm. Walks handler-derived effect blocks
 /// only — summon-helper and replacement-chain fills don't flow through
 /// `body_drops_chains`, so the gate flip can't invalidate them.
-fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool) {
+/// `--shape <action>` test (T39 S2): the shipped resolve carries at least
+/// one `<action> …` line and the `<action>` lines, in order, differ from
+/// the current rendering's. Lines of other actions are not compared —
+/// a selector or duration drift in a sibling line is another slice's
+/// retrofit, not this one's.
+fn shape_lines_differ(shipped: &[String], rendered: &[String], action: &str) -> bool {
+    let prefix = format!("{} ", action);
+    let pick = |lines: &[String]| -> Vec<String> {
+        lines.iter().filter(|l| l.starts_with(&prefix) || l.as_str() == action).cloned().collect()
+    };
+    let shipped_kw = pick(shipped);
+    !shipped_kw.is_empty() && shipped_kw != pick(rendered)
+}
+
+fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool, shape: Option<&str>) {
     let mut paths: Vec<std::path::PathBuf> = match fs::read_dir(corpus_dir) {
         Ok(e) => e.flatten().map(|e| e.path())
             .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("ds"))
@@ -211,7 +237,7 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool) {
         Err(e) => { eprintln!("cannot read {}: {}", corpus_dir, e); return; }
     };
     paths.sort();
-    let (mut stubs, mut reviews) = (0usize, 0usize);
+    let (mut stubs, mut reviews, mut reshapes) = (0usize, 0usize, 0usize);
     for path in paths {
         let Ok(txt) = fs::read_to_string(&path) else { continue };
         let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
@@ -229,7 +255,8 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool) {
             let handler = handler.trim();
             let Some(block_idx) = assign.by_effect[eff_i] else { continue };
             let Some(body) = walk.functions.get(handler) else { continue };
-            if !lua_ast::body_drops_chains(body, &walk.functions) { continue; }
+            let dropped = lua_ast::body_drops_chains(body, &walk.functions);
+            if !dropped && shape.is_none() { continue; }
             // Offsets recomputed against new_txt — a stub earlier in this
             // file shifts every later block.
             let Some((block_lo, block_hi)) = nth_effect_block(&new_txt, block_idx) else { continue };
@@ -240,6 +267,22 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool) {
             let lines = lua_ast::translate_body_with_functions(body, &walk.functions);
             let rendered: Vec<String> = lines.iter().filter(|l| l.is_action())
                 .map(|l| l.clone().into_string("").trim().to_string()).collect();
+            if !dropped {
+                let Some(action) = shape else { continue };
+                if !shape_lines_differ(&shipped, &rendered, action) { continue; }
+                reshapes += 1;
+                println!("RESHAPE {} block={} handler={} shape={}", stem, block_idx, handler, action);
+                for l in &shipped  { println!("    shipped:  {}", l); }
+                for l in &rendered { println!("    rendered: {}", l); }
+                for l in lines.iter().filter(|l| !l.is_action()) {
+                    println!("    todo:     {}", l.clone().into_string("").trim());
+                }
+                if stub {
+                    new_txt = format!("{}\n        {}", &new_txt[..inner_lo], &new_txt[inner_hi..]);
+                    changed = true;
+                }
+                continue;
+            }
             let reason = if body.method_ops_poisoned { "method-poison" }
                 else if body.counter_ops_poisoned { "counter-poison" }
                 else { "drop" };
@@ -265,7 +308,13 @@ fn audit_fills(corpus_dir: &str, lua_dir: &str, stub: bool) {
             }
         }
     }
-    println!("=== audit-fills: {} stub, {} review ===", stubs, reviews);
+    match shape {
+        Some(action) => println!(
+            "=== audit-fills: {} stub, {} review, {} reshape ({}) ===",
+            stubs, reviews, reshapes, action
+        ),
+        None => println!("=== audit-fills: {} stub, {} review ===", stubs, reviews),
+    }
 }
 
 /// See the `audit-owners` mode arm. Walks every effect block with a
@@ -2049,5 +2098,28 @@ mod tests {
         let (lines, exempt) = explain_card("c1", &txt, Some(&src));
         assert!(lines.is_empty());
         assert_eq!(exempt, 0);
+    }
+
+    #[test]
+    fn audit_fills_shape_compares_only_the_named_action() {
+        let s = |v: &[&str]| v.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+        // Same change_position lines → no reshape, even with a sibling drift.
+        assert!(!shape_lines_differ(
+            &s(&["change_position target", "draw 1"]),
+            &s(&["change_position target", "draw 2"]),
+            "change_position",
+        ));
+        // Bare → `to` form moved: reshape.
+        assert!(shape_lines_differ(
+            &s(&["change_position target"]),
+            &s(&["change_position target to defense_position"]),
+            "change_position",
+        ));
+        // Rendering refused (TODO-only → no action lines): reshape.
+        assert!(shape_lines_differ(&s(&["change_position self"]), &s(&[]), "change_position"));
+        // No shipped line of the shape: never a reshape.
+        assert!(!shape_lines_differ(&s(&["draw 1"]), &s(&[]), "change_position"));
+        // Prefix discipline: `change_position_x` is not `change_position`.
+        assert!(!shape_lines_differ(&s(&["change_positionx self"]), &s(&[]), "change_position"));
     }
 }

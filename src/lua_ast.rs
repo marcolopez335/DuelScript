@@ -153,6 +153,64 @@ pub struct FunctionBody {
     /// shape-matching guard over a FOREIGN flag is a real semantic
     /// gate, not the fizzle boilerplate.
     pub staleness_guard_flag: Option<String>,
+    /// T39 S2 — per first-argument variable of every
+    /// `Duel.ChangePosition(<var>, …)` call in the body, the set of
+    /// CURRENT battle positions the enclosing guards admit for that
+    /// variable at the call site (`if tc:IsFaceup() and … then`,
+    /// `if not c:IsAttackPos() then`, `if … or c:IsFacedown() then
+    /// return end` early-outs). The 5-arg position matrix is decoded
+    /// against this set: arms for positions the guards exclude are
+    /// don't-care. A variable feeding several call sites records the
+    /// UNION of their sets (looser = conservative). Absent = no guard
+    /// (every position possible).
+    pub position_guards: BTreeMap<String, PositionSet>,
+}
+
+/// Bitset over the four battle positions, ocgcore `POS_*` bit layout
+/// (T39 S2). Used as "which current positions a card may be in" when
+/// a `Duel.ChangePosition` matrix is decoded.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PositionSet(u8);
+
+impl PositionSet {
+    pub const FACEUP_ATTACK: u8 = 0x1;
+    pub const FACEDOWN_ATTACK: u8 = 0x2;
+    pub const FACEUP_DEFENSE: u8 = 0x4;
+    pub const FACEDOWN_DEFENSE: u8 = 0x8;
+    pub const ALL: PositionSet = PositionSet(0xF);
+    const FACEUP: PositionSet = PositionSet(0x1 | 0x4);
+    const FACEDOWN: PositionSet = PositionSet(0x2 | 0x8);
+    const ATTACK: PositionSet = PositionSet(0x1 | 0x2);
+    const DEFENSE: PositionSet = PositionSet(0x4 | 0x8);
+
+    pub fn contains(self, pos: u8) -> bool { self.0 & pos != 0 }
+    fn intersect(self, other: PositionSet) -> PositionSet { PositionSet(self.0 & other.0) }
+    fn union(self, other: PositionSet) -> PositionSet { PositionSet(self.0 | other.0) }
+    fn complement(self) -> PositionSet { PositionSet(!self.0 & 0xF) }
+
+    /// The restriction a single guard atom places on its receiver:
+    /// `<v>:IsFaceup()` / `IsFacedown()` / `IsAttackPos()` /
+    /// `IsDefensePos()`, optionally under `not`. Returns the receiver
+    /// name and the admitted set; None for any other atom.
+    fn from_guard_atom(atom: &str) -> Option<(String, PositionSet)> {
+        let atom = atom.trim();
+        let (negated, rest) = match atom.strip_prefix("not ") {
+            Some(r) => (true, r.trim()),
+            None => (false, atom),
+        };
+        let (recv, method) = rest.split_once(':')?;
+        if recv.is_empty() || !recv.chars().all(|c| c.is_alphanumeric() || c == '_') {
+            return None;
+        }
+        let set = match method {
+            "IsFaceup()"     => Self::FACEUP,
+            "IsFacedown()"   => Self::FACEDOWN,
+            "IsAttackPos()"  => Self::ATTACK,
+            "IsDefensePos()" => Self::DEFENSE,
+            _ => return None,
+        };
+        Some((recv.to_string(), if negated { set.complement() } else { set }))
+    }
 }
 
 /// A guarded-value function body (Phase 19): `if cond then return
@@ -1947,6 +2005,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             let equip_helper = extract_equip_helper(body);
             let staleness_guard_flag = staleness_guard_flag_of(body_block);
             let staleness_guard = staleness_guard_flag.is_some();
+            let position_guards = extract_position_guards(body_block);
             // SetLabel-linked form (target side) and op-side inline form
             // are mutually exclusive in practice — a body matching both
             // would need two SelectOption calls, which both reject.
@@ -1986,6 +2045,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                     summon_check_additional,
                     staleness_guard,
                     staleness_guard_flag,
+                    position_guards,
                 });
             }
         }
@@ -9858,62 +9918,316 @@ fn action_damage(args: &[String]) -> DslLine {
     DslLine::Action(format!("damage {} {}", player_d, amount))
 }
 
-/// `Duel.ChangePosition(target, …)` → `change_position <sel> [to <pos>]`
-/// (argument shapes reworked in T38 S7).
+/// Walk a function block collecting, per `Duel.ChangePosition` first
+/// argument, the battle positions its enclosing guards admit (T39 S2).
+/// Mirrors the statement shapes `collect_duel_calls` descends into so
+/// every call the translator sees has an entry.
+fn extract_position_guards(block: &Block) -> BTreeMap<String, PositionSet> {
+    let mut out = BTreeMap::new();
+    collect_position_guards(block, &BTreeMap::new(), &mut out);
+    out
+}
+
+fn collect_position_guards(
+    block: &Block,
+    inherited: &BTreeMap<String, PositionSet>,
+    out: &mut BTreeMap<String, PositionSet>,
+) {
+    // Guards in force for THIS block's statements: inherited from the
+    // enclosing arms, narrowed by each `if <c> then return end`
+    // early-out for the statements after it.
+    let mut scope = inherited.clone();
+    for stmt in block.stmts() {
+        match stmt {
+            Stmt::FunctionCall(fc) => record_position_call(fc, &scope, out),
+            Stmt::If(if_stmt) => {
+                // Calls in condition position see the enclosing scope
+                // only — sibling conjuncts are not applied (conservative).
+                record_position_calls_in_expr(if_stmt.condition(), &scope, out);
+                let plain = !if_stmt.else_if().is_some_and(|e| e.len() > 0)
+                    && if_stmt.else_block().is_none();
+                if plain && block_is_bare_return(if_stmt.block()) {
+                    // `if A or B then return end` — the rest of the
+                    // block runs under ¬A ∧ ¬B.
+                    for disjunct in top_level_operands(if_stmt.condition(), false) {
+                        if let Some((recv, set)) = PositionSet::from_guard_atom(&disjunct) {
+                            narrow(&mut scope, recv, set.complement());
+                        }
+                    }
+                } else {
+                    let mut arm = scope.clone();
+                    apply_guard_conjuncts(if_stmt.condition(), &mut arm);
+                    collect_position_guards(if_stmt.block(), &arm, out);
+                }
+                for ei in if_stmt.else_if().into_iter().flatten() {
+                    record_position_calls_in_expr(ei.condition(), &scope, out);
+                    let mut arm = scope.clone();
+                    apply_guard_conjuncts(ei.condition(), &mut arm);
+                    collect_position_guards(ei.block(), &arm, out);
+                }
+                if let Some(else_block) = if_stmt.else_block() {
+                    collect_position_guards(else_block, &scope, out);
+                }
+            }
+            Stmt::While(w) => {
+                record_position_calls_in_expr(w.condition(), &scope, out);
+                collect_position_guards(w.block(), &scope, out);
+            }
+            Stmt::Repeat(r) => {
+                record_position_calls_in_expr(r.until(), &scope, out);
+                collect_position_guards(r.block(), &scope, out);
+            }
+            Stmt::NumericFor(nf) => collect_position_guards(nf.block(), &scope, out),
+            Stmt::GenericFor(gf) => collect_position_guards(gf.block(), &scope, out),
+            Stmt::Do(d) => collect_position_guards(d.block(), &scope, out),
+            Stmt::LocalAssignment(la) => {
+                for e in la.expressions() {
+                    record_position_calls_in_expr(e, &scope, out);
+                }
+            }
+            Stmt::Assignment(a) => {
+                for e in a.expressions() {
+                    record_position_calls_in_expr(e, &scope, out);
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+/// Intersect `recv`'s admitted set with `set` (absent = every position).
+fn narrow(scope: &mut BTreeMap<String, PositionSet>, recv: String, set: PositionSet) {
+    let cur = scope.get(&recv).copied().unwrap_or(PositionSet::ALL);
+    scope.insert(recv, cur.intersect(set));
+}
+
+/// Apply every position atom among the top-level `and` conjuncts of a
+/// guard condition.
+fn apply_guard_conjuncts(cond: &Expression, scope: &mut BTreeMap<String, PositionSet>) {
+    for conjunct in top_level_operands(cond, true) {
+        if let Some((recv, set)) = PositionSet::from_guard_atom(&conjunct) {
+            narrow(scope, recv, set);
+        }
+    }
+}
+
+/// The operand texts of a top-level `and` chain (`and_chain`) or `or`
+/// chain, parentheses stripped. A lone expression is its own single
+/// operand.
+fn top_level_operands(expr: &Expression, and_chain: bool) -> Vec<String> {
+    match expr {
+        Expression::Parentheses { expression, .. } => top_level_operands(expression, and_chain),
+        Expression::BinaryOperator { lhs, binop, rhs }
+            if matches!(
+                (binop, and_chain),
+                (ast::BinOp::And(_), true) | (ast::BinOp::Or(_), false)
+            ) =>
+        {
+            let mut v = top_level_operands(lhs, and_chain);
+            v.extend(top_level_operands(rhs, and_chain));
+            v
+        }
+        other => vec![other.to_string().trim().to_string()],
+    }
+}
+
+fn record_position_call(
+    fc: &FunctionCall,
+    scope: &BTreeMap<String, PositionSet>,
+    out: &mut BTreeMap<String, PositionSet>,
+) {
+    let Some(call) = duel_call_from_fc(fc) else { return };
+    if call.method != "Duel.ChangePosition" { return }
+    let Some(raw) = call.args.first() else { return };
+    let base = raw.split([':', '.']).next().unwrap_or(raw).trim().to_string();
+    let admitted = scope.get(&base).copied().unwrap_or(PositionSet::ALL);
+    let merged = out.get(&base).map_or(admitted, |prev| prev.union(admitted));
+    out.insert(base, merged);
+}
+
+fn record_position_calls_in_expr(
+    expr: &Expression,
+    scope: &BTreeMap<String, PositionSet>,
+    out: &mut BTreeMap<String, PositionSet>,
+) {
+    match expr {
+        Expression::FunctionCall(fc) => record_position_call(fc, scope, out),
+        Expression::BinaryOperator { lhs, rhs, .. } => {
+            record_position_calls_in_expr(lhs, scope, out);
+            record_position_calls_in_expr(rhs, scope, out);
+        }
+        Expression::UnaryOperator { expression, .. }
+        | Expression::Parentheses { expression, .. } => {
+            record_position_calls_in_expr(expression, scope, out);
+        }
+        _ => {}
+    }
+}
+
+/// The current-position restriction a RENDERED selector carries:
+/// a `where` clause naming `is_face_up` / `is_face_down` as a positive
+/// conjunct. Any `or`, or a negated atom, yields no restriction
+/// (conservative).
+fn selector_position_set(selector: &str) -> PositionSet {
+    let Some((_, wheres)) = selector.split_once("where ") else { return PositionSet::ALL };
+    if wheres.contains(" or ") { return PositionSet::ALL }
+    let mut set = PositionSet::ALL;
+    for (atom, restriction) in [
+        ("is_face_up", PositionSet::FACEUP),
+        ("is_face_down", PositionSet::FACEDOWN),
+    ] {
+        let mut search = 0;
+        while let Some(i) = wheres[search..].find(atom) {
+            let start = search + i;
+            let end = start + atom.len();
+            let whole = wheres[end..]
+                .chars()
+                .next()
+                .map_or(true, |c| !(c.is_alphanumeric() || c == '_'));
+            let negated = wheres[..start].ends_with("not ");
+            if whole && !negated {
+                set = set.intersect(restriction);
+            }
+            search = end;
+        }
+    }
+    set
+}
+
+/// `Duel.ChangePosition(targets, au[, ad, du, dd[, noflip[, setavail]]])`
+/// → `change_position <sel> [to <pos>]` (T38 S7; matrix decode T39 S2).
 ///
-/// ocgcore signature: `(targets, au[, ad, du, dd[, noflip]])` — one
-/// position arg applies uniformly; four are a per-current-position
-/// matrix (face-up attack → au, face-down attack → ad, face-up defense
-/// → du, face-down defense → dd).
+/// ocgcore semantics: `au` applies to cards currently in face-up
+/// attack, `ad` to face-down attack, `du` to face-up defense, `dd` to
+/// face-down defense; a missing arm defaults to `au`; a `0` arm leaves
+/// that position unchanged; `noflip` suppresses FLIP effects.
 ///
-///   - Uniform literal POS_* → `to <battle_position>`.
-///   - The canonical face-up TOGGLE matrix
-///     `(POS_FACEUP_DEFENSE, 0, POS_FACEUP_ATTACK, 0)` → the bare
-///     `change_position <sel>` form (`Action::ChangePosition(None)`
-///     compiles to the engine's toggle).
-///   - Everything else skips as a TODO: non-literal / composite
-///     positions (`POS_FACEUP`, SelectPosition locals), non-toggle
-///     matrices (they flip face-down cards), and noflip variants. The
-///     pre-S7 arm emitted the bare form for ALL of these — a bare line
-///     TOGGLES, so a 4-arg matrix read as its second argument or an
-///     unrecognized uniform position was a latent mis-emit.
+/// Ruling (docs/STORIES.md, T39 S2): `change_position <sel> to <pos>`
+/// puts every selected monster in `<pos>`; the bare form is the
+/// game-rule "change its battle position" — face-up attack ↔ face-up
+/// defense, and a face-down monster is flipped to face-up ATTACK (Card
+/// Rotator's parenthetical). Face-down attack is unreachable in play;
+/// the `ad` arm is ignored.
+///
+/// Decode: restrict the matrix to the current positions the selector
+/// admits (body guards on the argument variable, `position_guards`,
+/// plus `is_face_up` / `is_face_down` in the rendered selector), then
+///   - every admitted arm the same literal position → `to <pos>`;
+///   - the admitted arms exactly the ruling's toggle → bare form;
+///   - anything else → TODO: non-literal / composite positions
+///     (`POS_FACEUP`, SelectPosition locals), `noflip`, a face-up-only
+///     toggle `(FU_DEF, 0, FU_ATK, 0)` on a selector that admits
+///     face-down cards (the bare form would flip them), face-down
+///     attack as the only admitted position, and receivers DERIVED
+///     from the host (`c:GetEquipTarget()`) that `group_arg` would
+///     render as `self`.
 fn action_change_position(args: &[String], body: &FunctionBody) -> DslLine {
-    let Some(target) = group_arg(args, 0, body) else {
+    let raw = args.first().map(|s| s.trim()).unwrap_or("");
+    let target = if raw.starts_with("c:") || raw.starts_with("c.") {
+        None
+    } else {
+        group_arg(args, 0, body)
+    };
+    let Some(target) = target else {
         return DslLine::Todo(format!(
             "Duel.ChangePosition({}) — target provenance unknown",
             args.join(", ")
         ));
     };
-    match args.len() {
-        2 => {
-            let to = match args[1].trim() {
-                "POS_FACEUP_ATTACK"    => "attack_position",
-                "POS_FACEUP_DEFENSE"   => "defense_position",
-                "POS_FACEDOWN_DEFENSE" => "face_down_defense",
-                other => {
-                    return DslLine::Todo(format!(
-                        "Duel.ChangePosition(…, {}) — position has no battle_position token",
-                        other
-                    ));
-                }
-            };
-            DslLine::Action(format!("change_position {} to {}", target, to))
-        }
-        5 => {
-            let quad: Vec<&str> = args[1..5].iter().map(|s| s.trim()).collect();
-            if quad == ["POS_FACEUP_DEFENSE", "0", "POS_FACEUP_ATTACK", "0"] {
-                DslLine::Action(format!("change_position {}", target))
-            } else {
-                DslLine::Todo(format!(
-                    "Duel.ChangePosition({}) — non-toggle position matrix",
-                    args.join(", ")
-                ))
-            }
-        }
-        _ => DslLine::Todo(format!(
+    if args.len() < 2 {
+        return DslLine::Todo(format!(
             "Duel.ChangePosition({}) — unrecognized argument shape",
             args.join(", ")
-        )),
+        ));
+    }
+    if args.len() > 5 {
+        return DslLine::Todo(format!(
+            "Duel.ChangePosition({}) — noflip / setavailable flags have no DSL surface",
+            args.join(", ")
+        ));
+    }
+    // Arms indexed by position bit (FU_ATK, FD_ATK, FU_DEF, FD_DEF);
+    // a missing arm defaults to `au`, a `0` arm to the position itself.
+    let mut arms = [0u8; 4];
+    for (i, arm) in arms.iter_mut().enumerate() {
+        let text = args.get(1 + i).unwrap_or(&args[1]).trim();
+        let Some(pos) = position_literal(text) else {
+            return DslLine::Todo(format!(
+                "Duel.ChangePosition(…, {}) — position has no battle_position token",
+                text
+            ));
+        };
+        *arm = if pos == 0 { 1 << i } else { pos };
+    }
+    let base = raw.split([':', '.']).next().unwrap_or(raw).trim();
+    let admitted = body
+        .position_guards
+        .get(base)
+        .copied()
+        .unwrap_or(PositionSet::ALL)
+        .intersect(selector_position_set(&target))
+        .intersect(PositionSet(PositionSet::ALL.0 & !PositionSet::FACEDOWN_ATTACK));
+    let effective: Vec<(u8, u8)> = (0..4u8)
+        .map(|i| (1 << i, arms[i as usize]))
+        .filter(|(pos, _)| admitted.contains(*pos))
+        .collect();
+    let Some(&(_, first)) = effective.first() else {
+        return DslLine::Todo(format!(
+            "Duel.ChangePosition({}) — selector admits no decodable position",
+            args.join(", ")
+        ));
+    };
+    if effective.iter().all(|&(pos, arm)| arm == pos) {
+        // Every admitted arm is `0` / the position itself: the call
+        // never moves a card the selector can pick. An action line
+        // here would be a spurious position change.
+        return DslLine::Todo(format!(
+            "Duel.ChangePosition({}) — no-op for the selector's positions",
+            args.join(", ")
+        ));
+    }
+    if effective.iter().all(|&(_, arm)| arm == first) {
+        if let Some(to) = battle_position_token(first) {
+            return DslLine::Action(format!("change_position {} to {}", target, to));
+        }
+    } else if effective.iter().all(|&(pos, arm)| arm == toggle_of(pos)) {
+        return DslLine::Action(format!("change_position {}", target));
+    }
+    DslLine::Todo(format!(
+        "Duel.ChangePosition({}) — position matrix not expressible for the selector's positions",
+        args.join(", ")
+    ))
+}
+
+/// A literal `POS_*` arm (or `0`) as its ocgcore bit.
+fn position_literal(text: &str) -> Option<u8> {
+    match text {
+        "0" => Some(0),
+        "POS_FACEUP_ATTACK"    => Some(PositionSet::FACEUP_ATTACK),
+        "POS_FACEDOWN_ATTACK"  => Some(PositionSet::FACEDOWN_ATTACK),
+        "POS_FACEUP_DEFENSE"   => Some(PositionSet::FACEUP_DEFENSE),
+        "POS_FACEDOWN_DEFENSE" => Some(PositionSet::FACEDOWN_DEFENSE),
+        _ => None,
+    }
+}
+
+/// The grammar's `battle_position` token for a position bit; face-down
+/// attack has none.
+fn battle_position_token(pos: u8) -> Option<&'static str> {
+    match pos {
+        PositionSet::FACEUP_ATTACK    => Some("attack_position"),
+        PositionSet::FACEUP_DEFENSE   => Some("defense_position"),
+        PositionSet::FACEDOWN_DEFENSE => Some("face_down_defense"),
+        _ => None,
+    }
+}
+
+/// Where the bare `change_position` form sends a card in `pos` (the
+/// T39 S2 ruling).
+fn toggle_of(pos: u8) -> u8 {
+    match pos {
+        PositionSet::FACEUP_ATTACK => PositionSet::FACEUP_DEFENSE,
+        _ => PositionSet::FACEUP_ATTACK,
     }
 }
 
@@ -20993,6 +21307,303 @@ end
         );
     }
 
+    /// T39 S2 helper: every line the handler translates to, as text,
+    /// with TODOs prefixed `TODO:` so a test can assert the verdict.
+    fn t39_lines(src: &str, handler: &str) -> Vec<String> {
+        let parsed = full_moon::parse(src).expect("parse");
+        let report = walk(&parsed);
+        let body = report.functions.get(handler).expect("handler body");
+        translate_body_with_functions(body, &report.functions)
+            .into_iter()
+            .map(|l| match l {
+                DslLine::Action(s) => s,
+                DslLine::Todo(s) => format!("TODO: {}", s),
+            })
+            .collect()
+    }
+
+    #[test]
+    fn t39_s2_change_position_ruling_toggle_unrestricted() {
+        // "target 1 monster on the field; change its battle position"
+        // (Wizard @Ignister / Dream Cicada): the corpus spells the
+        // game-rule toggle as (FU_DEF, FD_DEF|FU_ATK, FU_ATK, FU_ATK) —
+        // the `ad` arm varies, the rest IS the bare-form ruling. No
+        // selector restriction needed.
+        for matrix in [
+            "POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK",
+            "POS_FACEUP_DEFENSE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK",
+        ] {
+            let src = format!(r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) then
+        Duel.ChangePosition(tc,{matrix})
+    end
+end
+function s.selfop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if c:IsRelateToEffect(e) then
+        Duel.ChangePosition(c,{matrix})
+    end
+end
+"#);
+            assert_eq!(t39_lines(&src, "s.posop"), vec!["change_position target"]);
+            assert_eq!(t39_lines(&src, "s.selfop"), vec!["change_position self"]);
+        }
+    }
+
+    #[test]
+    fn t39_s2_change_position_faceup_toggle_needs_restriction() {
+        // (FU_DEF, 0, FU_ATK, 0) leaves face-down cards alone; the bare
+        // form flips them. Exact only when the selector admits face-up
+        // cards alone — a body guard or a `where is_face_up` clause.
+        let unguarded = r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) then
+        Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,0,POS_FACEUP_ATTACK,0)
+    end
+end
+"#;
+        assert_eq!(
+            t39_lines(unguarded, "s.posop"),
+            vec!["TODO: Duel.ChangePosition(tc, POS_FACEUP_DEFENSE, 0, POS_FACEUP_ATTACK, 0) — position matrix not expressible for the selector's positions"],
+        );
+        let guarded = r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc and tc:IsFaceup() and tc:IsRelateToEffect(e) then
+        Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,0,POS_FACEUP_ATTACK,0)
+    end
+end
+"#;
+        assert_eq!(t39_lines(guarded, "s.posop"), vec!["change_position target"]);
+        // Zero Gravity: the group filter carries the restriction.
+        let filtered = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local sg=Duel.GetMatchingGroup(Card.IsFaceup,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+    if #sg>0 then
+        Duel.ChangePosition(sg,POS_FACEUP_DEFENSE,0,POS_FACEUP_ATTACK,0)
+    end
+end
+"#;
+        assert_eq!(
+            t39_lines(filtered, "s.activate"),
+            vec!["change_position (all, card, either controls, from monster_zone, where is_face_up)"],
+        );
+        // Same matrix on an unfiltered field group: the rendered
+        // selector admits face-down cards → skip.
+        let unfiltered = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local sg=Duel.GetMatchingGroup(aux.TRUE,tp,LOCATION_MZONE,LOCATION_MZONE,nil)
+    if #sg>0 then
+        Duel.ChangePosition(sg,POS_FACEUP_DEFENSE,0,POS_FACEUP_ATTACK,0)
+    end
+end
+"#;
+        assert!(
+            t39_lines(unfiltered, "s.activate").iter().all(|l| l.starts_with("TODO:")),
+            "unfiltered group must skip: {:?}", t39_lines(unfiltered, "s.activate"),
+        );
+    }
+
+    #[test]
+    fn t39_s2_change_position_matrix_collapses_to_position() {
+        // Every admitted arm agreeing on one literal position collapses
+        // to the `to <pos>` form; `0` arms are the position itself and
+        // missing arms default to `au` (ocgcore).
+        for (src, handler, expect) in [
+            // Worm Erokin: face-up guard, both face-up arms FD_DEF.
+            (r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc and tc:IsFaceup() and tc:IsRelateToEffect(e) then
+        Duel.ChangePosition(tc,POS_FACEDOWN_DEFENSE,0,POS_FACEDOWN_DEFENSE,0)
+    end
+end
+"#, "s.posop", "change_position target to face_down_defense"),
+            // Stop Defense: `not IsAttackPos` admits the defense arms.
+            (r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) and not tc:IsAttackPos() then
+        Duel.ChangePosition(tc,0,0,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
+    end
+end
+"#, "s.activate", "change_position target to attack_position"),
+            // Worm Barses: IsDefensePos guard.
+            (r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc and tc:IsDefensePos() and tc:IsRelateToEffect(e) then
+        Duel.ChangePosition(tc,0,0,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
+    end
+end
+"#, "s.posop", "change_position target to attack_position"),
+            // Blackwing Fane: IsAttackPos guard, defense-keeping-face matrix.
+            (r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc and tc:IsRelateToEffect(e) and tc:IsAttackPos() then
+        Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE)
+    end
+end
+"#, "s.operation", "change_position target to defense_position"),
+            // Performage Water Dancer: IsAttackPos guard, 0 defense arms.
+            (r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) and tc:IsAttackPos() then
+        Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE,0,0)
+    end
+end
+"#, "s.posop", "change_position target to defense_position"),
+            // Reptilianne Naga: face-up defense only admitted.
+            (r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if c:IsFaceup() and c:IsRelateToEffect(e) and c:IsDefensePos() then
+        Duel.ChangePosition(c,0,0,POS_FACEUP_ATTACK,0)
+    end
+end
+"#, "s.posop", "change_position self to attack_position"),
+            // Constellar Hyades: uniform four-arm matrix, no restriction.
+            (r#"
+function s.operation(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(aux.TRUE,tp,0,LOCATION_MZONE,nil)
+    Duel.ChangePosition(g,POS_FACEUP_DEFENSE,POS_FACEUP_DEFENSE,POS_FACEUP_DEFENSE,POS_FACEUP_DEFENSE)
+end
+"#, "s.operation", "change_position (all, card, opponent controls, from monster_zone) to defense_position"),
+            // Dark-Piercing Light: face-down group, the dd arm decides.
+            (r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(Card.IsFacedown,tp,0,LOCATION_MZONE,nil)
+    if #g>0 then
+        Duel.ChangePosition(g,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK,POS_FACEUP_DEFENSE,POS_FACEUP_DEFENSE)
+    end
+end
+"#, "s.activate", "change_position (all, card, opponent controls, from monster_zone, where is_face_down) to defense_position"),
+            // Soldier Gaia: 3-arg form, du/dd default to au.
+            (r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) then
+        Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE)
+    end
+end
+"#, "s.posop", "change_position target to defense_position"),
+        ] {
+            assert_eq!(t39_lines(src, handler), vec![expect], "source:\n{}", src);
+        }
+    }
+
+    #[test]
+    fn t39_s2_change_position_early_out_guard_narrows_rest_of_block() {
+        // `if A or B then return end` — the statements after it run
+        // under ¬A ∧ ¬B, so `c:IsFacedown()` in the early-out admits
+        // face-up cards only for the toggle that follows.
+        let src = r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if not c:IsRelateToEffect(e) or c:IsFacedown() then return end
+    Duel.ChangePosition(c,POS_FACEUP_DEFENSE,0,POS_FACEUP_ATTACK,0)
+end
+"#;
+        assert_eq!(t39_lines(src, "s.posop"), vec!["change_position self"]);
+        // The narrowing is scoped: a guard on a DIFFERENT variable, or a
+        // second unguarded call site on the same variable, admits every
+        // position again (union across sites).
+        let other_var = r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local c=e:GetHandler()
+    if tc:IsFaceup() and c:IsRelateToEffect(e) then
+        Duel.ChangePosition(c,POS_FACEUP_DEFENSE,0,POS_FACEUP_ATTACK,0)
+    end
+end
+"#;
+        assert!(t39_lines(other_var, "s.posop").iter().all(|l| l.starts_with("TODO:")));
+        let two_sites = r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if c:IsFaceup() then
+        Duel.ChangePosition(c,POS_FACEUP_DEFENSE,0,POS_FACEUP_ATTACK,0)
+    end
+    Duel.ChangePosition(c,POS_FACEUP_DEFENSE,0,POS_FACEUP_ATTACK,0)
+end
+"#;
+        assert!(t39_lines(two_sites, "s.posop").iter().all(|l| l.starts_with("TODO:")));
+    }
+
+    #[test]
+    fn t39_s2_change_position_skips() {
+        for (src, why) in [
+            (r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) then
+        Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK,true)
+    end
+end
+"#, "noflip flag (Flip effects not activated) has no surface"),
+            (r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if c:IsRelateToEffect(e) then
+        Duel.ChangePosition(c:GetEquipTarget(),POS_FACEUP_DEFENSE,0,POS_FACEUP_ATTACK,0)
+    end
+end
+"#, "equip target derived from the host is not `self`"),
+            (r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    Duel.ChangePosition(tc,POS_FACEDOWN_ATTACK)
+end
+"#, "face-down attack has no battle_position token"),
+            (r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) then
+        Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE,0,0)
+    end
+end
+"#, "to-defense-keeping-face on an unrestricted target"),
+            (r#"
+function s.posop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsFacedown() then
+        Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,0,POS_FACEUP_ATTACK,0)
+    end
+end
+"#, "face-down guard with a 0 dd arm: nothing to express"),
+        ] {
+            let lines = t39_lines(src, "s.posop");
+            assert!(!lines.is_empty() && lines.iter().all(|l| l.starts_with("TODO:")),
+                "{} must skip: {:?}", why, lines);
+        }
+    }
+
+    #[test]
+    fn t39_s2_selector_position_set() {
+        assert_eq!(
+            selector_position_set("(all, card, you control, from monster_zone, where is_face_up and archetype == \"X\")"),
+            PositionSet::FACEUP,
+        );
+        assert_eq!(
+            selector_position_set("(1, card, opponent controls, from monster_zone, where is_face_down)"),
+            PositionSet::FACEDOWN,
+        );
+        for unrestricted in [
+            "target",
+            "self",
+            "(all, card, you control, from monster_zone)",
+            "(all, card, you control, from monster_zone, where not is_face_up)",
+            "(all, card, you control, from monster_zone, where is_face_up or is_xyz)",
+        ] {
+            assert_eq!(selector_position_set(unrestricted), PositionSet::ALL, "{}", unrestricted);
+        }
+    }
+
     #[test]
     fn s7_change_position_unrecognized_shapes_todo() {
         // Pre-S7 these all emitted a line: the 4-arg matrix was read as
@@ -21004,9 +21615,9 @@ end
             (r#"
 function s.posop(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstTarget()
-    Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE,POS_FACEUP_ATTACK,POS_FACEUP_ATTACK)
+    Duel.ChangePosition(tc,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE,POS_FACEUP_DEFENSE,POS_FACEDOWN_DEFENSE)
 end
-"#, "non-toggle matrix (flips face-down cards)"),
+"#, "to-defense-keeping-face matrix on an unrestricted target"),
             (r#"
 function s.posop(e,tp,eg,ep,ev,re,r,rp)
     local tc=Duel.GetFirstTarget()
