@@ -164,6 +164,18 @@ pub struct FunctionBody {
     /// UNION of their sets (looser = conservative). Absent = no guard
     /// (every position possible).
     pub position_guards: BTreeMap<String, PositionSet>,
+    /// T39 S5 — the modal fork in this body, when any `if` / `elseif`
+    /// condition (at any depth) reads a runtime choice — a
+    /// `Duel.SelectEffect` / `SelectOption` / `SelectYesNo` /
+    /// `SelectEffectYesNo` prompt, directly or through a local bound
+    /// to one, or the stored `e:GetLabel()` — and at least one arm of
+    /// that `if` carries effectful content. Carries the discriminant
+    /// (`Duel.SelectEffect`, `e:GetLabel()`, …). The flat body walk
+    /// collects every arm's statements in sequence, so a fill from such
+    /// a body is the UNION of mutually exclusive arms — `body_drop_reasons`
+    /// refuses it (`BodyDrop::ModalBranch`) unless the Phase 16 choose
+    /// path decoded the dispatch first.
+    pub modal_fork: Option<String>,
 }
 
 /// Bitset over the four battle positions, ocgcore `POS_*` bit layout
@@ -1946,29 +1958,54 @@ fn refine_spec(
 }
 
 thread_local! {
-    /// Pre-T39 selector policy switch — audit instrument ONLY
+    /// Pre-T39 policy switches — audit instrument ONLY
     /// (`lua_translate audit-fills` renders each shipped block under
-    /// both policies to recognise machine fills the gate or the
-    /// widening invalidated). Never set on a translation path.
-    static LEGACY_SELECTOR_POLICY: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+    /// the legacy policies to recognise machine fills a gate or a
+    /// widening invalidated). A bitset so each flip can be reverted on
+    /// its own: a block refilled under S4's exact discard line but
+    /// before S5's Release refusal matches only the Release-only
+    /// legacy rendering. Never set on a translation path.
+    static LEGACY_POLICY: std::cell::Cell<u8> = const { std::cell::Cell::new(0) };
     /// The card whose script is being translated — resolves the
     /// script-global `id` in `IsCode(id)` filters.
     static CURRENT_CARD: std::cell::Cell<Option<u32>> = const { std::cell::Cell::new(None) };
 }
 
+/// T39 S3 / S4 flips: named filters refine only on group-provenance
+/// specs (exact matches), action selectors render the unfiltered
+/// superset, `Duel.DiscardHand` renders its fixed pre-S4 line.
+const LEGACY_SELECTOR: u8 = 1;
+/// T39 S5 flip: `Duel.Release` renders `send … to gy`.
+const LEGACY_RELEASE: u8 = 2;
+
 fn legacy_selector_policy() -> bool {
-    LEGACY_SELECTOR_POLICY.with(|c| c.get())
+    LEGACY_POLICY.with(|c| c.get() & LEGACY_SELECTOR != 0)
 }
 
-/// Run `f` under the pre-T39 selector policy: named filters refine
-/// only on group-provenance specs (exact matches), action selectors
-/// render the unfiltered superset, no fill gate. See
-/// [`LEGACY_SELECTOR_POLICY`].
-pub fn with_legacy_selector_policy<R>(f: impl FnOnce() -> R) -> R {
-    LEGACY_SELECTOR_POLICY.with(|c| c.set(true));
+fn legacy_release_policy() -> bool {
+    LEGACY_POLICY.with(|c| c.get() & LEGACY_RELEASE != 0)
+}
+
+fn with_legacy_policy<R>(bits: u8, f: impl FnOnce() -> R) -> R {
+    let prev = LEGACY_POLICY.with(|c| c.replace(bits));
     let r = f();
-    LEGACY_SELECTOR_POLICY.with(|c| c.set(false));
+    LEGACY_POLICY.with(|c| c.set(prev));
     r
+}
+
+/// Run `f` under EVERY pre-T39 policy at once (the S3 selector
+/// widening, the S4 discard line and the S5 Release refusal all
+/// reverted) — the rendering a block shipped before T39 S3 carried.
+/// See [`LEGACY_POLICY`].
+pub fn with_legacy_selector_policy<R>(f: impl FnOnce() -> R) -> R {
+    with_legacy_policy(LEGACY_SELECTOR | LEGACY_RELEASE, f)
+}
+
+/// Run `f` with only the T39 S5 Release refusal reverted (`Duel.Release`
+/// → `send … to gy`, every other policy current) — the rendering a
+/// block refilled between S4 (#171) and S5 carried.
+pub fn with_legacy_release_policy<R>(f: impl FnOnce() -> R) -> R {
+    with_legacy_policy(LEGACY_RELEASE, f)
 }
 
 /// Set the passcode of the card being translated (None clears it).
@@ -2703,6 +2740,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
             let staleness_guard_flag = staleness_guard_flag_of(body_block);
             let staleness_guard = staleness_guard_flag.is_some();
             let position_guards = extract_position_guards(body_block);
+            let modal_fork = extract_modal_fork(body_block);
             // SetLabel-linked form (target side) and op-side inline form
             // are mutually exclusive in practice — a body matching both
             // would need two SelectOption calls, which both reject.
@@ -2743,6 +2781,7 @@ fn walk_stmt(stmt: &Stmt, report: &mut LuaReport) {
                     staleness_guard,
                     staleness_guard_flag,
                     position_guards,
+                    modal_fork,
                 });
             }
         }
@@ -6453,6 +6492,215 @@ fn block_is_bare_return(block: &Block) -> bool {
         && matches!(block.last_stmt(), Some(LastStmt::Return(r)) if r.returns().is_empty())
 }
 
+// ── T39 S5: modal-branch detection ───────────────────────────
+
+/// The `Duel.Select*` prompts whose RESULT selects between statement
+/// arms at resolution (T39 S5). `Duel.SelectOption` is the Phase 16
+/// choose shape; the others have no `choose` decoding today.
+const MODAL_SELECT_CALLS: &[&str] = &[
+    "Duel.SelectEffect",
+    "Duel.SelectOption",
+    "Duel.SelectYesNo",
+    "Duel.SelectEffectYesNo",
+];
+
+/// True when `needle` occurs in `hay` at a position not preceded by an
+/// identifier character — `e:GetLabel()` must not match `re:GetLabel()`
+/// (the reason effect's label is a different datum).
+fn contains_standalone(hay: &str, needle: &str) -> bool {
+    let mut from = 0;
+    while let Some(i) = hay[from..].find(needle) {
+        let at = from + i;
+        let prev_ident = hay[..at].chars().next_back()
+            .is_some_and(|c| c.is_alphanumeric() || c == '_');
+        if !prev_ident { return true; }
+        from = at + needle.len();
+    }
+    false
+}
+
+/// The modal discriminant an expression carries, by text: the first
+/// prompt of [`MODAL_SELECT_CALLS`], else the stored `e:GetLabel()`.
+/// A `GetFlagEffectLabel(…) ==/~= e:GetLabel()` comparison is the
+/// T38 S8 staleness idiom (same-instance check), not a choice — the
+/// label half is ignored there.
+fn modal_discriminant_in_text(text: &str) -> Option<&'static str> {
+    let s: String = text.chars().filter(|c| !c.is_whitespace()).collect();
+    for m in MODAL_SELECT_CALLS {
+        if s.contains(&format!("{}(", m)) { return Some(m); }
+    }
+    if !s.contains("FlagEffectLabel(") && contains_standalone(&s, "e:GetLabel()") {
+        return Some("e:GetLabel()");
+    }
+    None
+}
+
+/// True when identifier `name` occurs as a whole token in `text` that
+/// is not a field / method name (`x.name`, `x:name`).
+fn text_references_ident(text: &str, name: &str) -> bool {
+    let bytes = text.as_bytes();
+    let mut from = 0;
+    while let Some(i) = text[from..].find(name) {
+        let at = from + i;
+        let end = at + name.len();
+        let before = if at == 0 { None } else { Some(bytes[at - 1] as char) };
+        let after = bytes.get(end).map(|b| *b as char);
+        let bounded = !before.is_some_and(|c| c.is_alphanumeric() || c == '_' || c == '.' || c == ':')
+            && !after.is_some_and(|c| c.is_alphanumeric() || c == '_');
+        if bounded { return true; }
+        from = end;
+    }
+    false
+}
+
+/// Every local / assigned name whose RHS carries a modal discriminant
+/// (`local op=Duel.SelectEffect(…)`, `local op=e:GetLabel()`,
+/// `local sel=Duel.SelectYesNo(…) and …`), at any depth, mapped to
+/// that discriminant.
+fn collect_modal_locals(block: &Block, out: &mut BTreeMap<String, &'static str>) {
+    for stmt in block.stmts() {
+        match stmt {
+            Stmt::LocalAssignment(la) => {
+                let exprs: Vec<&Expression> = la.expressions().iter().collect();
+                for (i, name) in la.names().iter().enumerate() {
+                    let Some(expr) = exprs.get(i) else { continue };
+                    if let Some(d) = modal_discriminant_in_text(&expr.to_string()) {
+                        out.insert(name.token().to_string(), d);
+                    }
+                }
+            }
+            Stmt::Assignment(a) => {
+                let exprs: Vec<&Expression> = a.expressions().iter().collect();
+                for (i, var) in a.variables().iter().enumerate() {
+                    let Some(expr) = exprs.get(i) else { continue };
+                    if let Some(d) = modal_discriminant_in_text(&expr.to_string()) {
+                        out.insert(var.to_string().trim().to_string(), d);
+                    }
+                }
+            }
+            Stmt::If(if_stmt) => {
+                collect_modal_locals(if_stmt.block(), out);
+                for ei in if_stmt.else_if().into_iter().flatten() {
+                    collect_modal_locals(ei.block(), out);
+                }
+                if let Some(eb) = if_stmt.else_block() { collect_modal_locals(eb, out); }
+            }
+            Stmt::While(w) => collect_modal_locals(w.block(), out),
+            Stmt::Repeat(r) => collect_modal_locals(r.block(), out),
+            Stmt::NumericFor(nf) => collect_modal_locals(nf.block(), out),
+            Stmt::GenericFor(gf) => collect_modal_locals(gf.block(), out),
+            Stmt::Do(d) => collect_modal_locals(d.block(), out),
+            _ => {}
+        }
+    }
+}
+
+/// The discriminant a condition reads: a prompt / label in its own
+/// text, or a reference to a modal local.
+fn condition_discriminant(
+    cond: &Expression,
+    modal_locals: &BTreeMap<String, &'static str>,
+) -> Option<&'static str> {
+    let text = cond.to_string();
+    if let Some(d) = modal_discriminant_in_text(&text) { return Some(d); }
+    modal_locals.iter()
+        .find(|(name, _)| text_references_ident(&text, name))
+        .map(|(_, d)| *d)
+}
+
+/// True when a `RegisterEffect` commit (card-method or `Duel.`) sits
+/// at statement level anywhere in the block — a chain created outside
+/// the arm but committed inside it is arm content the chain extractor
+/// may not attribute to the arm.
+fn block_has_register_call(block: &Block) -> bool {
+    for stmt in block.stmts() {
+        let found = match stmt {
+            Stmt::FunctionCall(fc) =>
+                try_register_effect_call(fc).is_some() || try_duel_register_effect_call(fc).is_some(),
+            Stmt::If(if_stmt) =>
+                block_has_register_call(if_stmt.block())
+                    || if_stmt.else_if().into_iter().flatten().any(|ei| block_has_register_call(ei.block()))
+                    || if_stmt.else_block().is_some_and(block_has_register_call),
+            Stmt::While(w) => block_has_register_call(w.block()),
+            Stmt::Repeat(r) => block_has_register_call(r.block()),
+            Stmt::NumericFor(nf) => block_has_register_call(nf.block()),
+            Stmt::GenericFor(gf) => block_has_register_call(gf.block()),
+            Stmt::Do(d) => block_has_register_call(d.block()),
+            _ => false,
+        };
+        if found { return true; }
+    }
+    false
+}
+
+/// True when the block carries anything the body walk would turn into
+/// resolve content: a `Duel.*` call that is not a cosmetic / query skip
+/// (action or TODO), a register chain or commit, a counter / method op
+/// (or a poisoned family), or a script-local helper call.
+fn block_has_effectful_content(block: &Block) -> bool {
+    if extract_duel_calls(block).iter().any(|c| translate_call(c, &FunctionBody::default()).is_some()) {
+        return true;
+    }
+    if !extract_register_chains(block).is_empty() || block_has_register_call(block) {
+        return true;
+    }
+    let (counter_ops, counter_poisoned) = extract_counter_ops(block);
+    if !counter_ops.is_empty() || counter_poisoned { return true; }
+    let (method_ops, method_poison) = extract_method_ops(block);
+    if !method_ops.is_empty() || method_poison.is_some() { return true; }
+    !extract_helper_calls(block).is_empty()
+}
+
+/// Find the first `if` whose condition (or an `elseif` condition)
+/// reads a modal discriminant and whose arms carry effectful content.
+/// A `GetLabel`-guarded bare early-out (`if e:GetLabel()==0 then
+/// return end`) is a recorded condition like any `IsRelateToEffect`
+/// guard, not a fork; a prompt in a bare early-out IS one (the
+/// player declines the whole effect).
+fn find_modal_fork(block: &Block, modal_locals: &BTreeMap<String, &'static str>) -> Option<String> {
+    for stmt in block.stmts() {
+        let nested: Vec<&Block> = match stmt {
+            Stmt::If(if_stmt) => {
+                let mut conds: Vec<&Expression> = vec![if_stmt.condition()];
+                let mut arms: Vec<&Block> = vec![if_stmt.block()];
+                for ei in if_stmt.else_if().into_iter().flatten() {
+                    conds.push(ei.condition());
+                    arms.push(ei.block());
+                }
+                if let Some(eb) = if_stmt.else_block() { arms.push(eb); }
+                let disc = conds.iter().find_map(|c| condition_discriminant(c, modal_locals));
+                if let Some(d) = disc {
+                    let bare_early_out = arms.len() == 1 && block_is_bare_return(arms[0]);
+                    let label_guard = d == "e:GetLabel()" && bare_early_out;
+                    if !label_guard
+                        && (bare_early_out || arms.iter().any(|a| block_has_effectful_content(a)))
+                    {
+                        return Some(d.to_string());
+                    }
+                }
+                arms
+            }
+            Stmt::While(w) => vec![w.block()],
+            Stmt::Repeat(r) => vec![r.block()],
+            Stmt::NumericFor(nf) => vec![nf.block()],
+            Stmt::GenericFor(gf) => vec![gf.block()],
+            Stmt::Do(d) => vec![d.block()],
+            _ => Vec::new(),
+        };
+        for b in nested {
+            if let Some(d) = find_modal_fork(b, modal_locals) { return Some(d); }
+        }
+    }
+    None
+}
+
+/// See [`FunctionBody::modal_fork`].
+fn extract_modal_fork(block: &Block) -> Option<String> {
+    let mut modal_locals = BTreeMap::new();
+    collect_modal_locals(block, &mut modal_locals);
+    find_modal_fork(block, &modal_locals)
+}
+
 /// Structural whitelist for one STATEMENT arm. Every statement must be
 /// a shape the per-arm extractors capture — otherwise the emitted
 /// option would silently omit lua behavior. Chain Set*/RegisterEffect
@@ -7035,6 +7283,14 @@ pub enum BodyDrop {
     /// `Duel.X(arg): <residual>`; the pre-T39 policy rendered the
     /// unfiltered superset.
     SelectorFilterUnmapped(String),
+    /// The body branches on a runtime choice (T39 S5 —
+    /// `FunctionBody::modal_fork`): a `Duel.SelectEffect` /
+    /// `SelectOption` / `SelectYesNo` / `SelectEffectYesNo` result or
+    /// the stored `e:GetLabel()` picks between statement arms, and the
+    /// flat walk would emit every arm in sequence. Carries the
+    /// discriminant. Only the Phase 16 choose path (which runs before
+    /// this gate) may render such a body, as a `choose { }` block.
+    ModalBranch(String),
 }
 
 impl BodyDrop {
@@ -7050,6 +7306,7 @@ impl BodyDrop {
             BodyDrop::ChainUnlowered(_) => "chain-unlowered",
             BodyDrop::Interference(_) => "interference",
             BodyDrop::SelectorFilterUnmapped(_) => "selector-filter-unmapped",
+            BodyDrop::ModalBranch(_) => "modal-branch",
         }
     }
 
@@ -7064,7 +7321,8 @@ impl BodyDrop {
             | BodyDrop::HelperUnlowered(s)
             | BodyDrop::ChainUnlowered(s)
             | BodyDrop::Interference(s)
-            | BodyDrop::SelectorFilterUnmapped(s) => s,
+            | BodyDrop::SelectorFilterUnmapped(s)
+            | BodyDrop::ModalBranch(s) => s,
         }
     }
 }
@@ -7144,6 +7402,16 @@ pub fn body_drop_reasons(
     // (expression position) or an either/or dispatch — dropped content.
     if body.counter_ops_poisoned {
         return vec![BodyDrop::CounterPoison];
+    }
+    // T39 S5 — modal-branch gate: the flat walk below (and the emit
+    // loop) collect every `if`-arm's statements in sequence, so a body
+    // whose arms are selected by a player choice or a stored label
+    // would fill the UNION of mutually exclusive arms (Megalith
+    // Anastasis: draw-2-discard-1 AND tribute-an-opponent-monster).
+    // Listed first; the remaining drops still describe the arms'
+    // own blockers for `explain`.
+    if let Some(fork) = &body.modal_fork {
+        drops.push(BodyDrop::ModalBranch(fork.clone()));
     }
     let mut stat_writes: Vec<(String, String)> = Vec::new();
     if !body.method_ops.is_empty() {
@@ -10638,10 +10906,20 @@ fn translate_call(c: &DuelCall, body: &FunctionBody) -> Option<DslLine> {
         // Duel.Remove(target, pos, reason) — banish
         "Duel.Remove" => Some(gated_action(m, a, body, |t| format!("banish {}", t))),
 
-        // Duel.Release(target, reason) — tribute. No DSL `tribute`
-        // action in resolve grammar (only `tribute self` in cost block).
-        // Released cards go to gy; closest semantic action is send-to-gy.
-        "Duel.Release" => Some(gated_action(m, a, body, |t| format!("send {} to gy", t))),
+        // Duel.Release(target, reason) — a resolve-time tribute. The
+        // grammar's `tribute <selector>` is a cost_action only; a
+        // release is not a send-to-GY (it skips cards that cannot be
+        // tributed, fires "when tributed" triggers, is stopped by
+        // tribute floodgates), so the pre-T39 S5 `send … to gy` line
+        // mis-stated the card. Refused until a resolve-time `tribute`
+        // action exists; the cost-side `Duel.Release(c, REASON_COST)`
+        // keeps its cost-block `tribute` lowering.
+        "Duel.Release" if legacy_release_policy() =>
+            Some(gated_action(m, a, body, |t| format!("send {} to gy", t))),
+        "Duel.Release" => Some(DslLine::Todo(format!(
+            "Duel.Release({}) — no resolve-time tribute action (grammar `tribute` is cost-only; `send … to gy` would mis-state a release)",
+            a.join(", ")
+        ))),
 
         // Duel.SpecialSummon(target, sumtype, p1, p2, nocheck, nolimit, pos)
         "Duel.SpecialSummon" => Some(gated_action(m, a, body, |t| format!("special_summon {}", t))),
@@ -11477,6 +11755,241 @@ end
         let body = report.functions.get("s.op").expect("walked");
         assert!(body_drop_reasons(body, &report.functions).is_empty());
         assert!(!body_drops_chains(body, &report.functions));
+    }
+
+    // ── T39 S5 — modal-branch gate ───────────────────────────────
+
+    fn modal_fork_of(src: &str) -> (Option<String>, Vec<BodyDrop>) {
+        let report = walk_src(src);
+        let body = report.functions.get("s.op").expect("walked");
+        (body.modal_fork.clone(), body_drop_reasons(body, &report.functions))
+    }
+
+    #[test]
+    fn modal_branch_select_effect_op_side_refuses_the_flat_fill() {
+        // Two arms picked by a Duel.SelectEffect result: the flat walk
+        // would emit `draw 1` AND `destroy …`; the gate lists the fork
+        // first and names the prompt.
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	local b1=Duel.IsPlayerCanDraw(tp,1)
+	local b2=Duel.IsExistingMatchingCard(Card.IsDestructable,tp,0,LOCATION_MZONE,1,nil)
+	local op=Duel.SelectEffect(tp,{b1,aux.Stringid(id,0)},{b2,aux.Stringid(id,1)})
+	if op==1 then
+		Duel.Draw(tp,1,REASON_EFFECT)
+	elseif op==2 then
+		local g=Duel.SelectMatchingCard(tp,Card.IsDestructable,tp,0,LOCATION_MZONE,1,1,nil)
+		Duel.Destroy(g,REASON_EFFECT)
+	end
+end
+"#;
+        let (fork, drops) = modal_fork_of(src);
+        assert_eq!(fork.as_deref(), Some("Duel.SelectEffect"));
+        assert!(matches!(&drops[0], BodyDrop::ModalBranch(d) if d == "Duel.SelectEffect"), "{:?}", drops);
+        assert_eq!(drops[0].code(), "modal-branch");
+        assert_eq!(drops[0].detail(), "Duel.SelectEffect");
+    }
+
+    #[test]
+    fn modal_branch_get_label_dispatch_refuses_the_flat_fill() {
+        // Megalith Anastasis effop: the label was picked in the target
+        // handler; the op branches on it. Both arms translate on their
+        // own — the union is the mis-emit.
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	local op=e:GetLabel()
+	if op==1 then
+		if Duel.Draw(tp,2,REASON_EFFECT)==2 then
+			Duel.ShuffleHand(tp)
+			Duel.BreakEffect()
+			Duel.DiscardHand(tp,nil,1,1,REASON_EFFECT|REASON_DISCARD)
+		end
+	elseif op==2 then
+		local g=Duel.SelectMatchingCard(tp,Card.IsReleasableByEffect,tp,0,LOCATION_MZONE,1,1,nil)
+		if #g>0 then
+			Duel.Release(g,REASON_EFFECT)
+		end
+	end
+end
+"#;
+        let (fork, drops) = modal_fork_of(src);
+        assert_eq!(fork.as_deref(), Some("e:GetLabel()"));
+        assert!(matches!(&drops[0], BodyDrop::ModalBranch(d) if d == "e:GetLabel()"), "{:?}", drops);
+    }
+
+    #[test]
+    fn modal_branch_select_yes_no_guard_and_early_out() {
+        // "Then you can …": the optional tail inside a SelectYesNo
+        // guard, and the inverted early-out spelling of the same fork.
+        let guard = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Draw(tp,1,REASON_EFFECT)
+	if Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+		Duel.ShuffleHand(tp)
+	end
+end
+"#;
+        let (fork, drops) = modal_fork_of(guard);
+        assert_eq!(fork.as_deref(), Some("Duel.SelectYesNo"));
+        assert!(matches!(&drops[0], BodyDrop::ModalBranch(_)), "{:?}", drops);
+        let early_out = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.GetMatchingGroup(Card.IsAbleToHand,tp,LOCATION_DECK,0,nil)
+	if #g==0 or not Duel.SelectYesNo(tp,aux.Stringid(id,0)) then return end
+	Duel.Draw(tp,1,REASON_EFFECT)
+end
+"#;
+        let (fork, drops) = modal_fork_of(early_out);
+        assert_eq!(fork.as_deref(), Some("Duel.SelectYesNo"));
+        assert!(matches!(&drops[0], BodyDrop::ModalBranch(_)), "{:?}", drops);
+    }
+
+    #[test]
+    fn modal_branch_single_arm_select_option_is_refused_not_chosen() {
+        // A SelectOption whose dispatch has ONE arm: Phase 16 refuses
+        // (no second option arm to render), and the plain fill must
+        // not flatten it either.
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	local opt=Duel.SelectOption(tp,aux.Stringid(id,0),aux.Stringid(id,1))
+	if opt==0 then
+		Duel.Draw(tp,1,REASON_EFFECT)
+	end
+end
+"#;
+        let report = walk_src(src);
+        let body = report.functions.get("s.op").expect("walked");
+        assert!(extract_choose_spec(None, body, &report.functions).is_none());
+        assert_eq!(body.modal_fork.as_deref(), Some("Duel.SelectOption"));
+        assert!(matches!(body_drop_reason(body, &report.functions), Some(BodyDrop::ModalBranch(_))));
+    }
+
+    #[test]
+    fn modal_branch_choose_path_still_decodes_static_select_option() {
+        // Card Shuffle: op-side inline SelectOption with an else arm.
+        // The gate sees the fork, but the Phase 16 extraction (which
+        // Pass A consults first) still yields both options.
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	if not e:GetHandler():IsRelateToEffect(e) then return end
+	local opt=Duel.SelectOption(tp,aux.Stringid(id,1),aux.Stringid(id,2))
+	if opt==0 then
+		Duel.ShuffleDeck(tp)
+	else
+		Duel.ShuffleDeck(1-tp)
+	end
+end
+"#;
+        let report = walk_src(src);
+        let body = report.functions.get("s.op").expect("walked");
+        let spec = extract_choose_spec(None, body, &report.functions).expect("choose");
+        assert_eq!(spec.options.len(), 2);
+        assert_eq!(spec.options[0].0, 1);
+        assert_eq!(spec.options[1].0, 2);
+        assert_eq!(body.modal_fork.as_deref(), Some("Duel.SelectOption"));
+    }
+
+    #[test]
+    fn modal_branch_ignores_label_early_outs_and_staleness_guards() {
+        // `if e:GetLabel()==0 then return end` is a recorded condition
+        // (the IsRelateToEffect class), the flag-label comparison is
+        // the T38 S8 staleness idiom, and `re:GetLabel()` is another
+        // effect's label — none is a fork.
+        let label_guard = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	if e:GetLabel()==0 then return end
+	Duel.Draw(tp,1,REASON_EFFECT)
+end
+"#;
+        assert_eq!(modal_fork_of(label_guard).0, None);
+        let staleness = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	local tc=e:GetLabelObject()
+	if tc:GetFlagEffectLabel(id)==e:GetLabel() and tc:IsRelateToEffect(e) then
+		Duel.Destroy(tc,REASON_EFFECT)
+	end
+end
+"#;
+        assert_eq!(modal_fork_of(staleness).0, None);
+        let reason_effect = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	if re:GetLabel()==1 then
+		Duel.Draw(tp,1,REASON_EFFECT)
+	end
+end
+"#;
+        assert_eq!(modal_fork_of(reason_effect).0, None);
+    }
+
+    #[test]
+    fn modal_branch_ignores_cosmetic_forks() {
+        // A prompt whose arms carry only UI / bookkeeping calls selects
+        // nothing the resolve would state.
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	Duel.Draw(tp,1,REASON_EFFECT)
+	if Duel.SelectYesNo(tp,aux.Stringid(id,0)) then
+		Duel.Hint(HINT_CARD,0,id)
+	end
+end
+"#;
+        let (fork, drops) = modal_fork_of(src);
+        assert_eq!(fork, None);
+        assert!(drops.is_empty(), "{:?}", drops);
+    }
+
+    #[test]
+    fn modal_branch_through_a_label_local_used_in_a_nested_if() {
+        // The label local read inside a loop / wrapper guard still
+        // forks; a chain registered in one arm counts as content.
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	local c=e:GetHandler()
+	local op=e:GetLabel()
+	if c:IsRelateToEffect(e) then
+		if op==1 then
+			local e1=Effect.CreateEffect(c)
+			e1:SetType(EFFECT_TYPE_SINGLE)
+			e1:SetCode(EFFECT_UPDATE_ATTACK)
+			e1:SetValue(500)
+			e1:SetReset(RESET_EVENT|RESETS_STANDARD|RESET_PHASE|PHASE_END)
+			c:RegisterEffect(e1)
+		else
+			Duel.Draw(tp,1,REASON_EFFECT)
+		end
+	end
+end
+"#;
+        let (fork, drops) = modal_fork_of(src);
+        assert_eq!(fork.as_deref(), Some("e:GetLabel()"));
+        assert!(matches!(&drops[0], BodyDrop::ModalBranch(_)), "{:?}", drops);
+    }
+
+    // ── T39 S5 — resolve-time Duel.Release ───────────────────────
+
+    #[test]
+    fn release_in_resolve_is_refused_and_renders_send_only_under_legacy() {
+        let src = r#"
+function s.op(e,tp,eg,ep,ev,re,r,rp)
+	local g=Duel.SelectMatchingCard(tp,Card.IsReleasableByEffect,tp,0,LOCATION_MZONE,1,1,nil)
+	if #g>0 then
+		Duel.Release(g,REASON_EFFECT)
+	end
+end
+"#;
+        let report = walk_src(src);
+        let body = report.functions.get("s.op").expect("walked");
+        let lines = translate_body_with_functions(body, &report.functions);
+        assert_eq!(lines.len(), 1, "{:?}", lines);
+        assert!(matches!(&lines[0], DslLine::Todo(t) if t.contains("Duel.Release(g, REASON_EFFECT)") && t.contains("no resolve-time tribute action")), "{:?}", lines);
+        let legacy = with_legacy_release_policy(|| translate_body_with_functions(body, &report.functions));
+        assert_eq!(legacy.len(), 1, "{:?}", legacy);
+        assert!(matches!(&legacy[0], DslLine::Action(a) if a == "send (1, card, opponent controls, from monster_zone) to gy"), "{:?}", legacy);
+        // The all-flips legacy rendering carries the same line.
+        let all = with_legacy_selector_policy(|| translate_body_with_functions(body, &report.functions));
+        assert_eq!(all[0].clone().into_string("").trim(), "send (1, card, opponent controls, from monster_zone) to gy");
+        // Nothing leaks: the policy is reset after the closure.
+        assert!(matches!(&translate_body_with_functions(body, &report.functions)[0], DslLine::Todo(_)));
     }
 
     #[test]
