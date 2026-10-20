@@ -13,7 +13,10 @@
 // hazard: `EFFECT_TYPE_CONTINUOUS` listener chains with a SetOperation
 // consume an index but usually own no block (the generator skipped
 // them), so the listener and everything after it route through the
-// matcher too.
+// matcher too. T38 S9b extended it to `EFFECT_SPSUMMON_PROC` chains with
+// a SetOperation: the generator renders those into the card's
+// `summon { }` block, so they are `EntityKind::Orphan` — an index
+// consumer that can never own an effect block.
 //
 // This module replaces the blind zip with a conservative signature
 // alignment:
@@ -98,6 +101,12 @@ pub enum EntityKind {
     /// unknown. Matches any block at score 0 and skips at cost 0 — pure
     /// ambiguity that only strong downstream anchors can resolve.
     Phantom,
+    /// Consumes a positional index but owns NO effect block (T38 S9b):
+    /// an `EFFECT_SPSUMMON_PROC` chain with a SetOperation — the
+    /// generator rendered the procedure into the `summon { }` block.
+    /// Never aligns with any block and skips at cost 0, so downstream
+    /// consumers re-anchor around it.
+    Orphan,
 }
 
 /// Walk-side entity signature. `speed` / `trigger_line` / `mandatory`
@@ -220,7 +229,9 @@ pub fn entity_sig(skel: &EffectSkeleton, kind: CardKind) -> EntitySig {
     let activate = ty.contains("EFFECT_TYPE_ACTIVATE");
     let continuous = ty.contains("EFFECT_TYPE_CONTINUOUS");
     let is_consumer = skel.is_summon_helper() || skel.operation_handler.is_some();
-    let ekind = if is_consumer {
+    let ekind = if is_consumer && skel.is_spsummon_proc() {
+        EntityKind::Orphan
+    } else if is_consumer {
         EntityKind::Consumer
     } else if activate {
         EntityKind::Owner
@@ -290,12 +301,15 @@ const NEG_INF: i64 = i64::MIN / 4;
 fn gap_entity(e: &EntitySig) -> i64 {
     match e.kind {
         EntityKind::Consumer | EntityKind::Owner => -2,
-        EntityKind::Optional | EntityKind::Phantom => 0,
+        EntityKind::Optional | EntityKind::Phantom | EntityKind::Orphan => 0,
     }
 }
 
-/// Signature compatibility score, immutable features only.
+/// Signature compatibility score, immutable features only. An
+/// [`EntityKind::Orphan`] scores [`NEG_INF`] against every block — the
+/// DP never takes that diagonal, so the entity is always gapped.
 fn pair_score(e: &EntitySig, b: &BlockSig) -> i64 {
+    if e.kind == EntityKind::Orphan { return NEG_INF; }
     if e.kind == EntityKind::Phantom { return 0; }
     let mut s = 0i64;
     if let (Some(es), Some(bs)) = (e.speed, b.speed) {
@@ -417,11 +431,12 @@ fn align_forced(
         for j in 0..=m {
             if i == 0 && j == 0 { continue; }
             let mut best = NEG_INF;
-            if i > 0 && j > 0 { best = best.max(f[i - 1][j - 1] + score[i - 1][j - 1]); }
+            let diag = i > 0 && j > 0 && score[i - 1][j - 1] != NEG_INF;
+            if diag { best = best.max(f[i - 1][j - 1] + score[i - 1][j - 1]); }
             if i > 0 { best = best.max(f[i - 1][j] + gap(i - 1)); }
             if j > 0 { best = best.max(f[i][j - 1] + GAP_BLOCK); }
             let mut cnt = 0u128;
-            if i > 0 && j > 0 && f[i - 1][j - 1] + score[i - 1][j - 1] == best {
+            if diag && f[i - 1][j - 1] + score[i - 1][j - 1] == best {
                 cnt = cnt.saturating_add(cf[i - 1][j - 1]);
             }
             if i > 0 && f[i - 1][j] + gap(i - 1) == best {
@@ -444,11 +459,12 @@ fn align_forced(
         for j in (0..=m).rev() {
             if i == n && j == m { continue; }
             let mut best = NEG_INF;
-            if i < n && j < m { best = best.max(bw[i + 1][j + 1] + score[i][j]); }
+            let diag = i < n && j < m && score[i][j] != NEG_INF;
+            if diag { best = best.max(bw[i + 1][j + 1] + score[i][j]); }
             if i < n { best = best.max(bw[i + 1][j] + gap(i)); }
             if j < m { best = best.max(bw[i][j + 1] + GAP_BLOCK); }
             let mut cnt = 0u128;
-            if i < n && j < m && bw[i + 1][j + 1] + score[i][j] == best {
+            if diag && bw[i + 1][j + 1] + score[i][j] == best {
                 cnt = cnt.saturating_add(cb[i + 1][j + 1]);
             }
             if i < n && bw[i + 1][j] + gap(i) == best {
@@ -514,7 +530,9 @@ fn is_consumer(e: &EffectSkeleton) -> bool {
 /// consumer (T38 S9) is itself flagged, so it is never in the trusted
 /// prefix: it claims its own block only when the generator emitted one
 /// AND the signature is distinctive (once-per-turn — a bare listener
-/// tops out below `MIN_CLAIM`), otherwise it stays unassigned.
+/// tops out below `MIN_CLAIM`), otherwise it stays unassigned. An
+/// `EFFECT_SPSUMMON_PROC` consumer (T38 S9b) is likewise flagged and
+/// is an [`EntityKind::Orphan`]: it never claims a block at all.
 pub fn compute_assignments(walk: &LuaReport, ds_txt: &str) -> Assignments {
     let n = walk.effects.len();
     let consumers: Vec<usize> = (0..n).filter(|&i| is_consumer(&walk.effects[i])).collect();
@@ -1138,6 +1156,118 @@ end
         let a = compute_assignments(&walk, ds);
         assert_eq!(a.by_effect, vec![Some(0), None]);
         assert_eq!((a.positional, a.rescued, a.ambiguous), (1, 0, 1));
+    }
+
+    /// Volcanic Emperor (c46412900) — the T38 S9b flagship. e0 is an
+    /// `EFFECT_SPSUMMON_PROC` chain with a SetOperation: it consumed
+    /// positional index 0 although the generator rendered it into the
+    /// `summon { }` block, so the pre-S9b zip gave e1's trigger block to
+    /// the proc and left e1 pointing at a block that doesn't exist. The
+    /// proc is an Orphan now; the matcher re-anchors e1 → block 0
+    /// (speed + trigger line + optional) and the continuous listener
+    /// stays unassigned.
+    #[test]
+    fn spsummon_proc_orphan_reanchors_later_consumers() {
+        let src = r#"
+function s.initial_effect(c)
+    local e0=Effect.CreateEffect(c)
+    e0:SetType(EFFECT_TYPE_FIELD)
+    e0:SetCode(EFFECT_SPSUMMON_PROC)
+    e0:SetRange(LOCATION_HAND|LOCATION_GRAVE)
+    e0:SetCondition(s.spcon)
+    e0:SetTarget(s.sptg)
+    e0:SetOperation(s.spop)
+    c:RegisterEffect(e0)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE+EFFECT_TYPE_TRIGGER_O)
+    e1:SetCode(EVENT_SPSUMMON_SUCCESS)
+    e1:SetCondition(function(e) return e:GetHandler():IsSummonType(SUMMON_TYPE_SPECIAL+1) end)
+    e1:SetTarget(s.damsettg)
+    e1:SetOperation(s.damsetop)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)
+    e2:SetCode(EVENT_SPSUMMON_SUCCESS)
+    e2:SetRange(LOCATION_MZONE)
+    e2:SetCondition(s.damcon)
+    e2:SetOperation(s.damop)
+    c:RegisterEffect(e2)
+end
+"#;
+        let walk = walk_of(src);
+        assert!(walk.effects.iter().all(|e| e.block_alignment_hazard));
+        assert_eq!(entity_sig(&walk.effects[0], CardKind::Monster).kind, EntityKind::Orphan);
+        let ds = r#"card "Volcanic Emperor" {
+    id: 46412900
+    type: Effect Monster
+
+    summon {
+        cannot_normal_summon
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        timing: when
+        trigger: summoned by special
+        resolve {
+            damage opponent 500
+        }
+    }
+}
+"#;
+        let a = compute_assignments(&walk, ds);
+        assert_eq!(a.by_effect, vec![None, Some(0), None]);
+        assert_eq!((a.positional, a.rescued, a.ambiguous), (0, 1, 2));
+    }
+
+    /// The generator DID emit an effect block that a proc chain's
+    /// signature would otherwise claim (once-per-turn oath + mandatory
+    /// noise scores exactly MIN_CLAIM for a Consumer): an Orphan never
+    /// claims it, and the ignition after the proc still lands on its own
+    /// block — the proc's block simply goes unmatched.
+    #[test]
+    fn spsummon_proc_never_claims_an_effect_block() {
+        let src = r#"
+function s.initial_effect(c)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_FIELD)
+    e1:SetCode(EFFECT_SPSUMMON_PROC)
+    e1:SetRange(LOCATION_HAND)
+    e1:SetCountLimit(1,id,EFFECT_COUNT_CODE_OATH)
+    e1:SetCondition(s.spcon)
+    e1:SetTarget(s.sptg)
+    e1:SetOperation(s.spop)
+    c:RegisterEffect(e1)
+    local e2=Effect.CreateEffect(c)
+    e2:SetType(EFFECT_TYPE_IGNITION)
+    e2:SetRange(LOCATION_MZONE)
+    e2:SetCountLimit(1)
+    e2:SetOperation(s.op2)
+    c:RegisterEffect(e2)
+end
+"#;
+        let walk = walk_of(src);
+        let ds = r#"card "X" {
+    id: 1
+    type: Effect Monster
+
+    effect "Effect 1" {
+        speed: 1
+        once_per_turn: soft
+        mandatory
+        resolve { }
+    }
+
+    effect "Effect 2" {
+        speed: 1
+        once_per_turn: soft
+        resolve { }
+    }
+}
+"#;
+        let a = compute_assignments(&walk, ds);
+        assert_eq!(a.by_effect, vec![None, Some(1)]);
+        assert_eq!((a.positional, a.rescued, a.ambiguous), (0, 1, 1));
     }
 
     /// Fast path: hazard-free cards NEVER consult signatures — the
