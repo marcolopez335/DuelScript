@@ -5,7 +5,11 @@ card "Massivemorph" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        target (1, card, opponent controls, from monster_zone, where is_face_up)
         resolve {
+            set_atk target target.atk * 2 until while_face_up
+            set_def target target.def * 2 until while_face_up
+            grant target cannot_attack_directly until while_face_up
         }
     }
 }

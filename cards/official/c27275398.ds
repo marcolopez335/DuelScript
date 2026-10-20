@@ -20,7 +20,12 @@ card "Gold Pride - Pedal to the Metal!" {
     effect "Effect 1" {
         speed: 2
         mandatory
+        target (1, card, you control, from monster_zone, where is_face_up and archetype == "Gold Pride")
         resolve {
+            modify_atk target + 500 until end_of_turn
+            grant target cannot_be_destroyed by battle until end_of_turn
+            grant target cannot_be_destroyed by effect until end_of_turn
+            grant target cannot_activate effects until end_of_turn
         }
     }
 
