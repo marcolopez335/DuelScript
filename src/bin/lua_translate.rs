@@ -28,7 +28,7 @@ use duelscript::stub_refine;
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
-        eprintln!("usage: lua_translate <dump|translate|apply|audit-fills|audit-owners|explain> <path>");
+        eprintln!("usage: lua_translate <dump|translate|apply|audit-fills|audit-owners|audit-orphans|explain> <path>");
         process::exit(2);
     }
     let mode = args[1].as_str();
@@ -185,6 +185,33 @@ fn main() {
             let cdb = args.get(4).map(String::as_str).filter(|a| *a != "--stub");
             load_card_names(cdb, lua_dir);
             audit_owners(corpus, lua_dir, stub);
+        }
+        "audit-orphans" => {
+            // T39 S7 — generator blocks with no lua consumer: the .ds
+            // has more `effect` blocks than the lua registers consumer
+            // chains, and no translator pass can ever fill the surplus
+            // (no lua body exists for it). Classified mechanically
+            // (`block_match::orphan_blocks`): a surplus block beside a
+            // ritual summon-helper consumer with an empty body and a
+            // content-free header is the proc's material / once-per-
+            // turn clause, already stated by the owner's
+            // `ritual_summon … where total_level …` line — `--remove`
+            // deletes exactly those. Every other class is report-only
+            // (SetTarget-only real effects, union / pendulum / whole-
+            // level-tribute procs with no DSL surface, headers with
+            // cost / trigger content, hazard-unrescued consumers).
+            //
+            //   lua_translate audit-orphans <corpus_dir> <lua_dir> [cards.cdb] [--remove]
+            if args.len() < 4 {
+                eprintln!("usage: lua_translate audit-orphans <corpus_dir> <lua_dir> [cards.cdb] [--remove]");
+                process::exit(2);
+            }
+            let corpus = &args[2];
+            let lua_dir = &args[3];
+            let remove = args.iter().any(|a| a == "--remove");
+            let cdb = args.get(4).map(String::as_str).filter(|a| *a != "--remove");
+            load_card_names(cdb, lua_dir);
+            audit_orphans(corpus, lua_dir, remove);
         }
         "explain" => {
             // T39 — per-block fill verdicts for the empty-resolve error
@@ -465,6 +492,85 @@ fn audit_owners(corpus_dir: &str, lua_dir: &str, stub: bool) {
     println!("=== audit-owners: {} blocks / {} cards — {} coincidental (keep), {} owner-unassigned (report), {} alignment-suspect (report), {} misplaced/owner-differs, {} misplaced/owner-empty; {} stubbed ===",
         coincidental + unassigned + suspect + differs + empty, cards.len(),
         coincidental, unassigned, suspect, differs, empty, stubbed);
+}
+
+/// See the `audit-orphans` mode arm. One line per consumer-less effect
+/// block; the verdict lives in `block_match::orphan_blocks` so it is
+/// unit-testable. `--remove` deletes the `ORPHAN` class only — never a
+/// block with a body, a choose, or header content — and is idempotent:
+/// a rerun finds no surplus block on a card it already trimmed.
+fn audit_orphans(corpus_dir: &str, lua_dir: &str, remove: bool) {
+    use block_match::OrphanClass as C;
+    let mut paths: Vec<std::path::PathBuf> = match fs::read_dir(corpus_dir) {
+        Ok(e) => e.flatten().map(|e| e.path())
+            .filter(|p| p.extension().and_then(|s| s.to_str()) == Some("ds"))
+            .collect(),
+        Err(e) => { eprintln!("cannot read {}: {}", corpus_dir, e); return; }
+    };
+    paths.sort();
+    let mut by_class: std::collections::BTreeMap<&'static str, usize> = Default::default();
+    let mut cards = std::collections::BTreeSet::new();
+    let mut removed = 0usize;
+    for path in paths {
+        let Ok(txt) = fs::read_to_string(&path) else { continue };
+        let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
+        set_current_card_from_stem(&stem);
+        let lua_path = Path::new(lua_dir).join(format!("{}.lua", stem));
+        let Ok(lua_src) = fs::read_to_string(&lua_path) else { continue };
+        let Ok(parsed) = full_moon::parse(&lua_src) else { continue };
+        let walk = lua_ast::walk(&parsed);
+        if walk.effects.is_empty() { continue; }
+        let assign = block_match::compute_assignments(&walk, &txt);
+        let hits = block_match::orphan_blocks(&walk, &assign, &txt, &lua_src);
+        if hits.is_empty() { continue; }
+        cards.insert(stem.clone());
+        let ranges = block_match::effect_block_ranges(&txt);
+        let n_consumers = walk.effects.iter()
+            .filter(|e| e.is_summon_helper() || e.operation_handler.is_some()).count();
+        let helpers: Vec<&str> = walk.effects.iter()
+            .filter(|e| e.ritual_summon_spec)
+            .map(|e| e.binding.as_str()).collect();
+        let procs: Vec<&str> = block_match::NO_SURFACE_PROCS.iter().copied()
+            .filter(|p| lua_src.contains(p)).collect();
+        // Removal offsets are taken from the ORIGINAL text, highest
+        // block first, so earlier removals never shift later spans.
+        let mut new_txt = txt.clone();
+        for h in hits.iter().rev() {
+            *by_class.entry(h.class.tag()).or_default() += 1;
+            let (lo, hi) = ranges[h.block];
+            let block = &txt[lo..hi];
+            let name = block.split('"').nth(1).unwrap_or("?");
+            let header: Vec<&str> = block_match::parse_block_sigs(block).first()
+                .map(|s| {
+                    let mut v = Vec::new();
+                    if let Some(sp) = s.speed { v.push(if sp == 1 { "speed:1" } else if sp == 2 { "speed:2" } else { "speed:3" }); }
+                    if s.trigger_line { v.push("trigger"); }
+                    if s.mandatory { v.push("mandatory"); }
+                    if s.once_per_turn { v.push("once_per_turn"); }
+                    if s.has_cost { v.push("cost"); }
+                    if s.has_target { v.push("target"); }
+                    if s.has_condition { v.push("condition"); }
+                    v
+                })
+                .unwrap_or_default();
+            println!("{} {} block={} name={:?} header=[{}] consumers={} blocks={} ritual_helpers=[{}] no_surface_procs=[{}]",
+                h.class.tag(), stem, h.block, name, header.join(" "), n_consumers, ranges.len(),
+                helpers.join(","), procs.join(","));
+            if remove && h.class == C::Orphan {
+                new_txt = block_match::remove_block(&new_txt, lo, hi);
+                removed += 1;
+            }
+        }
+        if new_txt != txt {
+            if let Err(e) = fs::write(&path, &new_txt) {
+                eprintln!("cannot write {}: {}", path.display(), e);
+            }
+        }
+    }
+    let total: usize = by_class.values().sum();
+    let classes: Vec<String> = by_class.iter().map(|(k, v)| format!("{} {}", v, k)).collect();
+    println!("=== audit-orphans: {} blocks / {} cards — {}; {} removed ===",
+        total, cards.len(), classes.join(", "), removed);
 }
 
 /// Populate the lua_ast passcode → card-name table used by the
