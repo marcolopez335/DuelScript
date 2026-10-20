@@ -824,6 +824,161 @@ pub fn foreign_fills(walk: &LuaReport, assign: &Assignments, ds_txt: &str) -> Ve
     out
 }
 
+// ── Orphan generator blocks (T39 S7) ─────────────────────────
+//
+// The corpus generator emitted one `effect` block per card-text
+// sentence it could not fold elsewhere. For the library procedures
+// the lua models as ONE chain — `Ritual.AddProc*` / `Ritual.CreateProc`
+// — it emitted a block for the activation sentence ("This card is used
+// to Ritual Summon X") AND a block for the material clause ("You must
+// also Tribute monsters whose total Levels equal N or more") or the
+// trailing once-per-turn sentence. The lua has exactly one effect for
+// all of them, so the surplus block has no consumer under
+// `compute_assignments`, no lua body can ever fill it, and it counts
+// as one validator error forever. Its content is the owner block's
+// `ritual_summon … where total_level …` line (the material clause is a
+// parameter of the proc, the OPT clause its count limit).
+//
+// The classifier is deliberately narrow: a block is an orphan only when
+// the card's lua has a ritual summon-helper consumer, every consumer is
+// assigned (the assignment problem — hazard-unrescued consumers — is
+// NOT this chore), the block has no body and no header content beyond
+// `speed:` / `mandatory`, exactly one block is surplus, the walk has no
+// registered activation chain without a SetOperation that could own it
+// (a SetTarget-only activation with a dynamic SetOperation is a REAL
+// effect; a Continuous card's bare activation shell owns its block), and
+// the script calls no
+// library procedure the DSL has no surface for (union / whole-level
+// tribute / pendulum / equip — the surplus block may be that sentence).
+
+/// Verdict for one block with no consumer under `compute_assignments`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OrphanClass {
+    /// Removable — see the section comment for the full predicate.
+    Orphan,
+    /// A consumer is itself unassigned (hazard unrescued / order-
+    /// inconsistent): the block may be that consumer's; assignment
+    /// problem, not an orphan.
+    ConsumerUnassigned,
+    /// The header carries cost / target / condition / trigger /
+    /// once_per_turn — structure the lua would have to model.
+    HeaderContent,
+    /// A registered SetTarget-only chain (no SetOperation — the
+    /// operation is chosen at target time) may own the block.
+    BareChain,
+    /// No ritual summon-helper consumer: the lua models nothing that
+    /// folds a second sentence into one chain.
+    NoProcModel,
+    /// The script calls a library procedure the DSL has no surface for
+    /// (see [`NO_SURFACE_PROCS`]) — the block may be its sentence.
+    NoSurfaceProc,
+    /// More than one surplus block: which sentence is which is unknown.
+    MultipleSurplus,
+}
+
+impl OrphanClass {
+    pub fn tag(self) -> &'static str {
+        match self {
+            OrphanClass::Orphan => "ORPHAN",
+            OrphanClass::ConsumerUnassigned => "KEEP/consumer-unassigned",
+            OrphanClass::HeaderContent => "KEEP/header-content",
+            OrphanClass::BareChain => "KEEP/bare-chain",
+            OrphanClass::NoProcModel => "KEEP/no-proc-model",
+            OrphanClass::NoSurfaceProc => "KEEP/no-surface-proc",
+            OrphanClass::MultipleSurplus => "KEEP/multiple-surplus",
+        }
+    }
+}
+
+/// Library procedures the walk drops (no skeleton) and the DSL has no
+/// surface for. A surplus block beside one of these may be the
+/// sentence the proc models, so it is never an orphan.
+pub const NO_SURFACE_PROCS: &[&str] = &[
+    "Ritual.AddWholeLevelTribute",
+    "aux.AddUnionProcedure",
+    "aux.EnableUnionAttribute",
+    "Pendulum.AddProcedure",
+    "aux.AddEquipProcedure",
+];
+
+/// One consumer-less block and its verdict.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OrphanCandidate {
+    /// Index into `effect_block_ranges`.
+    pub block: usize,
+    pub class: OrphanClass,
+}
+
+/// `SetType` fragments of chains that activate (own a block) even
+/// without a SetOperation: the bare activation shell of a Continuous /
+/// Field card (c40551410's `e0`), an ignition whose operation is chosen
+/// at target time.
+const ACTIVATION_TYPES: &[&str] = &[
+    "EFFECT_TYPE_ACTIVATE", "EFFECT_TYPE_IGNITION", "EFFECT_TYPE_QUICK_O",
+    "EFFECT_TYPE_QUICK_F", "EFFECT_TYPE_TRIGGER_O", "EFFECT_TYPE_TRIGGER_F",
+];
+
+fn is_ritual_helper(e: &EffectSkeleton) -> bool {
+    e.ritual_summon_spec
+        || e.summon_helper_op.as_ref()
+            .is_some_and(|op| op.kind == crate::lua_ast::SummonHelperKind::RitualOperation)
+}
+
+/// Classify every block of `ds_txt` that no walk consumer owns.
+/// `lua_src` is the card's script text (for the no-surface proc scan —
+/// those calls leave no skeleton in the walk).
+pub fn orphan_blocks(walk: &LuaReport, assign: &Assignments, ds_txt: &str, lua_src: &str) -> Vec<OrphanCandidate> {
+    let ranges = effect_block_ranges(ds_txt);
+    let sigs = parse_block_sigs(ds_txt);
+    let owned: Vec<bool> = (0..ranges.len())
+        .map(|b| assign.by_effect.iter().any(|x| *x == Some(b)))
+        .collect();
+    let surplus: Vec<usize> = (0..ranges.len()).filter(|&b| !owned[b]).collect();
+    let consumer_unassigned = walk.effects.iter().enumerate()
+        .any(|(i, e)| is_consumer(e) && assign.by_effect[i].is_none());
+    let bare_chain = walk.effects.iter().any(|e| {
+        e.registered && !is_consumer(e) && (e.target_handler.is_some()
+            || e.first_arg_of("SetType").is_some_and(|t| ACTIVATION_TYPES.iter().any(|a| t.contains(a))))
+    });
+    let ritual_helper = walk.effects.iter().any(is_ritual_helper);
+    let no_surface_proc = NO_SURFACE_PROCS.iter().any(|p| lua_src.contains(p));
+    surplus.iter().filter(|&&b| {
+        // A block with a body (or a choose) is not a candidate: the
+        // validator does not flag it and nothing here may touch it.
+        let (lo, hi) = ranges[b];
+        !ds_txt[lo..hi].contains("choose {")
+            && resolve_inner_span(ds_txt, lo, hi)
+                .is_none_or(|(a, z)| ds_txt[a..z].trim().is_empty())
+    }).map(|&b| {
+        let sig = &sigs[b];
+        let header_content = sig.has_cost || sig.has_target || sig.has_condition
+            || sig.trigger_line || sig.once_per_turn;
+        let class = if consumer_unassigned { OrphanClass::ConsumerUnassigned }
+            else if header_content { OrphanClass::HeaderContent }
+            else if bare_chain { OrphanClass::BareChain }
+            else if no_surface_proc { OrphanClass::NoSurfaceProc }
+            else if !ritual_helper { OrphanClass::NoProcModel }
+            else if surplus.len() > 1 { OrphanClass::MultipleSurplus }
+            else { OrphanClass::Orphan };
+        OrphanCandidate { block: b, class }
+    }).collect()
+}
+
+/// `ds_txt` with the effect block spanning `[lo, hi)` removed, together
+/// with its own line indentation, its trailing newline, and the blank
+/// separator line before it (so the file keeps one blank line between
+/// the surviving blocks). Idempotent by construction: a second
+/// `orphan_blocks` pass sees one block fewer and no surplus.
+pub fn remove_block(ds_txt: &str, lo: usize, hi: usize) -> String {
+    let line_start = ds_txt[..lo].rfind('\n').map_or(0, |i| i + 1);
+    let mut start = line_start;
+    // Drop ONE preceding blank line when there is one.
+    if ds_txt[..start].ends_with("\n\n") { start -= 1; }
+    let mut end = hi;
+    if ds_txt[end..].starts_with('\n') { end += 1; }
+    format!("{}{}", &ds_txt[..start], &ds_txt[end..])
+}
+
 // ── Tests ────────────────────────────────────────────────────
 
 #[cfg(test)]
@@ -1854,5 +2009,117 @@ end
         let txt = "effect \"E\" {\n    resolve {\n        install_watcher { x }\n    }\n}\n";
         let (lo, hi) = resolve_inner_span(txt, 0, txt.len()).unwrap();
         assert_eq!(txt[lo..hi].trim(), "install_watcher { x }");
+    }
+    // ── orphan_blocks (T39 S7) ───────────────────────────────
+
+    /// A one-card .ds whose blocks carry the given header lines (each
+    /// entry is the text between `speed: 1` and the empty resolve).
+    fn ds_blocks(headers: &[&str]) -> String {
+        let mut out = String::from("card \"T\" {\n    id: 1\n    type: Ritual Spell\n");
+        for (i, h) in headers.iter().enumerate() {
+            out.push_str(&format!("\n    effect \"Effect {}\" {{\n        speed: 1\n        mandatory\n", i + 1));
+            if !h.is_empty() { out.push_str(h); }
+            out.push_str("        resolve { }\n    }\n");
+        }
+        out.push_str("}\n");
+        out
+    }
+
+    const RITUAL_PROC: &str = "function s.initial_effect(c)\n\tRitual.AddProcGreaterCode(c,3,nil,99414168)\nend\n";
+
+    fn orphans(src: &str, ds: &str) -> Vec<(usize, OrphanClass)> {
+        let walk = walk_of(src);
+        let assign = compute_assignments(&walk, ds);
+        orphan_blocks(&walk, &assign, ds, src).into_iter().map(|o| (o.block, o.class)).collect()
+    }
+
+    #[test]
+    fn orphan_ritual_proc_surplus_block() {
+        // Doriado's Blessing shape: one ritual proc, two generator
+        // blocks — the second is the "You must also Tribute …" clause.
+        let ds = ds_blocks(&["", ""]);
+        assert_eq!(orphans(RITUAL_PROC, &ds), vec![(1, OrphanClass::Orphan)]);
+    }
+
+    #[test]
+    fn orphan_header_content_is_kept() {
+        let ds = ds_blocks(&["", "        cost {\n            banish self\n        }\n"]);
+        assert_eq!(orphans(RITUAL_PROC, &ds), vec![(1, OrphanClass::HeaderContent)]);
+        let ds = ds_blocks(&["", "        timing: if\n        trigger: summoned\n"]);
+        assert_eq!(orphans(RITUAL_PROC, &ds), vec![(1, OrphanClass::HeaderContent)]);
+        let ds = ds_blocks(&["", "        once_per_turn: hard\n"]);
+        assert_eq!(orphans(RITUAL_PROC, &ds), vec![(1, OrphanClass::HeaderContent)]);
+    }
+
+    #[test]
+    fn orphan_hazard_unrescued_consumer_is_kept() {
+        // A continuous listener with a SetOperation (T38 S9) is hazard-
+        // flagged and claims no block: the surplus block may be its own.
+        let src = "function s.initial_effect(c)\n\tRitual.AddProcGreaterCode(c,3,nil,99414168)\n\tlocal e2=Effect.CreateEffect(c)\n\te2:SetType(EFFECT_TYPE_FIELD+EFFECT_TYPE_CONTINUOUS)\n\te2:SetCode(EVENT_PHASE+PHASE_END)\n\te2:SetOperation(s.op2)\n\tc:RegisterEffect(e2)\nend\nfunction s.op2(e,tp,eg,ep,ev,re,r,rp)\n\tDuel.Draw(tp,1,REASON_EFFECT)\nend\n";
+        let walk = walk_of(src);
+        let ds = ds_blocks(&["", "", ""]);
+        let assign = compute_assignments(&walk, &ds);
+        assert!(assign.by_effect.iter().any(Option::is_none), "listener must stay unassigned: {:?}", assign.by_effect);
+        let got = orphans(src, &ds);
+        assert!(!got.is_empty());
+        assert!(got.iter().all(|(_, c)| *c == OrphanClass::ConsumerUnassigned), "{:?}", got);
+    }
+
+    #[test]
+    fn orphan_no_ritual_helper_is_no_proc_model() {
+        // One ignition consumer, two blocks: nothing in the lua folds a
+        // second sentence into one chain.
+        let src = "function s.initial_effect(c)\n\tlocal e1=Effect.CreateEffect(c)\n\te1:SetType(EFFECT_TYPE_IGNITION)\n\te1:SetOperation(s.op)\n\tc:RegisterEffect(e1)\nend\nfunction s.op(e,tp,eg,ep,ev,re,r,rp)\n\tDuel.Draw(tp,1,REASON_EFFECT)\nend\n";
+        let ds = ds_blocks(&["", ""]);
+        assert_eq!(orphans(src, &ds), vec![(1, OrphanClass::NoProcModel)]);
+    }
+
+    #[test]
+    fn orphan_no_surface_proc_is_kept() {
+        let src = "function s.initial_effect(c)\n\tRitual.AddProcGreaterCode(c,3,nil,99414168)\n\tRitual.AddWholeLevelTribute(c,aux.FilterBoolFunction(Card.IsRitualMonster))\nend\n";
+        let ds = ds_blocks(&["", ""]);
+        assert_eq!(orphans(src, &ds), vec![(1, OrphanClass::NoSurfaceProc)]);
+    }
+
+    #[test]
+    fn orphan_bare_activation_chain_is_kept() {
+        // World Legacy Monstrosity shape beside a ritual proc: the
+        // SetTarget-only activation picks its operation at target time
+        // and owns a block without consuming an index.
+        let src = "function s.initial_effect(c)\n\tRitual.AddProcGreaterCode(c,3,nil,99414168)\n\tlocal e2=Effect.CreateEffect(c)\n\te2:SetType(EFFECT_TYPE_ACTIVATE)\n\te2:SetCode(EVENT_FREE_CHAIN)\n\te2:SetTarget(s.target)\n\tc:RegisterEffect(e2)\nend\n";
+        let ds = ds_blocks(&["", ""]);
+        let got = orphans(src, &ds);
+        assert!(got.iter().all(|(_, c)| *c == OrphanClass::BareChain), "{:?}", got);
+    }
+
+    #[test]
+    fn orphan_multiple_surplus_is_kept() {
+        let ds = ds_blocks(&["", "", ""]);
+        assert_eq!(orphans(RITUAL_PROC, &ds),
+            vec![(1, OrphanClass::MultipleSurplus), (2, OrphanClass::MultipleSurplus)]);
+    }
+
+    #[test]
+    fn orphan_body_or_choose_is_never_a_candidate() {
+        let mut ds = ds_blocks(&["", ""]);
+        ds = ds.replacen("resolve { }\n    }\n}", "resolve {\n            draw 1\n        }\n    }\n}", 1);
+        assert!(ds.contains("draw 1"));
+        assert_eq!(orphans(RITUAL_PROC, &ds), vec![]);
+        let ds = ds_blocks(&["", "        choose {\n            option \"A\" {\n                resolve { }\n            }\n        }\n"]);
+        assert_eq!(orphans(RITUAL_PROC, &ds), vec![]);
+    }
+
+    #[test]
+    fn remove_block_is_idempotent() {
+        let ds = ds_blocks(&["", ""]);
+        let (lo, hi) = effect_block_ranges(&ds)[1];
+        let trimmed = remove_block(&ds, lo, hi);
+        assert_eq!(trimmed, ds_blocks(&[""]));
+        assert_eq!(orphans(RITUAL_PROC, &trimmed), vec![]);
+        // Removing a leading block keeps the separator of its successor.
+        let (lo, hi) = effect_block_ranges(&ds)[0];
+        let trimmed = remove_block(&ds, lo, hi);
+        assert_eq!(effect_block_ranges(&trimmed).len(), 1);
+        assert!(trimmed.contains("type: Ritual Spell\n\n    effect \"Effect 2\""), "{}", trimmed);
     }
 }
