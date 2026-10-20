@@ -1040,6 +1040,16 @@ fn card_pred_to_where(name: &str, args: &str) -> Option<String> {
         "IsLevel" => exact("level"),
         "IsRank"  => exact("rank"),
         "IsLink"  => exact("link"),
+        // T39 S1 — utility.lua predicates (Card.HasLevel:744,
+        // HasNonZeroAttack/Defense:1210). HasLevel is "monster, not Link,
+        // not Xyz" — its EFFECT_RANK_LEVEL carve-out names a rank-to-
+        // level effect the DSL has no code for, so inside the DSL's own
+        // model no Xyz ever has a level and the three-atom form is exact.
+        "HasLevel" if args.is_empty() => {
+            Some("is_monster and not is_xyz and not is_link".to_string())
+        }
+        "HasNonZeroAttack"  if args.is_empty() => Some("is_face_up and atk > 0".to_string()),
+        "HasNonZeroDefense" if args.is_empty() => Some("is_face_up and def > 0".to_string()),
         // Type-bit test: lua `IsType(a|b)` is true when ANY bit matches.
         "IsType" => {
             let mut parts = Vec::new();
@@ -1349,6 +1359,16 @@ fn setcode_const_to_archetype(c: &str) -> Option<&'static str> {
         "SET_INFERNOID"     => "Infernoid",
         "SET_PRANK_KIDS"    => "Prank-Kids",
         "SET_YOSENJU"       => "Yosenju",
+        // T39 S1 — archetypes referenced by stat-chip group and count
+        // filters (Constellar Acubens, Performage, Blackwing, Ghostrick,
+        // Deskbot, War Rock, Gagaga).
+        "SET_BLACKWING"     => "Blackwing",
+        "SET_CONSTELLAR"    => "Constellar",
+        "SET_DESKBOT"       => "Deskbot",
+        "SET_GAGAGA"        => "Gagaga",
+        "SET_GHOSTRICK"     => "Ghostrick",
+        "SET_PERFORMAGE"    => "Performage",
+        "SET_WAR_ROCK"      => "War Rock",
         _ => return None,
     })
 }
@@ -3992,6 +4012,12 @@ fn map_group_filter(filter: &str) -> Option<(&'static str, Option<String>)> {
         "Card.IsMonster"   => ("monster", None),
         "Card.IsSpell"     => ("spell", None),
         "Card.IsTrap"      => ("trap", None),
+        // T39 S1 — utility.lua predicates used bare as group filters
+        // (Morgana's `Card.HasNonZeroAttack`); same table entries the
+        // named-filter atom path uses.
+        "Card.HasLevel" | "Card.HasNonZeroAttack" | "Card.HasNonZeroDefense" => {
+            ("card", card_pred_to_where(&filter[5..], ""))
+        }
         _ => {
             let inner = filter
                 .strip_prefix("aux.FaceupFilter(")
@@ -4011,6 +4037,26 @@ fn map_group_filter(filter: &str) -> Option<(&'static str, Option<String>)> {
             return Some(("card", Some(format!("is_face_up and {}", pred))));
         }
     })
+}
+
+/// T39 S1 — [`map_group_filter`] extended with the producing call's
+/// trailing filter args. Lua threads them into the predicate
+/// (`GetMatchingGroupCount(Card.IsSetCard, tp, LOCATION_GRAVE, 0, nil,
+/// SET_LAVAL)` counts Laval cards), so a stock `Card.Is*` name with
+/// EXACTLY one non-nil extra maps through the predicate table; the
+/// no-extras case defers to the plain mapper. Two or more extras, a
+/// non-`Card.` name, or a predicate the table doesn't know → None.
+fn map_group_filter_with_extras(
+    filter: &str,
+    extras: &[String],
+) -> Option<(&'static str, Option<String>)> {
+    let live: Vec<&str> = extras.iter().map(|s| s.trim()).filter(|s| *s != "nil").collect();
+    if live.is_empty() {
+        return map_group_filter(filter);
+    }
+    if live.len() != 1 { return None; }
+    let name = filter.trim().strip_prefix("Card.")?;
+    Some(("card", Some(card_pred_to_where(name, live[0])?)))
 }
 
 fn spec_from_get_matching(args: &[String]) -> Option<SelectorSpec> {
@@ -6515,9 +6561,9 @@ fn translate_register_chain(
         return translate_immune_chain(chain, body, functions);
     }
     let single = if let Some(action) = stat_modifier_action(code) {
-        translate_modifier_chain(action, chain, body)
+        translate_modifier_chain(action, chain, body, functions)
     } else if let Some(action) = set_stat_action(code) {
-        translate_set_stat_chain(action, chain, body)
+        translate_set_stat_chain(action, chain, body, functions)
     } else if code == "EFFECT_EXTRA_ATTACK" {
         translate_extra_attack_chain(chain, body)
     } else if code == "EFFECT_DISABLE" {
@@ -6609,12 +6655,10 @@ fn translate_set_stat_chain(
     action: &str,
     chain: &RegisterEffectChain,
     body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
 ) -> Option<DslLine> {
-    let parsed = parse_lua_value(chain.value.as_deref()?, &body.value_bindings)?;
+    let parsed = parse_stat_chip_value(chain, body, functions)?;
     if parsed.negative { return None; }
-    // Group-applied chains can't carry per-member values: `target.` refs
-    // resolve to the selected target, not each loop member (Phase 10 guard).
-    if chain.multi_target && parsed.expr.contains("target.") { return None; }
     let selector = resolve_chain_selector(chain, body)?;
     let mut line = format!("{} {} {}", action, selector, parsed.expr);
     match reset_to_duration_kw(chain.reset.as_deref(), chain.reset_count.as_deref()) {
@@ -7437,6 +7481,35 @@ fn translate_method_op(op: &CardMethodOp, body: &FunctionBody) -> Option<DslLine
     Some(DslLine::Action(line))
 }
 
+/// Shared value decode for the stat-chip families (modify_* / set_*):
+/// [`parse_lua_value_ctx`] over the handler's bindings, group table and
+/// the walked function table, then the two `target.`-aim gates:
+///   - group-applied chains can't carry per-member values — `target.`
+///     refs resolve to the selected target, not each loop member
+///     (Phase 10 guard);
+///   - a single-receiver value that reads `target.` must come from a
+///     `tc` the body bound to the declared target (T39 S1 — the value-
+///     side twin of the receiver provenance gate; a battle-context or
+///     label-object `tc` is a different card).
+fn parse_stat_chip_value(
+    chain: &RegisterEffectChain,
+    body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<ParsedValue> {
+    let cx = ValueCtx {
+        bindings: &body.value_bindings,
+        groups: &body.group_bindings,
+        functions,
+    };
+    let parsed = parse_lua_value_ctx(chain.value.as_deref()?, &cx)?;
+    if parsed.expr.contains("target.")
+        && (chain.multi_target || !value_tc_is_declared_target(body))
+    {
+        return None;
+    }
+    Some(parsed)
+}
+
 /// Stat-modifier chain → `modify_atk` / `modify_def` line.
 ///
 /// Value resolution (Phase 4c):
@@ -7450,15 +7523,13 @@ fn translate_modifier_chain(
     action: &str,
     chain: &RegisterEffectChain,
     body: &FunctionBody,
+    functions: &BTreeMap<String, FunctionBody>,
 ) -> Option<DslLine> {
-    let parsed = parse_lua_value(chain.value.as_deref()?, &body.value_bindings)?;
+    let parsed = parse_stat_chip_value(chain, body, functions)?;
     // No-op modifier — local-var resolution often lands on `local atk=0`
     // initialisers; the real value is reassigned later in branches we
     // don't track. Skip rather than emit a useless `+ 0` line.
     if parsed.expr == "0" { return None; }
-    // Group-applied chains can't carry per-member values: `target.` refs
-    // resolve to the selected target, not each loop member (Phase 10 guard).
-    if chain.multi_target && parsed.expr.contains("target.") { return None; }
     let selector = resolve_chain_selector(chain, body)?;
     let op = if parsed.negative { '-' } else { '+' };
     let mut line = format!("{} {} {} {}", action, selector, op, parsed.expr);
@@ -8939,13 +9010,51 @@ struct ParsedValue {
     negative: bool,
 }
 
+/// T39 S1 — resolution context for [`parse_lua_value_ctx`]: the
+/// handler's local bindings plus the two tables the widened atoms
+/// consult — group bindings (for the `#g` group-length atom) and the
+/// walked function table (for named-filter counts).
+struct ValueCtx<'a> {
+    bindings: &'a BTreeMap<String, String>,
+    groups: &'a BTreeMap<String, SelectorSpec>,
+    functions: &'a BTreeMap<String, FunctionBody>,
+}
+
 /// Recursively translate a Lua expression text into DSL `expr` form.
 /// Handles literal ints, method calls on `tc` / `c` (mapping to
 /// `target.<stat>` / `self.<stat>`), single-step math (`<m> * N`,
 /// `<m> / N`), unary minus, and local-variable substitution via
 /// `value_bindings`.
+///
+/// Context-free entry: group-length and named-filter-count atoms are
+/// unavailable (the equip-rider and card-method-op families call this
+/// form; the stat-chip families go through [`parse_lua_value_ctx`]).
 fn parse_lua_value(arg: &str, bindings: &BTreeMap<String, String>) -> Option<ParsedValue> {
-    let arg = arg.trim();
+    let groups = BTreeMap::new();
+    let functions = BTreeMap::new();
+    parse_lua_value_ctx(arg, &ValueCtx { bindings, groups: &groups, functions: &functions })
+}
+
+/// [`parse_lua_value`] with the T39 S1 widened atom set:
+///   - `Duel.GetMatchingGroupCount(s.filter, …)` — named script-local
+///     filters resolve through the function table (the count's where-
+///     clause must be EXACT, same gate as the group-modifier path);
+///     stock predicates with ONE trailing filter arg
+///     (`Card.IsSetCard,…,nil,SET_X`) map through the predicate table;
+///   - `#g` — the length of a mapped `GetMatchingGroup` binding →
+///     `count(<selector>)`;
+///   - `Duel.GetLP(tp)` / `Duel.GetLP(1-tp)` → `your_lp` / `opponent_lp`
+///     (the compiler reads both relative to the effect player);
+///   - lua floor division `//` → DSL `/` (integer division on the
+///     non-negative stat values both engines carry);
+///   - `math.ceil(<atom>/N)` → `(<atom> + N-1) / N`, the exact integer
+///     identity (the grammar has no `ceil()` fn — T38 S1 backlog).
+fn parse_lua_value_ctx(arg: &str, cx: &ValueCtx<'_>) -> Option<ParsedValue> {
+    let bindings = cx.bindings;
+    // Lua `//` (floor division) and `/` both lower to the DSL's integer
+    // `/`: stat values are non-negative ints, where floor == truncate.
+    let normalized = arg.replace("//", "/");
+    let arg = normalized.trim();
 
     // Unary minus — recurse and flip sign. Only when the remainder is a
     // single atom: `-a + b` must NOT parse as -(a + b), so anything with
@@ -8955,7 +9064,7 @@ fn parse_lua_value(arg: &str, bindings: &BTreeMap<String, String>) -> Option<Par
         if !rest.is_empty() && !rest.starts_with('-')
             && split_top_level_binop(rest).is_none()
         {
-            let inner = parse_lua_value(rest, bindings)?;
+            let inner = parse_lua_value_ctx(rest, cx)?;
             return Some(ParsedValue { expr: inner.expr, negative: !inner.negative });
         }
     }
@@ -8971,7 +9080,7 @@ fn parse_lua_value(arg: &str, bindings: &BTreeMap<String, String>) -> Option<Par
     // Identifier — resolve via local-var bindings (one level of indirection).
     if arg.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') && !arg.is_empty() {
         if let Some(rhs) = bindings.get(arg) {
-            return parse_lua_value(rhs, bindings);
+            return parse_lua_value_ctx(rhs, cx);
         }
     }
 
@@ -8980,9 +9089,53 @@ fn parse_lua_value(arg: &str, bindings: &BTreeMap<String, String>) -> Option<Par
         return Some(ParsedValue { expr: stat, negative: false });
     }
 
-    // Group-count calls → DSL `count(<selector>)` (Phase 10).
-    if let Some(expr) = count_call_to_count_expr(arg) {
+    // Group-count calls → DSL `count(<selector>)` (Phase 10; named and
+    // extra-arg filters since T39 S1).
+    if let Some(expr) = count_call_to_count_expr(arg, cx.functions) {
         return Some(ParsedValue { expr, negative: false });
+    }
+
+    // T39 S1 — `#g`: the length of a mapped group binding IS the count
+    // of its selector. Select-provenance groups (`#g` of a pick) and
+    // specs with extra filter args (which the where-clause never sees)
+    // stay unexpressible.
+    if let Some(name) = arg.strip_prefix('#') {
+        let name = name.trim();
+        // A bare group name only — `#g*200` falls through to the binop
+        // splitter, which re-enters here with `#g`.
+        if !name.is_empty() && name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
+            let spec = cx.groups.get(name)?;
+            if !spec.filter_mapped
+                || spec.quantity != "all"
+                || spec.from_resolve_select
+                || spec.filter_extra.iter().any(|x| x.trim() != "nil")
+            {
+                return None;
+            }
+            return Some(ParsedValue { expr: format!("count({})", spec.to_dsl()), negative: false });
+        }
+    }
+
+    // T39 S1 — life-point reads. `tp` is the effect player in every
+    // operation handler, which is exactly what the compiler resolves
+    // `your_lp` / `opponent_lp` against.
+    match arg {
+        "Duel.GetLP(tp)" => return Some(ParsedValue { expr: "your_lp".to_string(), negative: false }),
+        "Duel.GetLP(1-tp)" => return Some(ParsedValue { expr: "opponent_lp".to_string(), negative: false }),
+        _ => {}
+    }
+
+    // T39 S1 — `math.ceil(<atom>/N)`. For a non-negative integer x,
+    // ceil(x/N) == (x + N - 1) div N, so the lowering is exact under the
+    // compiler's integer division. The operand must be a plain
+    // non-negative atom (a nested op would need the paren group the
+    // atom itself already spends).
+    if let Some(v) = arg
+        .strip_prefix("math.ceil(")
+        .and_then(|r| r.strip_suffix(')'))
+        .and_then(|inner| ceil_div_to_expr(inner, cx))
+    {
+        return Some(v);
     }
 
     // Single-step binary math: `<lhs> <op> <rhs>` split at the last
@@ -8991,8 +9144,8 @@ fn parse_lua_value(arg: &str, bindings: &BTreeMap<String, String>) -> Option<Par
     // resolve to op-free atoms; multi-op expressions are skipped because
     // the DSL's flat expr chain would not preserve Lua's precedence.
     if let Some((lhs, op, rhs)) = split_top_level_binop(arg) {
-        let l = parse_lua_value(lhs, bindings)?;
-        let r = parse_lua_value(rhs, bindings)?;
+        let l = parse_lua_value_ctx(lhs, cx)?;
+        let r = parse_lua_value_ctx(rhs, cx)?;
         if expr_has_op(&l.expr) || expr_has_op(&r.expr) { return None; }
         return match op {
             // `x * 1` / `1 * x` — common lua sign-flip idiom
@@ -9020,6 +9173,25 @@ fn parse_lua_value(arg: &str, bindings: &BTreeMap<String, String>) -> Option<Par
     }
 
     None
+}
+
+/// T39 S1 — the argument of a `math.ceil(…)` call, already stripped of
+/// the call parens: `<atom> / N` (N ≥ 2 literal) → `(<atom> + N-1) / N`.
+/// None (so the caller falls through to the generic splitter) for an
+/// unbalanced argument (`math.ceil(a)/2+(b)` strips to `a)/2+(b`), a
+/// non-division, a non-literal divisor, or a nested-op dividend.
+fn ceil_div_to_expr(inner: &str, cx: &ValueCtx<'_>) -> Option<ParsedValue> {
+    if split_top_level_commas(inner)?.len() != 1 { return None; }
+    let (lhs, op, rhs) = split_top_level_binop(inner)?;
+    if op != '/' { return None; }
+    let n: u64 = rhs.trim().parse().ok()?;
+    if n < 2 { return None; }
+    let x = parse_lua_value_ctx(lhs, cx)?;
+    if x.negative || expr_has_op(&x.expr) { return None; }
+    Some(ParsedValue {
+        expr: format!("({} + {}) / {}", x.expr, n - 1, n),
+        negative: false,
+    })
 }
 
 /// True when a rendered DSL expr already contains a binary operator —
@@ -9068,13 +9240,19 @@ fn split_top_level_binop(arg: &str) -> Option<(&str, char, &str)> {
 /// semantics, so unlike the action-selector path the filter must map to
 /// a selector the DSL can express. `map_group_filter` covers the stock
 /// names plus (since T38 S1) or-free `aux.FaceupFilter(…)` compositions;
-/// custom `s.filter` predicates and card-code filters still return None
-/// (no function table reaches this seam — S1b backlog). The scope player
-/// must be `tp` (or `1-tp`, which flips the controller), the locations
-/// must collapse to a single DSL zone, and the exception arg must be
-/// `nil` or the handler card (`except self`) — any other exclusion
-/// would silently inflate the count.
-fn count_call_to_count_expr(arg: &str) -> Option<String> {
+/// since T39 S1 a named `s.filter` resolves through the walked function
+/// table (same exactness gate as the group-modifier refinement — a
+/// filter taking extra params skips) and a stock predicate with ONE
+/// trailing filter arg (`Card.IsSetCard,…,nil,SET_X`) maps through the
+/// predicate table. Card-code filters still return None (name lookup —
+/// backlog). The scope player must be `tp` (or `1-tp`, which flips the
+/// controller), the locations must collapse to a single DSL zone, and
+/// the exception arg must be `nil` or the handler card (`except self`)
+/// — any other exclusion would silently inflate the count.
+fn count_call_to_count_expr(
+    arg: &str,
+    functions: &BTreeMap<String, FunctionBody>,
+) -> Option<String> {
     let (is_field, inner) =
         if let Some(rest) = arg.strip_prefix("Duel.GetMatchingGroupCount(") {
             (false, rest)
@@ -9092,7 +9270,14 @@ fn count_call_to_count_expr(arg: &str) -> Option<String> {
     } else {
         // GetMatchingGroupCount(filter, player, my_locs, opp_locs, exception, …)
         if args.len() < 5 { return None; }
-        let (kind, wc) = map_group_filter(args[0].as_str())?;
+        let extras = args.get(5..).unwrap_or_default();
+        let (kind, wc) = map_group_filter_with_extras(args[0].as_str(), extras)
+            .or_else(|| {
+                // Named filter: only the parameterless form — a trailing
+                // arg is a filter PARAM the where-clause can't see.
+                if extras.iter().any(|x| x.trim() != "nil") { return None; }
+                named_filter_to_where(args[0].as_str(), functions).map(|wc| ("card", Some(wc)))
+            })?;
         (kind, wc, args[1].as_str(), args[2].as_str(), args[3].as_str(), args.get(4).map(String::as_str))
     };
     let except_self = match classify_exception(exception) {
@@ -9168,6 +9353,9 @@ fn method_call_to_stat(arg: &str) -> Option<String> {
         "GetBaseDefense()" => "base_def",
         "GetLevel()"  => "level",
         "GetRank()"   => "rank",
+        // T39 S1 — link rating (Accesscode Talker's `GetLink()*1000`);
+        // `link` is a grammar stat_field alongside level/rank.
+        "GetLink()"   => "link",
         // T38 S1 — the grammar's overlay_count_ref accepts ONLY the
         // `self.` receiver (T34 shape); a `target.overlay_count` would
         // fail the corpus check, so `tc:GetOverlayCount()` skips.
@@ -9175,6 +9363,25 @@ fn method_call_to_stat(arg: &str) -> Option<String> {
         _ => return None,
     };
     Some(format!("{}.{}", recv, stat))
+}
+
+/// T39 S1 — true when a value-side `tc:` read in this body names the
+/// effect's declared target: `local tc=Duel.GetFirstTarget()` or
+/// `local tc=<g>:GetFirst()` over `local g=Duel.GetTargetCards(e)`.
+/// `method_call_to_stat` lowers every `tc:Get<Stat>()` to
+/// `target.<stat>` on spelling alone; the receiver path has always
+/// gated bare `tc` on this provenance (Eternal Dread), and a `tc` bound
+/// from `Duel.GetAttacker()` / `e:GetLabelObject()` / a resolve-time
+/// select is a different card on the value side too.
+fn value_tc_is_declared_target(body: &FunctionBody) -> bool {
+    match body.value_bindings.get("tc") {
+        Some(rhs) if rhs.starts_with("Duel.GetFirstTarget(") => true,
+        Some(rhs) => rhs
+            .strip_suffix(":GetFirst()")
+            .and_then(|g| body.value_bindings.get(g))
+            .is_some_and(|r| r.starts_with("Duel.GetTargetCards(")),
+        None => false,
+    }
 }
 
 /// Map a `SetReset(reset, count)` pair to a DSL `duration` keyword by
@@ -19773,6 +19980,352 @@ end
         assert_eq!(actions.len(), 1, "interference guard should drop chain 2's line");
         // …so the gate must flag the body as dropping content.
         assert!(body_drops_chains(body, &report.functions));
+    }
+
+    // ── T39 S1 — stat-chip decode widening ──────────────────────
+
+    #[test]
+    fn t39s1_named_filter_count_product() {
+        // c23603403 Raidraptor shape: the count's filter is a named
+        // script-local predicate (SetCard ∧ IsMonster) — resolved through
+        // the function table, product with a negative factor.
+        let src = r#"
+function s.atkfilter(c)
+    return c:IsSetCard(SET_RAIDRAPTOR) and c:IsMonster()
+end
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+        local ct=Duel.GetMatchingGroupCount(s.atkfilter,tp,LOCATION_GRAVE,0,nil)
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(ct*-800)
+        e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.atkop"),
+            vec![r#"modify_atk target - count((all, card, you control, from gy, where archetype == "Raidraptor" and is_monster)) * 800 until while_face_up"#],
+        );
+    }
+
+    #[test]
+    fn t39s1_named_filter_count_with_param_skips() {
+        // A named filter that takes a trailing param (`s.filter(c,lv)`)
+        // threads the extra arg INTO the predicate — the where-clause
+        // can't see it, so the count must skip (not count a superset).
+        let src = r#"
+function s.filter(c,lv)
+    return c:IsFaceup() and c:GetLevel()>lv
+end
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local ct=Duel.GetMatchingGroupCount(s.filter,tp,LOCATION_MZONE,0,nil,4)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(ct*300)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert!(p11_actions(src, "s.atkop").is_empty());
+    }
+
+    #[test]
+    fn t39s1_stock_filter_extra_arg_count() {
+        // c15169262-style value: a stock predicate whose argument rides
+        // as the call's trailing filter arg (`Card.IsSetCard,…,nil,SET_LAVAL`).
+        let src = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local atk=Duel.GetMatchingGroupCount(Card.IsSetCard,tp,LOCATION_GRAVE,0,nil,SET_LAVAL)*200
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(atk)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.atkop"),
+            vec![r#"modify_atk self + count((all, card, you control, from gy, where archetype == "Laval")) * 200 until end_of_turn"#],
+        );
+        // Two extras, or a predicate outside the table (IsCode needs a
+        // name lookup), poison the count.
+        assert!(map_group_filter_with_extras("Card.IsSetCard", &["SET_LAVAL".into(), "SET_GUSTO".into()]).is_none());
+        assert!(map_group_filter_with_extras("Card.IsCode", &["32679370".into()]).is_none());
+        assert!(map_group_filter_with_extras("Card.IsPosition", &["POS_FACEUP_ATTACK".into()]).is_none());
+    }
+
+    #[test]
+    fn t39s1_group_length_count() {
+        // c1689516 The Big March of Animals: `#g*200` over the SAME
+        // mapped group the loop applies to → count(<selector>) * 200.
+        let src = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(aux.FaceupFilter(Card.IsRace,RACE_BEAST),tp,LOCATION_MZONE,0,nil)
+    local atk=#g*200
+    local c=e:GetHandler()
+    for tc in g:Iter() do
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(atk)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.activate"),
+            vec!["modify_atk (all, card, you control, from monster_zone, where is_face_up and race == Beast) + count((all, card, you control, from monster_zone, where is_face_up and race == Beast)) * 200 until end_of_turn"],
+        );
+    }
+
+    #[test]
+    fn t39s1_group_length_unmapped_or_select_skips() {
+        // `#g` of an unmapped-filter group (custom predicate the table
+        // can't resolve) and `#g` of a resolve-time pick both skip.
+        let unmapped = r#"
+function s.filter(c)
+    return c:IsFaceup() and c:GetBattledGroup():IsContains(c)
+end
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local g=Duel.GetMatchingGroup(s.filter,tp,LOCATION_MZONE,0,nil)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(#g*200)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert!(p11_actions(unmapped, "s.activate").is_empty());
+        let picked = r#"
+function s.activate(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local g=Duel.SelectMatchingCard(tp,Card.IsFaceup,tp,LOCATION_MZONE,0,1,3,nil)
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(#g*200)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert!(p11_actions(picked, "s.activate").is_empty());
+    }
+
+    #[test]
+    fn t39s1_has_level_predicate_in_named_filter() {
+        // c7593748 Gimmick Puppet Gigantes Doll: HasLevel ∧ not IsLevel(8)
+        // → the three-atom "has a level" form plus a negated exact atom.
+        let src = r#"
+function s.lvfilter(c)
+    return c:IsFaceup() and c:HasLevel() and not c:IsLevel(8)
+end
+function s.lvop(e,tp,eg,ep,ev,re,r,rp)
+    local g=Duel.GetMatchingGroup(s.lvfilter,tp,LOCATION_MZONE,0,nil)
+    for tc in aux.Next(g) do
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_CHANGE_LEVEL)
+        e1:SetValue(8)
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.lvop"),
+            vec!["set_level (all, card, you control, from monster_zone, where is_face_up and is_monster and not is_xyz and not is_link and not level == 8) 8 until end_of_turn"],
+        );
+        // `not c:HasLevel()` would need a paren group around the
+        // three-atom expansion — the flat chain can't carry it.
+        assert!(lua_filter_expr_to_where("not c:HasLevel()", "c").is_none());
+    }
+
+    #[test]
+    fn t39s1_has_nonzero_attack_stock_filter() {
+        // c29439831 Morgana: stock `Card.HasNonZeroAttack` group, ATK → 0.
+        let src = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local g=Duel.GetMatchingGroup(Card.HasNonZeroAttack,tp,0,LOCATION_MZONE,nil)
+    for tc in g:Iter() do
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+        e1:SetValue(0)
+        e1:SetReset(RESET_EVENT|RESETS_STANDARD)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.atkop"),
+            vec!["set_atk (all, card, opponent controls, from monster_zone, where is_face_up and atk > 0) 0 until while_face_up"],
+        );
+    }
+
+    #[test]
+    fn t39s1_lp_values() {
+        // c7845138 Endless Decay: ATK becomes half the opponent's LP;
+        // c83257450 Exodia Incarnate: gains ATK equal to your LP.
+        let decay = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    if c:IsFaceup() and c:IsRelateToEffect(e) then
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+        e1:SetValue(Duel.GetLP(1-tp)/2)
+        e1:SetReset(RESET_EVENT|RESETS_STANDARD_DISABLE)
+        c:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(decay, "s.atkop"),
+            vec!["set_atk self opponent_lp / 2 until while_face_up"],
+        );
+        let exodia = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(Duel.GetLP(tp))
+    e1:SetReset(RESET_EVENT|RESETS_STANDARD_DISABLE)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p11_actions(exodia, "s.atkop"),
+            vec!["modify_atk self + your_lp until while_face_up"],
+        );
+        // Any other player arg (`ep`, a literal) stays unexpressible.
+        assert!(parse_lua_value("Duel.GetLP(ep)", &BTreeMap::new()).is_none());
+    }
+
+    #[test]
+    fn t39s1_floor_div_and_link_rating() {
+        // c44839512 Linear Magnum: `tc:GetAttack()//2` (lua floor div);
+        // c86066372 Accesscode Talker: `tc:GetLink()*1000`.
+        let half = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    local c=e:GetHandler()
+    if tc:IsFaceup() and tc:IsRelateToEffect(e) then
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(tc:GetAttack()//2)
+        e1:SetReset(RESETS_STANDARD_DISABLE_PHASE_END)
+        c:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(half, "s.atkop"),
+            vec!["modify_atk self + target.atk / 2 until end_of_turn"],
+        );
+        let link = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetFirstTarget()
+    if c:IsFaceup() and tc:IsRelateToEffect(e) then
+        local e1=Effect.CreateEffect(c)
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_UPDATE_ATTACK)
+        e1:SetValue(tc:GetLink()*1000)
+        e1:SetReset(RESET_EVENT|RESETS_STANDARD_DISABLE)
+        c:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(link, "s.atkop"),
+            vec!["modify_atk self + target.link * 1000 until while_face_up"],
+        );
+    }
+
+    #[test]
+    fn t39s1_ceil_half_lowers_to_integer_identity() {
+        // c12097275 / c78229193: `math.ceil(tc:GetBaseAttack()/2)` →
+        // (base_atk + 1) / 2, exact under integer division.
+        let src = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local tc=Duel.GetFirstTarget()
+    if tc:IsRelateToEffect(e) and tc:IsFaceup() then
+        local e1=Effect.CreateEffect(e:GetHandler())
+        e1:SetType(EFFECT_TYPE_SINGLE)
+        e1:SetCode(EFFECT_SET_ATTACK_FINAL)
+        e1:SetValue(math.ceil(tc:GetBaseAttack()/2))
+        e1:SetReset(RESETS_STANDARD_PHASE_END)
+        tc:RegisterEffect(e1)
+    end
+end
+"#;
+        assert_eq!(
+            p11_actions(src, "s.atkop"),
+            vec!["set_atk target (target.base_atk + 1) / 2 until end_of_turn"],
+        );
+        let b = BTreeMap::new();
+        assert_eq!(
+            parse_lua_value("math.ceil(c:GetAttack()/3)", &b).map(|v| v.expr).as_deref(),
+            Some("(self.atk + 2) / 3"),
+        );
+        // Non-division, non-literal divisor, nested op, or an unbalanced
+        // argument all skip.
+        assert!(parse_lua_value("math.ceil(c:GetAttack()*2)", &b).is_none());
+        assert!(parse_lua_value("math.ceil(c:GetAttack()/ct)", &b).is_none());
+        assert!(parse_lua_value("math.ceil((c:GetAttack()+c:GetDefense())/2)", &b).is_none());
+        assert!(parse_lua_value("math.ceil(c:GetAttack())/2+(1)", &b).is_none());
+    }
+
+    #[test]
+    fn t39s1_value_side_target_provenance_gate() {
+        // A `tc` bound from Duel.GetAttacker() is NOT the declared target:
+        // `tc:GetAttack()` must not lower to `target.atk` on the value
+        // side (the receiver path has always refused the same `tc`).
+        let attacker = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local tc=Duel.GetAttacker()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(tc:GetAttack()//2)
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert!(p11_actions(attacker, "s.atkop").is_empty());
+        // The declared-target group's first member is the target.
+        let target_group = r#"
+function s.atkop(e,tp,eg,ep,ev,re,r,rp)
+    local c=e:GetHandler()
+    local g=Duel.GetTargetCards(e)
+    local tc=g:GetFirst()
+    local e1=Effect.CreateEffect(c)
+    e1:SetType(EFFECT_TYPE_SINGLE)
+    e1:SetCode(EFFECT_UPDATE_ATTACK)
+    e1:SetValue(tc:GetAttack())
+    e1:SetReset(RESETS_STANDARD_PHASE_END)
+    c:RegisterEffect(e1)
+end
+"#;
+        assert_eq!(
+            p11_actions(target_group, "s.atkop"),
+            vec!["modify_atk self + target.atk until end_of_turn"],
+        );
     }
 
     // ── T38 S6 — card-method ops ────────────────────────────────
